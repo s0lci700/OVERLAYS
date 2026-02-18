@@ -1,0 +1,21 @@
+### Get all characters
+GET http://localhost:3000/api/characters
+
+### Update HP
+PUT http://localhost:3000/api/characters/char1/hp
+Content-Type: application/json
+
+{
+  "hp_current": 20
+}
+
+### ROLL DICE
+POST http://localhost:3000/api/rolls 
+Content-Type: application/json
+
+{
+  "charId": "char1",
+  "result": 15,
+  "modifier": 2
+}
+
