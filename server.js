@@ -4,8 +4,8 @@ const http = require('http')
 const { Server } = require('socket.io');
 const app = express();
 const httpServer = http.createServer(app);
-const LOCALPORT = 3000;
-const CP_PORT = 5173;
+const serverPort = 'http://192.168.1.82:3000';
+const controlPanelPort = 'http://192.168.1.82:5173';
 
 let characters = [
   { id: 'char1', name: 'El verdadero', player: 'Lucas', hp_current: 28, hp_max: 35 },
@@ -20,14 +20,15 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
+    console.log('A user connected: ' + socket.id);
     socket.emit('initialData', { characters, rolls });
 });
 
-httpServer.listen(LOCALPORT, () => {
-  console.log(`Server is running on port ${LOCALPORT}`);
+httpServer.listen(serverPort.slice(-4), () => {
+  console.log(`Server is running on port ${serverPort.slice(-4)}`);
 });
 
-app.use(cors({origin: `http://localhost:${CP_PORT}`}));
+app.use(cors({origin: '*'}));
 app.use(express.json());
 
 // io connection
@@ -56,10 +57,11 @@ app.put('/api/characters/:id/hp', (req, res) => {
 });
 
 app.post('/api/rolls', (req, res) => {
-    const { charId, result } = req.body;
+    const { charId, result, sides } = req.body;
     const modifier = req.body.modifier ?? 0;
     const rollResult = result + modifier;
     rolls.push({ charId, result, modifier, rollResult });
-    io.emit('dice_rolled', { charId, result, modifier, rollResult });
-    return res.status(201).json({ charId, rollResult });
+    io.emit('dice_rolled', { charId, result, modifier, rollResult, sides });
+    console.log('Roll received:', req.body);
+    return res.status(201).json({ charId, rollResult, sides });
 });

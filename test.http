@@ -16,6 +16,6 @@ Content-Type: application/json
 {
   "charId": "char1",
   "result": 15,
-  "modifier": 2
+  "modifier":-40
 }
 

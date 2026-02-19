@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>DADOS & RISAS - Dice Overlay</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            background: transparent;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        #dice-container {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+        }
+
+        #dice-container.show {
+            display: block;
+            animation: popIn 0.3s ease;
+        }
+
+        .dice-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            padding: 20px 40px;
+            text-align: center;
+            min-width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .dice-character {
+            color: #AAA;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .dice-formula {
+            color: #FFD700;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .dice-result {
+            color: white;
+            font-size: 72px;
+            font-weight: bold;
+            line-height: 1;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .dice-result.crit {
+            color: #44ff44;
+            text-shadow: 0 0 20px #44ff44;
+        }
+
+        .dice-result.fail {
+            color: #ff4444;
+            text-shadow: 0 0 20px #ff4444;
+        }
+
+        .dice-label {
+            color: #AAA;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            70% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .hiding {
+            animation: fadeOut 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div id="dice-container">
+        <div class="dice-card">
+            <div class="dice-character" id="char-name">—</div>
+            <div class="dice-formula" id="dice-formula">d20</div>
+            <div class="dice-result" id="dice-result">—</div>
+            <div class="dice-label" id="dice-label">—</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+        const socket = io('http://localhost:3000');
+        const container = document.getElementById('dice-container');
+        const charName = document.getElementById('char-name');
+        const diceFormula = document.getElementById('dice-formula');
+        const diceResult = document.getElementById('dice-result');
+        const diceLabel = document.getElementById('dice-label');
+
+        let hideTimer = null;
+
+        function showRoll(data) {
+            // Clear any existing timer
+            if (hideTimer) clearTimeout(hideTimer);
+            container.classList.remove('hiding');
+
+            // Populate content
+            charName.textContent = data.charId;
+            diceFormula.textContent = `d${data.sides ?? '?'}`;
+            diceResult.textContent = data.rollResult;
+
+            // Crit/fail detection (assumes d20)
+            diceResult.className = 'dice-result';
+            if (data.rollResult === 20) {
+                diceResult.classList.add('crit');
+                diceLabel.textContent = '¡CRÍTICO!';
+            } else if (data.rollResult === 1) {
+                diceResult.classList.add('fail');
+                diceLabel.textContent = '¡PIFIA!';
+            } else {
+                diceLabel.textContent = `Total: ${data.rollResult}`;
+            }
+
+            // Show then auto-hide after 4 seconds
+            container.classList.add('show');
+            hideTimer = setTimeout(() => {
+                container.classList.add('hiding');
+                setTimeout(() => {
+                    container.classList.remove('show', 'hiding');
+                }, 500);
+            }, 4000);
+        }
+
+        socket.on('dice_rolled', (data) => {
+            console.log('Dice rolled:', data);
+            showRoll(data);
+        });
+
+        socket.on('connect', () => console.log('Dice overlay connected'));
+        socket.on('connect_error', (e) => console.error('Connection error:', e));
+    </script>
+</body>
+</html>
