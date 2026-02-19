@@ -21,8 +21,7 @@ Control Panel (Svelte + Vite) :5173
 
 OBS Overlays (vanilla HTML/CSS/JS)
   ├── public/overlay-hp.html       — HP bars (always visible)
-  ├── public/overlay-dice.html     — Dice result popup
-  └── public/overlay-odds.html     — Tonybet odds tracker
+  └── public/overlay-dice.html     — Dice result popup (working ✅)
 ```
 
 ## Tech Stack
@@ -34,10 +33,9 @@ OBS Overlays (vanilla HTML/CSS/JS)
 | Event | Direction | Payload |
 |---|---|---|
 | `connection` | server→client | — |
-| `initial_state` | server→client | characters array |
-| `hp_updated` | server→all | updated character |
-| `dice_rolled` | server→all | roll data |
-| `character_updated` | server→all | updated character |
+| `initialData` | server→client | `{ characters, rolls }` |
+| `hp_updated` | server→all | `{ character, hp_current }` |
+| `dice_rolled` | server→all | `{ charId, result, modifier, rollResult, sides }` |
 
 ## API Endpoints
 - `GET  /api/characters` — return all characters
@@ -77,11 +75,19 @@ OVERLAYS/
 ├── ROADMAPS/
 │   ├── COMPLETE_DEVELOPMENT_ROADMAP.docx
 │   └── CRASH_COURSE_3_DAY_DEMO.docx
-├── server.js            (to be created)
-├── package.json         (to be created)
+├── server.js
+├── package.json
 ├── public/
-│   └── overlay-hp.html  (to be created)
-└── control-panel/       (Svelte app, to be created)
+│   ├── overlay-hp.html
+│   └── overlay-dice.html
+└── control-panel/
+    └── src/
+        ├── App.svelte
+        ├── main.js
+        └── lib/
+            ├── socket.js           ← hardcoded server IP here
+            ├── CharacterCard.svelte
+            └── DiceRoller.svelte
 ```
 
 ## Common Debug Steps
@@ -96,3 +102,16 @@ OVERLAYS/
 - Use `data-char-id` attributes on HP bar elements for easy DOM targeting
 - For phone testing: use `--host` flag with Vite, connect to server IP not localhost
 - PRAGMA foreign_keys=ON if using SQLite
+
+## Actual Implementation (as-built — differs from spec above)
+- Server event on connection: `initialData` (not `initial_state`)
+- Characters in code: `El verdadero` (char1, Lucas) / `B12` (char2, Sol) — not El Pato / Rosa
+- Socket.io CDN version in use: `4.8.3` (in `overlay-hp.html`, `overlay-dice.html`)
+- Server IP hardcoded in `control-panel/src/lib/socket.js`: update to match your `ipconfig` IPv4
+
+## Running the Project
+- Install deps (first time): `npm install` in root, then `npm install` in `control-panel/`
+- Server: `node server.js` (port 3000)
+- Control panel: `npm run dev -- --host` from `control-panel/` (port 5173)
+- Get local IP on Windows: `ipconfig` → IPv4 Address → update `control-panel/src/lib/socket.js`
+- Both overlays working: `public/overlay-hp.html`, `public/overlay-dice.html`
