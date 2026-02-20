@@ -14,7 +14,7 @@
 | **Why it matters** | ESDH uses generic `overlays.uno`; this is a custom real-time solution |
 | **Advantage** | Mobile HP control + real-time OBS overlays — nothing like this exists for Chilean D&D content |
 | **Email deadline** | Monday Feb 24, 2026 at 8am (pitch email to Héctor) |
-| **Meeting deadline** | Monday Feb 24, 2026 (live pitch) |
+| **Meeting deadline** | ~~Monday Feb 24, 2026~~ **Rescheduled — new date TBD** |
 | **Dev started** | Tuesday Feb 18, 2026 |
 | **Developer** | Sol (technical lead) |
 
@@ -28,7 +28,7 @@
 | Day 2 | Wed Feb 19 | Svelte control panel | ✅ COMPLETE |
 | Day 3 | Thu Feb 20 | Polish + demo video | 🔄 IN PROGRESS |
 | Pitch email | Mon Feb 24 | Email demo to Héctor (8am) | ⏳ PENDING |
-| Pitch meeting | Mon Feb 24 | Live demo at ESDH | ⏳ PENDING |
+| Pitch meeting | ~~Mon Feb 24~~ TBD | Live demo at ESDH | ⚠️ RESCHEDULED |
 
 ---
 
@@ -192,4 +192,4 @@ overlay-hp.html             overlay-dice.html
 
 ---
 
-*Last updated: Thu Feb 20, 2026 — Day 3 in progress*
+*Last updated: Thu Feb 20, 2026 — Day 3 in progress | Pitch meeting rescheduled (TBD)*
