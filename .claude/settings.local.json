@@ -4,7 +4,10 @@
       "Bash(dir:*)",
       "Bash(pip install:*)",
       "Bash(python3 -m pip install:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "WebFetch(domain:esdh.cl)",
+      "WebFetch(domain:yt3.googleusercontent.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate"
     ]
   }
 }

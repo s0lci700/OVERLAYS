@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1920, height=1080">
     <title>DADOS & RISAS - Dice Overlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -11,7 +12,7 @@
             width: 1920px;
             height: 1080px;
             background: transparent;
-            font-family: 'Arial', sans-serif;
+            font-family: system-ui, sans-serif;
             overflow: hidden;
         }
 
@@ -25,60 +26,78 @@
 
         #dice-container.show {
             display: block;
-            animation: popIn 0.3s ease;
+            animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .dice-card {
-            background: rgba(0, 0, 0, 0.85);
-            border: 3px solid #FFD700;
-            border-radius: 15px;
-            padding: 20px 40px;
+            background: rgba(0, 0, 0, 0.92);
+            border: 1px solid rgba(0, 212, 232, 0.4);
+            border-top: 3px solid #00D4E8;
+            border-radius: 12px;
+            padding: 24px 48px;
             text-align: center;
-            min-width: 300px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            min-width: 320px;
+            box-shadow: 4px 4px 0px #00D4E8;
         }
 
         .dice-character {
-            color: #AAA;
-            font-size: 18px;
-            margin-bottom: 5px;
+            color: #888888;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
         }
 
         .dice-formula {
-            color: #FFD700;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            color: #00D4E8;
+            font-family: 'Bebas Neue', 'Impact', sans-serif;
+            font-size: 24px;
+            font-weight: normal;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
         }
 
         .dice-result {
             color: white;
-            font-size: 72px;
-            font-weight: bold;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 80px;
+            font-weight: 700;
             line-height: 1;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+            transition: color 0.2s ease, text-shadow 0.2s ease;
         }
 
         .dice-result.crit {
-            color: #44ff44;
-            text-shadow: 0 0 20px #44ff44;
+            color: #00D4E8;
+            text-shadow: 0 0 24px rgba(0, 212, 232, 0.6);
         }
 
         .dice-result.fail {
-            color: #ff4444;
-            text-shadow: 0 0 20px #ff4444;
+            color: #FF4D6A;
+            text-shadow: 0 0 24px rgba(255, 77, 106, 0.6);
         }
 
         .dice-label {
-            color: #AAA;
-            font-size: 16px;
-            margin-top: 8px;
+            color: #888888;
+            font-family: 'Bebas Neue', 'Impact', sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .dice-label.crit {
+            color: #00D4E8;
+        }
+
+        .dice-label.fail {
+            color: #FF4D6A;
         }
 
         @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.5); }
-            70% { transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
+            0%   { opacity: 0; transform: scale(0.6) translateY(16px); }
+            65%  { transform: scale(1.04) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         @keyframes fadeOut {
@@ -124,11 +143,14 @@
 
             // Crit/fail detection (assumes d20)
             diceResult.className = 'dice-result';
+            diceLabel.className = 'dice-label';
             if (data.rollResult === 20) {
                 diceResult.classList.add('crit');
+                diceLabel.classList.add('crit');
                 diceLabel.textContent = '¡CRÍTICO!';
             } else if (data.rollResult === 1) {
                 diceResult.classList.add('fail');
+                diceLabel.classList.add('fail');
                 diceLabel.textContent = '¡PIFIA!';
             } else {
                 diceLabel.textContent = `Total: ${data.rollResult}`;
