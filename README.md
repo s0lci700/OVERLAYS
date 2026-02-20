@@ -322,7 +322,7 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 ## Pitch
 
 **Target:** ESDH (El Show de Héctor)
-**Email deadline:** Friday Feb 21, 2026
+**Email deadline:** Monday Feb 24, 2026 at 8am
 **Meeting:** Monday Feb 24, 2026
 
 ---

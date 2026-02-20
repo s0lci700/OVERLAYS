@@ -3,7 +3,7 @@
 **Project:** Real-time D&D overlay system for ESDH pitch  
 **Developer:** Sol  
 **Started:** Tuesday, February 18, 2026  
-**Pitch Deadline:** Email Friday Feb 21, Meeting Monday Feb 24
+**Pitch Deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
 
 ---
 
@@ -13,7 +13,7 @@
 
 **Progress:** 33% (Day 1 of 3 complete)
 
-**Confidence Level:** 🟢 High - On track for Friday deadline
+**Confidence Level:** 🟢 High - On track for Monday deadline
 
 ---
 
