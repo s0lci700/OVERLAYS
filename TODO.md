@@ -1,6 +1,6 @@
 # DADOS & RISAS - MVP TODO
 
-**Pitch Deadline:** Email Friday Feb 21, Meeting Monday Feb 24
+**Pitch Deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
 **Current Status:** End of Wednesday Feb 19 — DAY 2 COMPLETE ✅ + BONUS: Both Overlays Fully Working!
 
 ---
@@ -81,7 +81,7 @@
 
 ---
 
-## 📧 FRIDAY FEB 21 — PITCH EMAIL
+## 📧 MONDAY FEB 24 — PITCH EMAIL (8am)
 
 - [ ] Write pitch email to Héctor
 - [ ] Attach/link demo video
@@ -164,7 +164,7 @@ OBS (Overlays) + Other Clients
 **What's Left (Day 3):**
 1. **Optional:** Tailwind CSS styling (for video polish, not required)
 2. **Critical:** Record 2-3 min demo video
-3. **Friday:** Email demo to Héctor
+3. **Monday:** Email demo to Héctor (8am, before meeting)
 4. **Monday:** Live pitch with working demo ready
 
 **You're 95% done. Thursday is just about showing it off on camera!** 🎬

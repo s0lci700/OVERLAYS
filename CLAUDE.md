@@ -3,7 +3,7 @@
 ## Project Overview
 Real-time D&D session management system with OBS overlays for a streaming/recording pitch to ESDH (Hector).
 
-**Pitch deadline:** Email Friday Feb 21, Meeting Monday Feb 24
+**Pitch deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
 
 ## Goal
 Build a working MVP demo proving technical capability to build custom production solutions. Prioritize: working > reliable > fast > beautiful.

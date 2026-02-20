@@ -13,7 +13,7 @@
 | **Goal** | Prove technical capability to ESDH (El Show de Héctor, 400K+ YouTube) |
 | **Why it matters** | ESDH uses generic `overlays.uno`; this is a custom real-time solution |
 | **Advantage** | Mobile HP control + real-time OBS overlays — nothing like this exists for Chilean D&D content |
-| **Email deadline** | Friday Feb 21, 2026 (pitch email to Héctor) |
+| **Email deadline** | Monday Feb 24, 2026 at 8am (pitch email to Héctor) |
 | **Meeting deadline** | Monday Feb 24, 2026 (live pitch) |
 | **Dev started** | Tuesday Feb 18, 2026 |
 | **Developer** | Sol (technical lead) |
@@ -27,7 +27,7 @@
 | Day 1 | Tue Feb 18 | Backend + OBS overlays | ✅ COMPLETE |
 | Day 2 | Wed Feb 19 | Svelte control panel | ✅ COMPLETE |
 | Day 3 | Thu Feb 20 | Polish + demo video | 🔄 IN PROGRESS |
-| Pitch email | Fri Feb 21 | Email demo to Héctor | ⏳ PENDING |
+| Pitch email | Mon Feb 24 | Email demo to Héctor (8am) | ⏳ PENDING |
 | Pitch meeting | Mon Feb 24 | Live demo at ESDH | ⏳ PENDING |
 
 ---
@@ -95,13 +95,13 @@
 
 ---
 
-## 📧 PITCH EMAIL CHECKLIST (Fri Feb 21)
+## 📧 PITCH EMAIL CHECKLIST (Mon Feb 24 — 8am)
 
 - [ ] Write email to Héctor
 - [ ] Attach / link demo video
 - [ ] Mention technical differentiator vs. `overlays.uno`
 - [ ] Request meeting for Monday
-- [ ] Send before EOD Friday
+- [ ] Send before 8am Monday
 
 ---
 
