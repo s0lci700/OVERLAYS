@@ -3,17 +3,19 @@
 **Project:** Real-time D&D overlay system for ESDH pitch  
 **Developer:** Sol  
 **Started:** Tuesday, February 18, 2026  
-**Pitch Deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
+**Pitch Deadline:** Email — original date Monday Feb 24 at 8am (⚠️ Meeting rescheduled — TBD)
 
 ---
 
 ## 📊 OVERALL STATUS
 
-**Current Phase:** Day 1 Complete ✅ → Moving to Day 2
+**Current Phase:** Day 3 - Polish & Demo Recording 🔄
 
-**Progress:** 33% (Day 1 of 3 complete)
+**Progress:** 67% (Days 1 & 2 complete, Day 3 in progress)
 
-**Confidence Level:** 🟢 High - On track for Monday deadline
+**Confidence Level:** 🟢 High - Core MVP complete, demo recording remaining
+
+**⚠️ NOTE:** Pitch meeting has been rescheduled (new date TBD)
 
 ---
 
@@ -85,56 +87,23 @@
 
 ---
 
-## ⏳ DAY 2 PLAN - Wednesday Feb 19, 2026
+## ✅ DAY 2 COMPLETED - Wednesday Feb 19, 2026
 
-### Objective
-Build Svelte control panel for mobile control during gameplay.
+### Svelte Control Panel
 
-### Tasks
+**What was built:**
+- Svelte + Vite app in `control-panel/` with `socket.io-client`
+- `socket.js` — Singleton Socket.io connection, Svelte `characters` & `lastRoll` stores
+- `CharacterCard.svelte` — name/player/HP display, HP bar, Damage/Heal buttons, PUT API call
+- `DiceRoller.svelte` — d4/d6/d8/d10/d12/d20 buttons, character selector, POST API call
 
-**1. Initialize Svelte App (30 min)**
-```bash
-npm create vite@latest control-panel -- --template svelte
-cd control-panel
-npm install
-npm install socket.io-client
-```
-
-**2. Basic Layout (1 hour)**
-- Mobile-first responsive design
-- Header with connection status
-- Character list view
-- Navigation structure
-
-**3. HP Controls (1.5 hours)**
-- Display current/max HP for each character
-- +/- buttons for HP adjustment
-- Optional: slider for quick updates
-- Visual feedback on update
-- Error handling
-
-**4. Socket.io Integration (1 hour)**
-- Connect to `http://localhost:3000`
-- Listen for `initialData` event
-- Listen for `hp_updated` event (for sync across devices)
-- Emit updates via API calls (PUT requests)
-
-**5. Dice Roller (1.5 hours)**
-- d20 roller (minimum)
-- Optional: d4, d6, d8, d10, d12, d100
-- Modifier input (+/- to roll)
-- Roll button with visual feedback
-- POST to `/api/rolls` endpoint
-- Display result
-
-**6. Phone Testing (30 min)**
-- Get local IP: `ipconfig` → IPv4 Address
-- Run with: `npm run dev -- --host`
-- Test from phone browser: `http://192.168.x.x:5173`
-- Verify controls work
-- Verify updates appear in OBS
-
-**Estimated Time:** ~6 hours
+**Testing Results:**
+- ✅ Control panel loads characters from server (`initialData`)
+- ✅ HP updates from phone appear in OBS overlay in <100ms
+- ✅ Dice rolls broadcast to all devices
+- ✅ Real-time two-way sync confirmed across devices
+- ✅ Mobile-ready via `npm run dev -- --host` on LAN (192.168.1.82:5173)
+- ✅ Zero crashes, stable system
 
 ---
 
@@ -314,5 +283,5 @@ Polish demo and prepare pitch materials.
 
 ---
 
-**Last Updated:** Tuesday Feb 18, 2026 - 22:00 CLT  
-**Next Update:** Wednesday Feb 19, 2026 - After Day 2 completion
+**Last Updated:** Friday Feb 20, 2026 - 20:24 CLT  
+**Status:** Day 2 complete ✅ | Day 3 in progress 🔄 | Pitch meeting rescheduled (TBD)
