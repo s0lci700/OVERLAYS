@@ -38,8 +38,9 @@ No solo estoy pitcheando el concepto del show - estoy **construyendo la solució
 - **HOY (Martes 18 Feb):** Día 1 de desarrollo técnico
 - **Miércoles 19 Feb:** Día 2 - control panel
 - **Jueves 20 Feb:** Día 3 - overlay funcionando en OBS
-- **Viernes 21 Feb:** Enviar email a Héctor con pitch + demo
-- **Lunes 24 Feb (tentativo):** Reunión de pitch
+- **Viernes 21 Feb:** ~~Enviar email a Héctor con pitch + demo~~ (reprogramado)
+- **Lunes 24 Feb (8am):** Enviar email a Héctor con pitch + demo
+- **Lunes 24 Feb:** Reunión de pitch
 
 ### **¿Cuál es el estado actual?**
 

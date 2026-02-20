@@ -199,7 +199,7 @@ Compare your pitch slides to this working demo:
 ✅ Tuesday Feb 18  — DAY 1 COMPLETE (Backend + Overlays)
 ✅ Wednesday Feb 19 — DAY 2 COMPLETE (Control Panel)
 ⏳ Thursday Feb 20  — DAY 3 (Polish + Record Demo)
-⏳ Friday Feb 21    — PITCH EMAIL (Attach demo video)
+⏳ Monday Feb 24   — PITCH EMAIL (8am) + PITCH MEETING
 ⏳ Monday Feb 24    — PITCH MEETING
 ```
 
@@ -224,7 +224,7 @@ Compare your pitch slides to this working demo:
 
 **READY FOR:**
 - ✅ Demo video recording (Day 3)
-- ✅ Pitch to ESDH (Friday)
+- ✅ Pitch to ESDH (Monday)
 - ✅ Live demo during meeting (Monday)
 
 ---

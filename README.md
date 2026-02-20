@@ -1,518 +1,336 @@
-# 🎲 DADOS & RISAS - Real-Time D&D Overlay System
+# DADOS & RISAS — Real-Time D&D Overlay System
 
-> Professional overlay system for streaming D&D sessions with real-time HP tracking, dice rolls, and mobile control.
+> A custom-built, production-ready overlay system for live D&D streaming. Control character HP and dice rolls from your phone. Watch it update in OBS instantly.
 
 ![Status](https://img.shields.io/badge/status-MVP%20COMPLETE-brightgreen)
-![Version](https://img.shields.io/badge/version-0.2.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Days](https://img.shields.io/badge/built%20in-2%20days-orange)
+![Stack](https://img.shields.io/badge/stack-Node.js%20%2B%20Svelte%20%2B%20Socket.io-blue)
+![Latency](https://img.shields.io/badge/latency-%3C100ms-success)
+![Built in](https://img.shields.io/badge/built%20in-2%20days-orange)
 
 ---
 
-## 📋 Overview
+## What It Does
 
-**DADOS & RISAS** is a custom-built overlay system designed for D&D livestreaming and recording. Built specifically for the ESDH pitch, this system demonstrates the technical capability to create production-ready solutions for content creators.
+Roll dice on your phone. A animated popup appears on OBS in under a second. Hit someone for damage. The HP bar updates, turns orange, starts pulsing red. No refresh. No lag. No plugins.
 
-**Status:** ✅ **Fully Functional MVP** - Both overlays working in real-time, tested on phone and desktop, integrated with OBS.
+**Everything that works right now:**
 
-**What Works Right Now:**
-- ✅ Roll dice on phone → Dice popup appears on OBS instantly
-- ✅ Roll dice on desktop → Dice popup appears on OBS instantly  
-- ✅ Damage/heal on phone → HP bar updates on OBS instantly
-- ✅ Crit detection (Nat 20 = "¡CRÍTICO!", Nat 1 = "¡PIFIA!")
-- ✅ Multiple clients sync in real-time
-- ✅ Zero crashes, stable system
-
-### Key Features
-
-- 🎮 **Real-time HP Tracking** - Visual HP bars that update instantly (✅ Tested)
-- 🎲 **Live Dice Roll Display** - Rolls immediately appear in OBS with animations (✅ Tested)
-- 📱 **Mobile Control Panel** - Manage game state from any device (✅ Tested on phone)
-- ⚡ **WebSocket Real-Time Sync** - <100ms latency confirmed across devices
-- 🖥️ **OBS/vMix Compatible** - Works with professional streaming software
-- 🎨 **Color-Coded Health States** - Automatic visual feedback (green/yellow/red)
-- ✨ **Crit/Fail Detection** - Nat 20 shows "¡CRÍTICO!" green, Nat 1 shows "¡PIFIA!" red
+| Feature | Status |
+|---|---|
+| HP bars update in real-time | ✅ Working |
+| Dice roll popup (d4–d20) | ✅ Working |
+| Nat 20 → **¡CRÍTICO!** glow | ✅ Working |
+| Nat 1 → **¡PIFIA!** red glow | ✅ Working |
+| Color-coded health states | ✅ Working |
+| Phone control panel | ✅ Working |
+| Multiple clients synced | ✅ Working |
+| OBS-ready transparent overlays | ✅ Working |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│      Control Panel (Phone/Tablet)       │
-│     Svelte + Socket.io Client           │
-│       192.168.1.82:5173                 │
-│  • CharacterCard component              │
-│  • DiceRoller component                 │
-└───────────────────┬─────────────────────┘
-                    │
-            HTTP + WebSocket
-                    ↓
-┌─────────────────────────────────────────┐
-│    Node.js Backend Server (Running)     │
-│  Express + Socket.io + In-Memory Store  │
-│       192.168.1.82:3000                 │
-│  • REST API (GET/PUT/POST)              │
-│  • WebSocket Broadcasting               │
-│  • Character & Roll Storage             │
-└───────────────────┬─────────────────────┘
-                    │
-         WebSocket Broadcast (events)
-         /            |            \
-        /             |             \
-       ↓              ↓              ↓
-    Overlay-HP    Overlay-Dice    Other Clients
-    (OBS)         (OBS)           (Phone/Desktop)
+Phone / Tablet
+  └── Control Panel (Svelte) :5173
+        │
+        │  HTTP PUT + POST
+        ▼
+  Node.js Server (Express + Socket.io) :3000
+        │
+        │  WebSocket broadcast (< 100ms)
+        ├──────────────────────┐
+        ▼                      ▼
+  overlay-hp.html         overlay-dice.html
+  (OBS Browser Source)    (OBS Browser Source)
 ```
+
+One server. Everything connects to it. When you update HP from your phone, the server fires a Socket.io event to every connected client — the OBS overlay updates before you put the phone down.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** (comes with Node.js)
-- **OBS Studio** or **vMix** (optional, for overlays)
+- Node.js 18+ — [nodejs.org](https://nodejs.org)
+- OBS Studio (for overlays) — optional for testing
 
-### Installation
+### 1. Install dependencies
 
 ```bash
-# Clone the repository
-git clone https://github.com/s0lci700/OVERLAYS.git
-cd OVERLAYS
-
-# Install backend dependencies
+# Root (backend)
 npm install
 
-# Install control panel dependencies
-cd control-panel
-npm install socket.io-client
-# (Svelte + Vite already installed)
-
-# Go back to main directory
-cd ..
+# Control panel (frontend)
+cd control-panel && npm install
 ```
 
-### Running the System
+### 2. Configure your local IP
 
-**Terminal 1 - Start the backend server:**
+Both `server.js` and `control-panel/src/lib/socket.js` have the server IP hardcoded. Find your local IP and update it:
+
+```bash
+# Windows
+ipconfig
+
+# macOS / Linux
+ifconfig | grep inet
+```
+
+Replace `192.168.1.82` in these two files:
+
+```
+server.js → const serverPort = 'http://YOUR_IP:3000'
+control-panel/src/lib/socket.js → const serverPort = 'http://YOUR_IP:3000'
+```
+
+### 3. Start everything
+
+**Terminal 1 — Backend:**
 ```bash
 node server.js
-# Output: Server is running on port 3000
+# → Server is running on port 3000
 ```
 
-**Terminal 2 - Start the control panel (for phone access):**
+**Terminal 2 — Control panel (with LAN access for phone):**
 ```bash
 cd control-panel
 npm run dev -- --host
-# Output: VITE v5.x.x  ready in xxx ms
-#         ➜  Local:   http://localhost:5173/
-#         ➜  Network: http://192.168.x.x:5173/
+# → Local:   http://localhost:5173/
+# → Network: http://192.168.x.x:5173/   ← open this on your phone
 ```
 
-**Terminal 3 - Open overlays in OBS:**
-1. Open OBS Studio
-2. Add Source > Browser
-3. For HP Overlay:
-   - Check "Local file"
-   - Browse to: `public/overlay-hp.html`
-   - Set to 1920×1080
-4. For Dice Overlay:
-   - Add another Browser source
-   - Browse to: `public/overlay-dice.html`
-   - Set to 1920×1080
+### 4. Add overlays in OBS
 
-**Access Control Panel:**
-- Desktop: `http://localhost:5173`
-- Phone/Tablet: `http://192.168.x.x:5173` (from `npm run dev -- --host` output)
-
----
-
-## 📖 System Components
-
-### Backend Server (`server.js`)
-- **Port:** 3000 (or as configured)
-- **Tech:** Node.js + Express + Socket.io
-- **Features:**
-  - Character HP storage (in-memory)
-  - Dice roll logging
-  - Real-time event broadcasting
-  - CORS enabled for local network
-
-### Control Panel (`control-panel/src/`)
-- **Tech:** Svelte + Vite + Socket.io-client
-- **Port:** 5173
-- **Components:**
-  - `App.svelte` - Main app, character list
-  - `CharacterCard.svelte` - Per-character HP control (Damage/Heal buttons)
-  - `DiceRoller.svelte` - Dice rolling UI (d4-d20)
-  - `socket.js` - Socket.io singleton with Svelte stores
-
-### Overlays (`public/`)
-
-#### HP Overlay (`overlay-hp.html`)
-- **Display:** Character names, current/max HP, visual HP bars
-- **Colors:**
-  - 🟢 Green: >60% HP (Healthy)
-  - 🟡 Orange: 30-60% HP (Injured)
-  - 🔴 Red: <30% HP (Critical, with pulse animation)
-- **Updates:** Via `hp_updated` Socket.io event
-- **Dimensions:** 1920×1080 (OBS-ready, transparent background)
-
-### 1. Start the Backend Server
-
-```bash
-node server.js
-```
-
-You should see:
-```
-Server is running on port 3000
-```
-
-### 2. Open the HP Overlay
-
-#### In Browser (for testing):
-- Open `public/overlay-hp.html` in your browser
-- Or navigate to: `file:///C:/path/to/OVERLAYS/public/overlay-hp.html`
-
-#### In OBS Studio:
-1. **Add Source** → **Browser**
+1. Add Source → **Browser**
 2. Check **"Local file"**
 3. Browse to `public/overlay-hp.html`
-4. Set dimensions: **Width: 1920**, **Height: 1080**
-5. ✅ Enable **"Refresh browser when scene becomes active"**
-6. ❌ Disable **"Shutdown source when not visible"**
+4. Width: **1920**, Height: **1080**
+5. Enable **"Refresh browser when scene becomes active"**
+6. Disable **"Shutdown source when not visible"**
 
-### 3. Test HP Updates
-
-Open browser console (F12) and run:
-
-```javascript
-fetch('http://localhost:3000/api/characters/char1/hp', {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ hp_current: 15 })
-});
-```
-
-Watch the HP bar update in real-time! 🎉
+Repeat for `public/overlay-dice.html`.
 
 ---
 
-## 🔌 API Reference
+## Project Structure
 
-### REST Endpoints
-
-#### Get All Characters
-```http
-GET /api/characters
+```
+OVERLAYS/
+├── server.js                      # Express + Socket.io backend
+├── package.json
+│
+├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
+│   ├── overlay-hp.html            # HP bars — always visible
+│   └── overlay-dice.html          # Dice popup — appears on roll, auto-hides
+│
+├── control-panel/                 # Svelte + Vite control panel
+│   ├── src/
+│   │   ├── App.svelte             # Root: character list + dice roller
+│   │   ├── lib/
+│   │   │   ├── socket.js          # Socket.io singleton + Svelte stores
+│   │   │   ├── CharacterCard.svelte  # HP controls (Damage / Heal)
+│   │   │   └── DiceRoller.svelte     # d4/d6/d8/d10/d12/d20 buttons
+│   │   └── app.css
+│   ├── vite.config.js
+│   └── package.json
+│
+└── ROADMAPS/                      # Project planning docs
 ```
 
-**Response:**
+---
+
+## API Reference
+
+### `GET /api/characters`
+
+Returns the full character list.
+
 ```json
 [
-  {
-    "id": "char1",
-    "name": "El verdadero",
-    "player": "Lucas",
-    "hp_current": 28,
-    "hp_max": 35
-  }
+  { "id": "char1", "name": "El verdadero", "player": "Lucas", "hp_current": 28, "hp_max": 35 },
+  { "id": "char2", "name": "B12",          "player": "Sol",   "hp_current": 30, "hp_max": 30 }
 ]
 ```
 
-#### Update Character HP
+### `PUT /api/characters/:id/hp`
+
+Updates a character's current HP and broadcasts `hp_updated` to all connected clients.
+
 ```http
-PUT /api/characters/:id/hp
+PUT /api/characters/char1/hp
 Content-Type: application/json
 
-{
-  "hp_current": 20
-}
+{ "hp_current": 15 }
 ```
 
-**Response:** Updated character object
+**Response:** the updated character object.
 
-#### Log Dice Roll
+### `POST /api/rolls`
+
+Logs a dice roll and broadcasts `dice_rolled` to all connected clients.
+
 ```http
 POST /api/rolls
 Content-Type: application/json
 
-{
-  "charId": "char1",
-  "result": 18,
-  "modifier": 3
-}
+{ "charId": "char1", "result": 18, "modifier": 0, "sides": 20 }
 ```
 
 **Response:**
 ```json
-{
-  "charId": "char1",
-  "rollResult": 21
-}
-```
-
-### Socket.io Events
-
-| Event | Direction | Payload | Description |
-|-------|-----------|---------|-------------|
-| `connection` | Server → Client | - | Client connected |
-| `initialData` | Server → Client | `{ characters, rolls }` | Initial state on connect |
-| `hp_updated` | Server → All | `{ character, hp_current }` | HP changed |
-| `dice_rolled` | Server → All | `{ charId, result, modifier, rollResult }` | Dice rolled |
-
----
-
-## 🎨 Overlay Features
-
-### HP Bars
-
-**Health States:**
-- 🟢 **Healthy** (>60% HP) - Green gradient
-- 🟡 **Injured** (30-60% HP) - Orange gradient  
-- 🔴 **Critical** (<30% HP) - Red gradient with pulse animation
-
-**Animations:**
-- Smooth width transitions (0.5s)
-- Color fade effects
-- Pulse animation when critical
-- Status messages on updates
-
----
-
-## 💻 Tech Stack
-
-| Component | Technology | Version |
-|-----------|-----------|---------|
-| **Backend** | Node.js | 18+ |
-| **Server Framework** | Express | 5.2.1 |
-| **Real-time Communication** | Socket.io | 4.8.3 |
-| **CORS Handling** | cors | 2.8.6 |
-| **Frontend (Overlays)** | Vanilla JS | - |
-| **Control Panel** | Svelte + Vite | TBD |
-| **Data Storage** | In-Memory | - |
-
----
-
-## 🗂️ Project Structure
-
-```
-OVERLAYS/
-├── server.js                 # Backend server (Express + Socket.io)
-├── package.json              # Dependencies and scripts
-├── README.md                 # This file
-├── TODO.md                   # Task checklist
-├── PROGRESS.md               # Detailed development log
-├── CLAUDE.md                 # Technical specifications
-├── .gitignore                # Git ignore rules
-│
-├── public/                   # OBS overlay files
-│   └── overlay-hp.html       # HP bars overlay
-│
-└── ROADMAPS/                 # Development roadmaps
-    ├── CRASH_COURSE_3_DAY_DEMO.docx
-    └── COMPLETE_DEVELOPMENT_ROADMAP.docx
+{ "charId": "char1", "rollResult": 18, "sides": 20 }
 ```
 
 ---
 
-## 🎯 Demo Characters
+## Socket.io Events
 
-The system includes two demo characters:
-
-```javascript
-[
-  {
-    id: 'char1',
-    name: 'El verdadero',
-    player: 'Lucas',
-    hp_current: 28,
-    hp_max: 35
-  },
-  {
-    id: 'char2',
-    name: 'B12',
-    player: 'Sol',
-    hp_current: 30,
-    hp_max: 30
-  }
-]
-```
+| Event | Direction | Payload |
+|---|---|---|
+| `initialData` | Server → Client | `{ characters[], rolls[] }` — sent on connect |
+| `hp_updated` | Server → All | `{ character, hp_current }` |
+| `dice_rolled` | Server → All | `{ charId, result, modifier, rollResult, sides }` |
 
 ---
 
-## 🔧 Development
+## Overlay Details
 
-### Running the Server in Dev Mode
+### HP Overlay (`overlay-hp.html`)
+
+Positioned top-right, 1920×1080, transparent background.
+
+| HP % | Color | Effect |
+|---|---|---|
+| > 60% | Green | Healthy |
+| 30–60% | Orange | Injured |
+| < 30% | Red | Critical — pulse animation |
+
+HP bars animate smoothly on every update (0.5s CSS transition). A status message fades in and out when HP changes.
+
+### Dice Overlay (`overlay-dice.html`)
+
+Centered at bottom, hidden by default. Appears with a pop-in animation when a roll comes in, auto-hides after 4 seconds.
+
+| Roll | Effect |
+|---|---|
+| Natural 20 | **¡CRÍTICO!** — green glow |
+| Natural 1  | **¡PIFIA!** — red glow |
+| Everything else | Shows total with fade-out |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Node.js 18, Express 5, Socket.io 4.8 |
+| Control Panel | Svelte 5, Vite 7 |
+| Overlays | Vanilla HTML/CSS/JS (Socket.io via CDN) |
+| Data | In-memory (demo) |
+| Communication | WebSocket via Socket.io |
+
+No database required for the demo. Characters reset when the server restarts — which is fine for a live session.
+
+---
+
+## Debugging
+
+| Problem | Fix |
+|---|---|
+| Overlay not connecting | Check that `server.js` is running on port 3000 |
+| Phone can't reach server | Update IP in `socket.js` and restart Vite with `--host` |
+| OBS overlay blank | Right-click Browser Source → Interact → check console (F12) |
+| HP not updating | Verify the `PUT` request in Network tab, check server logs |
+
+Quick API test:
 
 ```bash
-node server.js
+# Verify server is up
+curl http://localhost:3000/api/characters
+
+# Manual HP update
+curl -X PUT http://localhost:3000/api/characters/char1/hp \
+  -H "Content-Type: application/json" \
+  -d '{"hp_current": 10}'
 ```
-
-### Testing WebSocket Connection
-
-```javascript
-// In browser console
-const socket = io('http://localhost:3000');
-socket.on('connect', () => console.log('Connected!'));
-socket.on('hp_updated', (data) => console.log('HP Update:', data));
-```
-
-### Debugging
-
-1. **Check server logs** - Terminal running `node server.js`
-2. **Browser console** - F12 → Console tab
-3. **Network tab** - F12 → Network → WS (WebSocket frames)
-4. **OBS Interact** - Right-click Browser Source → Interact → Console
 
 ---
 
-## 📱 Mobile Testing (Coming Day 2)
+## Demo Script
 
-To test the control panel on your phone:
+**30 seconds. Phone in hand. OBS visible on second screen.**
 
-1. Find your local IP:
-```bash
-ipconfig  # Windows
-```
-
-2. Start Vite with network access:
-```bash
-npm run dev -- --host
-```
-
-3. Access from phone: `http://192.168.x.x:5173`
+1. Open control panel on phone — show it to camera
+2. Hit "Damage" on El verdadero — watch OBS bar drop and turn orange
+3. Hit it again — bar turns red, starts pulsing
+4. Roll a d20 — dice popup flies in on OBS
+5. If Nat 20: "¡CRÍTICO!" in green
+6. Say: *"Este es solo el MVP — puedo agregar lo que necesiten."*
 
 ---
 
-## 🚧 Roadmap
+## Roadmap
 
-### ✅ Day 1 - Backend + First Overlay (Complete)
+### Done
 - [x] Express + Socket.io server
-- [x] REST API endpoints
-- [x] Real-time WebSocket events
-- [x] HP overlay with animations
-- [x] OBS compatibility verified
+- [x] REST API (characters, HP, rolls)
+- [x] HP overlay with health state animations
+- [x] Dice roll overlay with crit/fail detection
+- [x] Svelte control panel (phone-ready)
+- [x] Real-time sync across all clients
 
-### ⏳ Day 2 - Control Panel (In Progress)
-- [ ] Svelte app initialization
-- [ ] Mobile-first UI
-- [ ] HP control interface
-- [ ] Socket.io client integration
-- [ ] Basic dice roller
+### Day 3 (Polish)
+- [ ] Tailwind CSS styling on control panel
+- [ ] Record 2–3 min demo video
+- [ ] Screenshots for pitch email
 
-### ⏳ Day 3 - Polish + Demo
-- [ ] Visual improvements
-- [ ] End-to-end testing
-- [ ] Demo video recording
-- [ ] Documentation updates
-
-### 🔮 Future Enhancements
-- [ ] SQLite database persistence
-- [ ] Dice roll overlay (overlay-dice.html)
+### Post-Pitch (If Greenlit)
+- [ ] SQLite persistence (survive server restarts)
+- [ ] Character creation UI
 - [ ] Tonybet odds tracker overlay
-- [ ] Character creation interface
-- [ ] Combat log/history
-- [ ] Chilean branding theme
-- [ ] Sound effects
 - [ ] Initiative tracker
+- [ ] Combat log / history
+- [ ] Sound effects
+- [ ] Custom Chilean branding / theme
 
 ---
 
-## 🎬 Demo Script
+## vs. Generic Overlay Tools
 
-**Hook (30s):**
-"This is a real-time overlay system for D&D streaming. Watch this."
-
-**Demo (60s):**
-1. Show control panel on phone
-2. Update HP → See instant OBS update
-3. Show color transitions (green → yellow → red)
-4. Roll dice → Animation appears
-
-**Value Prop (30s):**
-- Designed specifically for D&D
-- Real-time game state tracking
-- Mobile control during gameplay
-- Better than generic overlay services
+| | overlays.uno | DADOS & RISAS |
+|---|---|---|
+| HP tracking | No | Yes |
+| Dice integration | No | Yes |
+| Mobile control | No | Yes |
+| Custom branding | Limited | 100% |
+| D&D game state | No | Full |
+| One-time cost | Monthly fee | Custom build |
 
 ---
 
-## 📊 Advantages vs Alternatives
+## Team
 
-| Feature | overlays.uno | DADOS & RISAS |
-|---------|--------------|---------------|
-| HP Tracking | ❌ No | ✅ Automated |
-| Dice Integration | ❌ No | ✅ Yes |
-| Game State Sync | ❌ No | ✅ Full tracking |
-| Mobile Control | ❌ No | ✅ Yes |
-| Custom Branding | ⚠️ Limited | ✅ 100% custom |
-| D&D-Specific | ❌ No | ✅ Yes |
-| Chilean Market | ❌ No | ✅ Optimized |
-| Cost | $0-15/mo | ✅ One-time build |
+- **Sol** — Developer, Technical Lead
+- **Lucas** — Dungeon Master, Creative Lead
+- **Salvador** — Technical Assistant
+- **Kuminak** — D&D Expert, Workshop Lead
 
 ---
 
-## 🤝 Contributing
+## Pitch
 
-This is currently a pitch/demo project. If you'd like to contribute after the pitch:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
----
-
-## 👥 Team
-
-- **Sol** - Creator, Developer, Technical Lead
-- **Lucas** - Dungeon Master, Creative Lead
-- **Salvador** - Technical Assistant
-- **Kuminak** - D&D Expert, Workshop Leader
-
----
-
-## 📞 Contact
-
-**Pitch Target:** ESDH (El Show de Héctor)  
-**Pitch Deadline:** Friday, February 21, 2026  
-**Meeting:** Monday, February 24, 2026
-
----
-
-## 🎯 Success Criteria
-
-**Technical Demo:**
-- [x] Server runs stable (30+ min)
-- [x] HP updates in OBS <1 second
-- [x] Color transitions working
-- [x] Real-time WebSocket sync
-- [ ] Mobile control functional
-- [ ] Demo video under 3 minutes
-
-**Pitch Success:**
-- Position as technical solution provider
-- Demonstrate custom capabilities
-- Show advantage over generic tools
-- Open conversation for broader collaboration
+**Target:** ESDH (El Show de Héctor)
+**Email deadline:** Monday Feb 24, 2026 at 8am
+**Meeting:** Monday Feb 24, 2026
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for D&D, streaming, and Chilean content creators**
+Built for D&D, streaming, and Chilean content creators.
 
-[Report Bug](https://github.com/s0lci700/OVERLAYS/issues) · [Request Feature](https://github.com/s0lci700/OVERLAYS/issues)
+[Report a bug](https://github.com/s0lci700/OVERLAYS/issues) · [Request a feature](https://github.com/s0lci700/OVERLAYS/issues)
 
 </div>
