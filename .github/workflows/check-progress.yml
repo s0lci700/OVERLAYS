@@ -1,0 +1,79 @@
+name: Check PROGRESS.md Status
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  progress-report:
+    name: Project Progress Report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse and report PROGRESS.md
+        shell: bash
+        run: |
+          FILE="PROGRESS.md"
+
+          if [ ! -f "$FILE" ]; then
+            echo "::error::$FILE not found in repository root."
+            exit 1
+          fi
+
+          # ── Extract key fields ──────────────────────────────────────────────
+          PHASE=$(grep -m1 '^\*\*Current Phase:\*\*' "$FILE" | sed 's/\*\*Current Phase:\*\* //')
+          PROGRESS=$(grep -m1 '^\*\*Progress:\*\*' "$FILE" | sed 's/\*\*Progress:\*\* //')
+          CONFIDENCE=$(grep -m1 '^\*\*Confidence Level:\*\*' "$FILE" | sed 's/\*\*Confidence Level:\*\* //')
+          DEADLINE=$(grep -m1 '^\*\*Pitch Deadline:\*\*' "$FILE" | sed 's/\*\*Pitch Deadline:\*\* //')
+          LAST_UPDATED=$(grep -m1 '^\*\*Last Updated:\*\*' "$FILE" | sed 's/\*\*Last Updated:\*\* //')
+          RESCHEDULED=$(grep -m1 '⚠️.*[Rr]escheduled' "$FILE" || true)
+
+          # ── Count completed / pending day sections ───────────────────────────
+          DAYS_DONE=$(grep -c '^## ✅ DAY' "$FILE" || true)
+          DAYS_PENDING=$(grep -c '^## ⏳ DAY' "$FILE" || true)
+
+          # ── Count checked vs unchecked MVP success criteria ──────────────────
+          CHECKED=$(grep -c '^\- \[x\]' "$FILE" || true)
+          UNCHECKED=$(grep -c '^\- \[ \]' "$FILE" || true)
+
+          # ── Write Job Summary ────────────────────────────────────────────────
+          {
+            echo "## 📊 DADOS & RISAS — Project Status"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| **Current Phase** | ${PHASE:-_not found_} |"
+            echo "| **Progress** | ${PROGRESS:-_not found_} |"
+            echo "| **Confidence** | ${CONFIDENCE:-_not found_} |"
+            echo "| **Pitch Deadline** | ${DEADLINE:-_not found_} |"
+            echo "| **Last Updated** | ${LAST_UPDATED:-_not found_} |"
+            echo ""
+            echo "### Day completion"
+            echo "- ✅ Days completed: **${DAYS_DONE}**"
+            echo "- ⏳ Days still planned: **${DAYS_PENDING}**"
+            echo ""
+            echo "### Checklist items"
+            echo "- ✅ Checked: **${CHECKED}**"
+            echo "- ⬜ Unchecked: **${UNCHECKED}**"
+            if [ -n "$RESCHEDULED" ]; then
+              echo ""
+              echo "> ⚠️ **Note:** The pitch meeting has been rescheduled — check PROGRESS.md for the updated date."
+            fi
+            echo ""
+            echo "---"
+            echo "_Parsed from \`PROGRESS.md\` @ commit \`${GITHUB_SHA:0:7}\` on \`${GITHUB_REF_NAME}\`_"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # ── Also print to log for easy scanning ─────────────────────────────
+          echo "Current Phase   : ${PHASE}"
+          echo "Progress        : ${PROGRESS}"
+          echo "Confidence      : ${CONFIDENCE}"
+          echo "Days completed  : ${DAYS_DONE}"
+          echo "Days planned    : ${DAYS_PENDING}"
+          echo "Checked items   : ${CHECKED}"
+          echo "Unchecked items : ${UNCHECKED}"
