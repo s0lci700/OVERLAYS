@@ -7,7 +7,8 @@
       "Bash(python3:*)",
       "WebFetch(domain:esdh.cl)",
       "WebFetch(domain:yt3.googleusercontent.com)",
-      "mcp__plugin_playwright_playwright__browser_navigate"
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "Bash(git checkout:*)"
     ]
   }
 }
