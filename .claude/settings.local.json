@@ -24,5 +24,29 @@
       "mcp__context7__query-docs",
       "mcp__Claude_Preview__preview_start"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('overlay-')) { console.error('[DEMO GUARD] Editing a live OBS overlay file: ' + f + '. Verify this will not break the demo before proceeding.'); process.exit(1); }\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('server.js') || f.includes('socket.js')) { console.log('[PORT WATCH] Port-sensitive file edited: ' + f.split(/[\\\\/]/).pop() + '. Consider running port-consistency-checker if the IP or port changed.'); }\""
+          }
+        ]
+      }
+    ]
   }
 }

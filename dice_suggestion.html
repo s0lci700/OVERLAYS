@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual D&D Dice Roller</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e24;
+            color: #f1f1f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #e54b4b;
+            margin-bottom: 20px;
+        }
+
+        .controls-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            background-color: #2b2b36;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .controls-container input {
+            background-color: #1e1e24;
+            color: #fff;
+            border: 1px solid #e54b4b;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 1.2rem;
+            width: 70px;
+            text-align: center;
+        }
+
+        .dice-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 700px;
+            margin-bottom: 30px;
+        }
+
+        .die-btn {
+            background-color: #444;
+            color: #fff;
+            border: 2px solid #e54b4b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .die-btn:hover {
+            background-color: #e54b4b;
+            transform: translateY(-2px);
+        }
+
+        .stage {
+            background-color: #2b2b36;
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            margin-bottom: 20px;
+        }
+
+        /* The SVG that holds the die shape and number */
+        .visual-die {
+            width: 150px;
+            height: 150px;
+            transition: stroke 0.3s;
+        }
+
+        .visual-die path, .visual-die polygon, .visual-die rect, .visual-die circle {
+            fill: #1e1e24;
+            stroke: #e54b4b;
+            stroke-width: 3;
+            stroke-linejoin: round;
+        }
+
+        .visual-die text {
+            fill: #fff;
+            font-size: 36px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            dominant-baseline: central;
+            text-anchor: middle;
+        }
+
+        /* The tumbling animation */
+        .rolling-animation {
+            animation: tumble 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes tumble {
+            0% { transform: rotate(0deg) scale(0.5); opacity: 0.5; }
+            50% { transform: rotate(720deg) scale(1.2); opacity: 1; }
+            100% { transform: rotate(1080deg) scale(1); opacity: 1; }
+        }
+
+        .highlight-text {
+            fill: #e54b4b !important;
+            font-size: 42px !important;
+            transition: all 0.2s;
+        }
+
+        .result-info {
+            text-align: center;
+            min-height: 60px;
+        }
+        
+        .result-title { font-size: 1.5rem; color: #fff; margin: 0 0 5px 0; }
+        .math-breakdown { font-size: 1.1rem; color: #aaa; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <h1>Visual Dice Roller</h1>
+
+    <div class="controls-container">
+        <label for="modifier">Modifier:</label>
+        <input type="number" id="modifier" value="0">
+    </div>
+
+    <div class="dice-buttons">
+        <button class="die-btn" onclick="rollVisualDie(4)">d4</button>
+        <button class="die-btn" onclick="rollVisualDie(6)">d6</button>
+        <button class="die-btn" onclick="rollVisualDie(8)">d8</button>
+        <button class="die-btn" onclick="rollVisualDie(10)">d10</button>
+        <button class="die-btn" onclick="rollVisualDie(12)">d12</button>
+        <button class="die-btn" onclick="rollVisualDie(20)">d20</button>
+        <button class="die-btn" onclick="rollVisualDie(100)">d100</button>
+    </div>
+
+    <div class="stage">
+        <svg id="die-svg" class="visual-die" viewBox="0 0 100 100" style="display: none;">
+            <g id="die-shape"></g>
+            <text id="die-number" x="50" y="52">-</text>
+        </svg>
+    </div>
+
+    <div class="result-info">
+        <p class="result-title" id="result-title">Select a die to roll</p>
+        <p class="math-breakdown" id="math-breakdown"></p>
+    </div>
+
+    <script>
+        let isRolling = false;
+
+        // SVG geometry for the different polyhedral dice
+        const shapes = {
+            4: '<polygon points="50,15 90,85 10,85" />',
+            6: '<rect x="20" y="20" width="60" height="60" rx="8" />',
+            8: '<polygon points="50,10 90,50 50,90 10,50" />',
+            10: '<polygon points="50,10 85,45 50,90 15,45" />',
+            12: '<polygon points="50,10 90,38 75,85 25,85 10,38" />',
+            20: '<polygon points="50,10 90,30 90,70 50,90 10,70 10,30" /><polygon points="50,10 70,50 30,50" />',
+            100: '<circle cx="50" cy="50" r="40" />'
+        };
+
+        // Text positioning adjustments so numbers stay perfectly centered inside the specific shapes
+        const textOffsets = { 4: 60, 6: 52, 8: 52, 10: 55, 12: 52, 20: 52, 100: 52 };
+
+        function rollVisualDie(sides) {
+            if (isRolling) return;
+            isRolling = true;
+
+            const modifierInput = document.getElementById('modifier');
+            const modifier = parseInt(modifierInput.value) || 0;
+            const modText = modifier > 0 ? `+${modifier}` : (modifier < 0 ? `${modifier}` : '');
+
+            const svgEl = document.getElementById('die-svg');
+            const shapeContainer = document.getElementById('die-shape');
+            const numberEl = document.getElementById('die-number');
+            const titleEl = document.getElementById('result-title');
+            const mathEl = document.getElementById('math-breakdown');
+
+            // Setup the visual stage
+            svgEl.style.display = 'block';
+            shapeContainer.innerHTML = shapes[sides];
+            numberEl.setAttribute('y', textOffsets[sides]);
+            numberEl.classList.remove('highlight-text');
+            titleEl.innerText = `Rolling d${sides}${modText}...`;
+            mathEl.innerText = '';
+
+            // Restart the animation by removing and re-adding the class
+            svgEl.classList.remove('rolling-animation');
+            void svgEl.offsetWidth; // Trigger DOM reflow to restart CSS animation
+            svgEl.classList.add('rolling-animation');
+
+            let flashes = 0;
+            const interval = setInterval(() => {
+                // Show raw die faces while tumbling (not modified yet)
+                numberEl.textContent = Math.floor(Math.random() * sides) + 1;
+                flashes++;
+
+                // Stop flashing numbers right as the 1-second CSS animation ends
+                if (flashes >= 15) { 
+                    clearInterval(interval);
+                    
+                    const baseRoll = Math.floor(Math.random() * sides) + 1;
+                    const finalTotal = baseRoll + modifier;
+                    
+                    // Display final base number on the physical die
+                    numberEl.textContent = baseRoll; 
+                    numberEl.classList.add('highlight-text');
+                    
+                    // Display math below
+                    titleEl.innerText = `Total: ${finalTotal}`;
+                    if (modifier !== 0) {
+                        const sign = modifier > 0 ? '+' : '-';
+                        mathEl.innerText = `(d${sides} rolled a ${baseRoll}) ${sign} ${Math.abs(modifier)}`;
+                    } else {
+                        mathEl.innerText = `(Base roll: ${baseRoll})`;
+                    }
+                    
+                    isRolling = false;
+                }
+            }, 60); // Speed of number flickering
+        }
+    </script>
+</body>
+</html>
