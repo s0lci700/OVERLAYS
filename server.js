@@ -6,14 +6,28 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
+const os = require("os");
 const { Server } = require("socket.io");
 const app = express();
 const httpServer = http.createServer(app);
 // Configure via .env: PORT (default 3000) and CONTROL_PANEL_ORIGIN (default http://localhost:5173).
 const PORT = parseInt(process.env.PORT || "3000", 10);
-const CONTROL_PANEL_ORIGIN = process.env.CONTROL_PANEL_ORIGIN || "http://localhost:5173";
+const CONTROL_PANEL_ORIGIN =
+  process.env.CONTROL_PANEL_ORIGIN || "http://localhost:5173";
 const characterModule = require("./data/characters");
 const rollsModule = require("./data/rolls");
+
+function getMainIP() {
+  const interfaces = os.networkInterfaces();
+  for (const [, addresses] of Object.entries(interfaces)) {
+    for (const addressInfo of addresses) {
+      if (addressInfo.family === "IPv4" && !addressInfo.internal) {
+        return addressInfo.address;
+      }
+    }
+  }
+  return "127.0.0.1";
+}
 
 // Allow the Svelte control panel and OBS overlay browser sources to connect from different ports.
 const io = new Server(httpServer, {
@@ -33,6 +47,36 @@ io.on("connection", (socket) => {
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  const mainIP = getMainIP();
+  console.log(`[server] Local URL: http://localhost:${PORT}`);
+  console.log(`[server] Network URL: http://${mainIP}:${PORT}`);
+  console.log(`[server] Control panel origin: ${CONTROL_PANEL_ORIGIN}`);
+});
+
+httpServer.on("error", (error) => {
+  if (!error || !error.code) {
+    console.error("[server] Failed to start due to an unknown error.");
+    process.exit(1);
+  }
+
+  if (error.code === "EADDRINUSE") {
+    console.error(`[server] Port ${PORT} is already in use.`);
+    console.error(
+      "[server] Stop the other process using this port, or run with a different PORT (e.g. PORT=3001).",
+    );
+    process.exit(1);
+  }
+
+  if (error.code === "EACCES") {
+    console.error(
+      `[server] Permission denied while trying to use port ${PORT}.`,
+    );
+    console.error("[server] Try a non-privileged port such as 3000 or 3001.");
+    process.exit(1);
+  }
+
+  console.error(`[server] Startup error (${error.code}): ${error.message}`);
+  process.exit(1);
 });
 
 // Parse JSON payloads from the control panel and allow requests from any origin.
@@ -56,8 +100,14 @@ app.get("/api/characters", (req, res) => {
 app.put("/api/characters/:id/hp", (req, res) => {
   const charId = req.params.id;
   const { hp_current } = req.body;
-  if (hp_current === undefined || typeof hp_current !== "number" || !Number.isFinite(hp_current)) {
-    return res.status(400).json({ error: "hp_current must be a finite number" });
+  if (
+    hp_current === undefined ||
+    typeof hp_current !== "number" ||
+    !Number.isFinite(hp_current)
+  ) {
+    return res
+      .status(400)
+      .json({ error: "hp_current must be a finite number" });
   }
   const character = characterModule.updateHp(charId, hp_current);
   if (!character) return res.status(404).json({ error: "Character not found" });

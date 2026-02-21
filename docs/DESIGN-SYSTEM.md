@@ -142,6 +142,18 @@ Base button used by damage/heal/rest buttons:
 - Border: 1px solid
 - Active state: translates 3px right+down, removes shadow (press effect)
 
+### CharacterCard component + styles
+The control panel imports `control-panel/src/lib/CharacterCard.css` directly inside `CharacterCard.svelte`, so every class listed below maps one-to-one with the markup in the same file:
+- `.char-card` and `.hit-flash` wrap the `<article>` and damage overlay that the script animates via `hitFlashEl`.
+- `.char-header`, `.char-identity`, `.char-name`, and `.char-player` match the header block that renders the character and player names.
+- `.hp-track` and `.hp-fill` control the progress bar: `CharacterCard.svelte` derives `hpPercent`/`hpClass` and applies `hp--healthy`, `hp--injured`, or `hp--critical` to trigger the gradients and pulse defined in CSS.
+- `.char-controls`, `.btn-damage`, `.btn-heal`, `.stepper-cluster`, `.stepper`, and `.amount-input` describe the damage/heal controls at the bottom of the card.
+- `.char-stats`, `.stat-item`, `.stat-label`, `.stat-value`, and `.stat-divider` cover the AC/speed row.
+- `.conditions-row` and `.condition-pill` style removable condition pills rendered via `{#each character.conditions}`.
+- `.resources-section`, `.resource-row`, `.resource-label`, `.resource-pips`, and the `.pip` variants (e.g., `.pip--long_rest`, `.pip--short_rest`, `.pip--filled`) describe the resource pools, while `.rest-buttons` and `.btn-rest` handle the short/long rest interface.
+
+Keeping these class names aligned enables the component to toggle classes via Svelte bindings (e.g., `class:is-critical`, `class:critical`, and `class="{hpClass}"`) while the CSS file centralizes colors, animations, and responsive spacing.
+
 ---
 
 ## App Shell Layout

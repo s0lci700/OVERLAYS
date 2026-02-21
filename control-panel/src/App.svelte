@@ -58,8 +58,8 @@
   <!-- Brand header with connection indicator and character count -->
   <header class="app-header">
     <div class="brand-wordmark">
-      <span class="brand-block">DADOS</span>
-      <span class="brand-script">& Risas</span>
+      <span class="brand-block">ESDH</span>
+      <span class="brand-script">TTRPG</span>
     </div>
     <div class="header-meta">
       <!-- Connection status dot (green when connected) -->
@@ -74,7 +74,7 @@
     <!-- Characters Tab: HP management, conditions, resources, rest buttons -->
     {#if activeTab === "characters"}
       {#key activeTab}
-        <section class="tab-panel">
+        <section class="tab-panel characters-grid">
           {#each $characters as character (character.id)}
             <CharacterCard {character} />
           {/each}

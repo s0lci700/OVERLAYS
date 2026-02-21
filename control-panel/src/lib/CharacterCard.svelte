@@ -36,6 +36,9 @@
   /** Amount of HP to apply per damage/heal action (range: 1-999). */
   let amount = $state(5);
 
+  /** Collapsed state for hiding advanced card details. */
+  let isCollapsed = $state(false);
+
   /** Reference to the hit-flash overlay element for damage animation. */
   let hitFlashEl;
 
@@ -97,7 +100,9 @@
       }
     } catch (error) {
       console.error("Error while updating HP", error);
-      alert("An error occurred while updating HP. Please check your connection and try again.");
+      alert(
+        "An error occurred while updating HP. Please check your connection and try again.",
+      );
     }
   }
 
@@ -192,6 +197,7 @@
   class="char-card card-base"
   data-char-id={character.id}
   class:is-critical={hpPercent <= 30}
+  class:collapsed={isCollapsed}
 >
   <!-- Damage flash overlay, animated when HP is reduced -->
   <div class="hit-flash" bind:this={hitFlashEl}></div>
@@ -202,115 +208,129 @@
       <h2 class="char-name">{character.name}</h2>
       <span class="char-player">{character.player}</span>
     </div>
-    <div class="char-hp-nums">
-      <span class="hp-cur" class:critical={hpPercent <= 30}
-        >{character.hp_current}</span
-      >
-      <span class="hp-sep">/</span>
-      <span class="hp-max">{character.hp_max}</span>
-    </div>
-  </div>
-
-  <!-- HP progress bar with dynamic color (healthy/injured/critical) -->
-  <div
-    class="hp-track"
-    role="progressbar"
-    aria-valuenow={character.hp_current}
-    aria-valuemax={character.hp_max}
-    aria-label="Puntos de vida"
-  >
-    <div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
-  </div>
-
-  <!-- Armor Class and Speed (stat block) -->
-  <div class="char-stats">
-    <div class="stat-item">
-      <span class="stat-label">CA</span>
-      <span class="stat-value">{character.armor_class}</span>
-    </div>
-    <span class="stat-divider">|</span>
-    <div class="stat-item">
-      <span class="stat-label">VEL</span>
-      <span class="stat-value">{character.speed_walk}ft</span>
-    </div>
-  </div>
-
-  <!-- Conditions/status effects (removable with close button) -->
-  {#if character.conditions && character.conditions.length > 0}
-    <div class="conditions-row">
-      {#each character.conditions as condition (condition.id)}
-        <button
-          class="condition-pill"
-          onclick={() => removeCondition(condition.id)}
-          >{condition.condition_name} ×</button
+    <div class="char-header-actions">
+      <div class="char-hp-nums">
+        <span class="hp-cur" class:critical={hpPercent <= 30}
+          >{character.hp_current}</span
         >
-      {/each}
+        <span class="hp-sep">/</span>
+        <span class="hp-max">{character.hp_max}</span>
+      </div>
+      <button
+        class="collapse-toggle"
+        type="button"
+        aria-expanded={!isCollapsed}
+        aria-controls={`char-body-${character.id}`}
+        onclick={() => (isCollapsed = !isCollapsed)}
+      >
+        <span class="collapse-icon" aria-hidden="true">▾</span>
+        <span class="sr-only">{isCollapsed ? "Expandir" : "Colapsar"}</span>
+      </button>
     </div>
-  {/if}
+  </div>
 
-  <!-- Resource pools (spell slots, action economy, etc.) with pip UI -->
-  {#if character.resources && character.resources.length > 0}
-    <div class="resources-section">
-      {#each character.resources as resource (resource.id)}
-        <div class="resource-row">
-          <span class="resource-label">{resource.name}</span>
-          <!-- Clickable pip buttons for spending/recovering resources -->
-          <div class="resource-pips">
-            {#each Array(resource.pool_max) as _, i}
-              {@const filled = i < resource.pool_current}
-              <button
-                class="pip pip--{resource.recharge.toLowerCase()} {filled
-                  ? 'pip--filled'
-                  : 'pip--empty'}"
-                onclick={() => togglePip(resource, filled)}
-                aria-label="{filled ? 'Gastar' : 'Recuperar'} {resource.name}"
-              ></button>
-            {/each}
+  <div class="char-body" id={`char-body-${character.id}`}>
+    <!-- HP progress bar with dynamic color (healthy/injured/critical) -->
+    <div
+      class="hp-track"
+      role="progressbar"
+      aria-valuenow={character.hp_current}
+      aria-valuemax={character.hp_max}
+      aria-label="Puntos de vida"
+    >
+      <div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
+    </div>
+
+    <!-- Armor Class and Speed (stat block) -->
+    <div class="char-stats">
+      <div class="stat-item">
+        <span class="stat-label">CA</span>
+        <span class="stat-value">{character.armor_class}</span>
+      </div>
+      <span class="stat-divider">|</span>
+      <div class="stat-item">
+        <span class="stat-label">VEL</span>
+        <span class="stat-value">{character.speed_walk}ft</span>
+      </div>
+    </div>
+
+    <!-- Conditions/status effects (removable with close button) -->
+    {#if character.conditions && character.conditions.length > 0}
+      <div class="conditions-row">
+        {#each character.conditions as condition (condition.id)}
+          <button
+            class="condition-pill"
+            onclick={() => removeCondition(condition.id)}
+            >{condition.condition_name} ×</button
+          >
+        {/each}
+      </div>
+    {/if}
+
+    <!-- Resource pools (spell slots, action economy, etc.) with pip UI -->
+    {#if character.resources && character.resources.length > 0}
+      <div class="resources-section">
+        {#each character.resources as resource (resource.id)}
+          <div class="resource-row">
+            <span class="resource-label">{resource.name}</span>
+            <!-- Clickable pip buttons for spending/recovering resources -->
+            <div class="resource-pips">
+              {#each Array(resource.pool_max) as _, i (i)}
+                {@const filled = i < resource.pool_current}
+                <button
+                  class="pip pip--{resource.recharge.toLowerCase()} {filled
+                    ? 'pip--filled'
+                    : 'pip--empty'}"
+                  onclick={() => togglePip(resource, filled)}
+                  aria-label="{filled ? 'Gastar' : 'Recuperar'} {resource.name}"
+                ></button>
+              {/each}
+            </div>
           </div>
-        </div>
-      {/each}
-    </div>
-    <!-- Short/long rest buttons to restore resources -->
-    <div class="rest-buttons">
-      <button class="btn-base btn-rest" onclick={() => takeRest("short")}
-        >CORTO</button
-      >
-      <button class="btn-base btn-rest" onclick={() => takeRest("long")}
-        >LARGO</button
-      >
-    </div>
-  {/if}
+        {/each}
+      </div>
+      <!-- Short/long rest buttons to restore resources -->
+      <div class="rest-buttons">
+        <button class="btn-base btn-rest" onclick={() => takeRest("short")}
+          >CORTO</button
+        >
+        <button class="btn-base btn-rest" onclick={() => takeRest("long")}
+          >LARGO</button
+        >
+      </div>
+    {/if}
 
-  <!-- HP damage/healing controls -->
-  <div class="char-controls">
-    <button class="btn-base btn-damage" onclick={() => updateHp("damage")}>
-      − DAÑO
-    </button>
+    <!-- HP damage/healing controls -->
+    <div class="char-controls">
+      <button class="btn-base btn-damage" onclick={() => updateHp("damage")}>
+        − DAÑO
+      </button>
 
-    <!-- Stepper control for adjusting damage/healing amount -->
-    <div class="stepper-cluster">
-      <button
-        class="stepper"
-        onclick={() => (amount = Math.max(1, amount - 1))}
-        aria-label="Reducir">−</button
-      >
-      <input
-        class="amount-input"
-        type="number"
-        bind:value={amount}
-        min="1"
-        max="999"
-        aria-label="Cantidad"
-      />
-      <button
-        class="stepper"
-        onclick={() => (amount = Math.min(999, amount + 1))}
-        aria-label="Aumentar">+</button
-      >
+      <!-- Stepper control for adjusting damage/healing amount -->
+      <div class="stepper-cluster">
+        <button
+          class="stepper"
+          onclick={() => (amount = Math.max(1, amount - 1))}
+          aria-label="Reducir">−</button
+        >
+        <input
+          class="amount-input"
+          type="number"
+          bind:value={amount}
+          min="1"
+          max="999"
+          aria-label="Cantidad"
+        />
+        <button
+          class="stepper"
+          onclick={() => (amount = Math.min(999, amount + 1))}
+          aria-label="Aumentar">+</button
+        >
+      </div>
+
+      <button class="btn-base btn-heal" onclick={() => updateHp("heal")}>
+        + CURAR
+      </button>
     </div>
-
-    <button class="btn-base btn-heal" onclick={() => updateHp("heal")}>
-      + CURAR
-    </button>
   </div>
 </article>
