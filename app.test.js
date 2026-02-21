@@ -5,8 +5,8 @@
 
 const { test, expect } = require("@playwright/test");
 
-const SERVER_URL = "http://192.168.1.83:3000";
-const CONTROL_PANEL_URL = "http://192.168.1.83:5175";
+const SERVER_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+const CONTROL_PANEL_URL = process.env.PLAYWRIGHT_CP_URL || "http://localhost:5173";
 
 test.describe("D&D Overlay System - Full Stack Test", () => {
   test("Server API responds with characters", async ({ request }) => {
@@ -154,7 +154,7 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     // Check if Socket.io script loaded
     const hasSocketScript = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll("script"));
-      return scripts.some((s) => s.src.includes("socket.io"));
+      return scripts.some((s) => s.src.startsWith("https://cdn.socket.io/"));
     });
 
     expect(hasSocketScript).toBeTruthy();
@@ -172,7 +172,7 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
 
     const hasSocketScript = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll("script"));
-      return scripts.some((s) => s.src.includes("socket.io"));
+      return scripts.some((s) => s.src.startsWith("https://cdn.socket.io/"));
     });
 
     expect(hasSocketScript).toBeTruthy();
