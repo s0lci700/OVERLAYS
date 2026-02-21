@@ -3,11 +3,10 @@ import { writable } from 'svelte/store';
 
 /**
  * Singleton socket shared by every control panel component.
- * The serverPort constant is mirrored in the overlays so we keep the IP and port in lockstep.
+ * Set VITE_SERVER_URL in control-panel/.env to point at your server (default: http://localhost:3000).
  */
-const serverPort = 'http://192.168.1.83:3000';
-const controlPanelPort = 'http://192.168.1.83:5173';
-const socket = io(serverPort);
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+const socket = io(SERVER_URL);
 
 const characters = writable([]);
 export const lastRoll = writable(null);
@@ -73,5 +72,4 @@ socket.on('dice_rolled', (data) => {
 
 export { characters };
 export { socket };
-export { serverPort };
-export { controlPanelPort };
+export { SERVER_URL };

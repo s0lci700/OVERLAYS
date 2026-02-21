@@ -17,7 +17,7 @@
 -->
 <script>
   import "./DiceRoller.css";
-  import { characters, serverPort, lastRoll } from "./socket";
+  import { characters, SERVER_URL, lastRoll } from "./socket";
   import { get } from "svelte/store";
   import anime from "animejs/lib/anime.es.js";
   const animate = anime;
@@ -66,7 +66,7 @@
     };
     console.log("Sending payload:", payload);
 
-    const response = await fetch(`${serverPort}/api/rolls`, {
+    const response = await fetch(`${SERVER_URL}/api/rolls`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
