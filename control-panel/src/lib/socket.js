@@ -9,6 +9,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
 const socket = io(SERVER_URL);
 
 const characters = writable([]);
+// Re-exported for use in DiceRoller.svelte to display the most recent dice result.
 export const lastRoll = writable(null);
 
 socket.on('connect', () => {
