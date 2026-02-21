@@ -64,10 +64,22 @@ app.put("/api/characters/:id/hp", (req, res) => {
 // ── Conditions ───────────────────────────────────────────────
 
 // Manage status conditions and keep every client aware of additions and removals.
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 app.post("/api/characters/:id/conditions", (req, res) => {
   const { condition_name, intensity_level } = req.body;
-  if (!condition_name)
-    return res.status(400).json({ error: "condition_name required" });
+  if (typeof condition_name !== "string" || condition_name.trim() === "")
+    return res
+      .status(400)
+      .json({ error: "condition_name must be a non-empty string" });
+  if (
+    intensity_level !== undefined &&
+    (typeof intensity_level !== "number" || intensity_level <= 0)
+  )
+    return res
+      .status(400)
+      .json({ error: "intensity_level must be a positive number" });
   const character = characterModule.addCondition(req.params.id, {
     condition_name,
     intensity_level,
@@ -80,6 +92,8 @@ app.post("/api/characters/:id/conditions", (req, res) => {
 });
 
 app.delete("/api/characters/:id/conditions/:condId", (req, res) => {
+  if (!UUID_RE.test(req.params.condId))
+    return res.status(400).json({ error: "condId must be a valid UUID" });
   const character = characterModule.removeCondition(
     req.params.id,
     req.params.condId,
