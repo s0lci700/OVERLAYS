@@ -33,29 +33,35 @@
    DESIGN TOKENS
    ═══════════════════════════════════════════════════ */
 :root {
+  /* Core neutrals: base canvas and elevated surfaces. */
   --black: #000000;
-  --black-card: #0D0D0D;
-  --black-elevated: #1A1A1A;
-  --white: #FFFFFF;
+  --black-card: #0d0d0d;
+  --black-elevated: #1a1a1a;
+  --white: #ffffff;
   --grey: #888888;
   --grey-dim: #333333;
-  --red: #FF4D6A;
+  /* Brand accents: match overlay/control-panel semantics. */
+  --red: #ff4d6a;
   --red-dim: rgba(255, 77, 106, 0.12);
-  --cyan: #00D4E8;
+  --cyan: #00d4e8;
   --cyan-dim: rgba(0, 212, 232, 0.12);
-  --purple: #500DF5;
+  --purple: #500df5;
   --purple-dim: rgba(80, 13, 245, 0.12);
-  --hp-healthy: #22C55E;
-  --hp-injured: #F59E0B;
-  --hp-critical: #FF4D6A;
-  --shadow-card:   4px 4px 0px rgba(255, 255, 255, 0.05);
-  --shadow-red:    3px 3px 0px #FF4D6A;
-  --shadow-cyan:   3px 3px 0px #00D4E8;
-  --shadow-purple: 4px 4px 0px #500DF5;
+  /* HP thresholds (used in CharacterCard + overlays). */
+  --hp-healthy: #22c55e;
+  --hp-injured: #f59e0b;
+  --hp-critical: #ff4d6a;
+  /* Drop shadows preserve the pixel/retro accent style. */
+  --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05);
+  --shadow-red: 3px 3px 0px #ff4d6a;
+  --shadow-cyan: 3px 3px 0px #00d4e8;
+  --shadow-purple: 4px 4px 0px #500df5;
+  /* Font families align with the control panel brand. */
   --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif;
-  --font-script:  "Dancing Script", cursive;
-  --font-mono:    "JetBrains Mono", "Courier New", monospace;
-  --font-ui:      system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-script: "Dancing Script", cursive;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Spacing scale: 4px base for consistent rhythm. */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -65,11 +71,13 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  /* Radii for cards, controls, and pill badges. */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-pill: 999px;
-  --t-fast:   150ms ease;
+  /* Motion presets to keep animations consistent. */
+  --t-fast: 150ms ease;
   --t-normal: 250ms ease;
   --t-spring: 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -77,7 +85,9 @@
 /* ═══════════════════════════════════════════════════
    CSS RESET
    ═══════════════════════════════════════════════════ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -90,6 +100,7 @@ html {
 }
 
 body {
+  /* Global canvas uses black to preserve OBS overlay continuity. */
   background: var(--black);
   color: var(--white);
   font-family: var(--font-ui);
@@ -107,6 +118,7 @@ body {
 }
 
 button {
+  /* Buttons are styled per-component; defaults keep them neutral. */
   cursor: pointer;
   border: none;
   background: none;
@@ -116,6 +128,7 @@ button {
 }
 
 input {
+  /* Inputs adopt component styling; defaults avoid browser chrome. */
   border: none;
   background: none;
   font: inherit;
@@ -124,6 +137,8 @@ input {
 }
 
 input[type="number"] {
+  /* Hide native spinners; custom steppers provide interaction. */
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 input[type="number"]::-webkit-inner-spin-button,
@@ -132,6 +147,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 select {
+  /* Hide native dropdown arrow; custom arrow icon is in markup. */
   appearance: none;
   -webkit-appearance: none;
   font: inherit;
@@ -142,23 +158,39 @@ select {
   outline: none;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-weight: inherit;
   font-size: inherit;
 }
 
-::-webkit-scrollbar { width: 2px; }
-::-webkit-scrollbar-track { background: var(--black); }
-::-webkit-scrollbar-thumb { background: var(--purple); border-radius: var(--radius-pill); }
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  background: var(--black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--purple);
+  border-radius: var(--radius-pill);
+}
 
 /* ═══════════════════════════════════════════════════
    TYPOGRAPHY UTILITIES
    ═══════════════════════════════════════════════════ */
-.font-display { font-family: var(--font-display); }
-.font-mono    { font-family: var(--font-mono); }
-.font-script  { font-family: var(--font-script); }
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.font-script {
+  font-family: var(--font-script);
+}
 
 .label-caps {
+  /* Small uppercase label used for form headings. */
   font-family: var(--font-display);
   font-size: 0.8rem;
   color: var(--grey);
@@ -168,12 +200,14 @@ h1, h2, h3 {
 }
 
 .mono-num {
+  /* Numeric emphasis for HP, rolls, and counters. */
   font-family: var(--font-mono);
   font-weight: 700;
   line-height: 1;
 }
 
 .sr-only {
+  /* A11y: hide text visually while keeping it screen-reader accessible. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -189,6 +223,7 @@ h1, h2, h3 {
    SHARED COMPONENT BASES
    ═══════════════════════════════════════════════════ */
 .card-base {
+  /* Shared card frame for CharacterCard and DiceRoller sections. */
   background: var(--black-card);
   border: 1px solid var(--grey-dim);
   border-radius: var(--radius-lg);
@@ -200,6 +235,7 @@ h1, h2, h3 {
 }
 
 .btn-base {
+  /* Shared button base; color variants are applied per component. */
   font-family: var(--font-display);
   font-size: 1.1rem;
   letter-spacing: 0.04em;
@@ -222,6 +258,7 @@ h1, h2, h3 {
    APP SHELL LAYOUT
    ═══════════════════════════════════════════════════ */
 .app-shell {
+  /* App layout wrapper: header, main content, bottom nav. */
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -230,6 +267,7 @@ h1, h2, h3 {
 }
 
 .app-header {
+  /* Fixed top bar with brand and tab controls. */
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -240,6 +278,7 @@ h1, h2, h3 {
 }
 
 .brand-wordmark {
+  /* Brand lockup: DADOS + & Risas styles. */
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
@@ -271,7 +310,9 @@ h1, h2, h3 {
   height: 8px;
   border-radius: 50%;
   background: var(--grey-dim);
-  transition: background var(--t-normal), box-shadow var(--t-normal);
+  transition:
+    background var(--t-normal),
+    box-shadow var(--t-normal);
 }
 
 .conn-dot.connected {
@@ -301,9 +342,35 @@ h1, h2, h3 {
   animation: fadeUp var(--t-fast) ease;
 }
 
+/* Character cards: single column on small screens, two on medium+. */
+.characters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .characters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .characters-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bottom-nav {
@@ -326,7 +393,10 @@ h1, h2, h3 {
   color: var(--grey);
   background: transparent;
   border-top: 2px solid transparent;
-  transition: color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast),
+    border-color var(--t-fast);
 }
 
 .nav-tab.active {

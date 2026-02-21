@@ -22,8 +22,8 @@ const path = require("path");
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SERVER_PORT = parseInt(process.env.PORT || "3000", 10);
-const PANEL_PORT = parseInt(process.env.VITE_PORT || "5173", 10);
+const serverPort = parseInt(process.env.PORT || "3000", 10);
+const controlPanelPort = parseInt(process.env.VITE_PORT || "5173", 10);
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ROOT_ENV = path.join(ROOT_DIR, ".env");
@@ -43,6 +43,7 @@ function getLocalIP() {
   for (const [, addresses] of Object.entries(interfaces)) {
     for (const addr of addresses) {
       if (addr.family === "IPv4" && !addr.internal) {
+        console.log(`[setup-ip] Detected local IP address: ${addr.address}`);
         return addr.address;
       }
     }
@@ -111,8 +112,13 @@ function serializeEnv(map) {
  * @param {Record<string, string>} updates - Key/value pairs to set
  */
 function upsertEnvKeys(filePath, updates) {
-  // Seed from .env.example if the target file doesn't exist yet
-  if (!fs.existsSync(filePath)) {
+  // Seed from .env.example if the target file doesn't exist yet or is empty
+  const shouldSeedFromExample =
+    !fs.existsSync(filePath) ||
+    (fs.existsSync(filePath) &&
+      fs.readFileSync(filePath, "utf8").trim() === "");
+
+  if (shouldSeedFromExample) {
     const examplePath = filePath.replace(/\.env$/, ".env.example");
     if (fs.existsSync(examplePath)) {
       fs.copyFileSync(examplePath, filePath);
@@ -128,24 +134,26 @@ function upsertEnvKeys(filePath, updates) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-const ip = getLocalIP();
-const serverUrl = `http://${ip}:${SERVER_PORT}`;
-const panelOrigin = `http://${ip}:${PANEL_PORT}`;
+const mainIP = getLocalIP();
+const serverUrl = `http://${mainIP}:${serverPort}`;
+const controlPanelUrl = `http://${mainIP}:${controlPanelPort}`;
 
-console.log(`[setup-ip] Detected local IP: ${ip}`);
-console.log(`[setup-ip] Server URL  → ${serverUrl}`);
-console.log(`[setup-ip] Panel origin → ${panelOrigin}`);
+console.log(`[setup-ip] mainIP           → ${mainIP}`);
+console.log(`[setup-ip] serverPort       → ${serverPort}`);
+console.log(`[setup-ip] controlPanelPort → ${controlPanelPort}`);
+console.log(`[setup-ip] serverUrl        → ${serverUrl}`);
+console.log(`[setup-ip] controlPanelUrl  → ${controlPanelUrl}`);
 
 // Update root .env (single read→write)
 upsertEnvKeys(ROOT_ENV, {
-  PORT: String(SERVER_PORT),
-  CONTROL_PANEL_ORIGIN: panelOrigin,
+  PORT: String(serverPort),
+  CONTROL_PANEL_ORIGIN: controlPanelUrl,
 });
 console.log(`[setup-ip] Updated ${ROOT_ENV}`);
 
 // Update control-panel .env (single read→write)
 upsertEnvKeys(PANEL_ENV, {
   VITE_SERVER_URL: serverUrl,
-  VITE_PORT: String(PANEL_PORT),
+  VITE_PORT: String(controlPanelPort),
 });
 console.log(`[setup-ip] Updated ${PANEL_ENV}`);
