@@ -51,9 +51,12 @@
 
       /**
        * Socket.io connection to the server.
-       * Update this IP to match your server's local network address.
+       * Configure the server URL via the `server` query parameter, e.g.:
+       *   overlay-hp.html?server=http://192.168.1.83:3000
+       * Falls back to http://localhost:3000 when no parameter is provided.
        */
-      const socket = io("http://192.168.1.83:3000");
+      const serverUrl = new URLSearchParams(window.location.search).get("server") || "http://localhost:3000";
+      const socket = io(serverUrl);
 
       // ───────────────────────────────────────────────────────────────────────
       // DOM Element References

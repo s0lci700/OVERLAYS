@@ -2,15 +2,16 @@
  * Minimal Express + Socket.io backend that drives the control panel and OBS overlays.
  * All state lives in memory for this pitch demo, so restarting the server resets the data.
  */
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 const app = express();
 const httpServer = http.createServer(app);
-const serverPort = "http://192.168.1.83:3000";
-const controlPanelPort = "http://192.168.1.83:5173";
-// Keep these addresses synchronized with the overlays and client so the demo can run from one machine.
+// Configure via .env: PORT (default 3000) and CONTROL_PANEL_ORIGIN (default http://localhost:5173).
+const PORT = parseInt(process.env.PORT || "3000", 10);
+const CONTROL_PANEL_ORIGIN = process.env.CONTROL_PANEL_ORIGIN || "http://localhost:5173";
 const characterModule = require("./data/characters");
 const rollsModule = require("./data/rolls");
 
@@ -30,8 +31,8 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(serverPort.slice(-4), () => {
-  console.log(`Server is running on port ${serverPort.slice(-4)}`);
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 // Parse JSON payloads from the control panel and allow requests from any origin.

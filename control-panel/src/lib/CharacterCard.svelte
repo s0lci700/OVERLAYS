@@ -20,7 +20,7 @@
   import "./CharacterCard.css";
   import { animate } from "animejs";
   import { onMount } from "svelte";
-  import { serverPort } from "./socket";
+  import { SERVER_URL } from "./socket";
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props
@@ -83,7 +83,7 @@
         : character.hp_current + amount;
     newHp = Math.max(0, Math.min(newHp, character.hp_max));
     const response = await fetch(
-      `${serverPort}/api/characters/${character.id}/hp`,
+      `${SERVER_URL}/api/characters/${character.id}/hp`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@
    */
   async function removeCondition(conditionId) {
     const response = await fetch(
-      `${serverPort}/api/characters/${character.id}/conditions/${conditionId}`,
+      `${SERVER_URL}/api/characters/${character.id}/conditions/${conditionId}`,
       {
         method: "DELETE",
       },
@@ -131,7 +131,7 @@
       ? resource.pool_current - 1
       : resource.pool_current + 1;
     const response = await fetch(
-      `${serverPort}/api/characters/${character.id}/resources/${resource.id}`,
+      `${SERVER_URL}/api/characters/${character.id}/resources/${resource.id}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +150,7 @@
    */
   async function takeRest(type) {
     const response = await fetch(
-      `${serverPort}/api/characters/${character.id}/rest`,
+      `${SERVER_URL}/api/characters/${character.id}/rest`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
