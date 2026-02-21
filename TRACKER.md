@@ -51,14 +51,23 @@
 | Express + Socket.io server | ✅ Working | `server.js` |
 | `GET /api/characters` | ✅ Working | `server.js` |
 | `PUT /api/characters/:id/hp` | ✅ Working | `server.js` |
+| `POST /api/characters/:id/conditions` | ✅ Working | `server.js` |
+| `DELETE /api/characters/:id/conditions/:condId` | ✅ Working | `server.js` |
+| `PUT /api/characters/:id/resources/:rid` | ✅ Working | `server.js` |
+| `POST /api/characters/:id/rest` | ✅ Working | `server.js` |
 | `POST /api/rolls` | ✅ Working | `server.js` |
 | HP bars overlay (OBS) | ✅ Working | `public/overlay-hp.html` |
 | Dice roll popup overlay (OBS) | ✅ Working | `public/overlay-dice.html` |
 | Socket.io singleton (Svelte) | ✅ Working | `control-panel/src/lib/socket.js` |
-| CharacterCard (HP controls) | ✅ Working | `control-panel/src/lib/CharacterCard.svelte` |
+| Dashboard store (history + pending) | ✅ Working | `control-panel/src/lib/dashboardStore.js` |
+| CharacterCard (HP + conditions + resources + rest) | ✅ Working | `control-panel/src/lib/CharacterCard.svelte` |
 | DiceRoller (d4–d20) | ✅ Working | `control-panel/src/lib/DiceRoller.svelte` |
 | `initialData` on connect | ✅ Working | Server emits on connection |
 | `hp_updated` broadcast | ✅ Working | All clients + overlays receive |
+| `condition_added` broadcast | ✅ Working | All clients receive |
+| `condition_removed` broadcast | ✅ Working | All clients receive |
+| `resource_updated` broadcast | ✅ Working | All clients receive |
+| `rest_taken` broadcast | ✅ Working | All clients receive |
 | `dice_rolled` broadcast | ✅ Working | All clients + overlays receive |
 | Nat 20 → ¡CRÍTICO! glow | ✅ Working | `overlay-dice.html` |
 | Nat 1 → ¡PIFIA! red glow | ✅ Working | `overlay-dice.html` |
@@ -146,7 +155,7 @@ overlay-hp.html             overlay-dice.html
 - `char1` → El verdadero (player: Lucas) — HP: 28/35
 - `char2` → B12 (player: Sol) — HP: 30/30
 
-**Hardcoded IP to update:** `192.168.1.82` in `control-panel/src/lib/socket.js`
+**Hardcoded IP to update:** appears in `server.js`, `control-panel/src/lib/socket.js`, `public/overlay-hp.html`, and `public/overlay-dice.html`
 
 ---
 
@@ -169,7 +178,7 @@ overlay-hp.html             overlay-dice.html
 | Gap | Impact | Mitigation |
 |---|---|---|
 | No Tailwind CSS yet | Visual polish in video | Record at current quality or apply Day 3 morning |
-| IP hardcoded in `socket.js` | Must update per machine | Documented in README — update before demo |
+| IP hardcoded in multiple files | Must update per machine | Documented in README — update `socket.js`, both overlays, and `server.js` before demo |
 | Data resets on server restart | Demo interruption | Keep server running continuously during demo |
 | No persistence (in-memory only) | Post-demo concern | Fine for MVP; SQLite in post-pitch roadmap |
 
@@ -180,12 +189,16 @@ overlay-hp.html             overlay-dice.html
 | File | Purpose |
 |---|---|
 | `server.js` | Express + Socket.io backend |
+| `.env.example` | Environment variable template (copy to `.env`) |
 | `public/overlay-hp.html` | OBS HP bars overlay |
 | `public/overlay-dice.html` | OBS dice popup overlay |
 | `control-panel/src/App.svelte` | Root component |
 | `control-panel/src/lib/socket.js` | Socket.io singleton + Svelte stores |
-| `control-panel/src/lib/CharacterCard.svelte` | HP controls UI |
+| `control-panel/src/lib/CharacterCard.svelte` | HP + conditions + resources + rest UI |
 | `control-panel/src/lib/DiceRoller.svelte` | Dice rolling UI |
+| `docs/ARCHITECTURE.md` | Codebase map + data-flow diagrams |
+| `docs/SOCKET-EVENTS.md` | Complete Socket.io event reference |
+| `docs/DESIGN-SYSTEM.md` | CSS tokens, typography, component guide |
 | `CONTEXTO_COMPLETO_PITCH.md` | Full pitch context (for LLMs) |
 | `README.md` | Technical setup & API docs |
 | `TODO.md` | Detailed task checklist |
