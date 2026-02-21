@@ -19,7 +19,8 @@
   import "./DiceRoller.css";
   import { characters, serverPort, lastRoll } from "./socket";
   import { get } from "svelte/store";
-  import { animate } from "animejs";
+  import anime from "animejs/lib/anime.es.js";
+  const animate = anime;
   import { tick } from "svelte";
 
   // ═══════════════════════════════════════════════════════════════
