@@ -66,9 +66,22 @@ npm install
 cd control-panel && npm install
 ```
 
-### 2. Configure your local IP
+### 2. Configure environment
 
-Both `server.js` and `control-panel/src/lib/socket.js` have the server IP hardcoded. Find your local IP and update it:
+Copy the example environment file and update the values for your machine:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3000` | Server port |
+| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel |
+
+### 3. Configure your local IP
+
+Four files contain a hardcoded server IP that must match your machine. Find your IP:
 
 ```bash
 # Windows
@@ -78,14 +91,16 @@ ipconfig
 ifconfig | grep inet
 ```
 
-Replace `192.168.1.82` in these two files:
+Update `YOUR_IP` in each file:
 
-```
-server.js → const serverPort = 'http://YOUR_IP:3000'
-control-panel/src/lib/socket.js → const serverPort = 'http://YOUR_IP:3000'
-```
+| File | Line to update |
+|---|---|
+| `server.js` | `const serverPort = 'http://YOUR_IP:3000'` |
+| `control-panel/src/lib/socket.js` | `const serverPort = 'http://YOUR_IP:3000'` |
+| `public/overlay-hp.html` | `const socket = io("http://YOUR_IP:3000")` |
+| `public/overlay-dice.html` | `const socket = io("http://YOUR_IP:3000")` |
 
-### 3. Start everything
+### 4. Start everything
 
 **Terminal 1 — Backend:**
 ```bash
@@ -101,7 +116,7 @@ npm run dev -- --host
 # → Network: http://192.168.x.x:5173/   ← open this on your phone
 ```
 
-### 4. Add overlays in OBS
+### 5. Add overlays in OBS
 
 1. Add Source → **Browser**
 2. Check **"Local file"**
@@ -120,23 +135,36 @@ Repeat for `public/overlay-dice.html`.
 OVERLAYS/
 ├── server.js                      # Express + Socket.io backend
 ├── package.json
+├── .env.example                   # Environment variable template
+│
+├── data/                          # In-memory data modules
+│   ├── characters.js              # Character state + CRUD (HP, conditions, resources, rest)
+│   └── rolls.js                   # Roll history logger
 │
 ├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
 │   ├── overlay-hp.html            # HP bars — always visible
-│   └── overlay-dice.html          # Dice popup — appears on roll, auto-hides
+│   ├── overlay-hp.css             # HP overlay styles
+│   ├── overlay-dice.html          # Dice popup — appears on roll, auto-hides
+│   └── overlay-dice.css           # Dice overlay styles
 │
 ├── control-panel/                 # Svelte + Vite control panel
 │   ├── src/
-│   │   ├── App.svelte             # Root: character list + dice roller
-│   │   ├── lib/
-│   │   │   ├── socket.js          # Socket.io singleton + Svelte stores
-│   │   │   ├── CharacterCard.svelte  # HP controls (Damage / Heal)
-│   │   │   └── DiceRoller.svelte     # d4/d6/d8/d10/d12/d20 buttons
-│   │   └── app.css
+│   │   ├── App.svelte             # Root: header, tab nav, content routing
+│   │   ├── app.css                # Design tokens + shared bases
+│   │   └── lib/
+│   │       ├── socket.js              # Socket.io singleton + Svelte stores
+│   │       ├── dashboardStore.js      # Activity history, pending actions
+│   │       ├── CharacterCard.svelte   # HP, conditions, resources, rest
+│   │       ├── CharacterCard.css
+│   │       ├── DiceRoller.svelte      # d4/d6/d8/d10/d12/d20 buttons
+│   │       └── DiceRoller.css
 │   ├── vite.config.js
 │   └── package.json
 │
-└── ROADMAPS/                      # Project planning docs
+└── docs/                          # Technical reference docs
+    ├── ARCHITECTURE.md            # Codebase navigation + data-flow diagrams
+    ├── SOCKET-EVENTS.md           # Complete Socket.io event reference
+    └── DESIGN-SYSTEM.md           # CSS tokens, typography, component guide
 ```
 
 ---
@@ -145,18 +173,18 @@ OVERLAYS/
 
 ### `GET /api/characters`
 
-Returns the full character list.
+Returns the full character list (including HP, conditions, and resources).
 
 ```json
 [
-  { "id": "char1", "name": "El verdadero", "player": "Lucas", "hp_current": 28, "hp_max": 35 },
-  { "id": "char2", "name": "B12",          "player": "Sol",   "hp_current": 30, "hp_max": 30 }
+  { "id": "char1", "name": "El verdadero", "player": "Lucas", "hp_current": 28, "hp_max": 35, "conditions": [], "resources": [] },
+  { "id": "char2", "name": "B12",          "player": "Sol",   "hp_current": 30, "hp_max": 30, "conditions": [], "resources": [] }
 ]
 ```
 
 ### `PUT /api/characters/:id/hp`
 
-Updates a character's current HP and broadcasts `hp_updated` to all connected clients.
+Updates a character's current HP (clamped to `[0, hp_max]`) and broadcasts `hp_updated` to all clients.
 
 ```http
 PUT /api/characters/char1/hp
@@ -166,6 +194,51 @@ Content-Type: application/json
 ```
 
 **Response:** the updated character object.
+
+### `POST /api/characters/:id/conditions`
+
+Adds a status condition to a character and broadcasts `condition_added`.
+
+```http
+POST /api/characters/char1/conditions
+Content-Type: application/json
+
+{ "condition_name": "Poisoned", "intensity_level": 1 }
+```
+
+**Response:** the new condition object `{ id, condition_name, intensity_level, applied_at }`.
+
+### `DELETE /api/characters/:id/conditions/:condId`
+
+Removes a condition by UUID and broadcasts `condition_removed`.
+
+**Response:** `{ "ok": true }`.
+
+### `PUT /api/characters/:id/resources/:rid`
+
+Updates a resource pool (e.g. Rage charges) and broadcasts `resource_updated`.
+
+```http
+PUT /api/characters/char1/resources/r1
+Content-Type: application/json
+
+{ "pool_current": 2 }
+```
+
+**Response:** the updated resource object.
+
+### `POST /api/characters/:id/rest`
+
+Applies a short or long rest, restores matching resource pools, and broadcasts `rest_taken`.
+
+```http
+POST /api/characters/char1/rest
+Content-Type: application/json
+
+{ "type": "short" }
+```
+
+**Response:** `{ "restored": ["RAGE"] }`.
 
 ### `POST /api/rolls`
 
@@ -178,10 +251,7 @@ Content-Type: application/json
 { "charId": "char1", "result": 18, "modifier": 0, "sides": 20 }
 ```
 
-**Response:**
-```json
-{ "charId": "char1", "rollResult": 18, "sides": 20 }
-```
+**Response:** the full roll record `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }`.
 
 ---
 
@@ -189,9 +259,15 @@ Content-Type: application/json
 
 | Event | Direction | Payload |
 |---|---|---|
-| `initialData` | Server → Client | `{ characters[], rolls[] }` — sent on connect |
+| `initialData` | Server → connecting client | `{ characters[], rolls[] }` — sent on connect |
 | `hp_updated` | Server → All | `{ character, hp_current }` |
-| `dice_rolled` | Server → All | `{ charId, result, modifier, rollResult, sides }` |
+| `condition_added` | Server → All | `{ charId, condition }` |
+| `condition_removed` | Server → All | `{ charId, conditionId }` |
+| `resource_updated` | Server → All | `{ charId, resource }` |
+| `rest_taken` | Server → All | `{ charId, type, restored[], character }` |
+| `dice_rolled` | Server → All | `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }` |
+
+See [`docs/SOCKET-EVENTS.md`](docs/SOCKET-EVENTS.md) for full payload shapes and type definitions.
 
 ---
 
@@ -219,8 +295,6 @@ Centered at bottom, hidden by default. Appears with a pop-in animation when a ro
 | Natural 1  | **¡PIFIA!** — red glow |
 | Everything else | Shows total with fade-out |
 
-### Dice
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -240,7 +314,7 @@ No database required for the demo. Characters reset when the server restarts —
 | Problem | Fix |
 |---|---|
 | Overlay not connecting | Check that `server.js` is running on port 3000 |
-| Phone can't reach server | Update IP in `socket.js` and restart Vite with `--host` |
+| Phone can't reach server | Update IP in `socket.js` and both overlay files; restart Vite with `--host` |
 | OBS overlay blank | Right-click Browser Source → Interact → check console (F12) |
 | HP not updating | Verify the `PUT` request in Network tab, check server logs |
 
@@ -275,11 +349,13 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 
 ### Done
 - [x] Express + Socket.io server
-- [x] REST API (characters, HP, rolls)
+- [x] REST API (characters, HP, conditions, resources, rest, rolls)
 - [x] HP overlay with health state animations
 - [x] Dice roll overlay with crit/fail detection
 - [x] Svelte control panel (phone-ready)
 - [x] Real-time sync across all clients
+- [x] Condition management (add/remove status effects)
+- [x] Resource pool system (short/long rest restoration)
 
 ### Day 3 (Polish)
 - [ ] Tailwind CSS styling on control panel
@@ -294,14 +370,6 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 - [ ] Combat log / history
 - [ ] Sound effects
 - [ ] Custom Chilean branding / theme
-
-| Layer | Technology |
-|---|---|
-| Backend | Node.js 18, Express 5, Socket.io 4.8 |
-| Control Panel | Svelte 5, Vite 7 |
-| Overlays | Vanilla HTML/CSS/JS (Socket.io via CDN) |
-| Data | In-memory (demo) |
-| Communication | WebSocket via Socket.io |
 
 ## vs. Generic Overlay Tools
 
