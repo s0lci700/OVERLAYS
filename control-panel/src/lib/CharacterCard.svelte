@@ -82,15 +82,23 @@
         ? character.hp_current - amount
         : character.hp_current + amount;
     newHp = Math.max(0, Math.min(newHp, character.hp_max));
-    const response = await fetch(
-      `${serverPort}/api/characters/${character.id}/hp`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hp_current: newHp }),
-      },
-    );
-    if (!response.ok) console.error("Failed to update HP", response.status);
+    try {
+      const response = await fetch(
+        `${serverPort}/api/characters/${character.id}/hp`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hp_current: newHp }),
+        },
+      );
+      if (!response.ok) {
+        console.error("Failed to update HP", response.status);
+        alert("Failed to update HP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error while updating HP", error);
+      alert("An error occurred while updating HP. Please check your connection and try again.");
+    }
   }
 
   // ──────────────────────────────────────────────────────────────────────────
