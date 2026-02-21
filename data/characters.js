@@ -1,0 +1,235 @@
+const { randomUUID } = require("crypto");
+
+/**
+ * @typedef {Object} AbilityScores
+ * @property {number} str - Strength
+ * @property {number} dex - Dexterity
+ * @property {number} con - Constitution
+ * @property {number} int - Intelligence
+ * @property {number} wis - Wisdom
+ * @property {number} cha - Charisma
+ */
+
+/**
+ * @typedef {Object} Condition
+ * @property {string} id             - UUID assigned on creation
+ * @property {string} condition_name - Display name (e.g. "Poisoned")
+ * @property {number} intensity_level - Severity (default 1)
+ * @property {string} applied_at     - ISO 8601 timestamp
+ */
+
+/**
+ * @typedef {Object} Resource
+ * @property {string} id           - Unique ID within the character (e.g. "r1")
+ * @property {string} name         - Display name (e.g. "RAGE", "KI")
+ * @property {number} pool_max     - Maximum uses
+ * @property {number} pool_current - Remaining uses
+ * @property {"SHORT_REST"|"LONG_REST"|"TURN"|"DM"} recharge - When the resource refills
+ */
+
+/**
+ * @typedef {Object} Character
+ * @property {string}        id             - Stable identifier (e.g. "char1")
+ * @property {string}        name           - Character name shown in overlays
+ * @property {string}        player         - Player's real name
+ * @property {number}        hp_current     - Current hit points (0–hp_max)
+ * @property {number}        hp_max         - Maximum hit points
+ * @property {number}        hp_temp        - Temporary HP (not counted in hp_current)
+ * @property {number}        armor_class    - AC value
+ * @property {number}        speed_walk     - Walking speed in feet
+ * @property {AbilityScores} ability_scores - Six core D&D ability scores
+ * @property {Condition[]}   conditions     - Active status conditions
+ * @property {Resource[]}    resources      - Limited-use resources (rage, ki, spell slots, etc.)
+ */
+
+// test characters - will be replaced by DB in the future
+/**
+ * Simple in-memory character fixtures plus helper functions used by the API.
+ */
+const characters = [
+  {
+    id: "char1",
+    name: "El verdadero",
+    player: "Lucas",
+    hp_current: 28,
+    hp_max: 35,
+    hp_temp: 0,
+    armor_class: 17,
+    speed_walk: 30,
+    ability_scores: { str: 16, dex: 14, con: 14, int: 12, wis: 13, cha: 16 },
+    conditions: [],
+    resources: [
+      {
+        id: "r1",
+        name: "RAGE",
+        pool_max: 3,
+        pool_current: 3,
+        recharge: "LONG_REST",
+      },
+      {
+        id: "r2",
+        name: "INSPIRACIÓN",
+        pool_max: 1,
+        pool_current: 0,
+        recharge: "DM",
+      },
+    ],
+  },
+  {
+    id: "char2",
+    name: "B12",
+    player: "Sol",
+    hp_current: 30,
+    hp_max: 30,
+    hp_temp: 0,
+    armor_class: 16,
+    speed_walk: 35,
+    ability_scores: { str: 14, dex: 18, con: 12, int: 11, wis: 14, cha: 13 },
+    conditions: [],
+    resources: [
+      {
+        id: "r3",
+        name: "KI",
+        pool_max: 5,
+        pool_current: 5,
+        recharge: "SHORT_REST",
+      },
+      {
+        id: "r4",
+        name: "SNEAK ATK",
+        pool_max: 1,
+        pool_current: 1,
+        recharge: "TURN",
+      },
+    ],
+  },
+];
+
+const clamp = (value, max) => Math.max(0, Math.min(value, max));
+
+/**
+ * Return every character, resources, and conditions for broadcasting and the API.
+ * @returns {Character[]}
+ */
+function getAll() {
+  return characters;
+}
+
+/**
+ * Lookup a character by its stable id.
+ * @param {string} id
+ * @returns {Character|undefined}
+ */
+function findById(id) {
+  return characters.find((c) => c.id === id);
+}
+
+/**
+ * Read the character name for logging or display fallbacks.
+ * @param {string} id
+ * @returns {string}
+ */
+function getCharacterName(id) {
+  const character = findById(id);
+  return character ? character.name.toString() : "Unknown";
+}
+
+/**
+ * Clamp the provided HP and overwrite the current value.
+ * @param {string} id
+ * @param {number} hpCurrent
+ * @returns {Character|null}
+ */
+function updateHp(id, hpCurrent) {
+  const character = findById(id);
+  if (!character) return null;
+  character.hp_current = clamp(hpCurrent, character.hp_max);
+  return character;
+}
+
+/**
+ * Append a typed condition record with a unique UUID.
+ * @param {string} id
+ * @param {{condition_name: string, intensity_level?: number}} condition
+ * @returns {Character|null}
+ */
+function addCondition(id, { condition_name, intensity_level = 1 }) {
+  const character = findById(id);
+  if (!character) return null;
+  const condition = {
+    id: randomUUID(),
+    condition_name,
+    intensity_level,
+    applied_at: new Date().toISOString(),
+  };
+  character.conditions.push(condition);
+  return character;
+}
+
+/**
+ * Drop a condition using its UUID to keep the list clean.
+ * @param {string} charId
+ * @param {string} conditionId
+ * @returns {Character|null}
+ */
+function removeCondition(charId, conditionId) {
+  const character = findById(charId);
+  if (!character) return null;
+  character.conditions = character.conditions.filter(
+    (c) => c.id !== conditionId,
+  );
+  return character;
+}
+
+/**
+ * Update a resource's pool_current while respecting its bounds.
+ * @param {string} charId
+ * @param {string} resourceId
+ * @param {number} pool_current
+ * @returns {Resource|null}
+ */
+function updateResource(charId, resourceId, pool_current) {
+  const character = findById(charId);
+  if (!character) return null;
+  const resource = character.resources.find((r) => r.id === resourceId);
+  if (!resource) return null;
+  resource.pool_current = Math.max(
+    0,
+    Math.min(pool_current, resource.pool_max),
+  );
+  return resource;
+}
+
+/**
+ * Refill the appropriate resource pools based on the rest type.
+ * @param {string} charId
+ * @param {"short"|"long"} restType
+ * @returns {{character: Character, restored: string[]}|null}
+ */
+function restoreResources(charId, restType) {
+  const character = findById(charId);
+  if (!character) return null;
+  const restored = [];
+  character.resources.forEach((res) => {
+    const shouldRestore =
+      res.recharge === "SHORT_REST" ||
+      (restType === "long" && res.recharge === "LONG_REST");
+    if (shouldRestore) {
+      res.pool_current = res.pool_max;
+      restored.push(res.name);
+    }
+  });
+  return { character, restored };
+}
+
+module.exports = {
+  characters,
+  getCharacterName,
+  getAll,
+  findById,
+  updateHp,
+  addCondition,
+  removeCondition,
+  updateResource,
+  restoreResources,
+};

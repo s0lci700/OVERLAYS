@@ -1,0 +1,183 @@
+/**
+ * Overlay HP Styles
+ * ==================
+ * OBS Browser Source overlay for displaying character HP bars in real-time.
+ * Canvas size: 1920×1080, transparent background required in OBS.
+ *
+ * Sections:
+ *   - Reset & body         — 1920×1080 transparent canvas
+ *   - HP Container          — absolute top-right column of character cards
+ *   - Character Info        — name (Bebas Neue) and player label
+ *   - HP Bar                — animated fill with health-state gradients:
+ *                               .healthy  (>60%) green gradient + glow
+ *                               .injured  (30-60%) orange gradient + glow
+ *                               .critical (<30%) red gradient + pulse animation
+ *   - HP Text               — numeric display (JetBrains Mono, right-aligned)
+ *   - Status Message        — centered banner for connection/update notices
+ *                               auto-hides via fadeInOut keyframe (2s)
+ *
+ * HP bar transition: width animates over 0.5s with cubic-bezier(0.4, 0, 0.2, 1)
+ * for smooth visual feedback when HP changes arrive via Socket.io.
+ *
+ * Fonts (loaded from Google Fonts in overlay-hp.html):
+ *   "Bebas Neue"       — character names
+ *   "JetBrains Mono"   — HP numbers, status messages
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  background: transparent;
+  font-family: system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HP Container
+   ───────────────────────────────────────────────────────────────────────── */
+
+#hp-container {
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.character-hp {
+  background: rgba(0, 0, 0, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  min-width: 360px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.9);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Character Info
+   ───────────────────────────────────────────────────────────────────────── */
+
+.char-name {
+  color: #ffffff;
+  font-family: "Bebas Neue", "Impact", sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.char-player {
+  color: #888888;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HP Bar
+   ───────────────────────────────────────────────────────────────────────── */
+
+.hp-bar-container {
+  background: rgba(30, 30, 30, 0.9);
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #991b1b, #ff4d6a);
+  transition:
+    width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s ease;
+  border-radius: 999px;
+}
+
+.hp-bar-fill.healthy {
+  background: linear-gradient(90deg, #15803d, #22c55e);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.hp-bar-fill.injured {
+  background: linear-gradient(90deg, #b45309, #f59e0b);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+.hp-bar-fill.critical {
+  background: linear-gradient(90deg, #991b1b, #ff4d6a);
+  box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.hp-text {
+  color: white;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 8px;
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Status Message
+   ───────────────────────────────────────────────────────────────────────── */
+
+.status-message {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #00d4e8;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 212, 232, 0.4);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 16px;
+  display: none;
+}
+
+.status-message.show {
+  display: block;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+}

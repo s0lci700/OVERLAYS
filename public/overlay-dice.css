@@ -1,0 +1,125 @@
+/**
+ * Overlay Dice Styles
+ * ====================
+ * OBS Browser Source overlay for displaying animated dice roll results.
+ * Canvas size: 1920×1080, transparent background required in OBS.
+ *
+ * Sections:
+ *   - Reset & body       — 1920×1080 transparent canvas
+ *   - Dice Container     — fixed bottom-center, hidden by default (anime.js shows it)
+ *   - Dice Card           — dark glass card with cyan border accent
+ *   - Dice Card Content   — character name, formula, result number, label
+ *
+ * Visual states:
+ *   .dice-result.crit  → cyan glow (natural 20)
+ *   .dice-result.fail  → red glow (natural 1)
+ *   .dice-label.crit   → cyan text
+ *   .dice-label.fail   → red text
+ *
+ * Fonts (loaded from Google Fonts in overlay-dice.html):
+ *   "Bebas Neue"       — dice formula, label
+ *   "JetBrains Mono"   — result number (80px bold)
+ *
+ * Animation: container starts display:none + opacity:0.
+ * anime.js in overlay-dice.html handles the show/hide lifecycle.
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  background: transparent;
+  font-family: system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dice Container
+   ───────────────────────────────────────────────────────────────────────── */
+
+#dice-container {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  width: fit-content;
+  margin-left: -160px;
+  display: none;
+  opacity: 0;
+}
+
+.dice-card {
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(0, 212, 232, 0.4);
+  border-top: 3px solid #00d4e8;
+  border-radius: 12px;
+  padding: 24px 48px;
+  text-align: center;
+  min-width: 320px;
+  box-shadow: 4px 4px 0px #00d4e8;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dice Card Content
+   ───────────────────────────────────────────────────────────────────────── */
+
+.dice-character {
+  color: #888888;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.dice-formula {
+  color: #00d4e8;
+  font-family: "Bebas Neue", "Impact", sans-serif;
+  font-size: 24px;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.dice-result {
+  color: white;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 80px;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+  opacity: 0;
+}
+
+.dice-result.crit {
+  color: #00d4e8;
+  text-shadow: 0 0 24px rgba(0, 212, 232, 0.6);
+}
+
+.dice-result.fail {
+  color: #ff4d6a;
+  text-shadow: 0 0 24px rgba(255, 77, 106, 0.6);
+}
+
+.dice-label {
+  color: #888888;
+  font-family: "Bebas Neue", "Impact", sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.dice-label.crit {
+  color: #00d4e8;
+}
+
+.dice-label.fail {
+  color: #ff4d6a;
+}
