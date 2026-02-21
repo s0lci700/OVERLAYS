@@ -1,0 +1,67 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, copilot/**]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install control-panel dependencies
+        run: npm ci
+        working-directory: control-panel
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Express server
+        run: node server.js > /tmp/server.log 2>&1 &
+        env:
+          PORT: 3000
+
+      - name: Start control-panel dev server
+        run: npm run dev -- --host > /tmp/control-panel.log 2>&1 &
+        working-directory: control-panel
+
+      - name: Wait for services to be ready
+        run: |
+          npx wait-on http://localhost:3000/api/characters --timeout 30000 || \
+            (echo "=== server.log ===" && cat /tmp/server.log && exit 1)
+          npx wait-on http://localhost:5173 --timeout 30000 || \
+            (echo "=== control-panel.log ===" && cat /tmp/control-panel.log && exit 1)
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_CP_URL: http://localhost:5173
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            test-*.png
+          retention-days: 7
