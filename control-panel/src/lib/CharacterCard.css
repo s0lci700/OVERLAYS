@@ -1,3 +1,28 @@
+/**
+ * CharacterCard Component Styles
+ * ==============================
+ * Styles for the CharacterCard.svelte component. Extends .card-base
+ * and .btn-base from app.css.
+ *
+ * Sections:
+ *   - Card container & hit flash   — damage animation overlay
+ *   - Header                        — character name, player, HP numbers
+ *   - HP Track                      — animated HP bar with health states:
+ *                                      .hp--healthy  (>60%, green)
+ *                                      .hp--injured  (30-60%, orange)
+ *                                      .hp--critical (<30%, red + pulse)
+ *   - Stats                         — AC and movement speed
+ *   - Conditions                    — removable status effect pills
+ *   - Resources                     — pip-based pool UI (color-coded by recharge type)
+ *   - Rest Buttons                  — short/long rest controls
+ *   - Controls                      — damage/heal buttons with stepper
+ *
+ * Color coding for resource pips:
+ *   .pip--long_rest   → red (var(--red))
+ *   .pip--short_rest  → cyan (var(--cyan))
+ *   .pip--turn / --dm → grey (var(--grey))
+ */
+
 /* ═══════════════════════════════════════════════════
    CHARACTER CARD
    Uses .card-base and .btn-base from app.css

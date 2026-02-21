@@ -1,4 +1,33 @@
-﻿@import url(''https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap'');
+﻿/**
+ * DADOS & RISAS — Global Stylesheet & Design System
+ * ==================================================
+ * Central design tokens, CSS reset, typography utilities, shared component
+ * bases, and the app shell layout for the Svelte control panel.
+ *
+ * Sections:
+ *   1. DESIGN TOKENS     — Color palette, fonts, spacing, radii, transitions
+ *   2. CSS RESET          — Box-model normalization, body defaults, scrollbars
+ *   3. TYPOGRAPHY UTILS   — .font-display, .label-caps, .mono-num, .sr-only
+ *   4. SHARED BASES       — .card-base, .btn-base (reused by CharacterCard, DiceRoller)
+ *   5. APP SHELL LAYOUT   — .app-shell, .app-header, .app-main, .bottom-nav
+ *
+ * Brand palette:
+ *   --red   #FF4D6A   Primary action / damage / critical
+ *   --cyan  #00D4E8   Accent / healing / connection
+ *   --purple #500DF5  Dice / d20 highlight
+ *
+ * Fonts:
+ *   --font-display  "Bebas Neue"       — headings, labels, brand
+ *   --font-script   "Dancing Script"   — brand ampersand ("& Risas")
+ *   --font-mono     "JetBrains Mono"   — numbers, HP, dice results
+ *   --font-ui       system-ui          — body text, form elements
+ *
+ * Usage: imported globally in App.svelte and main.js.
+ * Component-specific CSS lives alongside each .svelte file
+ * (CharacterCard.css, DiceRoller.css).
+ */
+
+@import url(''https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap'');
 
 /* ═══════════════════════════════════════════════════
    DESIGN TOKENS

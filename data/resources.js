@@ -1,5 +1,24 @@
 /**
- * Demo resource pool definitions for the characters used in this pitch.
+ * Standalone Resource Pool Definitions
+ * =====================================
+ * Alternative resource store that maps resources by characterId.
+ *
+ * NOTE: This module is NOT currently used by the server or control panel.
+ * The active resource system is embedded directly in each character object
+ * inside data/characters.js (character.resources[]).
+ *
+ * This file was an early design experiment with a flat resource table.
+ * It can be removed or repurposed if the project moves to a relational
+ * database where resources live in their own table.
+ *
+ * @typedef {Object} StandaloneResource
+ * @property {string} id             - Unique resource identifier
+ * @property {string} characterId    - Owner character ID (e.g. "char1")
+ * @property {string} resourceName   - Display name (e.g. "Action Surge")
+ * @property {number} pool_max       - Maximum uses per recharge cycle
+ * @property {number} pool_current   - Remaining uses
+ * @property {"SHORT_REST"|"LONG_REST"} recharge_type - When this resource refills
+ * @property {number|null} die_size  - Die rolled on use (null if not applicable)
  */
 const resources = [
   {

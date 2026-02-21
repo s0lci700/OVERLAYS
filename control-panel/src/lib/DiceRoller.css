@@ -1,3 +1,28 @@
+/**
+ * DiceRoller Component Styles
+ * ===========================
+ * Styles for the DiceRoller.svelte component.
+ *
+ * Sections:
+ *   - Panel layout        — vertical flex container with spacing
+ *   - Character selector  — dropdown for active character
+ *   - Modifier input      — number input for roll modifiers
+ *   - Dice grid           — 2-column grid of d4/d6/d8/d10/d12 + full-width d20
+ *   - Roll result         — animated result card (anime.js handles show/hide)
+ *
+ * The d20 button (.d20-btn) gets special treatment:
+ *   - Full grid width (grid-column: 1 / -1)
+ *   - Purple accent border and shadow
+ *   - Larger label font
+ *
+ * Roll result states:
+ *   .roll-number.crit  → cyan glow (natural 20)
+ *   .roll-number.fail  → red glow (natural 1)
+ *
+ * Note: opacity: 0 on .roll-result is intentional — anime.js
+ * animates it in when a new roll arrives.
+ */
+
 /* ═══════════════════════════════════════════════════
    DICE ROLLER
    ═══════════════════════════════════════════════════ */

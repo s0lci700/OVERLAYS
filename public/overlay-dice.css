@@ -1,8 +1,27 @@
 /**
  * Overlay Dice Styles
  * ====================
- * OBS Browser Source overlay for displaying dice roll results.
+ * OBS Browser Source overlay for displaying animated dice roll results.
  * Canvas size: 1920×1080, transparent background required in OBS.
+ *
+ * Sections:
+ *   - Reset & body       — 1920×1080 transparent canvas
+ *   - Dice Container     — fixed bottom-center, hidden by default (anime.js shows it)
+ *   - Dice Card           — dark glass card with cyan border accent
+ *   - Dice Card Content   — character name, formula, result number, label
+ *
+ * Visual states:
+ *   .dice-result.crit  → cyan glow (natural 20)
+ *   .dice-result.fail  → red glow (natural 1)
+ *   .dice-label.crit   → cyan text
+ *   .dice-label.fail   → red text
+ *
+ * Fonts (loaded from Google Fonts in overlay-dice.html):
+ *   "Bebas Neue"       — dice formula, label
+ *   "JetBrains Mono"   — result number (80px bold)
+ *
+ * Animation: container starts display:none + opacity:0.
+ * anime.js in overlay-dice.html handles the show/hide lifecycle.
  */
 
 * {

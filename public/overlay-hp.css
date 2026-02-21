@@ -1,8 +1,27 @@
 /**
  * Overlay HP Styles
  * ==================
- * OBS Browser Source overlay for displaying character HP bars.
+ * OBS Browser Source overlay for displaying character HP bars in real-time.
  * Canvas size: 1920×1080, transparent background required in OBS.
+ *
+ * Sections:
+ *   - Reset & body         — 1920×1080 transparent canvas
+ *   - HP Container          — absolute top-right column of character cards
+ *   - Character Info        — name (Bebas Neue) and player label
+ *   - HP Bar                — animated fill with health-state gradients:
+ *                               .healthy  (>60%) green gradient + glow
+ *                               .injured  (30-60%) orange gradient + glow
+ *                               .critical (<30%) red gradient + pulse animation
+ *   - HP Text               — numeric display (JetBrains Mono, right-aligned)
+ *   - Status Message        — centered banner for connection/update notices
+ *                               auto-hides via fadeInOut keyframe (2s)
+ *
+ * HP bar transition: width animates over 0.5s with cubic-bezier(0.4, 0, 0.2, 1)
+ * for smooth visual feedback when HP changes arrive via Socket.io.
+ *
+ * Fonts (loaded from Google Fonts in overlay-hp.html):
+ *   "Bebas Neue"       — character names
+ *   "JetBrains Mono"   — HP numbers, status messages
  */
 
 * {

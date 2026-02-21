@@ -54,7 +54,6 @@ const isSyncing = derived(pendingActions, ($pending) => $pending.length > 0);
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Maximum number of history entries to retain. Oldest entries are dropped. */
-/** Maximum number of history entries to retain. Oldest entries are dropped. */
 const MAX_HISTORY = 40;
 
 // ═══════════════════════════════════════════════════════════════════════════

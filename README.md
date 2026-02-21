@@ -118,69 +118,90 @@ Repeat for `public/overlay-dice.html`.
 
 ```
 OVERLAYS/
-├── server.js                      # Express + Socket.io backend
+├── server.js                         # Express + Socket.io backend (port 3000)
 ├── package.json
 │
-├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
-│   ├── overlay-hp.html            # HP bars — always visible
-│   └── overlay-dice.html          # Dice popup — appears on roll, auto-hides
+├── data/                             # In-memory data layer
+│   ├── characters.js                 # Character fixtures + CRUD helpers (HP, conditions, resources, rest)
+│   ├── rolls.js                      # Dice roll history logger
+│   ├── resources.js                  # [unused] Standalone resource pool experiment
+│   └── state.js                      # [unused] Snapshot aggregator for all data modules
 │
-├── control-panel/                 # Svelte + Vite control panel
+├── public/                           # OBS overlay files (vanilla HTML/CSS/JS)
+│   ├── overlay-hp.html               # HP bars — always visible
+│   ├── overlay-hp.css                # HP overlay styles (health-state gradients, pulse)
+│   ├── overlay-dice.html             # Dice popup — appears on roll, auto-hides
+│   └── overlay-dice.css              # Dice overlay styles (card, crit/fail states)
+│
+├── control-panel/                    # Svelte 5 + Vite control panel (port 5173)
 │   ├── src/
-│   │   ├── App.svelte             # Root: character list + dice roller
-│   │   ├── lib/
-│   │   │   ├── socket.js          # Socket.io singleton + Svelte stores
-│   │   │   ├── CharacterCard.svelte  # HP controls (Damage / Heal)
-│   │   │   └── DiceRoller.svelte     # d4/d6/d8/d10/d12/d20 buttons
-│   │   └── app.css
+│   │   ├── main.js                   # Svelte app mount point
+│   │   ├── app.css                   # Global design tokens, reset, shared bases, app shell
+│   │   ├── App.svelte                # Root: tabbed shell (Characters / Dice / Dashboard)
+│   │   └── lib/
+│   │       ├── socket.js             # Socket.io singleton + Svelte stores (characters, lastRoll)
+│   │       ├── dashboardStore.js     # Activity history, pending actions, role state
+│   │       ├── CharacterCard.svelte  # HP, conditions, resources, rest controls
+│   │       ├── CharacterCard.css     # Character card styles (HP bar, pips, conditions)
+│   │       ├── DiceRoller.svelte     # d4–d20 roller with modifier and animation
+│   │       └── DiceRoller.css        # Dice grid, result card styles
 │   ├── vite.config.js
 │   └── package.json
 │
-└── ROADMAPS/                      # Project planning docs
+└── docs/                             # Project documentation
+    ├── ARCHITECTURE.md               # Codebase map and data flow guide
+    ├── SOCKET-EVENTS.md              # Complete Socket.io event reference
+    └── DESIGN-SYSTEM.md              # CSS tokens, typography, component style guide
 ```
 
 ---
 
 ## API Reference
 
-### `GET /api/characters`
+### Characters
 
-Returns the full character list.
+#### `GET /api/characters`
+Returns the full character roster including HP, conditions, resources, and ability scores.
 
+#### `PUT /api/characters/:id/hp`
+Updates HP (clamped 0–max). Broadcasts `hp_updated`.
 ```json
-[
-  { "id": "char1", "name": "El verdadero", "player": "Lucas", "hp_current": 28, "hp_max": 35 },
-  { "id": "char2", "name": "B12",          "player": "Sol",   "hp_current": 30, "hp_max": 30 }
-]
-```
-
-### `PUT /api/characters/:id/hp`
-
-Updates a character's current HP and broadcasts `hp_updated` to all connected clients.
-
-```http
-PUT /api/characters/char1/hp
-Content-Type: application/json
-
 { "hp_current": 15 }
 ```
 
-**Response:** the updated character object.
+### Conditions
 
-### `POST /api/rolls`
-
-Logs a dice roll and broadcasts `dice_rolled` to all connected clients.
-
-```http
-POST /api/rolls
-Content-Type: application/json
-
-{ "charId": "char1", "result": 18, "modifier": 0, "sides": 20 }
+#### `POST /api/characters/:id/conditions`
+Adds a status effect. Broadcasts `condition_added`.
+```json
+{ "condition_name": "Poisoned", "intensity_level": 1 }
 ```
 
-**Response:**
+#### `DELETE /api/characters/:id/conditions/:condId`
+Removes a condition by UUID. Broadcasts `condition_removed`.
+
+### Resources
+
+#### `PUT /api/characters/:id/resources/:rid`
+Updates a resource pool (clamped 0–max). Broadcasts `resource_updated`.
 ```json
-{ "charId": "char1", "rollResult": 18, "sides": 20 }
+{ "pool_current": 2 }
+```
+
+### Rest
+
+#### `POST /api/characters/:id/rest`
+Restores resources by rest type. Broadcasts `rest_taken`.
+```json
+{ "type": "short" }
+```
+
+### Dice
+
+#### `POST /api/rolls`
+Logs a roll and broadcasts `dice_rolled`.
+```json
+{ "charId": "char1", "result": 18, "modifier": 2, "sides": 20 }
 ```
 
 ---
@@ -191,7 +212,13 @@ Content-Type: application/json
 |---|---|---|
 | `initialData` | Server → Client | `{ characters[], rolls[] }` — sent on connect |
 | `hp_updated` | Server → All | `{ character, hp_current }` |
-| `dice_rolled` | Server → All | `{ charId, result, modifier, rollResult, sides }` |
+| `condition_added` | Server → All | `{ charId, condition }` |
+| `condition_removed` | Server → All | `{ charId, conditionId }` |
+| `resource_updated` | Server → All | `{ charId, resource }` |
+| `rest_taken` | Server → All | `{ charId, type, restored[], character }` |
+| `dice_rolled` | Server → All | `{ charId, characterName, result, modifier, rollResult, sides }` |
+
+See `docs/SOCKET-EVENTS.md` for full payload shapes and listener locations.
 
 ---
 
