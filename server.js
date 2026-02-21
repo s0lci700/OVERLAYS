@@ -56,6 +56,9 @@ app.get("/api/characters", (req, res) => {
 app.put("/api/characters/:id/hp", (req, res) => {
   const charId = req.params.id;
   const { hp_current } = req.body;
+  if (hp_current === undefined || typeof hp_current !== "number" || !Number.isFinite(hp_current)) {
+    return res.status(400).json({ error: "hp_current must be a finite number" });
+  }
   const character = characterModule.updateHp(charId, hp_current);
   if (!character) return res.status(404).json({ error: "Character not found" });
   io.emit("hp_updated", { character, hp_current: character.hp_current });
