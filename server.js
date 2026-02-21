@@ -137,8 +137,15 @@ app.post("/api/characters/:id/rest", (req, res) => {
 // ── Rolls ────────────────────────────────────────────────────
 
 // Record dice rolls and emit the results so the overlays can animate them.
+const isFiniteNumber = (v) => typeof v === "number" && Number.isFinite(v);
 app.post("/api/rolls", (req, res) => {
   const { charId, result, sides } = req.body;
+  if (charId == null || charId === "")
+    return res.status(400).json({ error: "charId required" });
+  if (!isFiniteNumber(result))
+    return res.status(400).json({ error: "result must be a finite number" });
+  if (!isFiniteNumber(sides) || sides < 1)
+    return res.status(400).json({ error: "sides must be a positive number" });
   const modifier = req.body.modifier ?? 0;
   const characterName =
     characterModule.getCharacterName(req.body.charId) || "Unknown";
