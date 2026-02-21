@@ -24,6 +24,7 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0"
   }
