@@ -52,9 +52,9 @@
   --shadow-red:    3px 3px 0px #FF4D6A;
   --shadow-cyan:   3px 3px 0px #00D4E8;
   --shadow-purple: 4px 4px 0px #500DF5;
-  --font-display: ''Bebas Neue'', ''Impact'', ''Arial Black'', sans-serif;
-  --font-script:  ''Dancing Script'', cursive;
-  --font-mono:    ''JetBrains Mono'', ''Courier New'', monospace;
+  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif;
+  --font-script:  "Dancing Script", cursive;
+  --font-mono:    "JetBrains Mono", "Courier New", monospace;
   --font-ui:      system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --space-1: 4px;
   --space-2: 8px;
@@ -123,11 +123,11 @@ input {
   outline: none;
 }
 
-input[type=''number''] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
-input[type=''number'']::-webkit-inner-spin-button,
-input[type=''number'']::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
 
