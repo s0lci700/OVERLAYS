@@ -117,8 +117,12 @@ app.delete("/api/characters/:id/conditions/:condId", (req, res) => {
 // Update limited resources (rage, ki, etc.) and broadcast the refreshed pool.
 app.put("/api/characters/:id/resources/:rid", (req, res) => {
   const { pool_current } = req.body;
-  if (pool_current === undefined)
+  if (pool_current === undefined || pool_current === null)
     return res.status(400).json({ error: "pool_current required" });
+  if (typeof pool_current !== "number" || !Number.isFinite(pool_current))
+    return res.status(400).json({ error: "pool_current must be a number" });
+  if (pool_current < 0)
+    return res.status(400).json({ error: "pool_current must be >= 0" });
   const resource = characterModule.updateResource(
     req.params.id,
     req.params.rid,
