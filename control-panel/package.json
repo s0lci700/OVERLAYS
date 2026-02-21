@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:auto": "node ../scripts/setup-ip.js && vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
