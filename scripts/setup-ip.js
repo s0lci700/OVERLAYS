@@ -8,7 +8,7 @@
  *
  * Writes:
  *   <repo-root>/.env              – PORT, CONTROL_PANEL_ORIGIN
- *   control-panel/.env            – VITE_SERVER_URL
+ *   control-panel/.env            – VITE_SERVER_URL, VITE_PORT
  *
  * Run standalone:  node scripts/setup-ip.js
  * Run via npm:     npm start  (see package.json)
@@ -22,8 +22,8 @@ const path = require("path");
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SERVER_PORT = process.env.PORT || 3000;
-const PANEL_PORT = process.env.VITE_PORT || 5173;
+const SERVER_PORT = parseInt(process.env.PORT || "3000", 10);
+const PANEL_PORT = parseInt(process.env.VITE_PORT || "5173", 10);
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ROOT_ENV = path.join(ROOT_DIR, ".env");
@@ -103,14 +103,14 @@ function serializeEnv(map) {
 }
 
 /**
- * Upserts a single key in a .env file.  If the file does not yet exist it is
- * created from the corresponding .env.example when available.
+ * Upserts multiple keys in a .env file in a single read→write pass.
+ * If the file does not yet exist it is created from the corresponding
+ * .env.example when available.
  *
- * @param {string} filePath      - Absolute path to the .env file
- * @param {string} key           - Environment variable name
- * @param {string} value         - New value (without quotes)
+ * @param {string} filePath          - Absolute path to the .env file
+ * @param {Record<string, string>} updates - Key/value pairs to set
  */
-function upsertEnvKey(filePath, key, value) {
+function upsertEnvKeys(filePath, updates) {
   // Seed from .env.example if the target file doesn't exist yet
   if (!fs.existsSync(filePath)) {
     const examplePath = filePath.replace(/\.env$/, ".env.example");
@@ -120,7 +120,9 @@ function upsertEnvKey(filePath, key, value) {
   }
 
   const map = parseEnv(filePath);
-  map.set(key, value);
+  for (const [key, value] of Object.entries(updates)) {
+    map.set(key, value);
+  }
   fs.writeFileSync(filePath, serializeEnv(map), "utf8");
 }
 
@@ -134,12 +136,16 @@ console.log(`[setup-ip] Detected local IP: ${ip}`);
 console.log(`[setup-ip] Server URL  → ${serverUrl}`);
 console.log(`[setup-ip] Panel origin → ${panelOrigin}`);
 
-// Update root .env
-upsertEnvKey(ROOT_ENV, "PORT", String(SERVER_PORT));
-upsertEnvKey(ROOT_ENV, "CONTROL_PANEL_ORIGIN", panelOrigin);
+// Update root .env (single read→write)
+upsertEnvKeys(ROOT_ENV, {
+  PORT: String(SERVER_PORT),
+  CONTROL_PANEL_ORIGIN: panelOrigin,
+});
 console.log(`[setup-ip] Updated ${ROOT_ENV}`);
 
-// Update control-panel .env
-upsertEnvKey(PANEL_ENV, "VITE_SERVER_URL", serverUrl);
-upsertEnvKey(PANEL_ENV, "VITE_PORT", String(PANEL_PORT));
+// Update control-panel .env (single read→write)
+upsertEnvKeys(PANEL_ENV, {
+  VITE_SERVER_URL: serverUrl,
+  VITE_PORT: String(PANEL_PORT),
+});
 console.log(`[setup-ip] Updated ${PANEL_ENV}`);
