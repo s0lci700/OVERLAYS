@@ -50,10 +50,13 @@
       // ═══════════════════════════════════════════════════════════════════════
 
       /**
-       * Socket.io connection to the server.
-       * Update this IP to match your server's local network address.
+       * Server URL configuration.
+       * Update this to match your server's local network address before running.
+       * Matches the serverPort constant used in server.js and control-panel/src/lib/socket.js.
        */
-      const socket = io("http://192.168.1.83:3000");
+      const serverPort = "http://192.168.1.83:3000";
+
+      const socket = io(serverPort);
 
       // ───────────────────────────────────────────────────────────────────────
       // DOM Element References
