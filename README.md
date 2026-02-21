@@ -219,7 +219,7 @@ Centered at bottom, hidden by default. Appears with a pop-in animation when a ro
 | Natural 1  | **¡PIFIA!** — red glow |
 | Everything else | Shows total with fade-out |
 
----
+### Dice
 
 ## Tech Stack
 
@@ -295,7 +295,13 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 - [ ] Sound effects
 - [ ] Custom Chilean branding / theme
 
----
+| Layer | Technology |
+|---|---|
+| Backend | Node.js 18, Express 5, Socket.io 4.8 |
+| Control Panel | Svelte 5, Vite 7 |
+| Overlays | Vanilla HTML/CSS/JS (Socket.io via CDN) |
+| Data | In-memory (demo) |
+| Communication | WebSocket via Socket.io |
 
 ## vs. Generic Overlay Tools
 
