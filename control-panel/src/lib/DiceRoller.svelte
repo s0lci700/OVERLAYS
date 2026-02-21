@@ -86,11 +86,11 @@
 
   /** True if last roll was a natural 20. Used for critical styling/visual feedback. */
   const isCrit = $derived(
-    $lastRoll?.rollResult === $lastRoll?.sides && $lastRoll?.sides === 20,
+    $lastRoll?.result === 20 && $lastRoll?.sides === 20,
   );
 
-  /** True if last roll result was 1. Used for failure styling/visual feedback. */
-  const isFail = $derived($lastRoll?.rollResult === 1);
+  /** True if last roll natural result was 1. Used for failure styling/visual feedback. */
+  const isFail = $derived($lastRoll?.result === 1);
 
   // ═══════════════════════════════════════════════════════════════
   // Animation Logic
