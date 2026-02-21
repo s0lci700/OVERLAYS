@@ -23,7 +23,7 @@ const path = require("path");
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SERVER_PORT = process.env.PORT || 3000;
-const PANEL_PORT = 5173;
+const PANEL_PORT = process.env.VITE_PORT || 5173;
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ROOT_ENV = path.join(ROOT_DIR, ".env");
@@ -141,4 +141,5 @@ console.log(`[setup-ip] Updated ${ROOT_ENV}`);
 
 // Update control-panel .env
 upsertEnvKey(PANEL_ENV, "VITE_SERVER_URL", serverUrl);
+upsertEnvKey(PANEL_ENV, "VITE_PORT", String(PANEL_PORT));
 console.log(`[setup-ip] Updated ${PANEL_ENV}`);
