@@ -10,6 +10,7 @@ const controlPanelPort = 'http://192.168.1.83:5173';
 const socket = io(serverPort);
 
 const characters = writable([]);
+// Re-exported for use in DiceRoller.svelte to display the most recent dice result.
 export const lastRoll = writable(null);
 
 socket.on('connect', () => {
