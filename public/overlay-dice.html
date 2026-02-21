@@ -148,11 +148,11 @@
         // Applies special cyan (crit) or red (fail) styling via CSS classes
         diceResult.className = "dice-result";
         diceLabel.className = "dice-label";
-        if (data.rollResult === 20) {
+        if (data.result === 20 && data.sides === 20) {
           diceResult.classList.add("crit");
           diceLabel.classList.add("crit");
           diceLabel.textContent = "¡CRÍTICO!";
-        } else if (data.rollResult === 1) {
+        } else if (data.result === 1 && data.sides === 20) {
           diceResult.classList.add("fail");
           diceLabel.classList.add("fail");
           diceLabel.textContent = "¡PIFIA!";
