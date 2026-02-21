@@ -1,38 +1,174 @@
+<!--
+  DiceRoller Component
+  ====================
+  Mobile-first D&D dice roller interface for the control panel.
+  
+  Features:
+  - Select active character for rolls
+  - Apply modifiers to rolls
+  - Roll d4, d6, d8, d10, d12, and d20 dice
+  - Display results with visual feedback (critical/fail states)
+  - Broadcast rolls to server via REST API
+  - Sync with all connected clients via Socket.io
+  - Smooth elastic bounce animation on roll results
+  
+  The component sends roll data to the server, which broadcasts it
+  to OBS overlays and other connected clients in real-time.
+-->
 <script>
-import { characters, serverPort, lastRoll } from "./socket";
+  import "./DiceRoller.css";
+  import { characters, serverPort, lastRoll } from "./socket";
+  import { get } from "svelte/store";
+  import { animate } from "animejs";
+  import { tick } from "svelte";
 
-import { get } from "svelte/store";
+  // ═══════════════════════════════════════════════════════════════
+  // State Management
+  // ═══════════════════════════════════════════════════════════════
 
-let selectedCharId = $state(get(characters)[0]?.id);
+  /** Currently selected character ID from the dropdown. Defaults to first character. */
+  let selectedCharId = $state(get(characters)[0]?.id);
 
+  /** Modifier to apply to all rolls (range: -20 to +20). */
+  let modifier = $state(0);
 
-function roll(diceType) {
+  /** Stores the current anime.js animation instance to allow cancellation on rapid rolls. */
+  let lastAnimation = null;
+
+  // ═══════════════════════════════════════════════════════════════
+  // Utility Functions
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Generates a random dice roll result.
+   * @param {number} diceType - Number of sides on the die (e.g., 20 for d20)
+   * @returns {number} Random result between 1 and diceType (inclusive)
+   */
+  function roll(diceType) {
     return Math.floor(Math.random() * diceType) + 1;
-}
+  }
 
-async function rollDice(diceType) {
+  /**
+   * Handles dice roll: generates result, sends to server, and broadcasts to all clients.
+   * Server responds with computed rollResult (result + modifier) which updates the
+   * lastRoll store and triggers the animation effect.
+   * @param {number} diceType - Number of sides on the die
+   */
+  async function rollDice(diceType) {
     let rollValue = roll(diceType);
 
-    const payload = { charId: selectedCharId, result: rollValue, modifier: 0, sides: diceType };
-    console.log('Sending payload:', payload); // add this
+    const payload = {
+      charId: selectedCharId,
+      result: rollValue,
+      modifier: modifier,
+      sides: diceType,
+    };
+    console.log("Sending payload:", payload);
 
     const response = await fetch(`${serverPort}/api/rolls`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ charId: selectedCharId, result: rollValue, modifier: 0, sides: diceType})
-	})
-	if (!response.ok) {
-		console.error('Failed to update HP', response.status);
-	}
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        charId: selectedCharId,
+        result: rollValue,
+        modifier: modifier,
+        sides: diceType,
+      }),
+    });
+    if (!response.ok) {
+      console.error("Failed to log roll", response.status);
+    }
+  }
 
-}
+  // ═══════════════════════════════════════════════════════════════
+  // Derived Reactive State
+  // ═══════════════════════════════════════════════════════════════
 
-const isCrit = $derived($lastRoll?.rollResult === $lastRoll?.sides && $lastRoll?.sides === 20);
-const isFail = $derived($lastRoll?.rollResult === 1);
+  /** True if last roll was a natural 20. Used for critical styling/visual feedback. */
+  const isCrit = $derived(
+    $lastRoll?.rollResult === $lastRoll?.sides && $lastRoll?.sides === 20,
+  );
+
+  /** True if last roll result was 1. Used for failure styling/visual feedback. */
+  const isFail = $derived($lastRoll?.rollResult === 1);
+
+  // ═══════════════════════════════════════════════════════════════
+  // Animation Logic
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Animates the dice result container sliding in and the number bouncing with elastic effect.
+   * Cancels any in-flight animation to prevent scale accumulation on rapid clicks.
+   *
+   * Animation Timeline:
+   * - Result container: fade in + slide up (200ms)
+   * - Number: elastic bounce scale 0.3→1 (450ms, delayed 70ms)
+   *
+   * @param {HTMLElement} resultElement - The .roll-result container
+   * @param {HTMLElement|null} numberElement - The .roll-number display
+   */
+  function diceAnimation(resultElement, numberElement) {
+    // Cancel any in-flight animations to prevent overlapping scale effects
+    if (lastAnimation) {
+      lastAnimation.pause();
+    }
+
+    // Reset element styles to baseline state before starting new animation
+    // This prevents scale from accumulating when rolling rapidly
+    if (numberElement) {
+      numberElement.style.transform = "scale(1)";
+    }
+    resultElement.style.opacity = "0";
+    resultElement.style.transform = "translateY(12px)";
+
+    // Animate result container sliding in from below
+    animate(resultElement, {
+      opacity: 1,
+      translateY: { from: 12 },
+      duration: 200,
+      ease: "outCubic",
+    });
+
+    // Animate number with elastic bounce effect
+    if (numberElement) {
+      lastAnimation = animate(numberElement, {
+        scale: { from: 0.3 },
+        duration: 450,
+        delay: 70,
+        ease: "outElastic(1, .6)",
+      });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Reactive Effects
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Watches for new rolls from the server and triggers the animation effect.
+   * Uses tick() to ensure DOM elements are rendered before querying them.
+   */
+  $effect(() => {
+    const roll = $lastRoll;
+    if (!roll) return;
+    tick().then(() => {
+      const resultElement = /** @type {HTMLElement | null} */ (
+        document.querySelector(".roll-result")
+      );
+      const numberElement = /** @type {HTMLElement | null} */ (
+        document.querySelector(".roll-number")
+      );
+      if (!resultElement) return;
+      diceAnimation(resultElement, numberElement);
+    });
+  });
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     Dice Roller UI
+     ═════════════════════════════════════════════════════════════════ -->
 <div class="dice-panel">
-
+  <!-- Character Selection Dropdown -->
   <div class="char-selector">
     <label class="selector-label" for="char-select">PERSONAJE ACTIVO</label>
     <div class="select-wrap">
@@ -45,6 +181,19 @@ const isFail = $derived($lastRoll?.rollResult === 1);
     </div>
   </div>
 
+  <!-- Roll Modifier Input -->
+  <div class="modifier-input">
+    <label class="modifier-label" for="modifier">MODIFICADOR</label>
+    <input
+      id="modifier"
+      type="number"
+      bind:value={modifier}
+      min="-20"
+      max="20"
+    />
+  </div>
+
+  <!-- Dice Button Grid -->
   <div class="dice-grid">
     {#each [4, 6, 8, 10, 12] as diceType}
       <button class="dice-btn" onclick={() => rollDice(diceType)}>
@@ -56,6 +205,7 @@ const isFail = $derived($lastRoll?.rollResult === 1);
     </button>
   </div>
 
+  <!-- Roll Result Display (shows when a roll is active) -->
   {#if $lastRoll}
     <div class="roll-result" class:is-crit={isCrit} class:is-fail={isFail}>
       <div class="roll-die-label">D{$lastRoll.sides}</div>
@@ -63,194 +213,9 @@ const isFail = $derived($lastRoll?.rollResult === 1);
         {$lastRoll.rollResult}
       </div>
       <div class="roll-label" class:crit={isCrit} class:fail={isFail}>
-        {#if isCrit}¡CRÍTICO!{:else if isFail}¡PIFIA!{:else}{$lastRoll.charId}{/if}
+        {#if isCrit}¡CRÍTICO!{:else if isFail}¡PIFIA!{:else}{$lastRoll.characterName ??
+            $lastRoll.charId}{/if}
       </div>
     </div>
   {/if}
-
 </div>
-
-<style>
-  .dice-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-    padding-bottom: var(--space-4);
-  }
-
-  /* ── Character Selector ── */
-  .char-selector {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .selector-label {
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    color: var(--grey);
-    letter-spacing: 0.12em;
-  }
-
-  .select-wrap {
-    position: relative;
-    background: var(--black-elevated);
-    border: 1px solid var(--grey-dim);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .select-wrap select {
-    width: 100%;
-    padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
-    background: transparent;
-    color: var(--white);
-    font-size: 1rem;
-    font-weight: 500;
-    min-height: var(--space-12);
-  }
-
-  .select-wrap select:focus {
-    outline: 2px solid var(--cyan);
-    outline-offset: -2px;
-  }
-
-  .select-arrow {
-    position: absolute;
-    right: var(--space-4);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--cyan);
-    pointer-events: none;
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-
-  /* ── Dice Grid ── */
-  .dice-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-  }
-
-  .dice-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 72px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--grey-dim);
-    background: var(--black-card);
-    box-shadow: 3px 3px 0px rgba(255, 255, 255, 0.05);
-    transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast), background var(--t-fast);
-  }
-
-  .dice-btn:hover {
-    border-color: var(--purple);
-    box-shadow: var(--shadow-purple);
-  }
-
-  .dice-btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: none;
-    border-color: var(--purple);
-  }
-
-  .dice-btn:hover .dice-label {
-    color: var(--purple);
-  }
-
-  .dice-label {
-    font-family: var(--font-mono);
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--white);
-    transition: color var(--t-fast);
-    line-height: 1;
-  }
-
-  /* d20 — full width, purple accent */
-  .d20-btn {
-    grid-column: 1 / -1;
-    min-height: 78px;
-    border-color: rgba(80, 13, 245, 0.5);
-    box-shadow: var(--shadow-purple);
-  }
-
-  .d20-btn .dice-label {
-    font-size: 2rem;
-    color: var(--purple);
-  }
-
-  .d20-btn:hover {
-    background: var(--purple-dim);
-    border-color: var(--purple);
-  }
-
-  .d20-btn:active {
-    transform: translate(4px, 4px);
-    box-shadow: none;
-  }
-
-  /* ── Roll Result ── */
-  .roll-result {
-    background: var(--black-card);
-    border: 1px solid var(--grey-dim);
-    border-top: 3px solid var(--cyan);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-cyan);
-    padding: var(--space-5) var(--space-4);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
-    animation: slideUp 200ms ease;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .roll-die-label {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    color: var(--grey);
-    letter-spacing: 0.1em;
-  }
-
-  .roll-number {
-    font-family: var(--font-mono);
-    font-size: 5rem;
-    font-weight: 700;
-    color: var(--white);
-    line-height: 1;
-    transition: color var(--t-fast), text-shadow var(--t-fast);
-  }
-
-  .roll-number.crit {
-    color: var(--cyan);
-    text-shadow: 0 0 24px rgba(0, 212, 232, 0.5);
-  }
-
-  .roll-number.fail {
-    color: var(--red);
-    text-shadow: 0 0 24px rgba(255, 77, 106, 0.5);
-  }
-
-  .roll-label {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    color: var(--grey);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .roll-label.crit {
-    color: var(--cyan);
-  }
-
-  .roll-label.fail {
-    color: var(--red);
-  }
-</style>

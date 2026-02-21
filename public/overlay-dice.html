@@ -1,178 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  DADOS & RISAS - Dice Roll Overlay
+  ==================================
+  OBS Browser Source overlay for displaying animated dice roll results.
+  
+  Setup:
+  - Add as Browser Source in OBS (1920×1080)
+  - Enable "Shutdown source when not visible" = OFF
+  - Enable "Refresh browser when scene becomes active" = ON
+  - Canvas body background must be transparent in OBS settings
+  
+  Behavior:
+  - Listens for 'dice_rolled' events from Socket.io server
+  - Displays result with elastic bounce animation (anime.js)
+  - Auto-hides after 4 seconds with fade-out
+  - Shows critical hits (nat 20) and fails (nat 1) with special styling
+  - Clears previous timers to handle rapid consecutive rolls
+  
+  Dependencies:
+  - anime.js 3.2.1 (animation engine)
+  - Socket.io 4.8.3 (real-time client)
+  - overlay-dice.css (external stylesheet)
+-->
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1080">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
     <title>DADOS & RISAS - Dice Overlay</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            width: 1920px;
-            height: 1080px;
-            background: transparent;
-            font-family: system-ui, sans-serif;
-            overflow: hidden;
-        }
-
-        #dice-container {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-        }
-
-        #dice-container.show {
-            display: block;
-            animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .dice-card {
-            background: rgba(0, 0, 0, 0.92);
-            border: 1px solid rgba(0, 212, 232, 0.4);
-            border-top: 3px solid #00D4E8;
-            border-radius: 12px;
-            padding: 24px 48px;
-            text-align: center;
-            min-width: 320px;
-            box-shadow: 4px 4px 0px #00D4E8;
-        }
-
-        .dice-character {
-            color: #888888;
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 6px;
-        }
-
-        .dice-formula {
-            color: #00D4E8;
-            font-family: 'Bebas Neue', 'Impact', sans-serif;
-            font-size: 24px;
-            font-weight: normal;
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
-        }
-
-        .dice-result {
-            color: white;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 80px;
-            font-weight: 700;
-            line-height: 1;
-            transition: color 0.2s ease, text-shadow 0.2s ease;
-        }
-
-        .dice-result.crit {
-            color: #00D4E8;
-            text-shadow: 0 0 24px rgba(0, 212, 232, 0.6);
-        }
-
-        .dice-result.fail {
-            color: #FF4D6A;
-            text-shadow: 0 0 24px rgba(255, 77, 106, 0.6);
-        }
-
-        .dice-label {
-            color: #888888;
-            font-family: 'Bebas Neue', 'Impact', sans-serif;
-            font-size: 18px;
-            font-weight: normal;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-top: 10px;
-        }
-
-        .dice-label.crit {
-            color: #00D4E8;
-        }
-
-        .dice-label.fail {
-            color: #FF4D6A;
-        }
-
-        @keyframes popIn {
-            0%   { opacity: 0; transform: scale(0.6) translateY(16px); }
-            65%  { transform: scale(1.04) translateY(-4px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        .hiding {
-            animation: fadeOut 0.5s ease forwards;
-        }
-    </style>
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="overlay-dice.css" />
+  </head>
+  <body>
+    <!-- 
+      Dice Roll Card Container
+      Initially hidden (display: none), shown via anime.js when dice_rolled event fires.
+      Positioned bottom-center via CSS (margin-left offset for centering).
+    -->
     <div id="dice-container">
-        <div class="dice-card">
-            <div class="dice-character" id="char-name">—</div>
-            <div class="dice-formula" id="dice-formula">d20</div>
-            <div class="dice-result" id="dice-result">—</div>
-            <div class="dice-label" id="dice-label">—</div>
-        </div>
+      <div class="dice-card">
+        <!-- Character name who rolled the dice -->
+        <div class="dice-character" id="char-name">—</div>
+
+        <!-- Dice type (d20, d6, etc.) -->
+        <div class="dice-formula" id="dice-formula">d20</div>
+
+        <!-- Roll breakdown showing base roll + modifier (e.g., "18 + 2") -->
+        <div class="dice-breakdown" id="dice-breakdown">5 + 2</div>
+
+        <!-- Large animated number showing final roll result -->
+        <div class="dice-result" id="dice-result">—</div>
+
+        <!-- Context label (character name or "¡CRÍTICO!"/"¡PIFIA!") -->
+        <div class="dice-label" id="dice-label">—</div>
+      </div>
     </div>
 
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+
     <script>
-        const socket = io('http://localhost:3000');
-        const container = document.getElementById('dice-container');
-        const charName = document.getElementById('char-name');
-        const diceFormula = document.getElementById('dice-formula');
-        const diceResult = document.getElementById('dice-result');
-        const diceLabel = document.getElementById('dice-label');
+      // ═══════════════════════════════════════════════════════════════════════
+      // Dice Overlay Logic
+      // ═══════════════════════════════════════════════════════════════════════
 
-        let hideTimer = null;
+      /**
+       * Socket.io connection to the server.
+       * Update this IP to match your server's local network address.
+       */
+      const socket = io("http://192.168.1.83:3000");
 
-        function showRoll(data) {
-            // Clear any existing timer
-            if (hideTimer) clearTimeout(hideTimer);
-            container.classList.remove('hiding');
+      // ───────────────────────────────────────────────────────────────────────
+      // DOM Element References
+      // ───────────────────────────────────────────────────────────────────────
 
-            // Populate content
-            charName.textContent = data.charId;
-            diceFormula.textContent = `d${data.sides ?? '?'}`;
-            diceResult.textContent = data.rollResult;
+      /** Main container element that shows/hides with animation */
+      const container = document.getElementById("dice-container");
 
-            // Crit/fail detection (assumes d20)
-            diceResult.className = 'dice-result';
-            diceLabel.className = 'dice-label';
-            if (data.rollResult === 20) {
-                diceResult.classList.add('crit');
-                diceLabel.classList.add('crit');
-                diceLabel.textContent = '¡CRÍTICO!';
-            } else if (data.rollResult === 1) {
-                diceResult.classList.add('fail');
-                diceLabel.classList.add('fail');
-                diceLabel.textContent = '¡PIFIA!';
-            } else {
-                diceLabel.textContent = `Total: ${data.rollResult}`;
-            }
+      /** Character name display element */
+      const charName = document.getElementById("char-name");
 
-            // Show then auto-hide after 4 seconds
-            container.classList.add('show');
-            hideTimer = setTimeout(() => {
-                container.classList.add('hiding');
-                setTimeout(() => {
-                    container.classList.remove('show', 'hiding');
-                }, 500);
-            }, 4000);
+      /** Dice formula display (e.g., "d20") */
+      const diceFormula = document.getElementById("dice-formula");
+
+      /** Large result number element */
+      const diceResult = document.getElementById("dice-result");
+
+      /** Label/context text element */
+      const diceLabel = document.getElementById("dice-label");
+
+      // ───────────────────────────────────────────────────────────────────────
+      // State Management
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Timer reference for auto-hide functionality.
+       * Cleared on new rolls to prevent premature hiding.
+       */
+      let hideTimer = null;
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Core Functions
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Displays an animated dice roll result on screen.
+       *
+       * Animation Timeline:
+       * 1. Cancels any pending auto-hide timer
+       * 2. Populates card with roll data
+       * 3. Applies crit/fail styling if applicable
+       * 4. Fades in container from bottom (500ms)
+       * 5. Elastic bounces the result number (600ms, 100ms delay)
+       * 6. Auto-hides after 4 seconds
+       *
+       * @param {Object} data - Roll data from server
+       * @param {string} data.characterName - Name of character who rolled
+       * @param {number} data.result - Base die result (before modifier)
+       * @param {number} data.modifier - Modifier applied to roll
+       * @param {number} data.rollResult - Final result (result + modifier)
+       * @param {number} data.sides - Number of sides on the die
+       */
+      function showRoll(data) {
+        // Cancel any existing auto-hide timer to handle rapid consecutive rolls
+        if (hideTimer) clearTimeout(hideTimer);
+
+        // ─── Populate Roll Breakdown ─────────────────────────────────────────
+        const breakdownEl = document.getElementById("dice-breakdown");
+        if (data.modifier > 0) {
+          breakdownEl.textContent = `${data.result} + ${data.modifier}`;
+        } else if (data.modifier < 0) {
+          breakdownEl.textContent = `${data.result} - ${Math.abs(data.modifier)}`;
+        } else {
+          breakdownEl.textContent = `${data.result}`;
         }
 
-        socket.on('dice_rolled', (data) => {
-            console.log('Dice rolled:', data);
-            showRoll(data);
+        // ─── Populate Card Content ───────────────────────────────────────────
+        charName.textContent = data.characterName || "Unknown";
+        diceFormula.textContent = `d${data.sides ?? "?"}`;
+        diceResult.textContent = data.rollResult;
+
+        // ─── Critical Hit / Fail Detection ───────────────────────────────────
+        // Natural 20 = critical success, Natural 1 = critical failure
+        // Applies special cyan (crit) or red (fail) styling via CSS classes
+        diceResult.className = "dice-result";
+        diceLabel.className = "dice-label";
+        if (data.rollResult === 20) {
+          diceResult.classList.add("crit");
+          diceLabel.classList.add("crit");
+          diceLabel.textContent = "¡CRÍTICO!";
+        } else if (data.rollResult === 1) {
+          diceResult.classList.add("fail");
+          diceLabel.classList.add("fail");
+          diceLabel.textContent = "¡PIFIA!";
+        } else {
+          diceLabel.textContent = `Total: ${data.rollResult}`;
+        }
+
+        // ─── Show Animation ──────────────────────────────────────────────────
+        // Reset container to initial hidden state before animating in
+        container.style.display = "block";
+        anime.set(container, {
+          opacity: 0,
+          translateY: 40,
         });
 
-        socket.on('connect', () => console.log('Dice overlay connected'));
-        socket.on('connect_error', (e) => console.error('Connection error:', e));
+        // Animate container: fade in + slide up from bottom
+        anime({
+          targets: container,
+          opacity: [0, 1],
+          translateY: [40, 0],
+          duration: 500,
+          easing: "easeInOutQuad",
+        });
+
+        // Animate result number: elastic bounce with slight delay for stagger effect
+        setTimeout(() => {
+          anime({
+            targets: diceResult,
+            opacity: [0, 1],
+            scale: [0.3, 1.15, 1], // Scale past 1.0 then settle for elastic feel
+            duration: 600,
+            easing: "easeOutElastic(1, .6)",
+          });
+        }, 100);
+
+        // ─── Auto-Hide Timer ─────────────────────────────────────────────────
+        // After 4 seconds, fade out and slide up slightly, then hide
+        hideTimer = setTimeout(() => {
+          anime({
+            targets: container,
+            opacity: [1, 0],
+            translateY: [0, -20],
+            duration: 500,
+            easing: "easeInOutQuad",
+            complete: () => {
+              container.style.display = "none";
+            },
+          });
+        }, 4000);
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Socket.io Event Handlers
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Handles incoming dice roll events from the server.
+       * Triggered when any client rolls dice via the control panel.
+       *
+       * Event payload structure:
+       * {
+       *   charId: string,
+       *   characterName: string,
+       *   result: number,        // Base die result
+       *   modifier: number,      // Modifier applied
+       *   rollResult: number,    // Final result (result + modifier)
+       *   sides: number          // Die type (4, 6, 8, 10, 12, 20)
+       * }
+       */
+      socket.on("dice_rolled", (data) => {
+        console.log("Dice rolled:", data);
+        showRoll(data);
+      });
+
+      /** Fires when Socket.io successfully connects to the server */
+      socket.on("connect", () => console.log("Dice overlay connected"));
+
+      /** Fires when Socket.io connection fails or is interrupted */
+      socket.on("connect_error", (e) => console.error("Connection error:", e));
     </script>
-</body>
+  </body>
 </html>

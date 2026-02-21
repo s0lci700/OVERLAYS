@@ -1,166 +1,141 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  DADOS & RISAS - HP Overlay
+  ==========================
+  OBS Browser Source overlay for displaying character HP bars in real-time.
+  
+  Setup:
+  - Add as Browser Source in OBS (1920×1080)
+  - Enable "Shutdown source when not visible" = OFF
+  - Enable "Refresh browser when scene becomes active" = ON
+  - Canvas body background must be transparent in OBS settings
+  
+  Behavior:
+  - Receives initial character data on 'initialData' event
+  - Listens for 'hp_updated' events to animate HP changes
+  - Color-codes HP bars: green (>60%), orange (30-60%), red (<30%)
+  - Critical HP (<30%) shows pulsing animation
+  - Displays brief status messages on connection/HP changes
+  
+  Dependencies:
+  - anime.js 3.2.1 (animation engine, currently unused but available)
+  - Socket.io 4.8.3 (real-time client)
+  - overlay-hp.css (external stylesheet)
+-->
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1080">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
     <title>DADOS & RISAS - HP Overlay</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            width: 1920px;
-            height: 1080px;
-            background: transparent;
-            font-family: system-ui, sans-serif;
-            overflow: hidden;
-        }
-
-        #hp-container {
-            position: absolute;
-            top: 50px;
-            right: 50px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .character-hp {
-            background: rgba(0, 0, 0, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 16px;
-            min-width: 360px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.9);
-        }
-
-        .char-name {
-            color: #FFFFFF;
-            font-family: 'Bebas Neue', 'Impact', sans-serif;
-            font-size: 28px;
-            font-weight: normal;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        .char-player {
-            color: #888888;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
-        }
-
-        .hp-bar-container {
-            background: rgba(30, 30, 30, 0.9);
-            height: 8px;
-            border-radius: 999px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .hp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #991B1B, #FF4D6A);
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-            border-radius: 999px;
-        }
-
-        .hp-bar-fill.healthy {
-            background: linear-gradient(90deg, #15803D, #22C55E);
-            box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
-        }
-
-        .hp-bar-fill.injured {
-            background: linear-gradient(90deg, #B45309, #F59E0B);
-            box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
-        }
-
-        .hp-bar-fill.critical {
-            background: linear-gradient(90deg, #991B1B, #FF4D6A);
-            box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        .hp-text {
-            color: white;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 15px;
-            font-weight: 700;
-            margin-top: 8px;
-            text-align: right;
-            letter-spacing: 0.04em;
-        }
-
-        .status-message {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #00D4E8;
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: 1px solid rgba(0, 212, 232, 0.4);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 16px;
-            display: none;
-        }
-
-        .status-message.show {
-            display: block;
-            animation: fadeInOut 2s ease;
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-            20% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-        }
-    </style>
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="overlay-hp.css" />
+  </head>
+  <body>
+    <!-- Status message banner (connection state, HP updates) -->
     <div id="status" class="status-message">Conectando...</div>
+
+    <!-- Character HP cards are dynamically rendered here via JavaScript -->
     <div id="hp-container"></div>
 
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+
     <script>
-        const socket = io('http://localhost:3000');
-        const hpContainer = document.getElementById('hp-container');
-        const statusMessage = document.getElementById('status');
+      // ═══════════════════════════════════════════════════════════════════════
+      // HP Overlay Logic
+      // ═══════════════════════════════════════════════════════════════════════
 
-        function showStatus(message) {
-            statusMessage.textContent = message;
-            statusMessage.classList.add('show');
-            setTimeout(() => statusMessage.classList.remove('show'), 2000);
-        }
+      /**
+       * Socket.io connection to the server.
+       * Update this IP to match your server's local network address.
+       */
+      const socket = io("http://192.168.1.83:3000");
 
-        function getHPPercentage(current, max) {
-            return (current / max) * 100;
-        }
+      // ───────────────────────────────────────────────────────────────────────
+      // DOM Element References
+      // ───────────────────────────────────────────────────────────────────────
 
-        function getHPClass(percentage) {
-            if (percentage > 60) return 'healthy';
-            if (percentage > 30) return 'injured';
-            return 'critical';
-        }
+      /** Container where character HP cards are rendered */
+      const hpContainer = document.getElementById("hp-container");
 
-        function createCharacterHP(character) {
-            const percentage = getHPPercentage(character.hp_current, character.hp_max);
-            const hpClass = getHPClass(percentage);
+      /** Status banner element for connection/update messages */
+      const statusMessage = document.getElementById("status");
 
-            return `
+      // ───────────────────────────────────────────────────────────────────────
+      // Utility Functions
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Displays a temporary status message banner at the top of the overlay.
+       * Message auto-hides after 2 seconds via CSS animation.
+       *
+       * @param {string} message - Text to display
+       */
+      function showStatus(message) {
+        statusMessage.textContent = message;
+        statusMessage.classList.add("show");
+        setTimeout(() => statusMessage.classList.remove("show"), 2000);
+      }
+
+      /**
+       * Calculates HP as a percentage of max.
+       *
+       * @param {number} current - Current HP
+       * @param {number} max - Maximum HP
+       * @returns {number} Percentage (0-100)
+       */
+      function getHPPercentage(current, max) {
+        return (current / max) * 100;
+      }
+
+      /**
+       * Determines HP bar color class based on health threshold.
+       *
+       * Thresholds:
+       * - healthy: >60% HP (green gradient)
+       * - injured: 30-60% HP (orange gradient)
+       * - critical: <30% HP (red gradient + pulse animation)
+       *
+       * @param {number} percentage - HP percentage (0-100)
+       * @returns {string} CSS class name
+       */
+      function getHPClass(percentage) {
+        if (percentage > 60) return "healthy";
+        if (percentage > 30) return "injured";
+        return "critical";
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Rendering Functions
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Generates HTML for a single character HP card.
+       * Card includes character name, player name, HP bar, and HP text.
+       *
+       * The `data-char-id` attribute is used for targeted DOM updates
+       * when HP changes (see updateCharacterHP).
+       *
+       * @param {Object} character - Character data object
+       * @param {string} character.id - Unique character ID
+       * @param {string} character.name - Character name
+       * @param {string} character.player - Player name
+       * @param {number} character.hp_current - Current HP
+       * @param {number} character.hp_max - Maximum HP
+       * @returns {string} HTML markup for the character card
+       */
+      function createCharacterHP(character) {
+        const percentage = getHPPercentage(
+          character.hp_current,
+          character.hp_max,
+        );
+        const hpClass = getHPClass(percentage);
+
+        return `
                 <div class="character-hp" data-char-id="${character.id}">
                     <div class="char-name">${character.name}</div>
                     <div class="char-player">${character.player}</div>
@@ -170,55 +145,130 @@
                     <div class="hp-text">${character.hp_current} / ${character.hp_max}</div>
                 </div>
             `;
-        }
+      }
 
-        function updateCharacterHP(character) {
-            const charElement = document.querySelector(`[data-char-id="${character.id}"]`);
-            if (!charElement) return;
+      /**
+       * Updates an existing character HP card in the DOM.
+       * Only mutates the HP bar fill and text, preserving the rest of the card.
+       * This is more efficient than re-rendering the entire card on each update.
+       *
+       * The HP bar width transition is handled by CSS (0.5s cubic-bezier).
+       *
+       * @param {Object} character - Updated character data
+       * @param {string} character.id - Character ID to target
+       * @param {number} character.hp_current - New current HP
+       * @param {number} character.hp_max - Maximum HP
+       */
+      function updateCharacterHP(character) {
+        const charElement = document.querySelector(
+          `[data-char-id="${character.id}"]`,
+        );
+        if (!charElement) return;
 
-            const percentage = getHPPercentage(character.hp_current, character.hp_max);
-            const hpClass = getHPClass(percentage);
+        const percentage = getHPPercentage(
+          character.hp_current,
+          character.hp_max,
+        );
+        const hpClass = getHPClass(percentage);
 
-            const hpBarFill = charElement.querySelector('.hp-bar-fill');
-            const hpText = charElement.querySelector('.hp-text');
+        const hpBarFill = charElement.querySelector(".hp-bar-fill");
+        const hpText = charElement.querySelector(".hp-text");
 
-            hpBarFill.classList.remove('healthy', 'injured', 'critical');
-            hpBarFill.classList.add(hpClass);
-            hpBarFill.style.width = percentage + '%';
-            hpText.textContent = `${character.hp_current} / ${character.hp_max}`;
-        }
+        // Update HP bar color class based on new percentage
+        hpBarFill.classList.remove("healthy", "injured", "critical");
+        hpBarFill.classList.add(hpClass);
 
-        function renderAllCharacters(characters) {
-            hpContainer.innerHTML = characters.map(createCharacterHP).join('');
-        }
+        // Update bar width (CSS transition handles animation)
+        hpBarFill.style.width = percentage + "%";
 
-        // Socket.io event listeners
-        socket.on('connect', () => {
-            console.log('Connected to server');
-            showStatus('✓ Conectado');
-        });
+        // Update HP text display
+        hpText.textContent = `${character.hp_current} / ${character.hp_max}`;
+      }
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-            showStatus('✗ Desconectado');
-        });
+      /**
+       * Renders all character HP cards on initial load.
+       * Called once when 'initialData' event fires from server.
+       *
+       * @param {Array} characters - Array of character objects
+       */
+      function renderAllCharacters(characters) {
+        hpContainer.innerHTML = characters.map(createCharacterHP).join("");
+      }
 
-        socket.on('initialData', (data) => {
-            console.log('Initial data received:', data);
-            renderAllCharacters(data.characters);
-        });
+      // ───────────────────────────────────────────────────────────────────────
+      // Socket.io Event Handlers
+      // ───────────────────────────────────────────────────────────────────────
 
-        socket.on('hp_updated', (data) => {
-            console.log('HP updated:', data);
-            updateCharacterHP(data.character);
-            showStatus(`${data.character.name}: ${data.hp_current} HP`);
-        });
+      /**
+       * Fires when Socket.io successfully connects to the server.
+       * Shows a brief success status message.
+       */
+      socket.on("connect", () => {
+        console.log("Connected to server");
+        showStatus("✓ Conectado");
+      });
 
-        // Error handling
-        socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-            showStatus('✗ Error de conexión');
-        });
+      /**
+       * Fires when Socket.io disconnects from the server.
+       * Shows a warning status message.
+       */
+      socket.on("disconnect", () => {
+        console.log("Disconnected from server");
+        showStatus("✗ Desconectado");
+      });
+
+      /**
+       * Receives initial character data on connection.
+       * Renders all character HP cards in the container.
+       *
+       * Event payload structure:
+       * {
+       *   characters: [
+       *     {
+       *       id: string,
+       *       name: string,
+       *       player: string,
+       *       hp_current: number,
+       *       hp_max: number,
+       *       armor_class: number,
+       *       speed_walk: number,
+       *       ...
+       *     },
+       *     ...
+       *   ],
+       *   rolls: [...]
+       * }
+       */
+      socket.on("initialData", (data) => {
+        console.log("Initial data received:", data);
+        renderAllCharacters(data.characters);
+      });
+
+      /**
+       * Handles HP update events from the server.
+       * Triggered when any client updates a character's HP.
+       * Updates only the affected character's card (efficient DOM mutation).
+       *
+       * Event payload structure:
+       * {
+       *   character: { id, name, hp_current, hp_max, ... },
+       *   hp_current: number  // Duplicate for convenience
+       * }
+       */
+      socket.on("hp_updated", (data) => {
+        console.log("HP updated:", data);
+        updateCharacterHP(data.character);
+        showStatus(`${data.character.name}: ${data.hp_current} HP`);
+      });
+
+      /**
+       * Fires when Socket.io connection fails or encounters an error.
+       * Shows an error status message.
+       */
+      socket.on("connect_error", (error) => {
+        console.error("Connection error:", error);
+        showStatus("✗ Error de conexión");
+      });
     </script>
-</body>
+  </body>
 </html>

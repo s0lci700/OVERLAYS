@@ -1,274 +1,308 @@
+<!--
+  CharacterCard Component
+  =======================
+  Displays and manages a single D&D character's vital stats and resources.
+  
+  Features:
+  - Real-time HP tracking with damage flash animation
+  - Visual HP bar with color thresholds (healthy/injured/critical)
+  - Armor Class and movement speed display
+  - Condition management (add/remove status effects)
+  - Resource pool management (spell slots, action economy, etc.)
+  - Short/long rest functionality
+  - Damage/healing controls with adjustable amounts
+  - Broadcasts all changes to server which syncs across clients
+  
+  The component is a controlled component—all state updates go through
+  the server API and arrive back via Socket.io, ensuring true sync.
+-->
 <script>
-import { serverPort } from "./socket";
+  import "./CharacterCard.css";
+  import { animate } from "animejs";
+  import { onMount } from "svelte";
+  import { serverPort } from "./socket";
 
- let { character } = $props();
- let amount = $state(5);
+  // ──────────────────────────────────────────────────────────────────────────
+  // Props
+  // ──────────────────────────────────────────────────────────────────────────
 
- async function updateHp(type) {
-	let newHp = type === 'damage'
-	? character.hp_current - amount
-	: character.hp_current + amount;
+  /** Character object from server, contains all stats, resources, conditions. */
+  let { character } = $props();
 
-	newHp = Math.max(0, Math.min(newHp, character.hp_max));
+  // ──────────────────────────────────────────────────────────────────────────
+  // State Management
+  // ──────────────────────────────────────────────────────────────────────────
 
-	const response = await fetch(`${serverPort}/api/characters/${character.id}/hp`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ hp_current: newHp })
-	})
-	if (!response.ok) {
-		console.error('Failed to update HP', response.status);
-	}
-};
+  /** Amount of HP to apply per damage/heal action (range: 1-999). */
+  let amount = $state(5);
 
-const hpPercent = $derived((character.hp_current / character.hp_max) * 100);
-const hpClass = $derived(
-  hpPercent > 60 ? 'hp--healthy' :
-  hpPercent > 30 ? 'hp--injured' : 'hp--critical'
-);
+  /** Reference to the hit-flash overlay element for damage animation. */
+  let hitFlashEl;
+
+  /** Previous HP value for detecting damage and triggering flash animation. */
+  let prevHp = 0;
+
+  // Initialize prevHp on mount to avoid capturing `character` at module evaluation time
+  onMount(() => {
+    prevHp = character.hp_current;
+  });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Reactive Effects
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Watches for HP changes and triggers a flash animation when damage is taken.
+   * Compares current HP to previous value—if it decreased, plays a fade-out
+   * overlay animation to visually indicate damage.
+   */
+  $effect(() => {
+    const hp = character.hp_current;
+    if (hp < prevHp && hitFlashEl) {
+      hitFlashEl.style.opacity = "0.5";
+      animate(hitFlashEl, { opacity: 0, duration: 700, ease: "outCubic" });
+    }
+    prevHp = hp;
+  });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // HP & Damage API
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Updates character HP by applying damage or healing.
+   * Clamps result between 0 and max HP, sends to server, which broadcasts
+   * the change to all clients and enables the damage flash animation.
+   *
+   * @param {'damage' | 'heal'} type - Whether to subtract or add HP
+   */
+  async function updateHp(type) {
+    let newHp =
+      type === "damage"
+        ? character.hp_current - amount
+        : character.hp_current + amount;
+    newHp = Math.max(0, Math.min(newHp, character.hp_max));
+    const response = await fetch(
+      `${serverPort}/api/characters/${character.id}/hp`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hp_current: newHp }),
+      },
+    );
+    if (!response.ok) console.error("Failed to update HP", response.status);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Condition Management
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Removes a condition (status effect) from the character.
+   * Sends DELETE request to server, which broadcasts removal to all clients.
+   *
+   * @param {string} conditionId - ID of the condition to remove
+   */
+  async function removeCondition(conditionId) {
+    const response = await fetch(
+      `${serverPort}/api/characters/${character.id}/conditions/${conditionId}`,
+      {
+        method: "DELETE",
+      },
+    );
+    if (!response.ok)
+      console.error("Failed to remove condition", response.status);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Resource Management (Spell Slots, Action Economy, etc.)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Toggles a resource pip (spent/unspent).
+   * If pip is filled (spent), decrement pool_current; if empty, increment.
+   * Sends update to server, which broadcasts to all clients.
+   *
+   * @param {Object} resource - The resource object (spell slots, etc.)
+   * @param {boolean} isFilled - Whether the pip is currently filled (spent)
+   */
+  async function togglePip(resource, isFilled) {
+    const newCurrent = isFilled
+      ? resource.pool_current - 1
+      : resource.pool_current + 1;
+    const response = await fetch(
+      `${serverPort}/api/characters/${character.id}/resources/${resource.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pool_current: newCurrent }),
+      },
+    );
+    if (!response.ok)
+      console.error("Failed to update resource", response.status);
+  }
+
+  /**
+   * Triggers a short or long rest, restoring resources per D&D rules.
+   * Server resets pools and distributes hit dice as appropriate.
+   *
+   * @param {'short' | 'long'} type - Whether a short or long rest
+   */
+  async function takeRest(type) {
+    const response = await fetch(
+      `${serverPort}/api/characters/${character.id}/rest`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      },
+    );
+    if (!response.ok) console.error("Failed to take rest", response.status);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Derived Reactive State
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /** Percentage of max HP remaining (0–100). Used for HP bar width and styling. */
+  const hpPercent = $derived((character.hp_current / character.hp_max) * 100);
+
+  /** CSS class name for HP bar color based on health threshold (healthy/injured/critical). */
+  const hpClass = $derived(
+    hpPercent > 60
+      ? "hp--healthy"
+      : hpPercent > 30
+        ? "hp--injured"
+        : "hp--critical",
+  );
 </script>
 
-<article class="char-card" data-char-id={character.id} class:is-critical={hpPercent <= 30}>
+<!-- ────────────────────────────────────────────────────────────────────────
+     Character Card UI
+     ──────────────────────────────────────────────────────────────────────── -->
+<article
+  class="char-card card-base"
+  data-char-id={character.id}
+  class:is-critical={hpPercent <= 30}
+>
+  <!-- Damage flash overlay, animated when HP is reduced -->
+  <div class="hit-flash" bind:this={hitFlashEl}></div>
 
+  <!-- Character name, player name, and current/max HP display -->
   <div class="char-header">
     <div class="char-identity">
       <h2 class="char-name">{character.name}</h2>
       <span class="char-player">{character.player}</span>
     </div>
     <div class="char-hp-nums">
-      <span class="hp-cur" class:critical={hpPercent <= 30}>{character.hp_current}</span>
+      <span class="hp-cur" class:critical={hpPercent <= 30}
+        >{character.hp_current}</span
+      >
       <span class="hp-sep">/</span>
       <span class="hp-max">{character.hp_max}</span>
     </div>
   </div>
 
-  <div class="hp-track" role="progressbar" aria-valuenow={character.hp_current} aria-valuemax={character.hp_max} aria-label="Puntos de vida">
+  <!-- HP progress bar with dynamic color (healthy/injured/critical) -->
+  <div
+    class="hp-track"
+    role="progressbar"
+    aria-valuenow={character.hp_current}
+    aria-valuemax={character.hp_max}
+    aria-label="Puntos de vida"
+  >
     <div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
   </div>
 
+  <!-- Armor Class and Speed (stat block) -->
+  <div class="char-stats">
+    <div class="stat-item">
+      <span class="stat-label">CA</span>
+      <span class="stat-value">{character.armor_class}</span>
+    </div>
+    <span class="stat-divider">|</span>
+    <div class="stat-item">
+      <span class="stat-label">VEL</span>
+      <span class="stat-value">{character.speed_walk}ft</span>
+    </div>
+  </div>
+
+  <!-- Conditions/status effects (removable with close button) -->
+  {#if character.conditions && character.conditions.length > 0}
+    <div class="conditions-row">
+      {#each character.conditions as condition (condition.id)}
+        <button
+          class="condition-pill"
+          onclick={() => removeCondition(condition.id)}
+          >{condition.condition_name} ×</button
+        >
+      {/each}
+    </div>
+  {/if}
+
+  <!-- Resource pools (spell slots, action economy, etc.) with pip UI -->
+  {#if character.resources && character.resources.length > 0}
+    <div class="resources-section">
+      {#each character.resources as resource (resource.id)}
+        <div class="resource-row">
+          <span class="resource-label">{resource.name}</span>
+          <!-- Clickable pip buttons for spending/recovering resources -->
+          <div class="resource-pips">
+            {#each Array(resource.pool_max) as _, i}
+              {@const filled = i < resource.pool_current}
+              <button
+                class="pip pip--{resource.recharge.toLowerCase()} {filled
+                  ? 'pip--filled'
+                  : 'pip--empty'}"
+                onclick={() => togglePip(resource, filled)}
+                aria-label="{filled ? 'Gastar' : 'Recuperar'} {resource.name}"
+              ></button>
+            {/each}
+          </div>
+        </div>
+      {/each}
+    </div>
+    <!-- Short/long rest buttons to restore resources -->
+    <div class="rest-buttons">
+      <button class="btn-base btn-rest" onclick={() => takeRest("short")}
+        >CORTO</button
+      >
+      <button class="btn-base btn-rest" onclick={() => takeRest("long")}
+        >LARGO</button
+      >
+    </div>
+  {/if}
+
+  <!-- HP damage/healing controls -->
   <div class="char-controls">
-    <button class="btn btn-damage" onclick={() => updateHp('damage')}>
+    <button class="btn-base btn-damage" onclick={() => updateHp("damage")}>
       − DAÑO
     </button>
 
+    <!-- Stepper control for adjusting damage/healing amount -->
     <div class="stepper-cluster">
-      <button class="stepper" onclick={() => amount = Math.max(1, amount - 1)} aria-label="Reducir">−</button>
-      <input class="amount-input" type="number" bind:value={amount} min="1" max="999" aria-label="Cantidad" />
-      <button class="stepper" onclick={() => amount = Math.min(999, amount + 1)} aria-label="Aumentar">+</button>
+      <button
+        class="stepper"
+        onclick={() => (amount = Math.max(1, amount - 1))}
+        aria-label="Reducir">−</button
+      >
+      <input
+        class="amount-input"
+        type="number"
+        bind:value={amount}
+        min="1"
+        max="999"
+        aria-label="Cantidad"
+      />
+      <button
+        class="stepper"
+        onclick={() => (amount = Math.min(999, amount + 1))}
+        aria-label="Aumentar">+</button
+      >
     </div>
 
-    <button class="btn btn-heal" onclick={() => updateHp('heal')}>
+    <button class="btn-base btn-heal" onclick={() => updateHp("heal")}>
       + CURAR
     </button>
   </div>
-
 </article>
-
-<style>
-  .char-card {
-    background: var(--black-card);
-    border: 1px solid var(--grey-dim);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    padding: var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    transition: border-color var(--t-fast);
-  }
-
-  .char-card.is-critical {
-    border-color: var(--red);
-  }
-
-  /* ── Header ── */
-  .char-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-3);
-  }
-
-  .char-identity {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .char-name {
-    font-family: var(--font-display);
-    font-size: 1.75rem;
-    color: var(--white);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .char-player {
-    font-size: 0.7rem;
-    color: var(--grey);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-family: var(--font-ui);
-  }
-
-  /* ── HP Numbers ── */
-  .char-hp-nums {
-    display: flex;
-    align-items: baseline;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-
-  .hp-cur {
-    font-family: var(--font-mono);
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: var(--white);
-    line-height: 1;
-    transition: color var(--t-fast);
-  }
-
-  .hp-cur.critical {
-    color: var(--red);
-  }
-
-  .hp-sep {
-    font-family: var(--font-mono);
-    font-size: 1.25rem;
-    color: var(--grey);
-    line-height: 1;
-  }
-
-  .hp-max {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    color: var(--grey);
-    line-height: 1;
-  }
-
-  /* ── HP Bar ── */
-  .hp-track {
-    height: 6px;
-    background: #222;
-    border-radius: var(--radius-pill);
-    overflow: hidden;
-  }
-
-  .hp-fill {
-    height: 100%;
-    border-radius: var(--radius-pill);
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background var(--t-normal);
-  }
-
-  .hp-fill.hp--healthy {
-    background: linear-gradient(90deg, #15803D, #22C55E);
-    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
-  }
-
-  .hp-fill.hp--injured {
-    background: linear-gradient(90deg, #B45309, #F59E0B);
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
-  }
-
-  .hp-fill.hp--critical {
-    background: linear-gradient(90deg, #991B1B, #FF4D6A);
-    box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
-    animation: barPulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes barPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.6; }
-  }
-
-  /* ── Controls ── */
-  .char-controls {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: var(--space-2);
-    align-items: center;
-  }
-
-  .btn {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    letter-spacing: 0.04em;
-    border-radius: var(--radius-md);
-    min-height: 52px;
-    border: 1px solid;
-    transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
-  }
-
-  .btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: none !important;
-  }
-
-  .btn-damage {
-    background: var(--red-dim);
-    border-color: var(--red);
-    color: var(--red);
-  }
-
-  .btn-damage:hover {
-    background: var(--red);
-    color: var(--white);
-    box-shadow: var(--shadow-red);
-  }
-
-  .btn-heal {
-    background: var(--cyan-dim);
-    border-color: var(--cyan);
-    color: var(--cyan);
-  }
-
-  .btn-heal:hover {
-    background: var(--cyan);
-    color: var(--black);
-    box-shadow: var(--shadow-cyan);
-  }
-
-  /* ── Stepper Cluster ── */
-  .stepper-cluster {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    background: var(--black-elevated);
-    border: 1px solid var(--grey-dim);
-    border-radius: var(--radius-md);
-    padding: var(--space-1);
-  }
-
-  .stepper {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    color: var(--grey);
-    font-size: 1.25rem;
-    line-height: 1;
-    transition: background var(--t-fast), color var(--t-fast);
-  }
-
-  .stepper:hover {
-    background: var(--grey-dim);
-    color: var(--white);
-  }
-
-  .amount-input {
-    width: 48px;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--white);
-  }
-</style>
