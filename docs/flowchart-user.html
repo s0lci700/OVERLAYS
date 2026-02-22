@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DADOS &amp; RISAS — How It Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=Inter:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --red:     #FF4D6A;
+      --cyan:    #00D4E8;
+      --purple:  #500DF5;
+      --green:   #22C55E;
+      --amber:   #F59E0B;
+      --black:   #000000;
+      --card:    #0D0D0D;
+      --raised:  #141418;
+      --border:  #222230;
+      --white:   #FFFFFF;
+      --grey:    #888888;
+      --softgrey:#c0c8d0;
+
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-script:  'Dancing Script', cursive;
+      --font-body:    'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── noise texture overlay ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── subtle radial glow ── */
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow-1 { width: 600px; height: 600px; top: -200px; right: -150px; background: rgba(80,13,245,0.07); }
+    .bg-glow-2 { width: 500px; height: 500px; bottom: 100px; left: -150px; background: rgba(0,212,232,0.06); }
+
+    /* ── layout ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 10vw, 7rem);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .hero-title .amp {
+      font-family: var(--font-script);
+      font-size: 0.65em;
+      color: var(--red);
+      display: inline-block;
+      transform: translateY(8px);
+    }
+    .hero-sub {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      letter-spacing: 0.1em;
+      color: var(--grey);
+      margin-bottom: 32px;
+    }
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--softgrey);
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,77,106,0.1);
+      border: 1px solid rgba(255,77,106,0.3);
+      border-radius: 999px;
+      padding: 8px 20px;
+      font-size: 0.8rem;
+      color: var(--red);
+      font-weight: 500;
+    }
+    .hero-pill::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ══════════════════════════════
+       SECTION HEADERS
+    ══════════════════════════════ */
+    .section {
+      padding: 64px 0 0;
+    }
+    .section-eyebrow {
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+    .section-desc {
+      font-size: 0.9rem;
+      color: var(--grey);
+      line-height: 1.6;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+
+    /* ══════════════════════════════
+       THE THREE PARTS (overview)
+    ══════════════════════════════ */
+    .parts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      margin-bottom: 48px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .part {
+      background: var(--card);
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .part:not(:last-child) {
+      border-right: 1px solid var(--border);
+    }
+    .part-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .part-num {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      color: var(--grey);
+      margin-bottom: 8px;
+    }
+    .part-name {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .part-desc {
+      font-size: 0.78rem;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+    .part-badge {
+      position: absolute;
+      bottom: -1px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 3px;
+    }
+    .part-1 .part-badge { background: var(--purple); }
+    .part-2 .part-badge { background: var(--cyan); }
+    .part-3 .part-badge { background: var(--green); }
+
+    /* arrows between parts */
+    .parts-arrows {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 48px;
+      display: none; /* hidden on narrow */
+    }
+
+    /* ══════════════════════════════
+       FLOW ARROWS (big visual flow)
+    ══════════════════════════════ */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 48px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 0 24px;
+      position: relative;
+    }
+
+    /* vertical connector line */
+    .flow-step:not(:last-child) .flow-line {
+      position: absolute;
+      left: 32px;
+      top: 72px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--border), transparent);
+    }
+
+    .flow-num {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .flow-num-1 { background: rgba(80,13,245,0.2);  border: 2px solid var(--purple);  color: #9b7fff; }
+    .flow-num-2 { background: rgba(0,212,232,0.15); border: 2px solid var(--cyan);    color: var(--cyan); }
+    .flow-num-3 { background: rgba(255,77,106,0.15); border: 2px solid var(--red);    color: var(--red); }
+    .flow-num-4 { background: rgba(34,197,94,0.15); border: 2px solid var(--green);   color: var(--green); }
+    .flow-num-5 { background: rgba(245,158,11,0.15); border: 2px solid var(--amber);  color: var(--amber); }
+
+    .flow-content {
+      padding: 8px 0 40px;
+    }
+    .flow-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+    .flow-body {
+      font-size: 0.85rem;
+      color: var(--softgrey);
+      line-height: 1.7;
+      max-width: 560px;
+    }
+    .flow-note {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--grey);
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+    }
+    .flow-note-icon { font-size: 1rem; }
+
+    /* ══════════════════════════════
+       SCENARIO CARDS
+    ══════════════════════════════ */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+    .scenario {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .scenario-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .scenario-emoji { font-size: 2rem; flex-shrink: 0; }
+    .scenario-htitle {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    .scenario-hsub {
+      font-size: 0.72rem;
+      color: var(--grey);
+      margin-top: 2px;
+    }
+    .scenario-steps {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sc-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .sc-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .sc-dot-hp    { background: rgba(255,77,106,0.2); color: var(--red);   border: 1px solid rgba(255,77,106,0.4); }
+    .sc-dot-dice  { background: rgba(80,13,245,0.2);  color: #9b7fff;      border: 1px solid rgba(80,13,245,0.4); }
+    .sc-dot-green { background: rgba(34,197,94,0.2);  color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+    .sc-text {
+      font-size: 0.82rem;
+      color: var(--softgrey);
+      line-height: 1.6;
+    }
+    .sc-text strong { color: var(--white); font-weight: 500; }
+    .sc-result {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sc-result-hp   { background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.25); color: var(--red); }
+    .sc-result-dice { background: rgba(80,13,245,0.1);  border: 1px solid rgba(80,13,245,0.25);  color: #9b7fff; }
+
+    /* ══════════════════════════════
+       SETUP STEPS
+    ══════════════════════════════ */
+    .setup-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .setup-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .setup-badge {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      background: var(--raised);
+      border: 1px solid var(--border);
+    }
+    .setup-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .setup-body {
+      font-size: 0.8rem;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+    .setup-body code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--cyan);
+    }
+    .setup-body a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* ══════════════════════════════
+       HP HEALTH STATES
+    ══════════════════════════════ */
+    .hp-states {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .hp-state {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .hp-bar-wrap {
+      height: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .hp-bar {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.5s;
+    }
+    .hp-bar-full    { width: 85%; background: linear-gradient(90deg, #15803D, var(--green)); }
+    .hp-bar-mid     { width: 45%; background: linear-gradient(90deg, #B45309, var(--amber)); }
+    .hp-bar-low     { width: 15%; background: linear-gradient(90deg, #991B1B, var(--red)); animation: pulse-bar 1.5s infinite; }
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.55; }
+    }
+    .hp-label {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .hp-label-green  { color: var(--green); }
+    .hp-label-amber  { color: var(--amber); }
+    .hp-label-red    { color: var(--red); }
+    .hp-pct {
+      font-size: 0.7rem;
+      color: var(--grey);
+    }
+
+    /* ══════════════════════════════
+       DICE RESULTS
+    ══════════════════════════════ */
+    .dice-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .dice-card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .dice-card-crit { border: 2px solid var(--green); }
+    .dice-card-fail { border: 2px solid var(--red); }
+    .dice-card-norm { border: 1px solid var(--border); }
+    .dice-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .dice-num-crit { color: var(--green); text-shadow: 0 0 20px rgba(34,197,94,0.5); }
+    .dice-num-fail { color: var(--red);   text-shadow: 0 0 20px rgba(255,77,106,0.5); }
+    .dice-num-norm { color: var(--white); }
+    .dice-label {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .dice-label-crit { color: var(--green); }
+    .dice-label-fail { color: var(--red); }
+    .dice-label-norm { color: var(--grey); }
+    .dice-sub { font-size: 0.72rem; color: var(--grey); }
+
+    /* ══════════════════════════════
+       GLOSSARY
+    ══════════════════════════════ */
+    .glossary {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .gloss-item {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      padding: 14px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .gloss-term {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      color: var(--cyan);
+    }
+    .gloss-def {
+      font-size: 0.8rem;
+      color: var(--softgrey);
+      line-height: 1.6;
+    }
+
+    /* ══════════════════════════════
+       TEAM
+    ══════════════════════════════ */
+    .team {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .team-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .team-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      background: var(--raised);
+      border: 1px solid var(--border);
+    }
+    .team-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .team-role {
+      font-size: 0.7rem;
+      color: var(--grey);
+    }
+
+    /* ══════════════════════════════
+       DIVIDERS
+    ══════════════════════════════ */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 64px 0 0;
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.06em;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .footer-brand .amp { font-family: var(--font-script); color: var(--red); }
+    .footer-sub {
+      font-size: 0.72rem;
+      color: var(--grey);
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+    .footer-links a {
+      font-size: 0.72rem;
+      color: var(--cyan);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+    }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width: 680px) {
+      .parts-grid    { grid-template-columns: 1fr; }
+      .part:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .hp-states     { grid-template-columns: 1fr; }
+      .dice-results  { grid-template-columns: 1fr; }
+      .team          { grid-template-columns: 1fr 1fr; }
+      .gloss-item    { grid-template-columns: 1fr; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="wrapper">
+
+    <!-- ══ HERO ══ -->
+    <div class="hero">
+      <p class="hero-eyebrow">Visual Guide &mdash; Non-Technical Overview</p>
+      <h1 class="hero-title">DADOS <span class="amp">&amp;</span> RISAS</h1>
+      <p class="hero-sub">How It Works</p>
+      <p class="hero-desc">
+        A real-time system that lets a game master control D&amp;D character stats from their phone — and displays everything live on stream in OBS, with no refresh needed.
+      </p>
+      <span class="hero-pill">Live &mdash; Updates in under 1 second</span>
+    </div>
+
+    <!-- ══ THE THREE PARTS ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Overview</p>
+      <h2 class="section-title">Three Parts, One System</h2>
+      <p class="section-desc">Everything is connected through one central hub. Here's what each piece does.</p>
+
+      <div class="parts-grid">
+        <div class="part part-1">
+          <span class="part-icon">📱</span>
+          <p class="part-num">PART 01</p>
+          <p class="part-name">Control Panel</p>
+          <p class="part-desc">A website you open on your phone or tablet. This is where the game master makes all the changes — updating HP, rolling dice, managing status effects.</p>
+          <div class="part-badge"></div>
+        </div>
+        <div class="part part-2">
+          <span class="part-icon">🖥️</span>
+          <p class="part-num">PART 02</p>
+          <p class="part-name">The Server</p>
+          <p class="part-desc">A program running on a laptop that connects everything. It receives changes from the control panel and instantly sends them to all connected screens.</p>
+          <div class="part-badge"></div>
+        </div>
+        <div class="part part-3">
+          <span class="part-icon">📺</span>
+          <p class="part-num">PART 03</p>
+          <p class="part-name">OBS Overlays</p>
+          <p class="part-desc">Web pages added as sources inside OBS Studio. They listen for changes and update the stream graphics automatically — HP bars, dice results, and more.</p>
+          <div class="part-badge"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ HOW IT WORKS (step by step) ══ -->
+    <section class="section">
+      <p class="section-eyebrow">The Full Picture</p>
+      <h2 class="section-title">What Happens When You Tap</h2>
+      <p class="section-desc">From the moment you press a button to when the stream updates — here's every step.</p>
+
+      <div class="flow">
+
+        <div class="flow-step">
+          <div class="flow-line"></div>
+          <div class="flow-num flow-num-1">1</div>
+          <div class="flow-content">
+            <h3 class="flow-title">Game Master Opens the Control Panel</h3>
+            <p class="flow-body">
+              On their phone or tablet, the game master visits the control panel website. It connects automatically to the server running on the laptop. All the characters appear with their current HP and status.
+            </p>
+            <span class="flow-note"><span class="flow-note-icon">📱</span> Works on any device that's on the same Wi-Fi network</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-line"></div>
+          <div class="flow-num flow-num-2">2</div>
+          <div class="flow-content">
+            <h3 class="flow-title">Game Master Makes a Change</h3>
+            <p class="flow-body">
+              They tap "Damage" on Kael's card and set the amount to 5. Or they pick a character and roll a d20. The control panel sends that action to the server immediately.
+            </p>
+            <span class="flow-note"><span class="flow-note-icon">⚡</span> The message travels over your local Wi-Fi in milliseconds</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-line"></div>
+          <div class="flow-num flow-num-3">3</div>
+          <div class="flow-content">
+            <h3 class="flow-title">The Server Processes It</h3>
+            <p class="flow-body">
+              The server receives the change, updates the character's HP (making sure it never goes below 0 or above the maximum), and then tells every connected screen about the update — all at the same time.
+            </p>
+            <span class="flow-note"><span class="flow-note-icon">🖥️</span> The server runs on the same laptop as OBS</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-line"></div>
+          <div class="flow-num flow-num-4">4</div>
+          <div class="flow-content">
+            <h3 class="flow-title">Overlays Update Instantly</h3>
+            <p class="flow-body">
+              The OBS overlay receives the message and smoothly animates the HP bar — it changes color, shrinks, and starts pulsing red if HP is critically low. A dice result card bounces onto screen with the number. No page refresh, no delay.
+            </p>
+            <span class="flow-note"><span class="flow-note-icon">📺</span> OBS viewers see the change before the game master puts their phone down</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num flow-num-5">5</div>
+          <div class="flow-content">
+            <h3 class="flow-title">Everything Stays in Sync</h3>
+            <p class="flow-body">
+              Any number of devices can be connected at once — the phone, the OBS overlays, a dashboard on a TV. When any one of them receives an update, all of them update at the exact same moment.
+            </p>
+            <span class="flow-note"><span class="flow-note-icon">🔄</span> Multiple overlays, multiple screens, all synchronized</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ TWO SCENARIOS ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Scenarios</p>
+      <h2 class="section-title">Two Things You Can Do</h2>
+      <p class="section-desc">The two core actions — updating HP and rolling dice — each tell their own story on screen.</p>
+
+      <div class="scenario-grid">
+
+        <!-- HP Scenario -->
+        <div class="scenario">
+          <div class="scenario-header">
+            <span class="scenario-emoji">❤️</span>
+            <div>
+              <p class="scenario-htitle">HP Update</p>
+              <p class="scenario-hsub">When a character takes damage or gets healed</p>
+            </div>
+          </div>
+          <div class="scenario-steps">
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-hp">1</div>
+              <p class="sc-text">Game master taps <strong>DAÑO</strong> (damage) or <strong>CURAR</strong> (heal) on a character card, then sets the amount.</p>
+            </div>
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-hp">2</div>
+              <p class="sc-text">The server updates the character's current HP. It never goes below 0 or above the character's maximum.</p>
+            </div>
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-hp">3</div>
+              <p class="sc-text">The <strong>HP bar on OBS</strong> animates smoothly. It changes color based on how much HP is left.</p>
+            </div>
+            <div class="sc-result sc-result-hp">
+              <span>📺</span> Audience sees the bar update in real-time on stream
+            </div>
+          </div>
+        </div>
+
+        <!-- Dice Scenario -->
+        <div class="scenario">
+          <div class="scenario-header">
+            <span class="scenario-emoji">🎲</span>
+            <div>
+              <p class="scenario-htitle">Dice Roll</p>
+              <p class="scenario-hsub">When a player rolls any die (d4 through d20)</p>
+            </div>
+          </div>
+          <div class="scenario-steps">
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-dice">1</div>
+              <p class="sc-text">Game master selects a character and taps a die button — <strong>d4, d6, d8, d10, d12,</strong> or <strong>d20</strong>.</p>
+            </div>
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-dice">2</div>
+              <p class="sc-text">The system generates a random result and sends it to the server, which logs it and broadcasts it to everyone.</p>
+            </div>
+            <div class="sc-step">
+              <div class="sc-dot sc-dot-dice">3</div>
+              <p class="sc-text">A card <strong>bounces onto the OBS overlay</strong> showing the result. It auto-hides after 4 seconds.</p>
+            </div>
+            <div class="sc-result sc-result-dice">
+              <span>✨</span> Natural 20 shows ¡CRÍTICO! in green — Natural 1 shows ¡PIFIA! in red
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ HP COLOR STATES ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Visual Language</p>
+      <h2 class="section-title">HP Bar Colors</h2>
+      <p class="section-desc">The HP bar changes color automatically to show how healthy a character is. No manual work required.</p>
+
+      <div class="hp-states">
+        <div class="hp-state">
+          <p class="hp-label hp-label-green">HEALTHY</p>
+          <div class="hp-bar-wrap"><div class="hp-bar hp-bar-full"></div></div>
+          <p class="hp-pct">More than 60% HP remaining</p>
+        </div>
+        <div class="hp-state">
+          <p class="hp-label hp-label-amber">INJURED</p>
+          <div class="hp-bar-wrap"><div class="hp-bar hp-bar-mid"></div></div>
+          <p class="hp-pct">Between 30% and 60% HP</p>
+        </div>
+        <div class="hp-state">
+          <p class="hp-label hp-label-red">CRITICAL</p>
+          <div class="hp-bar-wrap"><div class="hp-bar hp-bar-low"></div></div>
+          <p class="hp-pct">Below 30% HP — pulses red</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ DICE RESULTS ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Visual Language</p>
+      <h2 class="section-title">Dice Roll Results</h2>
+      <p class="section-desc">Three different looks for three different outcomes on a d20 roll.</p>
+
+      <div class="dice-results">
+        <div class="dice-card dice-card-crit">
+          <p class="dice-num dice-num-crit">20</p>
+          <p class="dice-label dice-label-crit">¡CRÍTICO!</p>
+          <p class="dice-sub">Natural 20 — green glow, maximum drama</p>
+        </div>
+        <div class="dice-card dice-card-fail">
+          <p class="dice-num dice-num-fail">1</p>
+          <p class="dice-label dice-label-fail">¡PIFIA!</p>
+          <p class="dice-sub">Natural 1 — red glow, critical failure</p>
+        </div>
+        <div class="dice-card dice-card-norm">
+          <p class="dice-num dice-num-norm">13</p>
+          <p class="dice-label dice-label-norm">NORMAL</p>
+          <p class="dice-sub">Any other result — shows total with modifier</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ SETUP GUIDE ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Getting Started</p>
+      <h2 class="section-title">How to Set It Up</h2>
+      <p class="section-desc">Everything runs on one laptop. Setup takes about 5 minutes.</p>
+
+      <div class="setup-list">
+        <div class="setup-item">
+          <div class="setup-badge">💻</div>
+          <div>
+            <p class="setup-title">Install Node.js</p>
+            <p class="setup-body">Download and install <a href="https://nodejs.org">Node.js</a> (version 18 or newer). This is the engine that powers the server. You only need to do this once.</p>
+          </div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-badge">📦</div>
+          <div>
+            <p class="setup-title">Install Dependencies</p>
+            <p class="setup-body">Open a terminal, go to the project folder, and run <code>npm install</code>. Then do the same inside the <code>control-panel/</code> folder.</p>
+          </div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-badge">🌐</div>
+          <div>
+            <p class="setup-title">Configure Your Network</p>
+            <p class="setup-body">Run <code>npm run setup-ip</code> — this automatically detects your computer's IP address and sets everything up so your phone can connect.</p>
+          </div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-badge">▶️</div>
+          <div>
+            <p class="setup-title">Start the Server</p>
+            <p class="setup-body">In one terminal window, run <code>node server.js</code>. You'll see "Server is running on port 3000". Leave this running.</p>
+          </div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-badge">📱</div>
+          <div>
+            <p class="setup-title">Open the Control Panel on Your Phone</p>
+            <p class="setup-body">In another terminal, go to <code>control-panel/</code> and run <code>npm run dev -- --host</code>. It will show a network address like <code>http://192.168.x.x:5173</code> — open that on your phone.</p>
+          </div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-badge">📺</div>
+          <div>
+            <p class="setup-title">Add Overlays to OBS</p>
+            <p class="setup-body">In OBS Studio, add a Browser Source, check "Local file", and browse to <code>public/overlay-hp.html</code>. Set width to 1920 and height to 1080. Repeat for the dice overlay.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ GLOSSARY ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Reference</p>
+      <h2 class="section-title">Glossary</h2>
+      <p class="section-desc">Key terms you'll see when using or discussing this system.</p>
+
+      <div class="glossary">
+        <div class="gloss-item">
+          <p class="gloss-term">OBS Studio</p>
+          <p class="gloss-def">Open Broadcaster Software — the free program used to record and stream. The overlays appear as transparent layers on top of the game or camera feed.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">Browser Source</p>
+          <p class="gloss-def">A type of source in OBS that loads a webpage. We use it to display the HP bars and dice results as live, animated graphics on top of the stream.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">Socket.io</p>
+          <p class="gloss-def">The technology that keeps the phone, server, and overlays connected in real-time. Think of it as a group chat that instantly delivers messages to all participants the moment something changes.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">Control Panel</p>
+          <p class="gloss-def">The mobile-friendly website the game master uses to control everything. Accessible on any phone or tablet connected to the same Wi-Fi as the laptop.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">HP (Hit Points)</p>
+          <p class="gloss-def">A character's health in D&amp;D. When it reaches 0, the character goes unconscious. The system tracks current HP and maximum HP for every character.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">Natural 20 / Natural 1</p>
+          <p class="gloss-def">On a d20 (20-sided die), rolling exactly 20 is a "critical success" (¡CRÍTICO!) and rolling exactly 1 is a "critical failure" (¡PIFIA!). The overlay shows special effects for these.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">REST (Short / Long)</p>
+          <p class="gloss-def">In D&amp;D, characters can recover abilities by taking a short rest (1 hour) or long rest (8 hours). The system automatically restores the correct resources for each type of rest.</p>
+        </div>
+        <div class="gloss-item">
+          <p class="gloss-term">Conditions</p>
+          <p class="gloss-def">Status effects in D&amp;D like Poisoned, Stunned, or Invisible. The game master can add or remove these per character, and they're tracked in real time.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══ TEAM ══ -->
+    <section class="section">
+      <p class="section-eyebrow">Built By</p>
+      <h2 class="section-title">The Team</h2>
+      <p class="section-desc">Made for D&amp;D streaming and Chilean content creators.</p>
+
+      <div class="team">
+        <div class="team-card">
+          <div class="team-avatar">👩‍💻</div>
+          <p class="team-name">Sol</p>
+          <p class="team-role">Developer &amp; Tech Lead</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🧙‍♂️</div>
+          <p class="team-name">Lucas</p>
+          <p class="team-role">Dungeon Master &amp; Creative Lead</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🛠️</div>
+          <p class="team-name">Salvador</p>
+          <p class="team-role">Technical Assistant</p>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🐉</div>
+          <p class="team-name">Kuminak</p>
+          <p class="team-role">D&amp;D Expert &amp; Workshop Lead</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer>
+      <p class="footer-brand">DADOS <span class="amp">&amp;</span> RISAS</p>
+      <p class="footer-sub">Built for D&amp;D, streaming, and Chilean content creators</p>
+      <div class="footer-links">
+        <a href="flowchart-developer.html">→ Developer Flowchart</a>
+        <a href="https://github.com/s0lci700/OVERLAYS#readme">→ Full Documentation</a>
+        <a href="https://github.com/s0lci700/OVERLAYS/blob/main/docs/ARCHITECTURE.md">→ Architecture Guide</a>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

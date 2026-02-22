@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DADOS &amp; RISAS — Developer Flowchart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Dancing+Script:wght@700&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --red:      #FF4D6A;
+      --cyan:     #00D4E8;
+      --purple:   #500DF5;
+      --green:    #22C55E;
+      --amber:    #F59E0B;
+      --black:    #000000;
+      --card:     #0D0D0D;
+      --elevated: #151520;
+      --border:   #1e1e2e;
+      --white:    #FFFFFF;
+      --grey:     #888888;
+      --dim:      #333344;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,232,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,232,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── corner brackets ── */
+    .corner-tl, .corner-tr, .corner-bl, .corner-br {
+      position: fixed;
+      width: 24px; height: 24px;
+      opacity: 0.3;
+      z-index: 1;
+    }
+    .corner-tl { top: 16px; left: 16px;  border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+    .corner-tr { top: 16px; right: 16px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+    .corner-bl { bottom: 16px; left: 16px;  border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+    .corner-br { bottom: 16px; right: 16px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+
+    /* ── layout ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── header ── */
+    header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .brand {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      line-height: 1;
+    }
+    .brand em {
+      font-style: normal;
+      color: var(--cyan);
+    }
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 2px 8px;
+      border-radius: 2px;
+      opacity: 0.8;
+    }
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--grey);
+      letter-spacing: 0.08em;
+      margin-bottom: 40px;
+    }
+    .subtitle span { color: var(--cyan); }
+
+    /* ── tab bar ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--grey);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      padding: 12px 24px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 150ms ease, border-color 150ms ease;
+    }
+    .tab-btn:hover { color: var(--white); }
+    .tab-btn.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+    }
+
+    /* ── tab panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── section headers ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-icon {
+      width: 32px; height: 32px;
+      border: 1px solid var(--cyan);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: var(--cyan);
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
+      color: var(--white);
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+
+    /* ── diagram container ── */
+    .diagram-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .diagram-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 20px;
+    }
+
+    /* ── info grid ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px;
+    }
+    .info-card-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 12px;
+    }
+    .info-card-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+    .info-card p {
+      font-size: 0.75rem;
+      color: var(--grey);
+      line-height: 1.6;
+    }
+
+    /* ── code block ── */
+    .code-block {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      border-radius: 4px;
+      padding: 16px 20px;
+      font-size: 0.75rem;
+      line-height: 1.7;
+      color: #a0d0dc;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      white-space: pre;
+    }
+    .code-block .kw  { color: var(--purple); }
+    .code-block .fn  { color: var(--cyan); }
+    .code-block .str { color: var(--green); }
+    .code-block .cmt { color: var(--grey); }
+    .code-block .num { color: var(--amber); }
+
+    /* ── event table ── */
+    .event-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+      margin-bottom: 32px;
+    }
+    .event-table thead tr {
+      background: var(--elevated);
+    }
+    .event-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      color: var(--grey);
+      border-bottom: 1px solid var(--border);
+    }
+    .event-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: #c0c8d0;
+      vertical-align: top;
+    }
+    .event-table tr:hover td { background: rgba(0,212,232,0.04); }
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+    }
+    .tag-event  { background: rgba(0,212,232,0.15); color: var(--cyan); }
+    .tag-method { background: rgba(80,13,245,0.2);  color: #9b7fff; }
+    .tag-all    { background: rgba(255,77,106,0.15); color: var(--red); }
+    .tag-client { background: rgba(34,197,94,0.15);  color: var(--green); }
+
+    /* ── component tree ── */
+    .tree {
+      font-size: 0.75rem;
+      line-height: 2;
+      color: #a0b0c0;
+    }
+    .tree .node-dir   { color: var(--amber); }
+    .tree .node-file  { color: #c0c8d0; }
+    .tree .node-key   { color: var(--cyan); }
+    .tree .node-route { color: var(--green); }
+    .tree .node-dim   { color: var(--dim); }
+
+    /* ── stack list ── */
+    .stack-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stack-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+    .stack-layer {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--grey);
+      width: 90px;
+      flex-shrink: 0;
+    }
+    .stack-tech {
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--cyan);
+      flex: 1;
+    }
+    .stack-note {
+      font-size: 0.68rem;
+      color: var(--grey);
+    }
+
+    /* ── port badges ── */
+    .port {
+      display: inline-block;
+      background: rgba(80,13,245,0.2);
+      color: #9b7fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 2px;
+      margin-left: 6px;
+    }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── mermaid theme overrides ── */
+    .mermaid { min-height: 100px; }
+
+    /* ── keyline decoration ── */
+    .keyline {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.3;
+      margin: 40px 0;
+    }
+
+    /* responsive */
+    @media (max-width: 640px) {
+      .brand { font-size: 2rem; }
+      .wrapper { padding: 24px 16px 60px; }
+      .tab-btn { padding: 10px 16px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="corner-tl"></div>
+  <div class="corner-tr"></div>
+  <div class="corner-bl"></div>
+  <div class="corner-br"></div>
+
+  <div class="wrapper">
+    <!-- Header -->
+    <header>
+      <h1 class="brand">DADOS <em>&amp;</em> RISAS</h1>
+      <span class="badge">DEV DOCS</span>
+    </header>
+    <p class="subtitle">
+      Developer Flowchart &mdash; System Architecture &amp; Data Flows &mdash;
+      <span>Stack: Node.js + Express + Socket.io + Svelte 5</span>
+    </p>
+
+    <!-- Tab bar -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" onclick="switchTab('arch')"   role="tab">01 · Architecture</button>
+      <button class="tab-btn"        onclick="switchTab('hp')"     role="tab">02 · HP Update Flow</button>
+      <button class="tab-btn"        onclick="switchTab('dice')"   role="tab">03 · Dice Roll Flow</button>
+      <button class="tab-btn"        onclick="switchTab('events')" role="tab">04 · Socket Events</button>
+      <button class="tab-btn"        onclick="switchTab('api')"    role="tab">05 · API Routes</button>
+      <button class="tab-btn"        onclick="switchTab('files')"  role="tab">06 · File Map</button>
+    </nav>
+
+    <!-- ── TAB 1: Architecture ── -->
+    <section id="tab-arch" class="tab-panel active">
+      <div class="section-header">
+        <div class="section-icon">⬡</div>
+        <h2 class="section-title">System Architecture</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// top-level component graph</p>
+        <div class="mermaid">
+graph TD
+    subgraph CLIENT ["CLIENT DEVICES"]
+        CP["📱 Control Panel<br/><b>Svelte 5 · SvelteKit</b><br/>:5173"]
+        DASH["📊 Dashboard View<br/><b>/dashboard</b><br/>Read-only live tiles"]
+    end
+
+    subgraph SERVER ["SERVER :3000"]
+        EX["⚙️ Express 5<br/>REST API"]
+        SIO["🔌 Socket.io 4.8<br/>WebSocket Hub"]
+        MEM["🗃️ In-Memory State<br/>characters · rolls"]
+        EX <--> MEM
+        EX --> SIO
+    end
+
+    subgraph OBS ["OBS BROWSER SOURCES"]
+        OHP["🟩 HP Overlay<br/>overlay-hp.html"]
+        ODICE["🎲 Dice Overlay<br/>overlay-dice.html"]
+    end
+
+    CP -- "REST fetch (PUT/POST)" --> EX
+    SIO -- "Socket.io broadcast" --> CP
+    SIO -- "Socket.io broadcast" --> DASH
+    SIO -- "Socket.io broadcast" --> OHP
+    SIO -- "Socket.io broadcast" --> ODICE
+
+    style CLIENT fill:#0d0d0d,stroke:#333344,color:#fff
+    style SERVER fill:#0d0d0d,stroke:#00D4E8,color:#fff
+    style OBS    fill:#0d0d0d,stroke:#500DF5,color:#fff
+    style CP   fill:#151520,stroke:#00D4E8,color:#00D4E8
+    style DASH fill:#151520,stroke:#888,color:#aaa
+    style EX   fill:#151520,stroke:#500DF5,color:#9b7fff
+    style SIO  fill:#151520,stroke:#00D4E8,color:#00D4E8
+    style MEM  fill:#151520,stroke:#333344,color:#888
+    style OHP  fill:#151520,stroke:#22C55E,color:#22C55E
+    style ODICE fill:#151520,stroke:#F59E0B,color:#F59E0B
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <p class="info-card-label">// pattern</p>
+          <p class="info-card-title">Pub/Sub via Socket.io</p>
+          <p>Every client connects to the same Socket.io server. Control panel sends REST requests; the server broadcasts events to <em>all</em> connected clients. Overlays are read-only — they never send requests.</p>
+        </div>
+        <div class="info-card">
+          <p class="info-card-label">// state</p>
+          <p class="info-card-title">In-Memory (Demo)</p>
+          <p>All character and roll data lives in <code>data/characters.js</code> and <code>data/rolls.js</code>. State resets on server restart. Suitable for live demo; SQLite persistence is a post-pitch upgrade.</p>
+        </div>
+        <div class="info-card">
+          <p class="info-card-label">// latency</p>
+          <p class="info-card-title">&lt; 100ms End-to-End</p>
+          <p>From phone tap → REST call → server broadcast → overlay DOM update. Local network Socket.io latency is typically &lt;30ms; total round-trip is under 100ms.</p>
+        </div>
+      </div>
+
+      <div class="keyline"></div>
+
+      <div class="section-header">
+        <div class="section-icon">⚙</div>
+        <h2 class="section-title">Tech Stack</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="stack-list">
+        <div class="stack-row">
+          <span class="stack-layer">Backend</span>
+          <span class="stack-tech">Node.js 18 · Express 5 · Socket.io 4.8</span>
+          <span class="stack-note">REST API + WebSocket server<span class="port">:3000</span></span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-layer">Frontend</span>
+          <span class="stack-tech">Svelte 5 · SvelteKit · Vite 7</span>
+          <span class="stack-note">Mobile-first control panel<span class="port">:5173</span></span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-layer">Overlays</span>
+          <span class="stack-tech">Vanilla HTML · CSS · JS · anime.js</span>
+          <span class="stack-note">OBS Browser Sources · Socket.io + anime.js via CDN</span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-layer">Data</span>
+          <span class="stack-tech">In-memory JS objects</span>
+          <span class="stack-note">data/characters.js · data/rolls.js · data/photos.js</span>
+        </div>
+        <div class="stack-row">
+          <span class="stack-layer">Config</span>
+          <span class="stack-tech">.env files · npm run setup-ip</span>
+          <span class="stack-note">Auto-detects local IP; overlays read ?server= query param</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TAB 2: HP Update Flow ── -->
+    <section id="tab-hp" class="tab-panel">
+      <div class="section-header">
+        <div class="section-icon">♥</div>
+        <h2 class="section-title">HP Update — Data Flow</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// sequence diagram: user taps DAÑO → all clients update</p>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 👤 User (Phone)
+    participant CP as Control Panel<br/>CharacterCard.svelte
+    participant SJS as socket.js<br/>Svelte store
+    participant SRV as Server :3000<br/>server.js
+    participant DS as dashboardStore.js
+    participant OHP as overlay-hp.html<br/>(OBS)
+
+    User->>CP: Tap DAÑO / CURAR button
+    CP->>CP: Compute newHp = hp_current ± amount
+    CP->>SRV: PUT /api/characters/:id/hp<br/>{ hp_current: newHp }
+    SRV->>SRV: characters.updateHp(id, hp)<br/>clamp to [0, hp_max]
+    SRV-->>CP: 200 { character, hp_current }
+    SRV-)SJS: emit "hp_updated" { character, hp_current }
+    SRV-)DS: emit "hp_updated"
+    SRV-)OHP: emit "hp_updated"
+    SJS->>SJS: update characters store
+    CP->>CP: Svelte reactivity → re-render card
+    DS->>DS: recordHistory() → activity log
+    OHP->>OHP: updateCharacterHP()<br/>bar width + color CSS transition
+        </div>
+      </div>
+
+      <div class="keyline"></div>
+
+      <div class="section-header">
+        <div class="section-icon">⚡</div>
+        <h2 class="section-title">HP State Machine</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// overlay HP bar visual states</p>
+        <div class="mermaid">
+stateDiagram-v2
+    direction LR
+    [*] --> Healthy : hp_current loaded
+    Healthy   : 🟢 HEALTHY\n> 60% HP\nGreen gradient
+    Injured   : 🟡 INJURED\n30–60% HP\nOrange gradient
+    Critical  : 🔴 CRITICAL\n< 30% HP\nRed + pulse anim
+
+    Healthy --> Injured  : hp drops ≤ 60%
+    Injured --> Critical : hp drops < 30%
+    Critical --> Injured : hp restored ≥ 30%
+    Injured --> Healthy  : hp restored > 60%
+    Critical --> Healthy : hp restored > 60%
+    Critical --> Dead    : hp = 0
+    Dead     : 💀 DEAD\nhp_current = 0
+
+    Dead --> Critical : hp restored > 0
+        </div>
+      </div>
+
+      <div class="keyline"></div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// CharacterCard.svelte — relevant logic</p>
+        <div class="code-block"><span class="cmt">// CharacterCard.svelte (simplified)</span>
+
+<span class="kw">async function</span> <span class="fn">updateHp</span>(action) {
+  <span class="kw">const</span> delta = action === <span class="str">'damage'</span> ? -amount : +amount;
+  <span class="kw">const</span> newHp = Math.max(<span class="num">0</span>, Math.min(character.hp_max, character.hp_current + delta));
+
+  <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`/api/characters/${character.id}/hp`</span>, {
+    method: <span class="str">'PUT'</span>,
+    body: JSON.stringify({ hp_current: newHp })
+  });
+  <span class="cmt">// server handles broadcast — socket.js will update the store</span>
+}
+
+<span class="cmt">// HP bar class derived reactively</span>
+<span class="kw">$derived</span> hpClass =
+  hpPercent > <span class="num">60</span> ? <span class="str">'hp--healthy'</span> :
+  hpPercent > <span class="num">30</span> ? <span class="str">'hp--injured'</span> :
+                   <span class="str">'hp--critical'</span>;</div>
+      </div>
+    </section>
+
+    <!-- ── TAB 3: Dice Roll Flow ── -->
+    <section id="tab-dice" class="tab-panel">
+      <div class="section-header">
+        <div class="section-icon">⬡</div>
+        <h2 class="section-title">Dice Roll — Data Flow</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// sequence diagram: user taps d20 → overlay animates</p>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 👤 User (Phone)
+    participant CP as DiceRoller.svelte
+    participant SJS as socket.js / lastRoll
+    participant SRV as Server :3000
+    participant DS as dashboardStore.js
+    participant OD as overlay-dice.html<br/>(OBS)
+
+    User->>CP: Select character + tap d20
+    CP->>CP: result = Math.floor(Math.random() * 20) + 1
+    CP->>CP: rollResult = result + modifier
+    CP->>SRV: POST /api/rolls<br/>{ charId, result, modifier, sides: 20 }
+    SRV->>SRV: rolls.logRoll()<br/>generate 5-char ID + timestamp
+    SRV-->>CP: 201 { id, charId, characterName, result,<br/>modifier, rollResult, sides, timestamp }
+    SRV-)SJS: emit "dice_rolled" { rollRecord }
+    SRV-)DS: emit "dice_rolled"
+    SRV-)OD: emit "dice_rolled"
+    SJS->>SJS: set lastRoll store
+    CP->>CP: Svelte reactivity → show result card
+    DS->>DS: recordHistory() → activity log
+    OD->>OD: showRoll() → anime.js bounce animation
+    Note over OD: Auto-hide after 4 seconds
+        </div>
+      </div>
+
+      <div class="keyline"></div>
+
+      <div class="section-header">
+        <div class="section-icon">★</div>
+        <h2 class="section-title">Critical / Fail Detection</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// d20 result state branches</p>
+        <div class="mermaid">
+flowchart LR
+    Roll["🎲 d20 result\n(1–20)"] --> Check{result?}
+
+    Check -- "= 20" --> Crit["✨ ¡CRÍTICO!\nGreen glow\nmax scale"]
+    Check -- "= 1"  --> Fail["💀 ¡PIFIA!\nRed glow\nshake effect"]
+    Check -- "2–19" --> Norm["📊 Normal\nresult + modifier\nFade-out 4s"]
+
+    Crit --> Hide["Auto-hide 4s"]
+    Fail --> Hide
+    Norm --> Hide
+
+    style Crit fill:#0a2a15,stroke:#22C55E,color:#22C55E
+    style Fail fill:#2a0a10,stroke:#FF4D6A,color:#FF4D6A
+    style Norm fill:#151520,stroke:#888,color:#aaa
+    style Hide fill:#0d0d0d,stroke:#333344,color:#888
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// overlay-dice.html — showRoll() animation logic</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">showRoll</span>(data) {
+  <span class="kw">const</span> isCrit = data.sides === <span class="num">20</span> && data.result === <span class="num">20</span>;
+  <span class="kw">const</span> isFail = data.sides === <span class="num">20</span> && data.result === <span class="num">1</span>;
+
+  resultEl.textContent = data.rollResult;
+  card.className = <span class="str">`dice-card ${isCrit ? 'crit' : isFail ? 'fail' : ''}`</span>;
+
+  <span class="cmt">// anime.js bounce + fade in</span>
+  anime({ targets: card, opacity: [<span class="num">0</span>, <span class="num">1</span>], translateY: [<span class="num">30</span>, <span class="num">0</span>], duration: <span class="num">500</span> });
+  anime({ targets: resultEl, scale: [<span class="num">0.3</span>, <span class="num">1</span>], easing: <span class="str">'easeOutElastic(1,.5)'</span>, duration: <span class="num">600</span> });
+
+  <span class="cmt">// auto-hide after 4s</span>
+  setTimeout(() => anime({ targets: card, opacity: <span class="num">0</span>, translateY: -<span class="num">20</span> }), <span class="num">4000</span>);
+}</code></div>
+      </div>
+    </section>
+
+    <!-- ── TAB 4: Socket Events ── -->
+    <section id="tab-events" class="tab-panel">
+      <div class="section-header">
+        <div class="section-icon">⚡</div>
+        <h2 class="section-title">Socket.io Event Reference</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// event flow overview</p>
+        <div class="mermaid">
+flowchart LR
+    CP["📱 Control Panel"]
+    SRV["🖥️ Server :3000"]
+    OBS["📺 OBS Overlays"]
+    DASH["📊 Dashboard"]
+
+    CP -- "REST PUT/POST" --> SRV
+    SRV -- "io.emit(event)" --> CP
+    SRV -- "io.emit(event)" --> OBS
+    SRV -- "io.emit(event)" --> DASH
+
+    SRV -- "socket.emit(initialData)" --> CP
+    note1["On connect only:\ninitialData → all characters + rolls"]
+
+    style SRV fill:#0d0d0d,stroke:#00D4E8,color:#00D4E8
+    style CP  fill:#0d0d0d,stroke:#500DF5,color:#9b7fff
+    style OBS fill:#0d0d0d,stroke:#22C55E,color:#22C55E
+    style DASH fill:#0d0d0d,stroke:#888,color:#888
+        </div>
+      </div>
+
+      <table class="event-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Direction</th>
+            <th>Trigger</th>
+            <th>Key Payload Fields</th>
+            <th>Listeners</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-event">initialData</span></td>
+            <td><span class="tag tag-client">Server → client</span></td>
+            <td>On socket connect</td>
+            <td><code>characters[], rolls[]</code></td>
+            <td>socket.js, overlay-hp.html</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">hp_updated</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>PUT /api/characters/:id/hp</td>
+            <td><code>character, hp_current</code></td>
+            <td>socket.js, dashboardStore, overlay-hp</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">character_created</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>POST /api/characters</td>
+            <td><code>character</code></td>
+            <td>socket.js</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">character_updated</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>PUT /api/characters/:id or /photo</td>
+            <td><code>character</code></td>
+            <td>socket.js</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">condition_added</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>POST /api/characters/:id/conditions</td>
+            <td><code>charId, condition{id,name,level}</code></td>
+            <td>socket.js, dashboardStore</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">condition_removed</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>DELETE /api/characters/:id/conditions/:id</td>
+            <td><code>charId, conditionId</code></td>
+            <td>socket.js, dashboardStore</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">resource_updated</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>PUT /api/characters/:id/resources/:rid</td>
+            <td><code>charId, resource{id,name,pool_current}</code></td>
+            <td>socket.js, dashboardStore</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">rest_taken</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>POST /api/characters/:id/rest</td>
+            <td><code>charId, type, restored[], character</code></td>
+            <td>socket.js, dashboardStore</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">dice_rolled</span></td>
+            <td><span class="tag tag-all">Server → All</span></td>
+            <td>POST /api/rolls</td>
+            <td><code>id, charId, result, rollResult, sides</code></td>
+            <td>socket.js, dashboardStore, overlay-dice</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-block"><span class="cmt">// Full dice_rolled payload shape (TypeScript-style)</span>
+{
+  id:            <span class="str">string</span>,           <span class="cmt">// 5-char ID</span>
+  charId:        <span class="str">string</span>,           <span class="cmt">// e.g. "CH101"</span>
+  characterName: <span class="str">string</span>,           <span class="cmt">// display name</span>
+  result:        <span class="num">number</span>,           <span class="cmt">// base die result (1–sides)</span>
+  modifier:      <span class="num">number</span>,           <span class="cmt">// modifier applied</span>
+  rollResult:    <span class="num">number</span>,           <span class="cmt">// result + modifier</span>
+  sides:         <span class="num">4</span> | <span class="num">6</span> | <span class="num">8</span> | <span class="num">10</span> | <span class="num">12</span> | <span class="num">20</span>,
+  timestamp:     <span class="str">string</span>            <span class="cmt">// ISO 8601</span>
+}</div>
+    </section>
+
+    <!-- ── TAB 5: API Routes ── -->
+    <section id="tab-api" class="tab-panel">
+      <div class="section-header">
+        <div class="section-icon">↗</div>
+        <h2 class="section-title">REST API Endpoints</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// REST → in-memory → Socket.io broadcast chain</p>
+        <div class="mermaid">
+flowchart TD
+    REQ["HTTP Request\nfrom Control Panel"] --> ROUTER["Express Router\nserver.js"]
+
+    ROUTER --> R1["GET /api/characters"]
+    ROUTER --> R2["POST /api/characters"]
+    ROUTER --> R3["PUT /api/characters/:id"]
+    ROUTER --> R4["PUT /api/characters/:id/hp"]
+    ROUTER --> R5["PUT /api/characters/:id/photo"]
+    ROUTER --> R6["POST /api/characters/:id/conditions"]
+    ROUTER --> R7["DELETE /api/characters/:id/conditions/:cid"]
+    ROUTER --> R8["PUT /api/characters/:id/resources/:rid"]
+    ROUTER --> R9["POST /api/characters/:id/rest"]
+    ROUTER --> R10["POST /api/rolls"]
+
+    R1 --> D1["Return characters[]"]
+    R2 --> D2["createCharacter()\nemit character_created"]
+    R3 --> D3["updateCharacterData()\nemit character_updated"]
+    R4 --> D4["updateHp() clamp[0,max]\nemit hp_updated"]
+    R5 --> D5["updatePhoto()\nemit character_updated"]
+    R6 --> D6["addCondition()\nemit condition_added"]
+    R7 --> D7["removeCondition()\nemit condition_removed"]
+    R8 --> D8["updateResource()\nemit resource_updated"]
+    R9 --> D9["restoreResources()\nemit rest_taken"]
+    R10 --> D10["rolls.logRoll()\nemit dice_rolled"]
+
+    style ROUTER fill:#0d0d0d,stroke:#500DF5,color:#9b7fff
+    style REQ fill:#151520,stroke:#00D4E8,color:#00D4E8
+        </div>
+      </div>
+
+      <table class="event-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Action</th>
+            <th>Emits</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-client">GET</span></td>
+            <td><code>/api/characters</code></td>
+            <td>Return full character roster</td>
+            <td>—</td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">POST</span></td>
+            <td><code>/api/characters</code></td>
+            <td>Create new character + assign photo</td>
+            <td><code>character_created</code></td>
+            <td>201</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-method">PUT</span></td>
+            <td><code>/api/characters/:id</code></td>
+            <td>Update editable fields</td>
+            <td><code>character_updated</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-method">PUT</span></td>
+            <td><code>/api/characters/:id/hp</code></td>
+            <td>Update HP, clamp [0, hp_max]</td>
+            <td><code>hp_updated</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-method">PUT</span></td>
+            <td><code>/api/characters/:id/photo</code></td>
+            <td>Update photo URL or base64</td>
+            <td><code>character_updated</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">POST</span></td>
+            <td><code>/api/characters/:id/conditions</code></td>
+            <td>Add status condition</td>
+            <td><code>condition_added</code></td>
+            <td>201</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-all">DELETE</span></td>
+            <td><code>/api/characters/:id/conditions/:cid</code></td>
+            <td>Remove condition by ID</td>
+            <td><code>condition_removed</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-method">PUT</span></td>
+            <td><code>/api/characters/:id/resources/:rid</code></td>
+            <td>Update resource pool_current</td>
+            <td><code>resource_updated</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">POST</span></td>
+            <td><code>/api/characters/:id/rest</code></td>
+            <td>Apply short/long rest, restore pools</td>
+            <td><code>rest_taken</code></td>
+            <td>200</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-event">POST</span></td>
+            <td><code>/api/rolls</code></td>
+            <td>Log roll, compute rollResult</td>
+            <td><code>dice_rolled</code></td>
+            <td>201</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── TAB 6: File Map ── -->
+    <section id="tab-files" class="tab-panel">
+      <div class="section-header">
+        <div class="section-icon">📁</div>
+        <h2 class="section-title">File Map &amp; Component Hierarchy</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// SvelteKit routing tree</p>
+        <div class="mermaid">
+graph TD
+    ROOT["/ (root)"] --> CTRL["/control"]
+    ROOT --> MGMT["/management"]
+    ROOT --> DASH["/dashboard"]
+
+    CTRL --> CC["/control/characters\nCharacterCard per player"]
+    CTRL --> CD["/control/dice\nDiceRoller component"]
+
+    MGMT --> MC["/management/create\nCharacterCreationForm"]
+    MGMT --> MM["/management/manage\nCharacterManagement\n+ PhotoSourcePicker"]
+
+    DASH --> DV["/dashboard\nDashboardCard per character\nRead-only live tiles"]
+
+    style ROOT fill:#151520,stroke:#00D4E8,color:#00D4E8
+    style CTRL fill:#0d0d0d,stroke:#500DF5,color:#9b7fff
+    style MGMT fill:#0d0d0d,stroke:#F59E0B,color:#F59E0B
+    style DASH fill:#0d0d0d,stroke:#22C55E,color:#22C55E
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <p class="diagram-label">// annotated file structure</p>
+        <div class="tree">
+<span class="node-dir">OVERLAYS/</span>
+├── <span class="node-key">server.js</span>             <span class="node-dim">← Express app + all API routes + Socket.io hub</span>
+├── <span class="node-dir">data/</span>
+│   ├── <span class="node-key">characters.js</span>     <span class="node-dim">← In-memory state + CRUD helpers (getAll, updateHp…)</span>
+│   ├── <span class="node-key">rolls.js</span>          <span class="node-dim">← Roll history logger (getAll, logRoll)</span>
+│   ├── <span class="node-key">photos.js</span>         <span class="node-dim">← Photo assignment + random fallback from assets/img/</span>
+│   └── <span class="node-key">id.js</span>             <span class="node-dim">← 5-character ID generator</span>
+├── <span class="node-dir">public/</span>               <span class="node-dim">← OBS Browser Source files (vanilla HTML/CSS/JS)</span>
+│   ├── <span class="node-key">overlay-hp.html</span>   <span class="node-dim">← HP bars — top-right, Socket.io CDN, CSS transitions</span>
+│   ├── <span class="node-key">overlay-hp.css</span>    <span class="node-dim">← Gradients, pulse animation, health state classes</span>
+│   ├── <span class="node-key">overlay-dice.html</span> <span class="node-dim">← Dice popup — bottom-center, anime.js bounce, 4s hide</span>
+│   └── <span class="node-key">overlay-dice.css</span>  <span class="node-dim">← Crit/fail glow, result card styles</span>
+├── <span class="node-dir">control-panel/src/</span>
+│   ├── <span class="node-dir">routes/</span>
+│   │   ├── <span class="node-route">+layout.svelte</span>             <span class="node-dim">← App shell: header + sidebar + nav</span>
+│   │   ├── <span class="node-route">control/characters/</span>        <span class="node-dim">← /control/characters</span>
+│   │   ├── <span class="node-route">control/dice/</span>              <span class="node-dim">← /control/dice</span>
+│   │   ├── <span class="node-route">management/create/</span>         <span class="node-dim">← /management/create</span>
+│   │   ├── <span class="node-route">management/manage/</span>         <span class="node-dim">← /management/manage</span>
+│   │   └── <span class="node-route">dashboard/</span>                 <span class="node-dim">← /dashboard</span>
+│   └── <span class="node-dir">lib/</span>
+│       ├── <span class="node-key">socket.js</span>                 <span class="node-dim">← Socket.io singleton + characters/lastRoll stores</span>
+│       ├── <span class="node-key">dashboardStore.js</span>         <span class="node-dim">← Activity history + pending action queue</span>
+│       ├── <span class="node-key">CharacterCard.svelte</span>      <span class="node-dim">← HP, conditions, resources, damage/heal UI</span>
+│       ├── <span class="node-key">DiceRoller.svelte</span>         <span class="node-dim">← d4/d6/d8/d10/d12/d20 grid + result card</span>
+│       ├── <span class="node-key">CharacterCreationForm.svelte</span> <span class="node-dim">← New character form</span>
+│       ├── <span class="node-key">CharacterManagement.svelte</span>  <span class="node-dim">← Photo/data edit + bulk controls</span>
+│       └── <span class="node-key">DashboardCard.svelte</span>      <span class="node-dim">← Per-character live tile (read-only)</span>
+├── <span class="node-dir">scripts/</span>
+│   └── <span class="node-key">setup-ip.js</span>           <span class="node-dim">← Auto-detect IP + write root .env + control-panel/.env</span>
+└── <span class="node-dir">docs/</span>
+    ├── <span class="node-key">ARCHITECTURE.md</span>       <span class="node-dim">← Codebase navigation + data-flow diagrams</span>
+    ├── <span class="node-key">SOCKET-EVENTS.md</span>      <span class="node-dim">← Complete event reference with payload shapes</span>
+    ├── <span class="node-key">DESIGN-SYSTEM.md</span>      <span class="node-dim">← CSS tokens, typography, component style guide</span>
+    ├── <span class="node-key">flowchart-developer.html</span> <span class="node-dim">← ← YOU ARE HERE</span>
+    └── <span class="node-key">flowchart-user.html</span>   <span class="node-dim">← Non-coding user guide</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>DADOS &amp; RISAS · Developer Flowchart</span>
+      <span>docs/flowchart-developer.html · See also: <a href="flowchart-user.html" style="color:var(--cyan);text-decoration:none;">flowchart-user.html</a></span>
+    </footer>
+  </div>
+
+  <script>
+    // ── Tab switching ──
+    function switchTab(id) {
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', btn.getAttribute('onclick') === `switchTab('${id}')`);
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === `tab-${id}`);
+      });
+      // Re-render mermaid diagrams in newly visible panel
+      if (window.mermaidRendered) mermaid.run();
+    }
+
+    // ── Mermaid init ──
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        background:       '#0d0d0d',
+        primaryColor:     '#151520',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#00D4E8',
+        lineColor:        '#00D4E8',
+        secondaryColor:   '#1e1e2e',
+        tertiaryColor:    '#151520',
+        edgeLabelBackground: '#0d0d0d',
+        fontFamily:       "'JetBrains Mono', monospace",
+        fontSize:         '13px',
+        nodeBorder:       '#00D4E8',
+        clusterBkg:       '#0d0d0d',
+        clusterBorder:    '#333344',
+        titleColor:       '#00D4E8',
+        activationBkgColor: '#151520',
+        activationBorderColor: '#500DF5',
+        actorBkg:         '#151520',
+        actorBorder:      '#500DF5',
+        actorTextColor:   '#ffffff',
+        actorLineColor:   '#333344',
+        signalColor:      '#00D4E8',
+        signalTextColor:  '#00D4E8',
+        labelBoxBkgColor: '#151520',
+        labelBoxBorderColor: '#333344',
+        labelTextColor:   '#888',
+        loopTextColor:    '#888',
+        noteBorderColor:  '#333344',
+        noteBkgColor:     '#151520',
+        noteTextColor:    '#888',
+        stateLabelColor:  '#ffffff',
+        stateMessageTextColor: '#888',
+        altBackground:    '#0a0a0f'
+      },
+      flowchart: { curve: 'basis', htmlLabels: true },
+      sequence:  { useMaxWidth: false },
+    });
+    window.mermaidRendered = true;
+  </script>
+</body>
+</html>
