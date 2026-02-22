@@ -4,3 +4,4 @@ node_modules/
 .claude/
 sugestion.html
 tests-log/
+stress-results/
