@@ -9,8 +9,8 @@ Workflow charts and reference diagrams for every audience involved in the **DADO
 | File | Audience | Description |
 |------|----------|-------------|
 | [workflow-developers.md](./workflow-developers.md) | Developers / Technical contributors | Full system setup, architecture, data flow, and development cycle |
-| [workflow-users.md](./workflow-users.md) | Dungeon Masters / Players (everyday users) | How to run a session: control panel, HP tracking, dice rolling |
-| [workflow-stakeholders.md](./workflow-stakeholders.md) | El Sentido del Humor Producciones (ESDH) | What the system delivers for their comedy shows, no tech jargon |
+| [workflow-users.md](./workflow-users.md) | Dungeon Masters / Players (everyday users) | Full control panel map, character creation & management, HP/dice/conditions during sessions, live player dashboard |
+| [workflow-stakeholders.md](./workflow-stakeholders.md) | El Sentido del Humor Producciones (ESDH) | What the system delivers for their comedy shows: OBS overlays, player dashboard replacing paper tracking, character creation & management — no tech jargon |
 
 ---
 
