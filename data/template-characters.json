@@ -1,14 +1,14 @@
 [
   {
-    "id": "CH101",
-    "name": "Kael",
-    "player": "Mara",
-    "class_primary": { "name": "fighter", "level": 1 },
+    "id": "char1",
+    "name": "El verdadero",
+    "player": "Lucas",
+    "class_primary": { "name": "barbarian", "level": 5 },
     "background": {
-      "name": "soldier",
+      "name": "outlander",
       "feat": "",
-      "skill_proficiencies": ["athletics", "intimidation"],
-      "tool_proficiency": "gaming_set"
+      "skill_proficiencies": ["athletics", "survival"],
+      "tool_proficiency": "musical_instrument"
     },
     "species": {
       "name": "human",
@@ -16,117 +16,139 @@
       "speed_walk": 30,
       "traits": []
     },
-    "languages": ["common", "dwarvish", "orc"],
-    "alignment": "lg",
+    "languages": ["common", "orc"],
+    "alignment": "cn",
     "proficiencies": {
-      "skills": ["athletics", "intimidation"],
+      "skills": ["athletics", "survival", "perception", "intimidation"],
       "saving_throws": ["str", "con"],
-      "armor": ["light", "medium", "heavy", "shields"],
+      "armor": ["light", "medium", "shields"],
       "weapons": ["simple", "martial"],
-      "tools": ["gaming_set"]
-    },
-    "equipment": {
-      "items": ["chain_mail", "shield", "longsword", "pack_soldier"],
-      "coins": { "gp": 0, "sp": 0, "cp": 0 },
-      "trinket": ""
-    },
-    "notes": {
-      "appearance": "Tall, scarred, calm",
-      "personality": "Disciplined and loyal",
-      "ideals": "Protect the weak",
-      "bonds": "Old unit",
-      "flaws": "Slow to trust"
-    },
-    "hp_current": 12,
-    "hp_max": 12,
-    "hp_temp": 0,
-    "armor_class": 18,
-    "speed_walk": 30,
-    "ability_scores": {
-      "str": 16,
-      "dex": 12,
-      "con": 14,
-      "int": 10,
-      "wis": 11,
-      "cha": 13
-    },
-    "conditions": [],
-    "resources": [],
-    "photo": "/assets/img/barbarian.png"
-  },
-  {
-    "id": "CH102",
-    "name": "Lyra",
-    "player": "Nico",
-    "class_primary": { "name": "bard", "level": 1 },
-    "background": {
-      "name": "acolyte",
-      "feat": "",
-      "skill_proficiencies": ["insight", "persuasion"],
-      "tool_proficiency": "musical_instrument"
-    },
-    "species": {
-      "name": "elf",
-      "size": "medium",
-      "speed_walk": 30,
-      "traits": []
-    },
-    "languages": ["common", "elvish", "celestial"],
-    "alignment": "ng",
-    "proficiencies": {
-      "skills": ["insight", "persuasion"],
-      "saving_throws": ["dex", "cha"],
-      "armor": ["light"],
-      "weapons": ["simple"],
       "tools": ["musical_instrument"]
     },
     "equipment": {
-      "items": ["leather_armor", "rapier", "lute", "pack_entertainer"],
-      "coins": { "gp": 0, "sp": 0, "cp": 0 },
+      "items": ["greataxe", "two_handaxes", "pack_explorer"],
+      "coins": { "gp": 10, "sp": 0, "cp": 0 },
       "trinket": ""
     },
     "notes": {
-      "appearance": "Silver hair, bright eyes",
-      "personality": "Curious and optimistic",
-      "ideals": "Knowledge",
-      "bonds": "Temple mentor",
-      "flaws": "Overconfident"
+      "appearance": "Towering, wild-eyed, battle-scarred",
+      "personality": "I face problems head-on",
+      "ideals": "Honor the strong",
+      "bonds": "My tribe above all",
+      "flaws": "I am slow to back down"
     },
-    "hp_current": 8,
-    "hp_max": 8,
+    "hp_current": 28,
+    "hp_max": 52,
     "hp_temp": 0,
-    "armor_class": 13,
+    "armor_class": 15,
     "speed_walk": 30,
     "ability_scores": {
-      "str": 8,
-      "dex": 14,
-      "con": 12,
-      "int": 13,
-      "wis": 10,
-      "cha": 16
+      "str": 18,
+      "dex": 13,
+      "con": 18,
+      "int": 8,
+      "wis": 12,
+      "cha": 10
     },
     "conditions": [],
     "resources": [
       {
-        "id": "RS201",
+        "id": "r1",
+        "name": "RAGE",
+        "pool_max": 3,
+        "pool_current": 3,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r2",
         "name": "INSPIRATION",
         "pool_max": 1,
-        "pool_current": 1,
+        "pool_current": 0,
         "recharge": "DM"
       }
     ],
-    "photo": "/assets/img/elf.png"
+    "photo": "/assets/img/barbarian.png"
   },
   {
-    "id": "CH103",
-    "name": "Brum",
-    "player": "Iris",
-    "class_primary": { "name": "cleric", "level": 1 },
+    "id": "char2",
+    "name": "B12",
+    "player": "Sol",
+    "class_primary": { "name": "monk", "level": 5 },
     "background": {
-      "name": "sage",
+      "name": "hermit",
       "feat": "",
-      "skill_proficiencies": ["history", "medicine"],
+      "skill_proficiencies": ["medicine", "religion"],
       "tool_proficiency": "herbalism_kit"
+    },
+    "species": {
+      "name": "human",
+      "size": "medium",
+      "speed_walk": 45,
+      "traits": []
+    },
+    "languages": ["common", "elvish"],
+    "alignment": "ln",
+    "proficiencies": {
+      "skills": ["medicine", "religion", "acrobatics", "stealth"],
+      "saving_throws": ["str", "dex"],
+      "armor": [],
+      "weapons": ["simple", "shortsword"],
+      "tools": ["herbalism_kit"]
+    },
+    "equipment": {
+      "items": ["shortsword", "dart_x10", "pack_explorer"],
+      "coins": { "gp": 5, "sp": 0, "cp": 0 },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Compact, silent, calculating",
+      "personality": "I speak only when necessary",
+      "ideals": "Balance in all things",
+      "bonds": "My monastery's teachings",
+      "flaws": "I judge others by their weakness"
+    },
+    "hp_current": 38,
+    "hp_max": 38,
+    "hp_temp": 0,
+    "armor_class": 17,
+    "speed_walk": 45,
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 14,
+      "int": 12,
+      "wis": 16,
+      "cha": 8
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "r3",
+        "name": "KI",
+        "pool_max": 5,
+        "pool_current": 5,
+        "recharge": "SHORT_REST"
+      },
+      {
+        "id": "r4",
+        "name": "STUNNING STRIKE",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "TURN"
+      }
+    ],
+    "photo": "/assets/img/thiefling.png"
+  },
+  {
+    "id": "char3",
+    "name": "Thornwick",
+    "player": "Pablo",
+    "class_primary": { "name": "fighter", "level": 5 },
+    "background": {
+      "name": "soldier",
+      "feat": "",
+      "skill_proficiencies": ["athletics", "perception"],
+      "tool_proficiency": "gaming_set"
     },
     "species": {
       "name": "dwarf",
@@ -134,50 +156,226 @@
       "speed_walk": 25,
       "traits": []
     },
-    "languages": ["common", "dwarvish", "giant"],
-    "alignment": "ln",
+    "languages": ["common", "dwarvish"],
+    "alignment": "lg",
     "proficiencies": {
-      "skills": ["history", "medicine"],
-      "saving_throws": ["wis", "cha"],
-      "armor": ["light", "medium", "shields"],
-      "weapons": ["simple"],
-      "tools": ["herbalism_kit"]
+      "skills": ["athletics", "perception", "intimidation", "history"],
+      "saving_throws": ["str", "con"],
+      "armor": ["light", "medium", "heavy", "shields"],
+      "weapons": ["simple", "martial"],
+      "tools": ["gaming_set"]
     },
     "equipment": {
-      "items": ["scale_mail", "shield", "mace", "pack_priest"],
-      "coins": { "gp": 0, "sp": 0, "cp": 0 },
+      "items": ["plate_armor", "shield", "longsword", "handaxe", "pack_dungeoneer"],
+      "coins": { "gp": 15, "sp": 0, "cp": 0 },
       "trinket": ""
     },
     "notes": {
-      "appearance": "Broad shoulders, braided beard",
-      "personality": "Patient and methodical",
-      "ideals": "Duty",
-      "bonds": "Clan archive",
-      "flaws": "Stubborn"
+      "appearance": "Stocky, battle-hardened, always in armor",
+      "personality": "I lead from the front",
+      "ideals": "Strength through discipline",
+      "bonds": "My regiment never breaks",
+      "flaws": "I can't resist a challenge"
     },
-    "hp_current": 9,
-    "hp_max": 9,
+    "hp_current": 44,
+    "hp_max": 44,
     "hp_temp": 0,
-    "armor_class": 17,
-    "speed_walk": 25,
+    "armor_class": 18,
+    "speed_walk": 30,
     "ability_scores": {
-      "str": 12,
+      "str": 17,
       "dex": 10,
       "con": 14,
-      "int": 13,
-      "wis": 16,
-      "cha": 11
+      "int": 11,
+      "wis": 13,
+      "cha": 9
     },
     "conditions": [],
     "resources": [
       {
-        "id": "RS301",
-        "name": "CHANNEL DIVINITY",
+        "id": "r5",
+        "name": "ACTION SURGE",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "SHORT_REST"
+      },
+      {
+        "id": "r6",
+        "name": "SECOND WIND",
         "pool_max": 1,
         "pool_current": 1,
         "recharge": "SHORT_REST"
       }
     ],
+    "photo": "/assets/img/dwarf.png"
+  },
+  {
+    "id": "char4",
+    "name": "Aelindra",
+    "player": "María",
+    "class_primary": { "name": "wizard", "level": 5 },
+    "background": {
+      "name": "sage",
+      "feat": "",
+      "skill_proficiencies": ["arcana", "history"],
+      "tool_proficiency": ""
+    },
+    "species": {
+      "name": "elf",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": []
+    },
+    "languages": ["common", "elvish", "draconic", "sylvan"],
+    "alignment": "ng",
+    "proficiencies": {
+      "skills": ["arcana", "history", "investigation", "insight"],
+      "saving_throws": ["int", "wis"],
+      "armor": [],
+      "weapons": ["daggers", "darts", "slings", "quarterstaffs", "light_crossbows"],
+      "tools": []
+    },
+    "equipment": {
+      "items": ["dagger", "spellbook", "component_pouch", "pack_scholar"],
+      "coins": { "gp": 10, "sp": 0, "cp": 0 },
+      "trinket": "small arcane focus"
+    },
+    "notes": {
+      "appearance": "Tall, silver-haired, ink-stained fingers",
+      "personality": "Every problem has an elegant solution",
+      "ideals": "Knowledge is the greatest power",
+      "bonds": "My spellbook is my life",
+      "flaws": "Underestimates physical threats"
+    },
+    "hp_current": 27,
+    "hp_max": 27,
+    "hp_temp": 0,
+    "armor_class": 12,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 13,
+      "int": 18,
+      "wis": 12,
+      "cha": 12
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "r7",
+        "name": "SPELL SLOT 1",
+        "pool_max": 4,
+        "pool_current": 4,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r8",
+        "name": "SPELL SLOT 2",
+        "pool_max": 3,
+        "pool_current": 3,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r9",
+        "name": "SPELL SLOT 3",
+        "pool_max": 2,
+        "pool_current": 2,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r10",
+        "name": "ARCANE RECOVERY",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "LONG_REST"
+      }
+    ],
+    "photo": "/assets/img/elf.png"
+  },
+  {
+    "id": "char5",
+    "name": "Brother Cedric",
+    "player": "Tomás",
+    "class_primary": { "name": "cleric", "level": 5 },
+    "background": {
+      "name": "acolyte",
+      "feat": "",
+      "skill_proficiencies": ["insight", "religion"],
+      "tool_proficiency": ""
+    },
+    "species": {
+      "name": "human",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": []
+    },
+    "languages": ["common", "celestial", "dwarvish"],
+    "alignment": "lg",
+    "proficiencies": {
+      "skills": ["insight", "religion", "medicine", "persuasion"],
+      "saving_throws": ["wis", "cha"],
+      "armor": ["light", "medium", "heavy", "shields"],
+      "weapons": ["simple"],
+      "tools": []
+    },
+    "equipment": {
+      "items": ["scale_mail", "shield", "mace", "holy_symbol", "pack_priest"],
+      "coins": { "gp": 5, "sp": 0, "cp": 0 },
+      "trinket": "silver holy symbol"
+    },
+    "notes": {
+      "appearance": "Kind eyes, travel-worn robes, silver amulet",
+      "personality": "I see the best in everyone",
+      "ideals": "Faith is my shield",
+      "bonds": "My congregation",
+      "flaws": "Slow to condemn"
+    },
+    "hp_current": 38,
+    "hp_max": 38,
+    "hp_temp": 0,
+    "armor_class": 17,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 14,
+      "dex": 10,
+      "con": 14,
+      "int": 13,
+      "wis": 17,
+      "cha": 14
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "r11",
+        "name": "CHANNEL DIVINITY",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "SHORT_REST"
+      },
+      {
+        "id": "r12",
+        "name": "SPELL SLOT 1",
+        "pool_max": 4,
+        "pool_current": 4,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r13",
+        "name": "SPELL SLOT 2",
+        "pool_max": 3,
+        "pool_current": 3,
+        "recharge": "LONG_REST"
+      },
+      {
+        "id": "r14",
+        "name": "SPELL SLOT 3",
+        "pool_max": 2,
+        "pool_current": 2,
+        "recharge": "LONG_REST"
+      }
+    ],
     "photo": "/assets/img/wizard.png"
   }
 ]
+

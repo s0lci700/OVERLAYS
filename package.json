@@ -6,6 +6,7 @@
   "scripts": {
     "setup-ip": "node scripts/setup-ip.js",
     "start": "node scripts/setup-ip.js && node server.js",
+    "stress-test": "node scripts/stress-test.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "npx playwright test",
     "stress:api": "k6 run stress/api.js",
