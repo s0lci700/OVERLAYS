@@ -46,6 +46,9 @@ export default defineConfig(({ mode }) => {
     customLogger,
     server: {
       port: parseInt(env.VITE_PORT || "5173", 10),
+      fs: {
+        allow: [path.resolve(__dirname, "..")],
+      },
     },
   };
 });

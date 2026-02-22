@@ -1,3 +1,6 @@
+<!--
+  Management layout: renders the management tabs (Create/Manage).
+-->
 <script>
   import { page } from "$app/stores";
   let { children } = $props();

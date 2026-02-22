@@ -1,3 +1,6 @@
+<!--
+  Control layout: renders the control tabs (Characters/Dice).
+-->
 <script>
   import { page } from "$app/stores";
   let { children } = $props();

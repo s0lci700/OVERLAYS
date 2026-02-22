@@ -1,7 +1,14 @@
+<!--
+  CharacterCreationForm
+  =====================
+  Controlled form for creating new characters and optional photo assignment.
+  Submits to POST /api/characters and resets on success.
+-->
 <script>
   import "./CharacterCreationForm.css";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { SERVER_URL } from "./socket";
+  import characterOptions from "../../../docs/character-options.template.json";
 
   // Controlled form fields for the character payload.
   let name = $state("");
@@ -9,6 +16,22 @@
   let hpMax = $state(30);
   let armorClass = $state(10);
   let speedWalk = $state(30);
+  let classPrimary = $state("");
+  let classSubclass = $state("");
+  let classLevel = $state(1);
+  let backgroundName = $state("");
+  let backgroundFeat = $state("");
+  let speciesName = $state("");
+  let speciesSize = $state("");
+  let alignment = $state("");
+  let selectedLanguages = $state([]);
+  let selectedRareLanguages = $state([]);
+  let selectedSkills = $state([]);
+  let selectedTools = $state([]);
+  let selectedArmorProficiencies = $state([]);
+  let selectedWeaponProficiencies = $state([]);
+  let selectedItems = $state([]);
+  let selectedTrinket = $state("");
 
   // Photo selection supports preset assets, external URL, or local image data URL.
   let photoSource = $state("preset");
@@ -29,19 +52,75 @@
     { label: "Wizard", value: "/assets/img/wizard.png" },
   ];
 
+  /**
+   * @typedef {{key: string, label: string}} OptionEntry
+   * @typedef {{
+   *  classes?: OptionEntry[],
+   *  subclasses?: OptionEntry[],
+   *  backgrounds?: OptionEntry[],
+   *  feats?: OptionEntry[],
+   *  species?: OptionEntry[],
+   *  sizes?: OptionEntry[],
+   *  languages?: OptionEntry[],
+   *  rare_languages?: OptionEntry[],
+   *  alignments?: OptionEntry[],
+   *  skills?: OptionEntry[],
+   *  tools?: OptionEntry[],
+   *  armor_proficiencies?: OptionEntry[],
+   *  weapon_proficiencies?: OptionEntry[],
+   *  items?: OptionEntry[],
+   *  trinkets?: OptionEntry[]
+   * }} CharacterOptions
+   */
+  /** @type {CharacterOptions} */
+  const optionSets = characterOptions || {};
+  const classOptions = optionSets.classes || [];
+  const subclassOptions = optionSets.subclasses || [];
+  const backgroundOptions = optionSets.backgrounds || [];
+  const featOptions = optionSets.feats || [];
+  const speciesOptions = optionSets.species || [];
+  const sizeOptions = optionSets.sizes || [];
+  const languageOptions = optionSets.languages || [];
+  const rareLanguageOptions = optionSets.rare_languages || [];
+  const alignmentOptions = optionSets.alignments || [];
+  const skillOptions = optionSets.skills || [];
+  const toolOptions = optionSets.tools || [];
+  const armorOptions = optionSets.armor_proficiencies || [];
+  const weaponOptions = optionSets.weapon_proficiencies || [];
+  const itemOptions = optionSets.items || [];
+  const trinketOptions = optionSets.trinkets || [];
+
   // Minimal client-side validation before enabling submit.
   const isFormValid = $derived(
     name.trim().length > 0 && player.trim().length > 0 && hpMax > 0,
   );
 
-  // Normalizes photo value based on selected source mode.
+  /**
+   * Normalize multi-select values into trimmed, non-empty keys.
+   * @param {string[] | undefined | null} values
+   * @returns {string[]}
+   */
+  function normalizeSelection(values) {
+    if (!Array.isArray(values)) return [];
+    return values
+      .map((value) => String(value).trim())
+      .filter((value) => value.length > 0);
+  }
+
+  /**
+   * Resolve the selected photo source into the value sent to the API.
+   * @returns {string}
+   */
   function getResolvedPhotoValue() {
     if (photoSource === "local") return localPhotoDataUrl;
     if (photoSource === "url") return customPhotoUrl.trim();
     return photo;
   }
 
-  // Receives upload/validation errors from PhotoSourcePicker and maps them to form feedback.
+  /**
+   * Handle PhotoSourcePicker validation errors and clear stale messages.
+   * @param {string} message
+   */
   function handlePhotoPickerError(message) {
     if (message) {
       errorMessage = message;
@@ -56,7 +135,11 @@
     }
   }
 
-  // Posts a new character and resets the form on success.
+  /**
+   * Submit the new character payload to the API and reset on success.
+   * @param {SubmitEvent} event
+   * @returns {Promise<void>}
+   */
   async function submitCharacter(event) {
     event.preventDefault();
     if (!isFormValid || isSubmitting) return;
@@ -72,6 +155,40 @@
         hp_max: Number(hpMax),
         armor_class: Number(armorClass),
         speed_walk: Number(speedWalk),
+        class_primary: {
+          name: classPrimary,
+          level: Number(classLevel) || 1,
+          subclass: classSubclass,
+        },
+        background: {
+          name: backgroundName,
+          feat: backgroundFeat,
+          skill_proficiencies: normalizeSelection(selectedSkills),
+          tool_proficiency: normalizeSelection(selectedTools)[0] || "",
+        },
+        species: {
+          name: speciesName,
+          size: speciesSize,
+          speed_walk: Number(speedWalk),
+          traits: [],
+        },
+        languages: [
+          ...normalizeSelection(selectedLanguages),
+          ...normalizeSelection(selectedRareLanguages),
+        ],
+        alignment,
+        proficiencies: {
+          skills: normalizeSelection(selectedSkills),
+          saving_throws: [],
+          armor: normalizeSelection(selectedArmorProficiencies),
+          weapons: normalizeSelection(selectedWeaponProficiencies),
+          tools: normalizeSelection(selectedTools),
+        },
+        equipment: {
+          items: normalizeSelection(selectedItems),
+          coins: { gp: 0, sp: 0, cp: 0 },
+          trinket: selectedTrinket,
+        },
       };
 
       const resolvedPhoto = getResolvedPhotoValue();
@@ -97,6 +214,22 @@
       hpMax = 30;
       armorClass = 10;
       speedWalk = 30;
+      classPrimary = "";
+      classSubclass = "";
+      classLevel = 1;
+      backgroundName = "";
+      backgroundFeat = "";
+      speciesName = "";
+      speciesSize = "";
+      alignment = "";
+      selectedLanguages = [];
+      selectedRareLanguages = [];
+      selectedSkills = [];
+      selectedTools = [];
+      selectedArmorProficiencies = [];
+      selectedWeaponProficiencies = [];
+      selectedItems = [];
+      selectedTrinket = "";
       photoSource = "preset";
       photo = "";
       customPhotoUrl = "";
@@ -167,6 +300,235 @@
             <span class="label-caps">VEL</span>
             <input type="number" min="0" max="200" bind:value={speedWalk} />
           </label>
+        </div>
+
+        <div class="create-section">
+          <h3 class="section-title">Opciones de personaje</h3>
+
+          <div class="create-grid create-grid--two">
+            <label class="create-field">
+              <span class="label-caps">Clase</span>
+              <select bind:value={classPrimary}>
+                <option value="">Sin definir</option>
+                {#each classOptions as option}
+                  <option value={option.key}>{option.label}</option>
+                {/each}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Subclase</span>
+              <select
+                bind:value={classSubclass}
+                disabled={subclassOptions.length === 0}
+              >
+                {#if subclassOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  <option value="">Sin definir</option>
+                  {#each subclassOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Nivel</span>
+              <input type="number" min="1" max="20" bind:value={classLevel} />
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Background</span>
+              <select bind:value={backgroundName}>
+                <option value="">Sin definir</option>
+                {#each backgroundOptions as option}
+                  <option value={option.key}>{option.label}</option>
+                {/each}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Feat</span>
+              <select
+                bind:value={backgroundFeat}
+                disabled={featOptions.length === 0}
+              >
+                {#if featOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  <option value="">Sin definir</option>
+                  {#each featOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Especie</span>
+              <select bind:value={speciesName}>
+                <option value="">Sin definir</option>
+                {#each speciesOptions as option}
+                  <option value={option.key}>{option.label}</option>
+                {/each}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Tamaño</span>
+              <select bind:value={speciesSize}>
+                <option value="">Sin definir</option>
+                {#each sizeOptions as option}
+                  <option value={option.key}>{option.label}</option>
+                {/each}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Alineamiento</span>
+              <select bind:value={alignment}>
+                <option value="">Sin definir</option>
+                {#each alignmentOptions as option}
+                  <option value={option.key}>{option.label}</option>
+                {/each}
+              </select>
+            </label>
+          </div>
+
+          <div class="create-grid create-grid--two">
+            <label class="create-field">
+              <span class="label-caps">Idiomas</span>
+              <select
+                bind:value={selectedLanguages}
+                multiple
+                size={Math.max(3, Math.min(6, languageOptions.length || 3))}
+              >
+                {#if languageOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each languageOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Idiomas raros</span>
+              <select
+                bind:value={selectedRareLanguages}
+                multiple
+                size={Math.max(3, Math.min(6, rareLanguageOptions.length || 3))}
+              >
+                {#if rareLanguageOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each rareLanguageOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+          </div>
+
+          <div class="create-grid create-grid--two">
+            <label class="create-field">
+              <span class="label-caps">Skills</span>
+              <select
+                bind:value={selectedSkills}
+                multiple
+                size={Math.max(4, Math.min(8, skillOptions.length || 4))}
+              >
+                {#if skillOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each skillOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Herramientas</span>
+              <select
+                bind:value={selectedTools}
+                multiple
+                size={Math.max(4, Math.min(8, toolOptions.length || 4))}
+              >
+                {#if toolOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each toolOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+          </div>
+
+          <div class="create-grid create-grid--two">
+            <label class="create-field">
+              <span class="label-caps">Armadura</span>
+              <select
+                bind:value={selectedArmorProficiencies}
+                multiple
+                size={Math.max(3, Math.min(6, armorOptions.length || 3))}
+              >
+                {#if armorOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each armorOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Armas</span>
+              <select
+                bind:value={selectedWeaponProficiencies}
+                multiple
+                size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
+              >
+                {#if weaponOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each weaponOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+          </div>
+
+          <div class="create-grid create-grid--two">
+            <label class="create-field">
+              <span class="label-caps">Items</span>
+              <select
+                bind:value={selectedItems}
+                multiple
+                size={Math.max(3, Math.min(6, itemOptions.length || 3))}
+                disabled={itemOptions.length === 0}
+              >
+                {#if itemOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  {#each itemOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+            <label class="create-field">
+              <span class="label-caps">Trinket</span>
+              <select
+                bind:value={selectedTrinket}
+                disabled={trinketOptions.length === 0}
+              >
+                {#if trinketOptions.length === 0}
+                  <option value="">Sin opciones</option>
+                {:else}
+                  <option value="">Sin definir</option>
+                  {#each trinketOptions as option}
+                    <option value={option.key}>{option.label}</option>
+                  {/each}
+                {/if}
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 

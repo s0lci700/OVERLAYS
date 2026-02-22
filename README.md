@@ -7,6 +7,8 @@
 ![Latency](https://img.shields.io/badge/latency-%3C100ms-success)
 ![Built in](https://img.shields.io/badge/built%20in-2%20days-orange)
 
+Quick navigation: see [docs/INDEX.md](docs/INDEX.md).
+
 ---
 
 ## What It Does
@@ -68,21 +70,47 @@ cd control-panel && npm install
 
 ### 2. Configure environment
 
-Copy the example environment file and update the values for your machine:
+Auto-detect your IP and generate both `.env` files:
+
+```bash
+npm run setup-ip
+```
+
+Manual alternative:
 
 ```bash
 cp .env.example .env
+cp control-panel/.env.example control-panel/.env
 ```
 
-| Variable               | Default                 | Description                                    |
-| ---------------------- | ----------------------- | ---------------------------------------------- |
-| `PORT`                 | `3000`                  | Server port                                    |
-| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel              |
-| `CHARACTERS_TEMPLATE`  | `test_characters`       | Character seed file in `data/` (without `.js`) |
+Root `.env`:
 
-### 3. Configure your local IP
+| Variable               | Default                 | Description                                        |
+| ---------------------- | ----------------------- | -------------------------------------------------- |
+| `PORT`                 | `3000`                  | Server port                                        |
+| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel                  |
+| `CHARACTERS_TEMPLATE`  | `template-characters`   | Character seed file in `data/` (without extension) |
 
-Four files contain a hardcoded server IP that must match your machine. Find your IP:
+Control panel `control-panel/.env`:
+
+| Variable          | Default                 | Description             |
+| ----------------- | ----------------------- | ----------------------- |
+| `VITE_SERVER_URL` | `http://localhost:3000` | Backend server base URL |
+| `VITE_PORT`       | `5173`                  | Vite dev server port    |
+
+### 3. Configure overlay server URL
+
+Overlays read the server URL from a query string. Pass the backend URL when adding the
+Browser Source in OBS (or when testing in a browser):
+
+```
+overlay-hp.html?server=http://YOUR_IP:3000
+overlay-dice.html?server=http://YOUR_IP:3000
+```
+
+If you omit the parameter, overlays default to `http://localhost:3000`.
+
+Find your IP if you need to build the URL manually:
 
 ```bash
 # Windows
@@ -91,15 +119,6 @@ ipconfig
 # macOS / Linux
 ifconfig | grep inet
 ```
-
-Update `YOUR_IP` in each file:
-
-| File                              | Line to update                             |
-| --------------------------------- | ------------------------------------------ |
-| `server.js`                       | `const serverPort = 'http://YOUR_IP:3000'` |
-| `control-panel/src/lib/socket.js` | `const serverPort = 'http://YOUR_IP:3000'` |
-| `public/overlay-hp.html`          | `const socket = io("http://YOUR_IP:3000")` |
-| `public/overlay-dice.html`        | `const socket = io("http://YOUR_IP:3000")` |
 
 ### 4. Start everything
 
@@ -117,6 +136,13 @@ cd control-panel
 npm run dev -- --host
 # → Local:   http://localhost:5173/
 # → Network: http://192.168.x.x:5173/   ← open this on your phone
+```
+
+Optional shortcut (runs `setup-ip` + `vite dev --host`):
+
+```bash
+cd control-panel
+npm run dev:auto
 ```
 
 ### 5. Add overlays in OBS
@@ -142,7 +168,8 @@ OVERLAYS/
 │
 ├── data/                          # In-memory data modules
 │   ├── characters.js              # Character state + CRUD + template loader
-│   ├── test_characters.js         # Default swappable character template
+│   ├── template-characters.json   # Default swappable character template
+│   ├── test_characters.js         # Legacy template
 │   └── rolls.js                   # Roll history logger
 │
 ├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
@@ -167,6 +194,7 @@ OVERLAYS/
 │
 └── docs/                          # Technical reference docs
     ├── ARCHITECTURE.md            # Codebase navigation + data-flow diagrams
+  ├── ENVIRONMENT.md             # .env setup, IP configuration, overlay URLs
     ├── SOCKET-EVENTS.md           # Complete Socket.io event reference
     └── DESIGN-SYSTEM.md           # CSS tokens, typography, component guide
 ```
@@ -182,20 +210,20 @@ Returns the full character list (including HP, conditions, and resources).
 ```json
 [
   {
-    "id": "CH001",
-    "name": "El verdadero",
-    "player": "Lucas",
-    "hp_current": 28,
-    "hp_max": 35,
+    "id": "CH101",
+    "name": "Kael",
+    "player": "Mara",
+    "hp_current": 12,
+    "hp_max": 12,
     "conditions": [],
     "resources": []
   },
   {
-    "id": "CH002",
-    "name": "B12",
-    "player": "Sol",
-    "hp_current": 30,
-    "hp_max": 30,
+    "id": "CH102",
+    "name": "Lyra",
+    "player": "Nico",
+    "hp_current": 8,
+    "hp_max": 8,
     "conditions": [],
     "resources": []
   }
@@ -207,7 +235,7 @@ Returns the full character list (including HP, conditions, and resources).
 Updates a character's current HP (clamped to `[0, hp_max]`) and broadcasts `hp_updated` to all clients.
 
 ```http
-PUT /api/characters/CH001/hp
+PUT /api/characters/CH101/hp
 Content-Type: application/json
 
 { "hp_current": 15 }
@@ -220,7 +248,7 @@ Content-Type: application/json
 Adds a status condition to a character and broadcasts `condition_added`.
 
 ```http
-POST /api/characters/CH001/conditions
+POST /api/characters/CH101/conditions
 Content-Type: application/json
 
 { "condition_name": "Poisoned", "intensity_level": 1 }
@@ -239,7 +267,7 @@ Removes a condition by 5-character ID and broadcasts `condition_removed`.
 Updates a resource pool (e.g. Rage charges) and broadcasts `resource_updated`.
 
 ```http
-PUT /api/characters/CH001/resources/RS001
+PUT /api/characters/CH101/resources/RS201
 Content-Type: application/json
 
 { "pool_current": 2 }
@@ -252,7 +280,7 @@ Content-Type: application/json
 Applies a short or long rest, restores matching resource pools, and broadcasts `rest_taken`.
 
 ```http
-POST /api/characters/CH001/rest
+POST /api/characters/CH101/rest
 Content-Type: application/json
 
 { "type": "short" }
@@ -268,7 +296,7 @@ Logs a dice roll and broadcasts `dice_rolled` to all connected clients.
 POST /api/rolls
 Content-Type: application/json
 
-{ "charId": "CH001", "result": 18, "modifier": 0, "sides": 20 }
+{ "charId": "CH101", "result": 18, "modifier": 0, "sides": 20 }
 ```
 
 **Response:** the full roll record `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }`.
@@ -281,6 +309,8 @@ Content-Type: application/json
 | ------------------- | -------------------------- | ------------------------------------------------------------------------------- |
 | `initialData`       | Server → connecting client | `{ characters[], rolls[] }` — sent on connect                                   |
 | `hp_updated`        | Server → All               | `{ character, hp_current }`                                                     |
+| `character_created` | Server → All               | `{ character }`                                                                 |
+| `character_updated` | Server → All               | `{ character }`                                                                 |
 | `condition_added`   | Server → All               | `{ charId, condition }`                                                         |
 | `condition_removed` | Server → All               | `{ charId, conditionId }`                                                       |
 | `resource_updated`  | Server → All               | `{ charId, resource }`                                                          |
@@ -331,12 +361,12 @@ No database required for the demo. Characters reset when the server restarts —
 
 ## Debugging
 
-| Problem                  | Fix                                                                         |
-| ------------------------ | --------------------------------------------------------------------------- |
-| Overlay not connecting   | Check that `server.js` is running on port 3000                              |
-| Phone can't reach server | Update IP in `socket.js` and both overlay files; restart Vite with `--host` |
-| OBS overlay blank        | Right-click Browser Source → Interact → check console (F12)                 |
-| HP not updating          | Verify the `PUT` request in Network tab, check server logs                  |
+| Problem                  | Fix                                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| Overlay not connecting   | Check that `server.js` is running on port 3000                                               |
+| Phone can't reach server | Run `npm run setup-ip`, ensure `VITE_SERVER_URL` matches your IP, restart Vite with `--host` |
+| OBS overlay blank        | Right-click Browser Source → Interact → check console (F12)                                  |
+| HP not updating          | Verify the `PUT` request in Network tab, check server logs                                   |
 
 Quick API test:
 
@@ -345,7 +375,7 @@ Quick API test:
 curl http://localhost:3000/api/characters
 
 # Manual HP update
-curl -X PUT http://localhost:3000/api/characters/CH001/hp \
+curl -X PUT http://localhost:3000/api/characters/CH101/hp \
   -H "Content-Type: application/json" \
   -d '{"hp_current": 10}'
 ```
@@ -357,7 +387,7 @@ curl -X PUT http://localhost:3000/api/characters/CH001/hp \
 **30 seconds. Phone in hand. OBS visible on second screen.**
 
 1. Open control panel on phone — show it to camera
-2. Hit "Damage" on El verdadero — watch OBS bar drop and turn orange
+2. Hit "Damage" on Kael — watch OBS bar drop and turn orange
 3. Hit it again — bar turns red, starts pulsing
 4. Roll a d20 — dice popup flies in on OBS
 5. If Nat 20: "¡CRÍTICO!" in green

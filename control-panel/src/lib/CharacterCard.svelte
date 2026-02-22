@@ -58,7 +58,12 @@
   // ──────────────────────────────────────────────────────────────────────────
 
   /** Character object from server, contains all stats, resources, conditions. */
-  let { character } = $props();
+  let {
+    character,
+    selectable = false,
+    selected = false,
+    onToggleSelect = () => {},
+  } = $props();
 
   // ──────────────────────────────────────────────────────────────────────────
   // State Management
@@ -310,12 +315,25 @@
   data-char-id={character.id}
   class:is-critical={hpPercent <= 30}
   class:collapsed={isVisualCollapsed}
+  class:is-selected={selected}
 >
   <!-- Damage flash overlay, animated when HP is reduced -->
   <div class="hit-flash" bind:this={hitFlashEl}></div>
 
   <!-- Character name, player name, and current/max HP display -->
   <div class="char-header">
+    {#if selectable}
+      <label class="char-select">
+        <input
+          class="char-select-input"
+          type="checkbox"
+          checked={selected}
+          onchange={() => onToggleSelect(character.id)}
+          aria-label={`Seleccionar ${character.name}`}
+        />
+        <span class="char-select-box" aria-hidden="true"></span>
+      </label>
+    {/if}
     <!-- Character photo -->
     <img
       src={photoSrc}
@@ -327,6 +345,9 @@
     <div class="char-identity">
       <h2 class="char-name">{character.name}</h2>
       <span class="char-player">{character.player}</span>
+      <span class="char-level">
+        NIVEL {Number(character.class_primary?.level ?? 1) || 1}
+      </span>
     </div>
     <div class="char-header-actions">
       <div class="char-hp-nums">

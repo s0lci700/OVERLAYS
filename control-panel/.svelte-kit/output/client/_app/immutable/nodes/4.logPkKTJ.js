@@ -1,1 +1,0 @@
-import"../chunks/DsnmJJEf.js";import"../chunks/BcPgcvTn.js";import{o as r}from"../chunks/BvwCr5sS.js";import{p as t,a as p}from"../chunks/BpRt2mh-.js";import{i as a}from"../chunks/DiEZq4G_.js";import{g as m}from"../chunks/DgxWy6MV.js";function h(i,o){t(o,!1),r(()=>{m("/control/characters")}),a(),p()}export{h as component};

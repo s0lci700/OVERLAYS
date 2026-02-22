@@ -1,3 +1,9 @@
+/**
+ * PhotoSourcePicker Styles
+ * ========================
+ * Styles for the shared photo source selector (preset, URL, local file).
+ */
+
 .photo-picker {
   display: flex;
   flex-direction: column;

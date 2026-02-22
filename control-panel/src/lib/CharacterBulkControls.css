@@ -1,0 +1,118 @@
+/**
+ * Character bulk controls
+ * =======================
+ * Compact toolbar for multi-select healing/damage actions.
+ */
+
+.bulk-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-lg);
+  background: var(--black-card);
+  box-shadow: var(--shadow-card);
+}
+
+.bulk-controls-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: var(--grey);
+}
+
+.bulk-controls-count {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--white);
+}
+
+.bulk-controls-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.bulk-amount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bulk-amount input {
+  min-height: 38px;
+  width: 88px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-2);
+  background: var(--black-elevated);
+  color: var(--white);
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+.bulk-amount input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim);
+}
+
+.bulk-toggle {
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey);
+  background: transparent;
+}
+
+.bulk-toggle:hover {
+  color: var(--white);
+  border-color: var(--grey);
+}
+
+.bulk-toggle.is-active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: rgba(0, 212, 232, 0.08);
+}
+
+.bulk-toggle:disabled,
+.bulk-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.bulk-action {
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  font-size: 0.8rem;
+}
+
+.bulk-action.damage {
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: var(--shadow-red);
+}
+
+.bulk-action.heal {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: var(--shadow-cyan);
+}
+
+.bulk-action.rest {
+  border-color: var(--grey-dim);
+  color: var(--grey);
+  box-shadow: none;
+}
+
+.bulk-action.rest:hover {
+  border-color: var(--grey);
+  color: var(--white);
+}

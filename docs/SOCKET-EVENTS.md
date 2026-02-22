@@ -53,6 +53,40 @@ Fired when any client connects. Server sends `initialData` in response.
 | `dashboardStore.js` | Logs to activity history |
 | `overlay-hp.html` | `updateCharacterHP()` — bar width + color transition |
 
+### `character_created`
+
+**Direction:** Server → all clients
+**When:** `POST /api/characters` succeeds
+**Payload:**
+
+```js
+{
+  character: Character; // Newly created character object
+}
+```
+
+**Listeners:**
+| File | Action |
+|---|---|
+| `socket.js` | Appends to `characters` store |
+
+### `character_updated`
+
+**Direction:** Server → all clients
+**When:** `PUT /api/characters/:id/photo` succeeds
+**Payload:**
+
+```js
+{
+  character: Character; // Updated character object
+}
+```
+
+**Listeners:**
+| File | Action |
+|---|---|
+| `socket.js` | Replaces character in `characters` store |
+
 ---
 
 ## Condition Events

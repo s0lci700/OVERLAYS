@@ -82,7 +82,7 @@ httpServer.on("error", (error) => {
 
 // Parse JSON payloads from the control panel and allow requests from any origin.
 app.use(cors({ origin: "*" }));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // Landing
@@ -100,8 +100,22 @@ app.get("/api/characters", (req, res) => {
 
 // Create a new character and broadcast so all connected clients can append it.
 app.post("/api/characters", (req, res) => {
-  const { name, player, hp_max, hp_current, armor_class, speed_walk, photo } =
-    req.body;
+  const {
+    name,
+    player,
+    hp_max,
+    hp_current,
+    armor_class,
+    speed_walk,
+    photo,
+    class_primary,
+    background,
+    species,
+    languages,
+    alignment,
+    proficiencies,
+    equipment,
+  } = req.body;
 
   if (typeof name !== "string" || name.trim() === "") {
     return res.status(400).json({ error: "name must be a non-empty string" });
@@ -162,6 +176,13 @@ app.post("/api/characters", (req, res) => {
     armor_class,
     speed_walk,
     photo,
+    class_primary,
+    background,
+    species,
+    languages,
+    alignment,
+    proficiencies,
+    equipment,
   });
 
   io.emit("character_created", { character });
@@ -195,7 +216,141 @@ app.put("/api/characters/:id/photo", (req, res) => {
     return res.status(400).json({ error: "photo must be a string" });
   }
 
+  if (typeof photo === "string" && photo.length > 2000000) {
+    return res.status(413).json({ error: "photo payload is too large" });
+  }
+
   const character = characterModule.updatePhoto(req.params.id, photo);
+  if (!character) return res.status(404).json({ error: "Character not found" });
+
+  io.emit("character_updated", { character });
+  return res.status(200).json(character);
+});
+
+// Update editable character fields and broadcast changes to all clients.
+app.put("/api/characters/:id", (req, res) => {
+  const updates = {};
+  const isPlainObject = (value) =>
+    value !== null && typeof value === "object" && !Array.isArray(value);
+
+  if (req.body.name !== undefined) {
+    if (typeof req.body.name !== "string" || req.body.name.trim() === "") {
+      return res.status(400).json({ error: "name must be a non-empty string" });
+    }
+    updates.name = req.body.name;
+  }
+
+  if (req.body.player !== undefined) {
+    if (typeof req.body.player !== "string" || req.body.player.trim() === "") {
+      return res
+        .status(400)
+        .json({ error: "player must be a non-empty string" });
+    }
+    updates.player = req.body.player;
+  }
+
+  if (req.body.hp_max !== undefined) {
+    if (
+      typeof req.body.hp_max !== "number" ||
+      !Number.isFinite(req.body.hp_max) ||
+      req.body.hp_max <= 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "hp_max must be a positive finite number" });
+    }
+    updates.hp_max = req.body.hp_max;
+  }
+
+  if (req.body.hp_current !== undefined) {
+    if (
+      typeof req.body.hp_current !== "number" ||
+      !Number.isFinite(req.body.hp_current) ||
+      req.body.hp_current < 0
+    ) {
+      return res.status(400).json({
+        error: "hp_current must be a finite number greater than or equal to 0",
+      });
+    }
+    updates.hp_current = req.body.hp_current;
+  }
+
+  if (req.body.armor_class !== undefined) {
+    if (
+      typeof req.body.armor_class !== "number" ||
+      !Number.isFinite(req.body.armor_class) ||
+      req.body.armor_class < 0
+    ) {
+      return res.status(400).json({
+        error: "armor_class must be a finite number greater than or equal to 0",
+      });
+    }
+    updates.armor_class = req.body.armor_class;
+  }
+
+  if (req.body.speed_walk !== undefined) {
+    if (
+      typeof req.body.speed_walk !== "number" ||
+      !Number.isFinite(req.body.speed_walk) ||
+      req.body.speed_walk < 0
+    ) {
+      return res.status(400).json({
+        error: "speed_walk must be a finite number greater than or equal to 0",
+      });
+    }
+    updates.speed_walk = req.body.speed_walk;
+  }
+
+  if (req.body.class_primary !== undefined) {
+    if (!isPlainObject(req.body.class_primary)) {
+      return res.status(400).json({ error: "class_primary must be an object" });
+    }
+    updates.class_primary = req.body.class_primary;
+  }
+
+  if (req.body.background !== undefined) {
+    if (!isPlainObject(req.body.background)) {
+      return res.status(400).json({ error: "background must be an object" });
+    }
+    updates.background = req.body.background;
+  }
+
+  if (req.body.species !== undefined) {
+    if (!isPlainObject(req.body.species)) {
+      return res.status(400).json({ error: "species must be an object" });
+    }
+    updates.species = req.body.species;
+  }
+
+  if (req.body.languages !== undefined) {
+    if (!Array.isArray(req.body.languages)) {
+      return res.status(400).json({ error: "languages must be an array" });
+    }
+    updates.languages = req.body.languages;
+  }
+
+  if (req.body.alignment !== undefined) {
+    if (typeof req.body.alignment !== "string") {
+      return res.status(400).json({ error: "alignment must be a string" });
+    }
+    updates.alignment = req.body.alignment;
+  }
+
+  if (req.body.proficiencies !== undefined) {
+    if (!isPlainObject(req.body.proficiencies)) {
+      return res.status(400).json({ error: "proficiencies must be an object" });
+    }
+    updates.proficiencies = req.body.proficiencies;
+  }
+
+  if (req.body.equipment !== undefined) {
+    if (!isPlainObject(req.body.equipment)) {
+      return res.status(400).json({ error: "equipment must be an object" });
+    }
+    updates.equipment = req.body.equipment;
+  }
+
+  const character = characterModule.updateCharacterData(req.params.id, updates);
   if (!character) return res.status(404).json({ error: "Character not found" });
 
   io.emit("character_updated", { character });

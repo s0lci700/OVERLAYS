@@ -1,3 +1,9 @@
+<!--
+  PhotoSourcePicker
+  =================
+  Shared picker for preset assets, URL input, or local file upload.
+  Emits changes through callback props for parent-controlled state.
+-->
 <script>
   import "./PhotoSourcePicker.css";
 

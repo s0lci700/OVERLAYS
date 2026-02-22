@@ -4,6 +4,11 @@ const SHORT_ID_LENGTH = 5;
 const SHORT_ID_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const ALPHABET_LENGTH = SHORT_ID_ALPHABET.length;
 
+/**
+ * Generate a short, human-readable ID (default length: 5).
+ * Uses a collision-resistant random alphabet without ambiguous characters.
+ * @returns {string}
+ */
 function createShortId() {
   let id = "";
   while (id.length < SHORT_ID_LENGTH) {

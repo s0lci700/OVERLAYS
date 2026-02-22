@@ -13,7 +13,7 @@
  *
  * @typedef {Object} StandaloneResource
  * @property {string} id             - Unique resource identifier
- * @property {string} characterId    - Owner character ID (e.g. "CH001")
+ * @property {string} characterId    - Owner character ID (e.g. "CH101")
  * @property {string} resourceName   - Display name (e.g. "Action Surge")
  * @property {number} pool_max       - Maximum uses per recharge cycle
  * @property {number} pool_current   - Remaining uses
@@ -22,23 +22,23 @@
  */
 const resources = [
   {
-    id: 'resource-action-surge',
-    characterId: 'CH001',
-    resourceName: 'Action Surge',
+    id: "resource-action-surge",
+    characterId: "CH101",
+    resourceName: "Action Surge",
     pool_max: 1,
     pool_current: 1,
-    recharge_type: 'SHORT_REST',
-    die_size: null
+    recharge_type: "SHORT_REST",
+    die_size: null,
   },
   {
-    id: 'resource-ki-points',
-    characterId: 'CH002',
-    resourceName: 'Ki Points',
+    id: "resource-ki-points",
+    characterId: "CH102",
+    resourceName: "Ki Points",
     pool_max: 3,
     pool_current: 3,
-    recharge_type: 'SHORT_REST',
-    die_size: null
-  }
+    recharge_type: "SHORT_REST",
+    die_size: null,
+  },
 ];
 
 /**
@@ -61,8 +61,5 @@ function forCharacter(characterId) {
 module.exports = {
   resources,
   getActive,
-  forCharacter
+  forCharacter,
 };
-
-
-

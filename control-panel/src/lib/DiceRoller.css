@@ -57,6 +57,13 @@
   padding-bottom: var(--space-4);
 }
 
+@media (min-width: 768px) {
+  .dice-panel {
+    width: clamp(33vw, 40vw, 50vw);
+    margin: 0 auto;
+  }
+}
+
 /* ── Character Selector ── */
 .char-selector {
   display: flex;

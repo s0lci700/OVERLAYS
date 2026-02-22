@@ -1,5 +1,8 @@
+<!--
+  Dice tab: wraps the DiceRoller control panel component.
+-->
 <script>
-  import DiceRoller from '$lib/DiceRoller.svelte';
+  import DiceRoller from "$lib/DiceRoller.svelte";
 </script>
 
 <section class="tab-panel">

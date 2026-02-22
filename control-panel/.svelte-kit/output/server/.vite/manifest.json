@@ -10,18 +10,15 @@
       "_internal.js"
     ]
   },
-  "_PhotoSourcePicker.BswJpDOb.css": {
-    "file": "_app/immutable/assets/PhotoSourcePicker.BswJpDOb.css",
-    "src": "_PhotoSourcePicker.BswJpDOb.css"
+  "_character-options.BswJpDOb.css": {
+    "file": "_app/immutable/assets/character-options.BswJpDOb.css",
+    "src": "_character-options.BswJpDOb.css"
   },
-  "_PhotoSourcePicker.js": {
-    "file": "chunks/PhotoSourcePicker.js",
-    "name": "PhotoSourcePicker",
-    "imports": [
-      "_index2.js"
-    ],
+  "_character-options.template.js": {
+    "file": "chunks/character-options.template.js",
+    "name": "character-options.template",
     "css": [
-      "_app/immutable/assets/PhotoSourcePicker.BswJpDOb.css"
+      "_app/immutable/assets/character-options.BswJpDOb.css"
     ]
   },
   "_environment.js": {
@@ -154,7 +151,7 @@
       "_socket.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout._11sw7i8.css"
+      "_app/immutable/assets/_layout.Sp1dO0bo.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -189,7 +186,7 @@
       "_socket.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.T5y2cZz8.css"
+      "_app/immutable/assets/_page.C1Okibuh.css"
     ]
   },
   "src/routes/control/dice/+page.svelte": {
@@ -203,7 +200,21 @@
       "_index.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.DBvkp4EP.css"
+      "_app/immutable/assets/_page.COGafVEN.css"
+    ]
+  },
+  "src/routes/dashboard/+page.svelte": {
+    "file": "entries/pages/dashboard/_page.svelte.js",
+    "name": "entries/pages/dashboard/_page.svelte",
+    "src": "src/routes/dashboard/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_socket.js",
+      "_index.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CR-BV-rS.css"
     ]
   },
   "src/routes/management/+layout.svelte": {
@@ -223,11 +234,11 @@
     "isEntry": true,
     "imports": [
       "_index2.js",
-      "_PhotoSourcePicker.js",
+      "_character-options.template.js",
       "_socket.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.D_uB1wIW.css"
+      "_app/immutable/assets/_page.DHcO7dC4.css"
     ]
   },
   "src/routes/management/manage/+page.svelte": {
@@ -237,11 +248,11 @@
     "isEntry": true,
     "imports": [
       "_index2.js",
-      "_PhotoSourcePicker.js",
+      "_character-options.template.js",
       "_socket.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.B9u3RQGV.css"
+      "_app/immutable/assets/_page.LLk_vEHo.css"
     ]
   }
 }

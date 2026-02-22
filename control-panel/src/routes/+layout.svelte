@@ -1,3 +1,6 @@
+<!--
+  Root layout: shared app shell, header, and sidebar navigation.
+-->
 <script>
   import "../app.css";
   import { page } from "$app/stores";
@@ -19,6 +22,9 @@
     window.location.pathname = path;
     isSidebarOpen = false;
   }
+
+  let isDashboard = $derived($page.url.pathname.startsWith("/dashboard"));
+  let isManagement = $derived($page.url.pathname.includes("/management"));
 </script>
 
 <div class="app-shell">
@@ -28,9 +34,11 @@
       <span class="brand-script">TTRPG</span>
     </div>
     <span class="page-title">
-      {$page.url.pathname.includes("/management")
-        ? "GESTIÓN DE PERSONAJES"
-        : "PANEL DE CONTROL"}
+      {isDashboard
+        ? "DASHBOARD EN VIVO"
+        : isManagement
+          ? "GESTIÓN DE PERSONAJES"
+          : "PANEL DE CONTROL"}
     </span>
     <div class="header-meta">
       <div class="conn-dot" class:connected></div>
@@ -77,6 +85,13 @@
       href="/control/characters"
     >
       PANEL DE CONTROL
+    </a>
+    <a
+      class="app-sidebar-link"
+      class:active={$page.url.pathname.startsWith("/dashboard")}
+      href="/dashboard"
+    >
+      DASHBOARD
     </a>
     <a
       class="app-sidebar-link"

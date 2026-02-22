@@ -27,7 +27,7 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/control" | "/control/characters" | "/control/dice" | "/management" | "/management/create" | "/management/manage";
+		RouteId(): "/" | "/control" | "/control/characters" | "/control/dice" | "/dashboard" | "/management" | "/management/create" | "/management/manage";
 		RouteParams(): {
 			
 		};
@@ -36,11 +36,12 @@ declare module "$app/types" {
 			"/control": Record<string, never>;
 			"/control/characters": Record<string, never>;
 			"/control/dice": Record<string, never>;
+			"/dashboard": Record<string, never>;
 			"/management": Record<string, never>;
 			"/management/create": Record<string, never>;
 			"/management/manage": Record<string, never>
 		};
-		Pathname(): "/" | "/control/characters" | "/control/dice" | "/management/create" | "/management/manage";
+		Pathname(): "/" | "/control/characters" | "/control/dice" | "/dashboard" | "/management/create" | "/management/manage";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/icons/dice/d10.svg" | "/icons/dice/d12.svg" | "/icons/dice/d20.svg" | "/icons/dice/d4.svg" | "/icons/dice/d6.svg" | "/icons/dice/d8.svg" | string & {};
 	}

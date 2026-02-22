@@ -1,0 +1,250 @@
+/**
+ * DashboardCard Styles
+ * ====================
+ * Monitor-first layout with large type and dense information blocks.
+ */
+
+.dashboard-card {
+  position: relative;
+  overflow: hidden;
+  gap: var(--space-4);
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(80, 13, 245, 0.12)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 80% 0%,
+    rgba(0, 212, 232, 0.08),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.dash-card-header {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  border: 2px solid var(--grey-dim);
+  flex-shrink: 0;
+}
+
+.dash-identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dash-name {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-id {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--grey);
+}
+
+.dash-player {
+  font-size: 0.9rem;
+  color: var(--grey);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dash-vitals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dash-vital {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dash-vital-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+.dash-vital-value {
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.dash-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+
+.dash-section-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.dash-ability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dash-ability {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-ability-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--grey);
+}
+
+.dash-ability-value {
+  font-size: 1rem;
+}
+
+.dash-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dash-pill {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(0, 212, 232, 0.35);
+  color: var(--cyan);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(0, 212, 232, 0.08);
+}
+
+.dash-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dash-resource {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 4px var(--space-2);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+}
+
+.dash-resource-name {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dash-resource-count {
+  font-size: 1rem;
+  text-align: right;
+}
+
+.dash-resource-recharge {
+  font-size: 0.7rem;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.dash-empty {
+  font-size: 0.85rem;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 1200px) {
+  .dash-photo {
+    width: 96px;
+    height: 96px;
+  }
+
+  .dash-name {
+    font-size: 1.6rem;
+  }
+
+  .dash-vitals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .dash-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-photo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .dash-name-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-resource-grid {
+    grid-template-columns: 1fr;
+  }
+}

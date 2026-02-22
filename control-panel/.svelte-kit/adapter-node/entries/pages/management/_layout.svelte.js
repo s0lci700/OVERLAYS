@@ -6,9 +6,9 @@ function _layout($$renderer, $$props) {
     let { children } = $$props;
     children($$renderer2);
     $$renderer2.push(`<!----> <nav class="bottom-nav"><a${attr_class("nav-tab", void 0, {
-      "active": store_get($$store_subs ??= {}, "$page", page).url.pathname.includes("/create")
+      "active": store_get($$store_subs ??= {}, "$page", page).url.pathname === "/management/create"
     })} href="/management/create"><span class="nav-icon">＋</span> <span class="nav-label">CREAR</span></a> <a${attr_class("nav-tab", void 0, {
-      "active": store_get($$store_subs ??= {}, "$page", page).url.pathname.includes("/manage")
+      "active": store_get($$store_subs ??= {}, "$page", page).url.pathname === "/management/manage"
     })} href="/management/manage"><span class="nav-icon">⛭</span> <span class="nav-label">GESTIONAR</span></a></nav>`);
     if ($$store_subs) unsubscribe_stores($$store_subs);
   });

@@ -1,5 +1,5 @@
 import "clsx";
-import { ab as ensure_array_like, s as store_get, e as escape_html, a8 as attr, a as attr_class, u as unsubscribe_stores, a7 as derived } from "../../../../chunks/index2.js";
+import { ab as ensure_array_like, s as store_get, e as escape_html, a8 as attr, a as attr_class, u as unsubscribe_stores, d as derived } from "../../../../chunks/index2.js";
 import { c as characters, l as lastRoll } from "../../../../chunks/socket.js";
 import { g as get } from "../../../../chunks/index.js";
 function DiceRoller($$renderer, $$props) {
