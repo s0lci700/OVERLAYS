@@ -3,6 +3,8 @@
 Guide for Dungeon Masters and players who run the system during a D&D session.  
 No coding required — just a phone, a laptop, and OBS.
 
+> **This is a working demo.** Data is stored in memory — characters reset if the server restarts. A database will be added if the pilot is greenlit so that character data persists between sessions automatically.
+
 ---
 
 ## 1. What you need before the session
@@ -11,8 +13,8 @@ No coding required — just a phone, a laptop, and OBS.
 |------|-------|
 | Laptop / PC | Runs the server and OBS |
 | Phone or tablet | DM's remote control; players open the `/dashboard` read-only view on their own device |
-| OBS Studio | Free — [obsproject.com](https://obsproject.com) — needed only for streaming |
-| Same Wi-Fi network | Phone and laptop must be on the same network |
+| OBS Studio | Free — [obsproject.com](https://obsproject.com) — for capturing overlays on video |
+| Same Wi-Fi network | Phone and laptop must be on the same network (no internet required) |
 
 ---
 
@@ -210,6 +212,8 @@ flowchart TD
 
 The Dashboard (`/dashboard`) is a **read-only** live view designed to sit on a second screen, a TV at the table, or a player's own phone/tablet. Players can always see current game state without touching the DM controls.
 
+The activity and roll logs also serve as a **post-production reference**: every action is timestamped, so editors can jump directly to the exact moment in the recording where each dice roll or HP change happened.
+
 ```mermaid
 flowchart LR
     subgraph CARD["Per-character card"]
@@ -221,7 +225,7 @@ flowchart LR
         RESOURCES["Resource pools\nRage: 2/3 · Ki: 4/4\nwith recharge type"]
     end
 
-    subgraph LOG["Activity logs (right panel)"]
+    subgraph LOG["Activity logs (right panel) — timestamped"]
         ACTION["Last 10 actions\ntime · character · event\ne.g. 14:32 Kael HP → 8/12"]
         ROLLS["Last 10 dice rolls\ntime · character · result\ne.g. 14:35 Lyra rolled 18 (d20+2)"]
     end
@@ -235,7 +239,7 @@ flowchart LR
 | Condition added/removed | Condition pills appear/disappear |
 | Resource spent/recovered | Pool count updates (e.g. Ki 3/4 → 2/4) |
 | Short/long rest | Resources and HP reset to restored values |
-| Dice roll | New entry appears at top of Roll log |
+| Dice roll | New entry appears at top of Roll log (with timestamp) |
 | Character created/edited | New card appears / card fields update |
 
 **Dashboard setup for players:**

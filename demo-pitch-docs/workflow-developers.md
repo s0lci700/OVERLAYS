@@ -2,6 +2,8 @@
 
 Technical reference for developers contributing to or maintaining the system.
 
+> **Demo status:** All state is in-memory. Characters and rolls reset on server restart. This is intentional for the pitch — no setup friction. A SQLite (or equivalent) persistence layer is the planned next step if the pilot is greenlit.
+
 ---
 
 ## 1. Repository overview
@@ -9,7 +11,7 @@ Technical reference for developers contributing to or maintaining the system.
 ```
 OVERLAYS/
 ├── server.js              ← Express + Socket.io backend (port 3000)
-├── data/                  ← In-memory character / roll state
+├── data/                  ← In-memory character / roll state (no DB yet)
 ├── public/                ← OBS overlay HTML/CSS/JS (vanilla)
 ├── control-panel/         ← SvelteKit + Vite frontend (port 5173)
 ├── scripts/               ← setup-ip.js, stress tests
@@ -191,3 +193,56 @@ flowchart TD
 | `control-panel/.env` | `VITE_PORT` | `5173` | Vite dev server port (number only) |
 
 Run `npm run setup-ip` to auto-populate both files with your machine's local IP.
+
+---
+
+## 11. Timestamp logging & post-production
+
+Every game event recorded in `dashboardStore.js` receives a `Date.now()` timestamp automatically. This is the key post-production feature: editors can cross-reference the dashboard activity log against the recording timeline to jump directly to any moment.
+
+**How it works:**
+
+```mermaid
+sequenceDiagram
+    participant DM as 📱 DM (control panel)
+    participant Server as 🖥️ Server
+    participant Store as 📋 dashboardStore
+    participant Dashboard as 📺 Dashboard
+
+    DM->>Server: PUT /api/characters/CH101/hp { hp_current: 8 }
+    Server-->>DM: 200 OK
+    Server->>Dashboard: Socket.io: hp_updated
+    Server->>Store: Socket.io: hp_updated
+    Store->>Store: recordHistory({ timestamp: Date.now(),\n  type: "hp", label: "Kael HP",\n  value: "8/12" })
+    Dashboard-->>Dashboard: Activity log updates:\n14:32 Kael HP → 8/12
+```
+
+**What gets timestamped:**
+
+| Event | Logged as |
+|-------|-----------|
+| HP update | `"Kael HP"` → `"8/12"` |
+| Dice roll | `"Lyra rolled"` → `"18"` with `"d20+0"` detail |
+| Condition added/removed | `"Condition added"` → `"Poisoned"` |
+| Resource update | `"Character CH101 resource"` → `"2/3"` |
+| Short/long rest | `"Rest (short)"` → charId |
+
+The history store retains the last 40 entries in memory. If persistence is added (post-pilot), the full session log would be written to disk or a database for editors to export.
+
+---
+
+## 12. Post-pilot: adding persistence
+
+When the pilot is greenlit, the planned path is:
+
+```mermaid
+flowchart TD
+    A([Current demo\nin-memory state]) --> B[Add SQLite via better-sqlite3\nor equivalent]
+    B --> C[Create migrations:\ncharacters table\nrolls / history table]
+    C --> D[Replace in-memory arrays\nin data/characters.js\nwith DB queries]
+    D --> E[Characters persist\nacross server restarts]
+    E --> F[Export full session log\nfor post-production]
+    F --> G([No other changes needed\nAPI + overlays stay the same])
+```
+
+The API contracts, Socket.io events, overlay HTML, and control panel UI do not need to change — only the data layer underneath `data/characters.js` and `data/rolls.js`.
