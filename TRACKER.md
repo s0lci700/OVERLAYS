@@ -152,8 +152,8 @@ overlay-hp.html             overlay-dice.html
 ```
 
 **Characters (in-memory, resets on restart):**
-- `char1` → El verdadero (player: Lucas) — HP: 28/35
-- `char2` → B12 (player: Sol) — HP: 30/30
+- `CH001` → El verdadero (player: Lucas) — HP: 28/35
+- `CH002` → B12 (player: Sol) — HP: 30/30
 
 **Hardcoded IP to update:** appears in `server.js`, `control-panel/src/lib/socket.js`, `public/overlay-hp.html`, and `public/overlay-dice.html`
 
@@ -206,3 +206,6 @@ overlay-hp.html             overlay-dice.html
 ---
 
 *Last updated: Thu Feb 20, 2026 — Day 3 in progress | Pitch meeting rescheduled (TBD)*
+
+
+

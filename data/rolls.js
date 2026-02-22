@@ -1,4 +1,4 @@
-const { randomUUID } = require("crypto");
+const { createShortId } = require("./id");
 
 /**
  * Simple roll log for dice results that can be replayed on the overlays.
@@ -21,7 +21,7 @@ function getAll() {
 function logRoll({ charId, result, characterName, modifier = 0, sides }) {
   const rollResult = result + modifier;
   const entry = {
-    id: randomUUID(),
+    id: createShortId(),
     charId,
     characterName,
     result,

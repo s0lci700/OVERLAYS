@@ -45,8 +45,8 @@ OBS Overlays (vanilla HTML/CSS/JS)
 ## In-Memory Demo Characters
 ```js
 let characters = [
-  { id: 'char1', name: 'El Pato', player: 'Panqueque', hp_current: 28, hp_max: 35 },
-  { id: 'char2', name: 'Rosa',    player: 'Player2',   hp_current: 30, hp_max: 30 }
+  { id: 'CH001', name: 'El Pato', player: 'Panqueque', hp_current: 28, hp_max: 35 },
+  { id: 'CH002', name: 'Rosa',    player: 'Player2',   hp_current: 30, hp_max: 30 }
 ];
 ```
 
@@ -105,7 +105,7 @@ OVERLAYS/
 
 ## Actual Implementation (as-built — differs from spec above)
 - Server event on connection: `initialData` (not `initial_state`)
-- Characters in code: `El verdadero` (char1, Lucas) / `B12` (char2, Sol) — not El Pato / Rosa
+- Characters in code: `El verdadero` (CH001, Lucas) / `B12` (CH002, Sol) — not El Pato / Rosa
 - Socket.io CDN version in use: `4.8.3` (in `overlay-hp.html`, `overlay-dice.html`)
 - Server IP hardcoded in `control-panel/src/lib/socket.js`: update to match your `ipconfig` IPv4
 
@@ -115,3 +115,6 @@ OVERLAYS/
 - Control panel: `npm run dev -- --host` from `control-panel/` (port 5173)
 - Get local IP on Windows: `ipconfig` → IPv4 Address → update `control-panel/src/lib/socket.js`
 - Both overlays working: `public/overlay-hp.html`, `public/overlay-dice.html`
+
+
+

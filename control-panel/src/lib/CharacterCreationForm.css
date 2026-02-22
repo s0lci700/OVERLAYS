@@ -1,0 +1,129 @@
+/* Root container: relies on shared card layout from .card-base and adds vertical rhythm. */
+.character-create {
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  gap: var(--space-4);
+}
+
+/* Header block: title + helper subtitle. */
+.create-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Display heading tokenized through design-system typography/colors. */
+.create-title {
+  font-family: var(--font-display);
+  color: var(--cyan);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+}
+
+.create-subtitle {
+  color: var(--grey);
+  font-size: 0.85rem;
+}
+
+/* Form stack: each field group separated by spacing scale. */
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.create-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.create-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.create-photo {
+  order: -1;
+  align-self: start;
+}
+
+/* Stats row (HP/AC/VEL). Mobile-first single column by default. */
+.create-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+/* Label + control composition shared by all inputs. */
+.create-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Input baseline styles aligned with panel dark theme. */
+.create-field input {
+  min-height: 44px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  background: var(--black-elevated);
+  color: var(--white);
+  font-family: var(--font-ui);
+}
+
+/* Focus visibility for keyboard/touch-edit interactions. */
+.create-field input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim);
+}
+
+/* Primary submit action inherits .btn-base and overrides accent colors. */
+.create-submit {
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  box-shadow: var(--shadow-cyan);
+}
+
+/* Prevent accidental double-submit while async request is running. */
+.create-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+/* Feedback text shown after API response. */
+.create-feedback {
+  font-size: 0.85rem;
+}
+
+/* Error and success states follow shared semantic tokens. */
+.create-feedback.error {
+  color: var(--red);
+}
+
+.create-feedback.success {
+  color: var(--hp-healthy);
+}
+
+/* Explicit mobile breakpoint: keep stats in one column on narrow phones. */
+@media (max-width: 480px) {
+  .create-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .create-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 320px);
+    align-items: start;
+  }
+
+  .create-photo {
+    order: 0;
+  }
+}

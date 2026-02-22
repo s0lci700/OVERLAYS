@@ -42,8 +42,8 @@
 
 **Demo Data:**
 ```javascript
-{ id: 'char1', name: 'El verdadero', player: 'Lucas', hp_current: 28, hp_max: 35 }
-{ id: 'char2', name: 'B12', player: 'Sol', hp_current: 30, hp_max: 30 }
+{ id: 'CH001', name: 'El verdadero', player: 'Lucas', hp_current: 28, hp_max: 35 }
+{ id: 'CH002', name: 'B12', player: 'Sol', hp_current: 30, hp_max: 30 }
 ```
 
 ### HP Overlay (OBS-ready HTML)
@@ -285,3 +285,6 @@ Polish demo and prepare pitch materials.
 
 **Last Updated:** Friday Feb 20, 2026 - 20:24 CLT  
 **Status:** Day 2 complete ✅ | Day 3 in progress 🔄 | Pitch meeting rescheduled (TBD)
+
+
+

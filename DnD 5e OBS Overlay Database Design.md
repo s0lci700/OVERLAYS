@@ -30,10 +30,10 @@ The primary character table must encapsulate these scores alongside metadata tha
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| character\_id | UUID | PRIMARY KEY | Unique identifier for the character or creature entity. |
+| character\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the character or creature entity. |
 | display\_name | VARCHAR(255) | NOT NULL | The broadcast display name rendered on the OBS overlay.9 |
-| race\_id | UUID | FOREIGN KEY | Reference to the species/race dictionary table.9 |
-| background\_id | UUID | FOREIGN KEY | Reference to the character's narrative background.9 |
+| race\_id | CHAR(5) | FOREIGN KEY | Reference to the species/race dictionary table.9 |
+| background\_id | CHAR(5) | FOREIGN KEY | Reference to the character's narrative background.9 |
 | score\_str | SMALLINT | CHECK (1-30) | Raw Strength score, dictating physical power.10 |
 | score\_dex | SMALLINT | CHECK (1-30) | Raw Dexterity score, dictating agility and reflexes.10 |
 | score\_con | SMALLINT | CHECK (1-30) | Raw Constitution score, dictating endurance and health.10 |
@@ -88,12 +88,12 @@ To model this within SQLite, a many-to-many relationship must be established bet
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| active\_cond\_id | UUID | PRIMARY KEY | Unique identifier for the applied condition instance. |
-| character\_id | UUID | FOREIGN KEY | The entity currently suffering the condition. |
+| active\_cond\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the applied condition instance. |
+| character\_id | CHAR(5) | FOREIGN KEY | The entity currently suffering the condition. |
 | condition\_name | VARCHAR(50) | NOT NULL | The specific debuff (e.g., "Prone", "Incapacitated").15 |
 | intensity\_level | SMALLINT | DEFAULT 1 | Utilized specifically for tracking Exhaustion tiers (1-6).15 |
 | duration\_rounds | INT | NULL | The number of combat rounds remaining before the condition automatically expires.16 |
-| source\_entity\_id | UUID | FOREIGN KEY, NULL | The entity responsible for applying the condition (critical for resolving Grapples).17 |
+| source\_entity\_id | CHAR(5) | FOREIGN KEY, NULL | The entity responsible for applying the condition (critical for resolving Grapples).17 |
 
 Integrating this table with the WebSocket architecture allows the OBS overlay to display customized iconography next to a character's portrait. If a player is rendered Unconscious, the database logs the state change, the server broadcasts the event, and the overlay instantly overlays a grayscale filter or a specialized status icon over the character's visual representation, instantly communicating the dire stakes to the viewing audience.
 
@@ -107,10 +107,10 @@ Characters are not restricted to a single path; they can distribute their levels
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| char\_class\_id | UUID | PRIMARY KEY | Unique identifier for the multiclass relationship. |
-| character\_id | UUID | FOREIGN KEY | Reference to the core Character table. |
-| class\_id | UUID | FOREIGN KEY | Reference to the Class dictionary table (e.g., Rogue, Wizard).20 |
-| subclass\_id | UUID | FOREIGN KEY, NULL | Reference to the specific archetype, domain, or subclass.9 |
+| char\_class\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the multiclass relationship. |
+| character\_id | CHAR(5) | FOREIGN KEY | Reference to the core Character table. |
+| class\_id | CHAR(5) | FOREIGN KEY | Reference to the Class dictionary table (e.g., Rogue, Wizard).20 |
+| subclass\_id | CHAR(5) | FOREIGN KEY, NULL | Reference to the specific archetype, domain, or subclass.9 |
 | level\_invested | SMALLINT | CHECK (1-20) | Number of levels the character has invested in this specific class.9 |
 
 ### **Polymorphic Resource Tracking**
@@ -120,8 +120,8 @@ A highly normalized database design avoids creating distinct, hardcoded columns 
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| resource\_id | UUID | PRIMARY KEY | Unique identifier for the specific resource pool. |
-| character\_id | UUID | FOREIGN KEY | The owner of the resource pool. |
+| resource\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the specific resource pool. |
+| character\_id | CHAR(5) | FOREIGN KEY | The owner of the resource pool. |
 | resource\_name | VARCHAR(100) | NOT NULL | The string identifier (e.g., "Ki", "Bardic Inspiration", "Rage").24 |
 | pool\_max | INT | NOT NULL | The maximum capacity of the resource pool based on level and stats. |
 | pool\_current | INT | NOT NULL | The current available uses remaining. |
@@ -146,7 +146,7 @@ A complete spell database must account for the hundreds of spells available in t
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| spell\_id | UUID | PRIMARY KEY | Unique identifier for the spell entry. |
+| spell\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the spell entry. |
 | name | VARCHAR(255) | UNIQUE | The official name of the spell.33 |
 | level | SMALLINT | CHECK (0-9) | Spell level indicator, where 0 denotes an infinite-use cantrip.32 |
 | school | VARCHAR(50) | NOT NULL | Categorization such as Evocation, Abjuration, Divination, or Necromancy.33 |
@@ -164,8 +164,8 @@ When a character casts a spell, the corresponding slot is expended. Similar to t
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| slot\_id | UUID | PRIMARY KEY | Unique identifier for the slot pool. |
-| character\_id | UUID | FOREIGN KEY | Reference to the caster who owns the slots. |
+| slot\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the slot pool. |
+| character\_id | CHAR(5) | FOREIGN KEY | Reference to the caster who owns the slots. |
 | slot\_level | SMALLINT | CHECK (1-9) | The power level of the spell slot.34 |
 | total\_slots | SMALLINT | NOT NULL | The maximum number of slots the character possesses at this level. |
 | expended\_slots | SMALLINT | NOT NULL | The number of slots that have currently been consumed.34 |
@@ -178,10 +178,10 @@ For a broadcast overlay, visualizing concentration is vital for narrative storyt
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| active\_effect\_id | UUID | PRIMARY KEY | Unique identifier for the active magical effect. |
-| caster\_id | UUID | FOREIGN KEY | The character currently maintaining mental concentration. |
-| spell\_id | UUID | FOREIGN KEY | Reference to the specific spell being sustained. |
-| target\_id | UUID | FOREIGN KEY, NULL | The recipient of the spell effect, if applicable. |
+| active\_effect\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the active magical effect. |
+| caster\_id | CHAR(5) | FOREIGN KEY | The character currently maintaining mental concentration. |
+| spell\_id | CHAR(5) | FOREIGN KEY | Reference to the specific spell being sustained. |
+| target\_id | CHAR(5) | FOREIGN KEY, NULL | The recipient of the spell effect, if applicable. |
 | round\_started | INT | NOT NULL | The combat round integer in which the spell was originally cast. |
 
 By maintaining this centralized ledger of active magic, the Node.js backend can programmatically enforce the rules of the game. If an event is fired indicating that caster\_id has failed a saving throw after taking damage, the backend can automatically drop the corresponding record from the active\_effect\_id table. Upon deletion, a WebSocket payload is emitted to the OBS overlay, smoothly fading out the glowing concentration indicator from the character's portrait without requiring manual intervention from the broadcast producer.
@@ -198,7 +198,7 @@ To build a robust database architecture for the overlay, the equipment schema mu
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| base\_weapon\_id | UUID | PRIMARY KEY | Unique identifier for the dictionary entry. |
+| base\_weapon\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the dictionary entry. |
 | name | VARCHAR(100) | NOT NULL | The standard name (e.g., "Flail", "Hammer", "Hatchet").38 |
 | cost\_copper | INT | NOT NULL | Base economic cost, completely normalized to copper pieces to prevent currency conversion errors.38 |
 | damage\_dice | VARCHAR(10) | NOT NULL | The core damage output (e.g., "1d8", "2d6", "1d4").38 |
@@ -214,9 +214,9 @@ The database must record the specific instance of the item held by the character
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| inventory\_id | UUID | PRIMARY KEY | Unique identifier for the specific item instance owned by a player. |
-| character\_id | UUID | FOREIGN KEY | The owner of the item. |
-| base\_item\_id | UUID | FOREIGN KEY | Reference to the base dictionary item for underlying stats. |
+| inventory\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the specific item instance owned by a player. |
+| character\_id | CHAR(5) | FOREIGN KEY | The owner of the item. |
+| base\_item\_id | CHAR(5) | FOREIGN KEY | Reference to the base dictionary item for underlying stats. |
 | magic\_bonus | SMALLINT | DEFAULT 0 | Flat Attack/Damage or AC bonus provided by enchantment (+1, \+2, \+3).42 |
 | is\_equipped | BOOLEAN | DEFAULT FALSE | Flag indicating if the weapon is currently drawn or the armor is worn. |
 | requires\_attunement | BOOLEAN | DEFAULT FALSE | Flag denoting if the item is powerful enough to occupy an attunement slot.42 |
@@ -235,19 +235,19 @@ Initiative determines the sequential order in which entities act during a chaoti
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| combat\_id | UUID | PRIMARY KEY | Unique identifier for the combat encounter instance. |
-| session\_id | UUID | FOREIGN KEY | Links the specific combat encounter to a broader broadcast episode. |
+| combat\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the combat encounter instance. |
+| session\_id | CHAR(5) | FOREIGN KEY | Links the specific combat encounter to a broader broadcast episode. |
 | current\_round | INT | DEFAULT 1 | The integer representing the current round of combat.45 |
-| active\_turn\_id | UUID | FOREIGN KEY | References the Initiative\_Queue table to denote exactly whose turn it is currently.44 |
+| active\_turn\_id | CHAR(5) | FOREIGN KEY | References the Initiative\_Queue table to denote exactly whose turn it is currently.44 |
 | is\_active | BOOLEAN | DEFAULT TRUE | Boolean indicating if the combat encounter is currently ongoing or resolved. |
 
 **Initiative Queue Table:**
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| queue\_id | UUID | PRIMARY KEY | Unique identifier for the queue entry. |
-| combat\_id | UUID | FOREIGN KEY | The specific combat encounter this queue operates within. |
-| entity\_id | UUID | FOREIGN KEY | Reference to a Character or NPC participating in the fight. |
+| queue\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the queue entry. |
+| combat\_id | CHAR(5) | FOREIGN KEY | The specific combat encounter this queue operates within. |
+| entity\_id | CHAR(5) | FOREIGN KEY | Reference to a Character or NPC participating in the fight. |
 | initiative\_roll | SMALLINT | NOT NULL | The rolled numerical value utilized by the backend for sorting the turn order.44 |
 | dex\_modifier | SMALLINT | NOT NULL | Stored to act as an automated tiebreaker for matching initiative rolls. |
 | has\_acted | BOOLEAN | DEFAULT FALSE | Boolean tracking if the entity has completed their turn in the current round, aiding in delay mechanics.46 |
@@ -266,9 +266,9 @@ To build a comprehensive analytics engine, the database must transition from tre
 
 | Column Name | Data Type | Constraints | Description |
 | :---- | :---- | :---- | :---- |
-| roll\_id | UUID | PRIMARY KEY | Unique identifier for the recorded roll event. |
-| session\_id | UUID | FOREIGN KEY | Links the roll to the current broadcast episode for post-show parsing. |
-| character\_id | UUID | FOREIGN KEY | The specific entity executing the roll. |
+| roll\_id | CHAR(5) | PRIMARY KEY | Unique identifier for the recorded roll event. |
+| session\_id | CHAR(5) | FOREIGN KEY | Links the roll to the current broadcast episode for post-show parsing. |
+| character\_id | CHAR(5) | FOREIGN KEY | The specific entity executing the roll. |
 | roll\_type | VARCHAR(50) | NOT NULL | Categorization parameter: e.g., "Attack", "Damage", "Saving Throw", "Initiative", "Skill Check". |
 | dice\_expression | VARCHAR(50) | NOT NULL | The exact string representation of the roll: e.g., "1d20+5", "8d6".1 |
 | natural\_value | SMALLINT | NOT NULL | The raw, unadjusted face value of the die before any modifiers are applied.53 |

@@ -216,9 +216,10 @@
 }
 
 .dice-icon {
+  display: inline-block;
   width: 24px;
   height: 24px;
-  background-color: var(--grey);
+  background-color: var(--grey) !important;
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;

@@ -1,0 +1,1 @@
+import{$ as a}from"./BpRt2mh-.js";a();

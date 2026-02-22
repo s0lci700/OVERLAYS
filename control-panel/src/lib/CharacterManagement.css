@@ -1,0 +1,76 @@
+.character-management {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.manage-header {
+  gap: var(--space-1);
+}
+
+.manage-title {
+  font-family: var(--font-display);
+  color: var(--cyan);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+}
+
+.manage-subtitle {
+  color: var(--grey);
+  font-size: 0.85rem;
+}
+
+.manage-grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.manage-card {
+  gap: var(--space-3);
+}
+
+.manage-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.manage-char-name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--white);
+  letter-spacing: 0.04em;
+}
+
+.manage-char-player {
+  font-size: 0.75rem;
+  color: var(--grey);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.manage-save-btn {
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  box-shadow: var(--shadow-cyan);
+}
+
+.manage-save-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
+.manage-feedback {
+  font-size: 0.85rem;
+}
+
+.manage-feedback.success {
+  color: var(--hp-healthy);
+}
+
+.manage-feedback.error {
+  color: var(--red);
+}

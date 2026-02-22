@@ -1,4 +1,33 @@
-const { randomUUID } = require("crypto");
+const { createShortId } = require("./id");
+const { ensureCharactersPhotos } = require("./photos");
+
+const DEFAULT_TEMPLATE_NAME = "test_characters";
+
+function getTemplateBaseName(templateName) {
+  const cleaned = String(templateName || DEFAULT_TEMPLATE_NAME)
+    .trim()
+    .replace(/\.js$/i, "");
+  if (!/^[a-zA-Z0-9_-]+$/.test(cleaned)) {
+    return DEFAULT_TEMPLATE_NAME;
+  }
+  return cleaned;
+}
+
+function loadCharacterTemplate() {
+  const requestedTemplate = process.env.CHARACTERS_TEMPLATE;
+  const templateBaseName = getTemplateBaseName(requestedTemplate);
+
+  try {
+    return require(`./${templateBaseName}.js`);
+  } catch (error) {
+    if (templateBaseName !== DEFAULT_TEMPLATE_NAME) {
+      console.warn(
+        `[characters] Failed to load template "${templateBaseName}". Falling back to "${DEFAULT_TEMPLATE_NAME}".`,
+      );
+    }
+    return require(`./${DEFAULT_TEMPLATE_NAME}.js`);
+  }
+}
 
 /**
  * @typedef {Object} AbilityScores
@@ -12,7 +41,7 @@ const { randomUUID } = require("crypto");
 
 /**
  * @typedef {Object} Condition
- * @property {string} id             - UUID assigned on creation
+ * @property {string} id             - 5-character ID assigned on creation
  * @property {string} condition_name - Display name (e.g. "Poisoned")
  * @property {number} intensity_level - Severity (default 1)
  * @property {string} applied_at     - ISO 8601 timestamp
@@ -20,7 +49,7 @@ const { randomUUID } = require("crypto");
 
 /**
  * @typedef {Object} Resource
- * @property {string} id           - Unique ID within the character (e.g. "r1")
+ * @property {string} id           - Unique ID within the character (e.g. "RS001")
  * @property {string} name         - Display name (e.g. "RAGE", "KI")
  * @property {number} pool_max     - Maximum uses
  * @property {number} pool_current - Remaining uses
@@ -29,7 +58,7 @@ const { randomUUID } = require("crypto");
 
 /**
  * @typedef {Object} Character
- * @property {string}        id             - Stable identifier (e.g. "char1")
+ * @property {string}        id             - Stable identifier (e.g. "CH001")
  * @property {string}        name           - Character name shown in overlays
  * @property {string}        player         - Player's real name
  * @property {number}        hp_current     - Current hit points (0–hp_max)
@@ -40,70 +69,16 @@ const { randomUUID } = require("crypto");
  * @property {AbilityScores} ability_scores - Six core D&D ability scores
  * @property {Condition[]}   conditions     - Active status conditions
  * @property {Resource[]}    resources      - Limited-use resources (rage, ki, spell slots, etc.)
+ * @property {string}        photo          - URL to 1:1 character photo (e.g. "/assets/img/barbarian.png")
  */
 
-// test characters - will be replaced by DB in the future
 /**
  * Simple in-memory character fixtures plus helper functions used by the API.
+ * Source data lives in swappable template files under /data.
  */
-const characters = [
-  {
-    id: "char1",
-    name: "El verdadero",
-    player: "Lucas",
-    hp_current: 28,
-    hp_max: 35,
-    hp_temp: 0,
-    armor_class: 17,
-    speed_walk: 30,
-    ability_scores: { str: 16, dex: 14, con: 14, int: 12, wis: 13, cha: 16 },
-    conditions: [],
-    resources: [
-      {
-        id: "r1",
-        name: "RAGE",
-        pool_max: 3,
-        pool_current: 3,
-        recharge: "LONG_REST",
-      },
-      {
-        id: "r2",
-        name: "INSPIRACIÓN",
-        pool_max: 1,
-        pool_current: 0,
-        recharge: "DM",
-      },
-    ],
-  },
-  {
-    id: "char2",
-    name: "B12",
-    player: "Sol",
-    hp_current: 30,
-    hp_max: 30,
-    hp_temp: 0,
-    armor_class: 16,
-    speed_walk: 35,
-    ability_scores: { str: 14, dex: 18, con: 12, int: 11, wis: 14, cha: 13 },
-    conditions: [],
-    resources: [
-      {
-        id: "r3",
-        name: "KI",
-        pool_max: 5,
-        pool_current: 5,
-        recharge: "SHORT_REST",
-      },
-      {
-        id: "r4",
-        name: "SNEAK ATK",
-        pool_max: 1,
-        pool_current: 1,
-        recharge: "TURN",
-      },
-    ],
-  },
-];
+const characters = ensureCharactersPhotos(
+  structuredClone(loadCharacterTemplate()),
+);
 
 const clamp = (value, max) => Math.max(0, Math.min(value, max));
 
@@ -148,7 +123,7 @@ function updateHp(id, hpCurrent) {
 }
 
 /**
- * Append a typed condition record with a unique UUID.
+ * Append a typed condition record with a unique 5-character ID.
  * @param {string} id
  * @param {{condition_name: string, intensity_level?: number}} condition
  * @returns {Character|null}
@@ -157,7 +132,7 @@ function addCondition(id, { condition_name, intensity_level = 1 }) {
   const character = findById(id);
   if (!character) return null;
   const condition = {
-    id: randomUUID(),
+    id: createShortId(),
     condition_name,
     intensity_level,
     applied_at: new Date().toISOString(),
@@ -167,7 +142,7 @@ function addCondition(id, { condition_name, intensity_level = 1 }) {
 }
 
 /**
- * Drop a condition using its UUID to keep the list clean.
+ * Drop a condition using its ID to keep the list clean.
  * @param {string} charId
  * @param {string} conditionId
  * @returns {Character|null}
@@ -222,6 +197,38 @@ function restoreResources(charId, restType) {
   return { character, restored };
 }
 
+/**
+ * Create and append a new character with sensible defaults.
+ * @param {{name: string, player: string, hp_max: number, hp_current?: number, armor_class?: number, speed_walk?: number, photo?: string}} input
+ * @returns {Character}
+ */
+function createCharacter(input) {
+  const hpMax = Math.max(1, Math.trunc(input.hp_max));
+  const hpCurrent =
+    input.hp_current === undefined
+      ? hpMax
+      : clamp(Math.trunc(input.hp_current), hpMax);
+
+  const character = {
+    id: createShortId(),
+    name: input.name,
+    player: input.player,
+    hp_current: hpCurrent,
+    hp_max: hpMax,
+    hp_temp: 0,
+    armor_class: Math.max(0, Math.trunc(input.armor_class ?? 10)),
+    speed_walk: Math.max(0, Math.trunc(input.speed_walk ?? 30)),
+    ability_scores: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+    conditions: [],
+    resources: [],
+    photo: input.photo,
+  };
+
+  ensureCharactersPhotos([character]);
+  characters.push(character);
+  return character;
+}
+
 module.exports = {
   characters,
   getCharacterName,
@@ -232,4 +239,5 @@ module.exports = {
   removeCondition,
   updateResource,
   restoreResources,
+  createCharacter,
 };

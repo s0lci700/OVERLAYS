@@ -18,9 +18,40 @@
 -->
 <script>
   import "./CharacterCard.css";
-  import { animate } from "animejs";
+  import { animate, spring } from "animejs";
   import { onMount } from "svelte";
   import { SERVER_URL } from "./socket";
+
+  const FALLBACK_PHOTO_OPTIONS = [
+    "/assets/img/barbarian.png",
+    "/assets/img/elf.png",
+    "/assets/img/wizard.png",
+  ];
+
+  function resolvePhotoSrc(photoPath) {
+    if (!photoPath) {
+      const randomOption =
+        FALLBACK_PHOTO_OPTIONS[
+          Math.floor(Math.random() * FALLBACK_PHOTO_OPTIONS.length)
+        ];
+      return `${SERVER_URL}${randomOption}`;
+    }
+
+    if (
+      photoPath.startsWith("http://") ||
+      photoPath.startsWith("https://") ||
+      photoPath.startsWith("data:") ||
+      photoPath.startsWith("blob:")
+    ) {
+      return photoPath;
+    }
+
+    if (photoPath.startsWith("/")) {
+      return `${SERVER_URL}${photoPath}`;
+    }
+
+    return `${SERVER_URL}/${photoPath.replace(/^\/+/, "")}`;
+  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props
@@ -39,8 +70,14 @@
   /** Collapsed state for hiding advanced card details. */
   let isCollapsed = $state(false);
 
+  /** Visual collapsed state to sync icon timing with animation. */
+  let isVisualCollapsed = $state(false);
+
   /** Reference to the hit-flash overlay element for damage animation. */
   let hitFlashEl;
+
+  /** Reference to the collapsible body for anime.js height animation. */
+  let charBodyEl;
 
   /** Previous HP value for detecting damage and triggering flash animation. */
   let prevHp = 0;
@@ -63,10 +100,76 @@
     const hp = character.hp_current;
     if (hp < prevHp && hitFlashEl) {
       hitFlashEl.style.opacity = "0.5";
-      animate(hitFlashEl, { opacity: 0, duration: 700, ease: "outCubic" });
+      animate(hitFlashEl, { opacity: 0, duration: 900, ease: "outCubic" });
     }
     prevHp = hp;
   });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Collapse Animation
+  // ──────────────────────────────────────────────────────────────────────────
+
+  function toggleCollapse() {
+    if (!charBodyEl) {
+      isCollapsed = !isCollapsed;
+      isVisualCollapsed = isCollapsed;
+      return;
+    }
+
+    // Collapse: animate from current height to 0 with a fade-out.
+    if (!isCollapsed) {
+      const startHeight = charBodyEl.scrollHeight;
+      charBodyEl.style.height = `${startHeight}px`;
+      charBodyEl.style.opacity = "1";
+      charBodyEl.style.overflow = "hidden";
+      isCollapsed = true;
+
+      animate(charBodyEl, {
+        height: 0,
+        duration: 700,
+        ease: "inOutCubic",
+      });
+
+      animate(charBodyEl, {
+        opacity: 0,
+        duration: 450,
+        delay: 150,
+        ease: "linear",
+        complete: () => {
+          charBodyEl.style.display = "none";
+          charBodyEl.style.height = "";
+          charBodyEl.style.opacity = "";
+          charBodyEl.style.overflow = "";
+          isVisualCollapsed = true;
+        },
+      });
+      return;
+    }
+
+    // Expand: reveal element, then animate from 0 to scrollHeight with a fade-in.
+    charBodyEl.style.display = "block";
+    const targetHeight = charBodyEl.scrollHeight;
+    charBodyEl.style.height = "0px";
+    charBodyEl.style.opacity = "0";
+    charBodyEl.style.overflow = "hidden";
+    isCollapsed = false;
+
+    animate(charBodyEl, {
+      height: targetHeight,
+      opacity: 1,
+      duration: 250,
+      ease: spring({
+        bounce: 0.3,
+        duration: 300,
+      }),
+      complete: () => {
+        charBodyEl.style.height = "";
+        charBodyEl.style.opacity = "";
+        charBodyEl.style.overflow = "";
+        isVisualCollapsed = false;
+      },
+    });
+  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // HP & Damage API
@@ -173,6 +276,13 @@
     if (!response.ok) console.error("Failed to take rest", response.status);
   }
 
+  function handlePhotoError(event) {
+    const imgEl = event.currentTarget;
+    if (imgEl.dataset.fallbackApplied === "true") return;
+    imgEl.dataset.fallbackApplied = "true";
+    imgEl.src = resolvePhotoSrc("");
+  }
+
   // ──────────────────────────────────────────────────────────────────────────
   // Derived Reactive State
   // ──────────────────────────────────────────────────────────────────────────
@@ -188,6 +298,8 @@
         ? "hp--injured"
         : "hp--critical",
   );
+
+  const photoSrc = $derived(resolvePhotoSrc(character.photo));
 </script>
 
 <!-- ────────────────────────────────────────────────────────────────────────
@@ -197,13 +309,21 @@
   class="char-card card-base"
   data-char-id={character.id}
   class:is-critical={hpPercent <= 30}
-  class:collapsed={isCollapsed}
+  class:collapsed={isVisualCollapsed}
 >
   <!-- Damage flash overlay, animated when HP is reduced -->
   <div class="hit-flash" bind:this={hitFlashEl}></div>
 
   <!-- Character name, player name, and current/max HP display -->
   <div class="char-header">
+    <!-- Character photo -->
+    <img
+      src={photoSrc}
+      alt={character.name}
+      class="char-photo"
+      loading="lazy"
+      onerror={handlePhotoError}
+    />
     <div class="char-identity">
       <h2 class="char-name">{character.name}</h2>
       <span class="char-player">{character.player}</span>
@@ -216,12 +336,13 @@
         <span class="hp-sep">/</span>
         <span class="hp-max">{character.hp_max}</span>
       </div>
+
       <button
         class="collapse-toggle"
         type="button"
         aria-expanded={!isCollapsed}
         aria-controls={`char-body-${character.id}`}
-        onclick={() => (isCollapsed = !isCollapsed)}
+        onclick={toggleCollapse}
       >
         <span class="collapse-icon" aria-hidden="true">▾</span>
         <span class="sr-only">{isCollapsed ? "Expandir" : "Colapsar"}</span>
@@ -229,18 +350,23 @@
     </div>
   </div>
 
-  <div class="char-body" id={`char-body-${character.id}`}>
-    <!-- HP progress bar with dynamic color (healthy/injured/critical) -->
-    <div
-      class="hp-track"
-      role="progressbar"
-      aria-valuenow={character.hp_current}
-      aria-valuemax={character.hp_max}
-      aria-label="Puntos de vida"
-    >
-      <div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
-    </div>
+  <!-- HP progress bar with dynamic color (healthy/injured/critical) -->
+  <!-- Always visible, even when card is collapsed -->
+  <div
+    class="hp-track"
+    role="progressbar"
+    aria-valuenow={character.hp_current}
+    aria-valuemax={character.hp_max}
+    aria-label="Puntos de vida"
+  >
+    <div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
+  </div>
 
+  <div
+    class="char-body"
+    id={`char-body-${character.id}`}
+    bind:this={charBodyEl}
+  >
     <!-- Armor Class and Speed (stat block) -->
     <div class="char-stats">
       <div class="stat-item">
@@ -290,14 +416,15 @@
         {/each}
       </div>
       <!-- Short/long rest buttons to restore resources -->
-      <div class="rest-buttons">
+      <fieldset class="rest-buttons">
+        <legend class="rest-label">DESCANSOS</legend>
         <button class="btn-base btn-rest" onclick={() => takeRest("short")}
           >CORTO</button
         >
         <button class="btn-base btn-rest" onclick={() => takeRest("long")}
           >LARGO</button
         >
-      </div>
+      </fieldset>
     {/if}
 
     <!-- HP damage/healing controls -->
@@ -311,7 +438,7 @@
         <button
           class="stepper"
           onclick={() => (amount = Math.max(1, amount - 1))}
-          aria-label="Reducir">−</button
+          aria-label="Reducir"><span class="stepper-text">−</span></button
         >
         <input
           class="amount-input"
@@ -324,7 +451,7 @@
         <button
           class="stepper"
           onclick={() => (amount = Math.min(999, amount + 1))}
-          aria-label="Aumentar">+</button
+          aria-label="Aumentar"><span class="stepper-text">+</span></button
         >
       </div>
 

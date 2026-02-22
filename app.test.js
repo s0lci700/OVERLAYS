@@ -117,7 +117,7 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     const diceRoll = Math.floor(Math.random() * 20) + 1;
 
     const rollData = {
-      charId: "char1",
+      charId: "CH001",
       result: diceRoll, // The actual dice roll
       sides: 20,
       modifier: 5,
@@ -247,3 +247,6 @@ test.describe("Quick Health Check", () => {
     console.log("===========================\n");
   });
 });
+
+
+

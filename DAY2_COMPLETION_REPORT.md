@@ -60,7 +60,7 @@ PHONE (Control Panel)
 User clicks "Damage +5" on El verdadero
   ↓
 CharacterCard.svelte sends:
-  PUT /api/characters/char1/hp { hp_current: 23 }
+  PUT /api/characters/CH001/hp { hp_current: 23 }
   ↓
 SERVER receives, updates memory, broadcasts:
   io.emit('hp_updated', { character: {...}, hp_current: 23 })
@@ -256,3 +256,6 @@ Compare your pitch slides to this working demo:
 
 **Updated:** Feb 19, 2026 11:00 CLT  
 **Next Review:** Feb 20, 2026 (Day 3)
+
+
+

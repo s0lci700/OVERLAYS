@@ -39,6 +39,7 @@
   position: relative;
   overflow: hidden;
   transition: border-color var(--t-fast);
+  transition: all ease-out 0.2s;
 }
 
 /*
@@ -59,8 +60,9 @@
 }
 
 .char-card.collapsed {
-  gap: var(--space-2);
+  gap: var(--space-3);
   padding-bottom: var(--space-3);
+  transition: all ease-out 0.3s;
 }
 
 /* Header block: character identity + live HP numbers. */
@@ -71,6 +73,16 @@
   gap: var(--space-3);
 }
 
+/* Character portrait photo */
+.char-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  object-position: center;
+  border: 2px solid var(--grey-dim);
+  flex-shrink: 0;
+}
 .char-header-actions {
   display: flex;
   align-items: center;
@@ -139,12 +151,12 @@
   transition: transform var(--t-fast);
 }
 
-.char-card.collapsed .collapse-icon {
-  transform: rotate(-90deg);
+.char-body {
+  will-change: height, opacity;
 }
 
-.char-card.collapsed .char-body {
-  display: none;
+.char-card.collapsed .collapse-icon {
+  transform: rotate(-90deg);
 }
 
 .hp-cur {
@@ -178,12 +190,14 @@
   HP track and fill:
   - Width is controlled inline by Svelte (`style="width: {hpPercent}%"`)
   - Color class is derived in Svelte (`hpClass`).
+  - Now positioned after header and always visible (even when card is collapsed).
 */
 .hp-track {
   height: 6px;
   background: #222;
   border-radius: var(--radius-pill);
   overflow: hidden;
+  margin-top: var(--space-2);
 }
 
 .hp-fill {
@@ -226,6 +240,8 @@
   grid-template-columns: 1fr auto 1fr;
   gap: var(--space-2);
   align-items: center;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .btn-damage {
@@ -265,16 +281,21 @@
 .stepper {
   width: 32px;
   height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   border-radius: var(--radius-sm);
   color: var(--grey);
   font-size: 1.25rem;
-  line-height: 1;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
   transition:
     background var(--t-fast),
     color var(--t-fast);
+}
+
+.stepper-text {
+  display: block;
+  transform: translateY(-0.1em);
 }
 
 .stepper:hover {
@@ -359,6 +380,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .resource-row {
@@ -432,22 +455,51 @@
 }
 
 /* Short rest / long rest action buttons. */
+.rest-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Rest fieldset styling for semantic form grouping. */
 .rest-buttons {
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-2);
 }
 
+/* Legend styling—appears above the buttons and is part of the fieldset. */
+.rest-label {
+  grid-column: 1 / -1;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-2);
+  padding: 0 5px;
+  display: block;
+}
+
 .btn-rest {
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   padding: var(--space-2) var(--space-3);
   color: var(--grey);
   border-color: var(--grey-dim);
   min-height: 40px;
+  transition:
+    color var(--t-fast),
+    border-color var(--t-fast),
+    background var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
 .btn-rest:hover {
   color: var(--white);
   border-color: var(--grey);
-  background: var(--black-elevated);
+  background: var(--grey-dim);
 }

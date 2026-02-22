@@ -15,15 +15,15 @@ Roll dice on your phone. A animated popup appears on OBS in under a second. Hit 
 
 **Everything that works right now:**
 
-| Feature | Status |
-|---|---|
-| HP bars update in real-time | ✅ Working |
-| Dice roll popup (d4–d20) | ✅ Working |
-| Nat 20 → **¡CRÍTICO!** glow | ✅ Working |
-| Nat 1 → **¡PIFIA!** red glow | ✅ Working |
-| Color-coded health states | ✅ Working |
-| Phone control panel | ✅ Working |
-| Multiple clients synced | ✅ Working |
+| Feature                        | Status     |
+| ------------------------------ | ---------- |
+| HP bars update in real-time    | ✅ Working |
+| Dice roll popup (d4–d20)       | ✅ Working |
+| Nat 20 → **¡CRÍTICO!** glow    | ✅ Working |
+| Nat 1 → **¡PIFIA!** red glow   | ✅ Working |
+| Color-coded health states      | ✅ Working |
+| Phone control panel            | ✅ Working |
+| Multiple clients synced        | ✅ Working |
 | OBS-ready transparent overlays | ✅ Working |
 
 ---
@@ -74,10 +74,11 @@ Copy the example environment file and update the values for your machine:
 cp .env.example .env
 ```
 
-| Variable | Default | Description |
-|---|---|---|
-| `PORT` | `3000` | Server port |
-| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel |
+| Variable               | Default                 | Description                                    |
+| ---------------------- | ----------------------- | ---------------------------------------------- |
+| `PORT`                 | `3000`                  | Server port                                    |
+| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel              |
+| `CHARACTERS_TEMPLATE`  | `test_characters`       | Character seed file in `data/` (without `.js`) |
 
 ### 3. Configure your local IP
 
@@ -93,22 +94,24 @@ ifconfig | grep inet
 
 Update `YOUR_IP` in each file:
 
-| File | Line to update |
-|---|---|
-| `server.js` | `const serverPort = 'http://YOUR_IP:3000'` |
+| File                              | Line to update                             |
+| --------------------------------- | ------------------------------------------ |
+| `server.js`                       | `const serverPort = 'http://YOUR_IP:3000'` |
 | `control-panel/src/lib/socket.js` | `const serverPort = 'http://YOUR_IP:3000'` |
-| `public/overlay-hp.html` | `const socket = io("http://YOUR_IP:3000")` |
-| `public/overlay-dice.html` | `const socket = io("http://YOUR_IP:3000")` |
+| `public/overlay-hp.html`          | `const socket = io("http://YOUR_IP:3000")` |
+| `public/overlay-dice.html`        | `const socket = io("http://YOUR_IP:3000")` |
 
 ### 4. Start everything
 
 **Terminal 1 — Backend:**
+
 ```bash
 node server.js
 # → Server is running on port 3000
 ```
 
 **Terminal 2 — Control panel (with LAN access for phone):**
+
 ```bash
 cd control-panel
 npm run dev -- --host
@@ -138,7 +141,8 @@ OVERLAYS/
 ├── .env.example                   # Environment variable template
 │
 ├── data/                          # In-memory data modules
-│   ├── characters.js              # Character state + CRUD (HP, conditions, resources, rest)
+│   ├── characters.js              # Character state + CRUD + template loader
+│   ├── test_characters.js         # Default swappable character template
 │   └── rolls.js                   # Roll history logger
 │
 ├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
@@ -177,8 +181,24 @@ Returns the full character list (including HP, conditions, and resources).
 
 ```json
 [
-  { "id": "char1", "name": "El verdadero", "player": "Lucas", "hp_current": 28, "hp_max": 35, "conditions": [], "resources": [] },
-  { "id": "char2", "name": "B12",          "player": "Sol",   "hp_current": 30, "hp_max": 30, "conditions": [], "resources": [] }
+  {
+    "id": "CH001",
+    "name": "El verdadero",
+    "player": "Lucas",
+    "hp_current": 28,
+    "hp_max": 35,
+    "conditions": [],
+    "resources": []
+  },
+  {
+    "id": "CH002",
+    "name": "B12",
+    "player": "Sol",
+    "hp_current": 30,
+    "hp_max": 30,
+    "conditions": [],
+    "resources": []
+  }
 ]
 ```
 
@@ -187,7 +207,7 @@ Returns the full character list (including HP, conditions, and resources).
 Updates a character's current HP (clamped to `[0, hp_max]`) and broadcasts `hp_updated` to all clients.
 
 ```http
-PUT /api/characters/char1/hp
+PUT /api/characters/CH001/hp
 Content-Type: application/json
 
 { "hp_current": 15 }
@@ -200,7 +220,7 @@ Content-Type: application/json
 Adds a status condition to a character and broadcasts `condition_added`.
 
 ```http
-POST /api/characters/char1/conditions
+POST /api/characters/CH001/conditions
 Content-Type: application/json
 
 { "condition_name": "Poisoned", "intensity_level": 1 }
@@ -210,7 +230,7 @@ Content-Type: application/json
 
 ### `DELETE /api/characters/:id/conditions/:condId`
 
-Removes a condition by UUID and broadcasts `condition_removed`.
+Removes a condition by 5-character ID and broadcasts `condition_removed`.
 
 **Response:** `{ "ok": true }`.
 
@@ -219,7 +239,7 @@ Removes a condition by UUID and broadcasts `condition_removed`.
 Updates a resource pool (e.g. Rage charges) and broadcasts `resource_updated`.
 
 ```http
-PUT /api/characters/char1/resources/r1
+PUT /api/characters/CH001/resources/RS001
 Content-Type: application/json
 
 { "pool_current": 2 }
@@ -232,7 +252,7 @@ Content-Type: application/json
 Applies a short or long rest, restores matching resource pools, and broadcasts `rest_taken`.
 
 ```http
-POST /api/characters/char1/rest
+POST /api/characters/CH001/rest
 Content-Type: application/json
 
 { "type": "short" }
@@ -248,7 +268,7 @@ Logs a dice roll and broadcasts `dice_rolled` to all connected clients.
 POST /api/rolls
 Content-Type: application/json
 
-{ "charId": "char1", "result": 18, "modifier": 0, "sides": 20 }
+{ "charId": "CH001", "result": 18, "modifier": 0, "sides": 20 }
 ```
 
 **Response:** the full roll record `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }`.
@@ -257,15 +277,15 @@ Content-Type: application/json
 
 ## Socket.io Events
 
-| Event | Direction | Payload |
-|---|---|---|
-| `initialData` | Server → connecting client | `{ characters[], rolls[] }` — sent on connect |
-| `hp_updated` | Server → All | `{ character, hp_current }` |
-| `condition_added` | Server → All | `{ charId, condition }` |
-| `condition_removed` | Server → All | `{ charId, conditionId }` |
-| `resource_updated` | Server → All | `{ charId, resource }` |
-| `rest_taken` | Server → All | `{ charId, type, restored[], character }` |
-| `dice_rolled` | Server → All | `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }` |
+| Event               | Direction                  | Payload                                                                         |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| `initialData`       | Server → connecting client | `{ characters[], rolls[] }` — sent on connect                                   |
+| `hp_updated`        | Server → All               | `{ character, hp_current }`                                                     |
+| `condition_added`   | Server → All               | `{ charId, condition }`                                                         |
+| `condition_removed` | Server → All               | `{ charId, conditionId }`                                                       |
+| `resource_updated`  | Server → All               | `{ charId, resource }`                                                          |
+| `rest_taken`        | Server → All               | `{ charId, type, restored[], character }`                                       |
+| `dice_rolled`       | Server → All               | `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }` |
 
 See [`docs/SOCKET-EVENTS.md`](docs/SOCKET-EVENTS.md) for full payload shapes and type definitions.
 
@@ -277,11 +297,11 @@ See [`docs/SOCKET-EVENTS.md`](docs/SOCKET-EVENTS.md) for full payload shapes and
 
 Positioned top-right, 1920×1080, transparent background.
 
-| HP % | Color | Effect |
-|---|---|---|
-| > 60% | Green | Healthy |
-| 30–60% | Orange | Injured |
-| < 30% | Red | Critical — pulse animation |
+| HP %   | Color  | Effect                     |
+| ------ | ------ | -------------------------- |
+| > 60%  | Green  | Healthy                    |
+| 30–60% | Orange | Injured                    |
+| < 30%  | Red    | Critical — pulse animation |
 
 HP bars animate smoothly on every update (0.5s CSS transition). A status message fades in and out when HP changes.
 
@@ -289,21 +309,21 @@ HP bars animate smoothly on every update (0.5s CSS transition). A status message
 
 Centered at bottom, hidden by default. Appears with a pop-in animation when a roll comes in, auto-hides after 4 seconds.
 
-| Roll | Effect |
-|---|---|
-| Natural 20 | **¡CRÍTICO!** — green glow |
-| Natural 1  | **¡PIFIA!** — red glow |
-| Everything else | Shows total with fade-out |
+| Roll            | Effect                     |
+| --------------- | -------------------------- |
+| Natural 20      | **¡CRÍTICO!** — green glow |
+| Natural 1       | **¡PIFIA!** — red glow     |
+| Everything else | Shows total with fade-out  |
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Node.js 18, Express 5, Socket.io 4.8 |
-| Control Panel | Svelte 5, Vite 7 |
-| Overlays | Vanilla HTML/CSS/JS (Socket.io via CDN) |
-| Data | In-memory (demo) |
-| Communication | WebSocket via Socket.io |
+| Layer         | Technology                              |
+| ------------- | --------------------------------------- |
+| Backend       | Node.js 18, Express 5, Socket.io 4.8    |
+| Control Panel | Svelte 5, Vite 7                        |
+| Overlays      | Vanilla HTML/CSS/JS (Socket.io via CDN) |
+| Data          | In-memory (demo)                        |
+| Communication | WebSocket via Socket.io                 |
 
 No database required for the demo. Characters reset when the server restarts — which is fine for a live session.
 
@@ -311,12 +331,12 @@ No database required for the demo. Characters reset when the server restarts —
 
 ## Debugging
 
-| Problem | Fix |
-|---|---|
-| Overlay not connecting | Check that `server.js` is running on port 3000 |
+| Problem                  | Fix                                                                         |
+| ------------------------ | --------------------------------------------------------------------------- |
+| Overlay not connecting   | Check that `server.js` is running on port 3000                              |
 | Phone can't reach server | Update IP in `socket.js` and both overlay files; restart Vite with `--host` |
-| OBS overlay blank | Right-click Browser Source → Interact → check console (F12) |
-| HP not updating | Verify the `PUT` request in Network tab, check server logs |
+| OBS overlay blank        | Right-click Browser Source → Interact → check console (F12)                 |
+| HP not updating          | Verify the `PUT` request in Network tab, check server logs                  |
 
 Quick API test:
 
@@ -325,7 +345,7 @@ Quick API test:
 curl http://localhost:3000/api/characters
 
 # Manual HP update
-curl -X PUT http://localhost:3000/api/characters/char1/hp \
+curl -X PUT http://localhost:3000/api/characters/CH001/hp \
   -H "Content-Type: application/json" \
   -d '{"hp_current": 10}'
 ```
@@ -341,13 +361,14 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 3. Hit it again — bar turns red, starts pulsing
 4. Roll a d20 — dice popup flies in on OBS
 5. If Nat 20: "¡CRÍTICO!" in green
-6. Say: *"Este es solo el MVP — puedo agregar lo que necesiten."*
+6. Say: _"Este es solo el MVP — puedo agregar lo que necesiten."_
 
 ---
 
 ## Roadmap
 
 ### Done
+
 - [x] Express + Socket.io server
 - [x] REST API (characters, HP, conditions, resources, rest, rolls)
 - [x] HP overlay with health state animations
@@ -358,11 +379,13 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 - [x] Resource pool system (short/long rest restoration)
 
 ### Day 3 (Polish)
+
 - [ ] Tailwind CSS styling on control panel
 - [ ] Record 2–3 min demo video
 - [ ] Screenshots for pitch email
 
 ### Post-Pitch (If Greenlit)
+
 - [ ] SQLite persistence (survive server restarts)
 - [ ] Character creation UI
 - [ ] Tonybet odds tracker overlay
@@ -373,14 +396,14 @@ curl -X PUT http://localhost:3000/api/characters/char1/hp \
 
 ## vs. Generic Overlay Tools
 
-| | overlays.uno | DADOS & RISAS |
-|---|---|---|
-| HP tracking | No | Yes |
-| Dice integration | No | Yes |
-| Mobile control | No | Yes |
-| Custom branding | Limited | 100% |
-| D&D game state | No | Full |
-| One-time cost | Monthly fee | Custom build |
+|                  | overlays.uno | DADOS & RISAS |
+| ---------------- | ------------ | ------------- |
+| HP tracking      | No           | Yes           |
+| Dice integration | No           | Yes           |
+| Mobile control   | No           | Yes           |
+| Custom branding  | Limited      | 100%          |
+| D&D game state   | No           | Full          |
+| One-time cost    | Monthly fee  | Custom build  |
 
 ---
 
