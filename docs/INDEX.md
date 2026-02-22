@@ -69,6 +69,7 @@ entry points, and how the system hangs together.
 ## See also
 
 - docs/ARCHITECTURE.md for deeper architecture and data flow
+- docs/FLOWCHARTS.md for Mermaid flowcharts of all key system flows
 - docs/DESIGN-SYSTEM.md for UI tokens and component mapping
 - docs/CHARACTER-CREATION-PLAN.md for the 2024 creation flow plan
 - docs/character-options.template.json for placeholder selection lists
