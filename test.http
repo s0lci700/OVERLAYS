@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/characters
 
 ### Update HP
-PUT http://localhost:3000/api/characters/char1/hp
+PUT http://localhost:3000/api/characters/CH101/hp
 Content-Type: application/json
 
 {
@@ -14,8 +14,11 @@ POST http://localhost:3000/api/rolls
 Content-Type: application/json
 
 {
-  "charId": "char1",
+  "charId": "CH101",
   "result": 15,
   "modifier":-40
 }
+
+
+
 

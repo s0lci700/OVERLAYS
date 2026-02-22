@@ -1,13 +1,17 @@
 {
   "name": "overlays",
   "version": "1.0.0",
-  "description": "",
+  "description": "DnD management system and overlays for streaming",
   "main": "server.js",
   "scripts": {
     "setup-ip": "node scripts/setup-ip.js",
     "start": "node scripts/setup-ip.js && node server.js",
-    "stress-test": "node scripts/stress-test.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "npx playwright test",
+    "stress:api": "k6 run stress/api.js",
+    "stress:cp": "k6 run stress/control-panel.js",
+    "stress": "npm run stress:api && npm run stress:cp",
+    "test:full": "npm run test:e2e && npm run stress"
   },
   "repository": {
     "type": "git",
@@ -22,6 +26,7 @@
   },
   "homepage": "https://github.com/s0lci700/OVERLAYS#readme",
   "dependencies": {
+    "animejs": "^4.3.6",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

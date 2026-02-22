@@ -6,7 +6,23 @@
 const { test, expect } = require("@playwright/test");
 
 const SERVER_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
-const CONTROL_PANEL_URL = process.env.PLAYWRIGHT_CP_URL || "http://localhost:5173";
+const CONTROL_PANEL_URL =
+  process.env.PLAYWRIGHT_CP_URL || "http://localhost:5173";
+
+const getCharacters = async (request) => {
+  const response = await request.get(`${SERVER_URL}/api/characters`);
+  expect(response.ok()).toBeTruthy();
+  return response.json();
+};
+
+const waitForCharacter = async (request, predicate) => {
+  return expect
+    .poll(async () => {
+      const characters = await getCharacters(request);
+      return characters.find(predicate) || null;
+    })
+    .not.toBeNull();
+};
 
 test.describe("D&D Overlay System - Full Stack Test", () => {
   test("Server API responds with characters", async ({ request }) => {
@@ -28,6 +44,25 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     console.log(`  Found ${characters.length} characters`);
   });
 
+  test("Template characters are available", async ({ request }) => {
+    const characters = await getCharacters(request);
+    const ids = characters.map((c) => c.id);
+
+    expect(ids).toContain("CH101");
+    expect(ids).toContain("CH102");
+    expect(ids).toContain("CH103");
+
+    const charOne = characters.find((c) => c.id === "CH101");
+    const charTwo = characters.find((c) => c.id === "CH102");
+    const charThree = characters.find((c) => c.id === "CH103");
+
+    expect(charOne).toBeTruthy();
+    expect(charTwo).toBeTruthy();
+    expect(charOne.name).toBeTruthy();
+    expect(charTwo.name).toBeTruthy();
+    expect(charThree.name).toBeTruthy();
+  });
+
   test("Control Panel loads successfully", async ({ page }) => {
     await page.goto(CONTROL_PANEL_URL);
 
@@ -43,6 +78,33 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     // Take a screenshot for visual verification
     await page.screenshot({ path: "test-control-panel.png" });
     console.log("  Screenshot saved: test-control-panel.png");
+  });
+
+  test("Character creation form validates required fields", async ({
+    page,
+  }) => {
+    await page.goto(`${CONTROL_PANEL_URL}/management/create`);
+
+    const submitButton = page.getByRole("button", { name: "CREAR PERSONAJE" });
+    await expect(submitButton).toBeDisabled();
+
+    await page.getByPlaceholder("Ej. Valeria").fill("QA-Form");
+    await page.getByPlaceholder("Ej. Sol").fill("QA-Player");
+    await page.locator('label:has-text("HP MAX") input').fill("18");
+
+    await expect(submitButton).toBeEnabled();
+  });
+
+  test("Dashboard shows character cards and log panels", async ({ page }) => {
+    await page.goto(`${CONTROL_PANEL_URL}/dashboard`);
+
+    await expect(page.getByText("Dashboard de personajes")).toBeVisible();
+    await expect(page.getByText("Ultimas acciones")).toBeVisible();
+    await expect(page.getByText("Ultimos dados")).toBeVisible();
+
+    const cards = page.locator(".dashboard-card");
+    expect(await cards.count()).toBeGreaterThan(0);
+    await expect(page.locator(".dashboard-empty")).toHaveCount(0);
   });
 
   test("Socket.io connection establishes", async ({ page }) => {
@@ -117,7 +179,7 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     const diceRoll = Math.floor(Math.random() * 20) + 1;
 
     const rollData = {
-      charId: "char1",
+      charId: "CH101",
       result: diceRoll, // The actual dice roll
       sides: 20,
       modifier: 5,
@@ -139,6 +201,138 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     console.log(
       `✓ Dice roll: d${result.sides} rolled ${result.result}, +${result.modifier} = ${result.rollResult}`,
     );
+  });
+
+  test("Character creation supports local photo upload", async ({
+    page,
+    request,
+  }) => {
+    const uniqueName = `QA-${Date.now()}`;
+    const tinyPng = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X8RkAAAAASUVORK5CYII=",
+      "base64",
+    );
+
+    await page.goto(`${CONTROL_PANEL_URL}/management/create`);
+
+    await page.getByPlaceholder("Ej. Valeria").fill(uniqueName);
+    await page.getByPlaceholder("Ej. Sol").fill("QA-Player");
+    await page.locator('label:has-text("HP MAX") input').fill("22");
+    await page.locator('label:has-text("AC") input').fill("15");
+    await page.locator('label:has-text("VEL") input').fill("30");
+
+    await page.getByRole("button", { name: "Archivo Local" }).click();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "tiny.png",
+      mimeType: "image/png",
+      buffer: tinyPng,
+    });
+
+    const createResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/characters") &&
+        response.request().method() === "POST",
+    );
+
+    await page.getByRole("button", { name: "CREAR PERSONAJE" }).click();
+    const response = await createResponse;
+    expect(response.ok()).toBeTruthy();
+
+    await expect(
+      page.getByText("Personaje creado.", { exact: true }),
+    ).toBeVisible();
+
+    await waitForCharacter(request, (c) => c.name === uniqueName);
+    const characters = await getCharacters(request);
+    const created = characters.find((c) => c.name === uniqueName);
+    expect(created.photo.startsWith("data:")).toBeTruthy();
+  });
+
+  test("Character photo update accepts URL", async ({ page, request }) => {
+    const photoUrl = "https://example.com/portrait.png";
+    await page.goto(`${CONTROL_PANEL_URL}/management/manage`);
+
+    const card = page.locator(".manage-card").first();
+    await expect(card).toBeVisible();
+    const charId = await card.getAttribute("data-char-id");
+    expect(charId).toBeTruthy();
+
+    await card.locator(".manage-photo-btn").click();
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
+
+    await modal.getByRole("button", { name: "URL" }).click();
+    const urlInput = modal.locator('input[type="url"]');
+    await expect(urlInput).toBeVisible();
+
+    const updateResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/characters/${charId}/photo`) &&
+        response.request().method() === "PUT",
+    );
+
+    await urlInput.fill(photoUrl);
+    await modal.getByRole("button", { name: "ACTUALIZAR FOTO" }).click();
+
+    const response = await updateResponse;
+    const responseBody = await response.text();
+    console.log(`Photo update response: ${response.status} ${responseBody}`);
+    expect(response.ok()).toBeTruthy();
+
+    await expect(
+      modal.getByText("Foto actualizada.", { exact: true }),
+    ).toBeVisible();
+
+    const characters = await getCharacters(request);
+    const updated = characters.find((c) => c.id === charId);
+    expect(updated).toBeTruthy();
+    expect(updated.photo).toBe(photoUrl);
+  });
+
+  test("Character profile update persists", async ({ page, request }) => {
+    await page.goto(`${CONTROL_PANEL_URL}/management/manage`);
+
+    const card = page.locator(".manage-card").first();
+    await expect(card).toBeVisible();
+    const charId = await card.getAttribute("data-char-id");
+    expect(charId).toBeTruthy();
+
+    const nameInput = card.locator('label:has-text("Nombre") input');
+    const playerInput = card.locator('label:has-text("Jugador") input');
+    const hpMaxInput = card.locator('label:has-text("HP MAX") input');
+    const armorInput = card.locator('label:has-text("AC") input');
+    const speedInput = card.locator('label:has-text("VEL") input');
+
+    const updatedName = `QA-Edit-${Date.now()}`;
+
+    await nameInput.fill(updatedName);
+    await playerInput.fill("QA-Edited");
+    await hpMaxInput.fill("27");
+    await armorInput.fill("14");
+    await speedInput.fill("32");
+
+    const updateResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes(`/api/characters/${charId}`) &&
+        response.request().method() === "PUT",
+    );
+
+    await card.getByRole("button", { name: "GUARDAR DATOS" }).click();
+    const response = await updateResponse;
+    expect(response.ok()).toBeTruthy();
+
+    await expect(
+      card.getByText("Datos actualizados.", { exact: true }),
+    ).toBeVisible();
+
+    const characters = await getCharacters(request);
+    const updated = characters.find((c) => c.id === charId);
+    expect(updated).toBeTruthy();
+    expect(updated.name).toBe(updatedName);
+    expect(updated.player).toBe("QA-Edited");
+    expect(updated.hp_max).toBe(27);
+    expect(updated.armor_class).toBe(14);
+    expect(updated.speed_walk).toBe(32);
   });
 
   test("Overlay HP page loads", async ({ page }) => {

@@ -1,0 +1,12 @@
+{
+  "source": {
+    "include": ["server.js", "data", "scripts", "control-panel/src"],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(^|/|\\\\)_"
+  },
+  "opts": {
+    "destination": "docs/api",
+    "recurse": true,
+    "readme": "README.md"
+  }
+}

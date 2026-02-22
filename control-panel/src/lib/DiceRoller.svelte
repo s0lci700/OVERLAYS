@@ -19,8 +19,7 @@
   import "./DiceRoller.css";
   import { characters, SERVER_URL, lastRoll } from "./socket";
   import { get } from "svelte/store";
-  import anime from "animejs/lib/anime.es.js";
-  const animate = anime;
+  import { animate } from "animejs";
   import { tick } from "svelte";
 
   // ═══════════════════════════════════════════════════════════════
@@ -32,6 +31,14 @@
 
   /** Modifier to apply to all rolls (range: -20 to +20). */
   let modifier = $state(0);
+
+  const MIN_MODIFIER = -20;
+  const MAX_MODIFIER = 20;
+  const HOLD_DELAY_MS = 250;
+  const HOLD_INTERVAL_MS = 80;
+
+  let holdTimeoutId = null;
+  let holdIntervalId = null;
 
   /** Stores the current anime.js animation instance to allow cancellation on rapid rolls. */
   let lastAnimation = null;
@@ -47,6 +54,42 @@
    */
   function roll(diceType) {
     return Math.floor(Math.random() * diceType) + 1;
+  }
+
+  function clampModifier(value) {
+    const parsedValue = Number(value);
+    if (!Number.isFinite(parsedValue)) {
+      modifier = 0;
+      return;
+    }
+    modifier = Math.max(MIN_MODIFIER, Math.min(MAX_MODIFIER, parsedValue));
+  }
+
+  function incrementModifier() {
+    modifier = Math.min(MAX_MODIFIER, modifier + 1);
+  }
+
+  function decrementModifier() {
+    modifier = Math.max(MIN_MODIFIER, modifier - 1);
+  }
+
+  function clearHold() {
+    if (holdTimeoutId) {
+      clearTimeout(holdTimeoutId);
+      holdTimeoutId = null;
+    }
+    if (holdIntervalId) {
+      clearInterval(holdIntervalId);
+      holdIntervalId = null;
+    }
+  }
+
+  function startHold(action) {
+    clearHold();
+    action();
+    holdTimeoutId = setTimeout(() => {
+      holdIntervalId = setInterval(action, HOLD_INTERVAL_MS);
+    }, HOLD_DELAY_MS);
   }
 
   /**
@@ -86,9 +129,7 @@
   // ═══════════════════════════════════════════════════════════════
 
   /** True if last roll was a natural 20. Used for critical styling/visual feedback. */
-  const isCrit = $derived(
-    $lastRoll?.result === 20 && $lastRoll?.sides === 20,
-  );
+  const isCrit = $derived($lastRoll?.result === 20 && $lastRoll?.sides === 20);
 
   /** True if last roll natural result was 1. Used for failure styling/visual feedback. */
   const isFail = $derived($lastRoll?.result === 1);
@@ -174,7 +215,7 @@
     <label class="selector-label" for="char-select">PERSONAJE ACTIVO</label>
     <div class="select-wrap">
       <select id="char-select" bind:value={selectedCharId}>
-        {#each $characters as character}
+        {#each $characters as character (character.id)}
           <option value={character.id}>{character.name}</option>
         {/each}
       </select>
@@ -185,23 +226,46 @@
   <!-- Roll Modifier Input -->
   <div class="modifier-input">
     <label class="modifier-label" for="modifier">MODIFICADOR</label>
-    <input
-      id="modifier"
-      type="number"
-      bind:value={modifier}
-      min="-20"
-      max="20"
-    />
+    <div class="modifier-stepper-cluster">
+      <button
+        class="modifier-stepper"
+        onpointerdown={() => startHold(decrementModifier)}
+        onpointerup={clearHold}
+        onpointerleave={clearHold}
+        onpointercancel={clearHold}
+        aria-label="Reducir modificador">−</button
+      >
+      <input
+        id="modifier"
+        class="modifier-value"
+        type="number"
+        bind:value={modifier}
+        min="-20"
+        max="20"
+        onblur={() => clampModifier(modifier)}
+      />
+      <button
+        class="modifier-stepper"
+        onpointerdown={() => startHold(incrementModifier)}
+        onpointerup={clearHold}
+        onpointerleave={clearHold}
+        onpointercancel={clearHold}
+        aria-label="Aumentar modificador">+</button
+      >
+    </div>
   </div>
 
   <!-- Dice Button Grid -->
   <div class="dice-grid">
-    {#each [4, 6, 8, 10, 12] as diceType}
+    {#each [4, 6, 8, 10, 12] as diceType (diceType)}
       <button class="dice-btn" onclick={() => rollDice(diceType)}>
+        <span class={`dice-icon dice-icon--d${diceType}`} aria-hidden="true"
+        ></span>
         <span class="dice-label">d{diceType}</span>
       </button>
     {/each}
     <button class="dice-btn d20-btn" onclick={() => rollDice(20)}>
+      <span class="dice-icon dice-icon--d20" aria-hidden="true"></span>
       <span class="dice-label">d20</span>
     </button>
   </div>

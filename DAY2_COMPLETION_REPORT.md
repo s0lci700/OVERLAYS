@@ -7,6 +7,7 @@
 ## 🎯 What You've Built
 
 ### Backend (Day 1 → Still Running)
+
 - Node.js Express server on `192.168.1.82:3000`
 - Socket.io with CORS enabled
 - REST API: GET characters, PUT hp, POST rolls
@@ -16,6 +17,7 @@
 ### Control Panel (Day 2 → Just Completed! 🚀)
 
 **Components Built:**
+
 1. **app.svelte** - Main app wrapper
    - Import management
    - Component structure
@@ -46,6 +48,7 @@
    - **Tested & working ✓**
 
 ### Overlays (Day 1 → Both Exist)
+
 - ✅ `overlay-hp.html` - HP bars with color coding (GREEN/YELLOW/RED)
 - ✅ `overlay-dice.html` - Dice popup (created Day 1)
 - Both are 1920×1080, transparent background, OBS-ready
@@ -60,7 +63,7 @@ PHONE (Control Panel)
 User clicks "Damage +5" on El verdadero
   ↓
 CharacterCard.svelte sends:
-  PUT /api/characters/char1/hp { hp_current: 23 }
+  PUT /api/characters/CH101/hp { hp_current: 10 }
   ↓
 SERVER receives, updates memory, broadcasts:
   io.emit('hp_updated', { character: {...}, hp_current: 23 })
@@ -70,7 +73,7 @@ OVERLAY receives via Socket.io
   ↓
 OBS DISPLAY
   HP bar animates from 28→23, color changes (green→yellow/red)
-  
+
 ⏱️ Total latency: <100ms (confirmed)
 ```
 
@@ -79,30 +82,33 @@ OBS DISPLAY
 ## ✅ Comparison vs REQUIREMENTS
 
 ### CLAUDE.md Requirements
-| Feature | Required | Built | Status |
-|---------|----------|-------|--------|
-| Backend MVP | YES | ✅ | Complete |
-| Socket.io real-time | YES | ✅ | Working |
-| HP updates | YES | ✅ | Tested |
-| Overlays | YES | ✅ | Working |
-| Dice rolls | YES | ✅ | Functional |
-| Mobile-first UI | RECOMMENDED | ✅ | Responsive |
-| Phone testing | RECOMMENDED | ✅ | On 192.168.1.82 |
+
+| Feature             | Required    | Built | Status          |
+| ------------------- | ----------- | ----- | --------------- |
+| Backend MVP         | YES         | ✅    | Complete        |
+| Socket.io real-time | YES         | ✅    | Working         |
+| HP updates          | YES         | ✅    | Tested          |
+| Overlays            | YES         | ✅    | Working         |
+| Dice rolls          | YES         | ✅    | Functional      |
+| Mobile-first UI     | RECOMMENDED | ✅    | Responsive      |
+| Phone testing       | RECOMMENDED | ✅    | On 192.168.1.82 |
 
 ### CONTEXTO_COMPLETO_PITCH.md Goals
-| Goal | Status |
-|------|--------|
-| Real-time D&D session management | ✅ DONE |
-| Phone control during gameplay | ✅ DONE |
-| OBS overlay integration | ✅ DONE |
-| Show advantage vs overlays.uno | ✅ READY TO DEMO |
-| Record working demo | ⏳ TOMORROW (Day 3) |
+
+| Goal                             | Status              |
+| -------------------------------- | ------------------- |
+| Real-time D&D session management | ✅ DONE             |
+| Phone control during gameplay    | ✅ DONE             |
+| OBS overlay integration          | ✅ DONE             |
+| Show advantage vs overlays.uno   | ✅ READY TO DEMO    |
+| Record working demo              | ⏳ TOMORROW (Day 3) |
 
 ---
 
 ## 🔧 Technical Quality Check
 
 ### Code Structure
+
 - ✅ Socket.js uses Svelte stores (reactive, clean)
 - ✅ Components are modular (CharacterCard, DiceRoller separate)
 - ✅ Server-side updates are confirmed working
@@ -110,12 +116,14 @@ OBS DISPLAY
 - ✅ Error handling included (try/catch on fetch)
 
 ### Performance
+
 - ✅ Real-time latency <100ms
 - ✅ No lag observed on phone-to-OBS updates
 - ✅ Smooth animations (HP bar transitions)
 - ✅ Multiple clients sync correctly (broadcast confirmed)
 
 ### Stability
+
 - ✅ No crashes after extended testing
 - ✅ Reconnection works if socket drops
 - ✅ Phone and desktop browser work simultaneously
@@ -126,11 +134,13 @@ OBS DISPLAY
 ## 🎨 Current Styling Status
 
 **CharacterCard.svelte:**
+
 - Inline styles (functional, not styled)
 - HP bar works but basic appearance
 - Buttons work but not visually polished
 
 **DiceRoller.svelte:**
+
 - Inline styles (functional)
 - Dropdown and buttons work
 - Last roll display works
@@ -142,6 +152,7 @@ OBS DISPLAY
 ## 📝 What's Ready for Day 3
 
 ### Immediate Goals (Thursday)
+
 1. **Optional:** Apply Tailwind CSS to components (30 min)
 2. **IMPORTANT:** Connect `overlay-dice.html` to WebSocket (30 min)
 3. **CRITICAL:** Record demo video (1.5 hours)
@@ -151,6 +162,7 @@ OBS DISPLAY
    - Explain advantages
 
 ### Demo Script Ready
+
 You can use this for recording:
 
 ```
@@ -178,12 +190,14 @@ show's branding. It's a custom solution, not a generic template."
 Compare your pitch slides to this working demo:
 
 **Before (Generic Overlays.uno):**
+
 - ❌ Manual overlay updates
 - ❌ No game state tracking
 - ❌ Can't control from phone
 - ❌ Generic look
 
 **After (What You Built):**
+
 - ✅ Automatic real-time updates
 - ✅ Full game state tracking
 - ✅ Phone control during gameplay
@@ -204,6 +218,7 @@ Compare your pitch slides to this working demo:
 ```
 
 **You're ON TRACK.** In fact, you're AHEAD. Most MVP demos don't have:
+
 - Core functionality working ✓
 - Real-time sync verified ✓
 - Multiple clients communicating ✓
@@ -214,6 +229,7 @@ Compare your pitch slides to this working demo:
 ## 🎉 Final Status
 
 **DAY 2 ACHIEVEMENTS:**
+
 - ✅ Svelte control panel built from scratch
 - ✅ Socket.io singleton pattern implemented
 - ✅ HP control working (tested phone → server → OBS)
@@ -223,6 +239,7 @@ Compare your pitch slides to this working demo:
 - ✅ Zero crashes, stable system
 
 **READY FOR:**
+
 - ✅ Demo video recording (Day 3)
 - ✅ Pitch to ESDH (Monday)
 - ✅ Live demo during meeting (Monday)
@@ -232,18 +249,21 @@ Compare your pitch slides to this working demo:
 ## 🚀 Next Steps (Day 3)
 
 **Priority 1 (Morning):**
+
 - [ ] Connect `overlay-dice.html` to WebSocket (30 min)
   - Add Socket.io listener for `dice_rolled` events
   - Animate popup when roll received
   - Test on OBS
 
 **Priority 2 (Midday):**
+
 - [ ] Apply Tailwind CSS (optional, improves video quality) (30 min)
   - Update CharacterCard.svelte with Tailwind
   - Update DiceRoller.svelte with Tailwind
   - Quick visual polish
 
 **Priority 3 (Afternoon):**
+
 - [ ] Record demo video (1.5 hours)
   - Setup OBS with overlays
   - Open control panel on phone + laptop

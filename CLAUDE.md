@@ -1,11 +1,13 @@
 # DADOS & RISAS - Overlay System
 
 ## Project Overview
+
 Real-time D&D session management system with OBS overlays for a streaming/recording pitch to ESDH (Hector).
 
 **Pitch deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
 
 ## Goal
+
 Build a working MVP demo proving technical capability to build custom production solutions. Prioritize: working > reliable > fast > beautiful.
 
 ## Architecture
@@ -25,32 +27,50 @@ OBS Overlays (vanilla HTML/CSS/JS)
 ```
 
 ## Tech Stack
-- **Backend:** Node.js 18+, Express 4.x, Socket.io 4.x, SQLite3, cors
-- **Frontend:** Svelte 4.x, Vite, socket.io-client
+
+- **Backend:** Node.js 18+, Express 5.x, Socket.io 4.x, cors
+- **Frontend:** Svelte 5.x, SvelteKit, Vite 7.x, socket.io-client
 - **Overlays:** Vanilla JS/HTML/CSS, socket.io CDN, OBS Browser Source
 
 ## Socket.io Events
-| Event | Direction | Payload |
-|---|---|---|
-| `connection` | server→client | — |
-| `initialData` | server→client | `{ characters, rolls }` |
-| `hp_updated` | server→all | `{ character, hp_current }` |
-| `dice_rolled` | server→all | `{ charId, result, modifier, rollResult, sides }` |
+
+| Event               | Direction     | Payload                                           |
+| ------------------- | ------------- | ------------------------------------------------- |
+| `initialData`       | server→client | `{ characters, rolls }`                           |
+| `hp_updated`        | server→all    | `{ character, hp_current }`                       |
+| `character_created` | server→all    | `{ character }`                                   |
+| `character_updated` | server→all    | `{ character }`                                   |
+| `condition_added`   | server→all    | `{ charId, condition }`                           |
+| `condition_removed` | server→all    | `{ charId, conditionId }`                         |
+| `resource_updated`  | server→all    | `{ charId, resource }`                            |
+| `rest_taken`        | server→all    | `{ charId, type, restored[], character }`         |
+| `dice_rolled`       | server→all    | `{ charId, result, modifier, rollResult, sides }` |
 
 ## API Endpoints
+
 - `GET  /api/characters` — return all characters
-- `PUT  /api/characters/:id/hp` — update hp_current, emit Socket.io
-- `POST /api/rolls` — log roll, emit Socket.io
+- `POST /api/characters` — create a new character, emit `character_created`
+- `PUT  /api/characters/:id` — update character fields, emit `character_updated`
+- `PUT  /api/characters/:id/hp` — update hp_current, emit `hp_updated`
+- `PUT  /api/characters/:id/photo` — update character photo, emit `character_updated`
+- `POST /api/characters/:id/conditions` — add condition, emit `condition_added`
+- `DELETE /api/characters/:id/conditions/:condId` — remove condition, emit `condition_removed`
+- `PUT  /api/characters/:id/resources/:rid` — update resource pool, emit `resource_updated`
+- `POST /api/characters/:id/rest` — apply short/long rest, emit `rest_taken`
+- `POST /api/rolls` — log roll, emit `dice_rolled`
 
 ## In-Memory Demo Characters
+
 ```js
 let characters = [
-  { id: 'char1', name: 'El Pato', player: 'Panqueque', hp_current: 28, hp_max: 35 },
-  { id: 'char2', name: 'Rosa',    player: 'Player2',   hp_current: 30, hp_max: 30 }
+  { id: "CH101", name: "Kael", player: "Mara", hp_current: 12, hp_max: 12 },
+  { id: "CH102", name: "Lyra", player: "Nico", hp_current: 8, hp_max: 8 },
+  { id: "CH103", name: "Brum", player: "Iris", hp_current: 9, hp_max: 9 },
 ];
 ```
 
 ## OBS Overlay Setup
+
 - Add Source > Browser > Local File
 - Width: 1920, Height: 1080
 - Disable "Shutdown source when not visible"
@@ -58,10 +78,12 @@ let characters = [
 - `body { background: transparent; }` — required for overlay transparency
 
 ## MVP Priorities (Demo Only)
+
 - No need for: perfect UI, all 3 overlays, full DB persistence, error handling, Chilean branding, mobile optimization
 - Must have: server running, HP updates from phone, ONE overlay live in OBS, real-time WebSocket sync
 
 ## Demo Script
+
 1. Show control panel on phone
 2. Update a character's HP
 3. Show OBS — bar updates in real-time
@@ -69,28 +91,48 @@ let characters = [
 5. Close: "Este es solo el MVP, puedo agregar lo que necesiten"
 
 ## Directory Structure
+
 ```
 OVERLAYS/
 ├── CLAUDE.md
-├── ROADMAPS/
-│   ├── COMPLETE_DEVELOPMENT_ROADMAP.docx
-│   └── CRASH_COURSE_3_DAY_DEMO.docx
 ├── server.js
 ├── package.json
+├── .env.example
+├── data/
+│   ├── characters.js
+│   ├── rolls.js
+│   ├── photos.js
+│   ├── id.js
+│   └── template-characters.json
 ├── public/
 │   ├── overlay-hp.html
-│   └── overlay-dice.html
+│   ├── overlay-hp.css
+│   ├── overlay-dice.html
+│   └── overlay-dice.css
+├── scripts/
+│   └── setup-ip.js
 └── control-panel/
     └── src/
-        ├── App.svelte
-        ├── main.js
-        └── lib/
-            ├── socket.js           ← hardcoded server IP here
-            ├── CharacterCard.svelte
-            └── DiceRoller.svelte
+        ├── routes/
+        │   ├── +layout.svelte      ← app shell, sidebar, header
+        │   ├── +page.svelte        ← redirects to /control/characters
+        │   ├── control/            ← /control/characters + /control/dice
+        │   ├── management/         ← /management/create + /management/manage
+        │   └── dashboard/          ← /dashboard
+        ├── lib/
+        │   ├── socket.js           ← Socket.io singleton + stores
+        │   ├── dashboardStore.js
+        │   ├── CharacterCard.svelte
+        │   ├── CharacterCreationForm.svelte
+        │   ├── CharacterManagement.svelte
+        │   ├── PhotoSourcePicker.svelte
+        │   ├── DashboardCard.svelte
+        │   └── DiceRoller.svelte
+        └── app.css
 ```
 
 ## Common Debug Steps
+
 1. Check server terminal output
 2. Browser console F12
 3. Network tab > WS for WebSocket frames
@@ -98,20 +140,16 @@ OVERLAYS/
 5. OBS: right-click Browser Source > Interact > console errors
 
 ## Key Reminders
+
 - Socket.io client in overlays uses CDN: `<script src="https://cdn.socket.io/4.x.x/socket.io.min.js">`
 - Use `data-char-id` attributes on HP bar elements for easy DOM targeting
 - For phone testing: use `--host` flag with Vite, connect to server IP not localhost
 - PRAGMA foreign_keys=ON if using SQLite
 
-## Actual Implementation (as-built — differs from spec above)
-- Server event on connection: `initialData` (not `initial_state`)
-- Characters in code: `El verdadero` (char1, Lucas) / `B12` (char2, Sol) — not El Pato / Rosa
-- Socket.io CDN version in use: `4.8.3` (in `overlay-hp.html`, `overlay-dice.html`)
-- Server IP hardcoded in `control-panel/src/lib/socket.js`: update to match your `ipconfig` IPv4
-
 ## Running the Project
+
 - Install deps (first time): `npm install` in root, then `npm install` in `control-panel/`
 - Server: `node server.js` (port 3000)
 - Control panel: `npm run dev -- --host` from `control-panel/` (port 5173)
-- Get local IP on Windows: `ipconfig` → IPv4 Address → update `control-panel/src/lib/socket.js`
-- Both overlays working: `public/overlay-hp.html`, `public/overlay-dice.html`
+- Auto-configure IPs: `npm run setup-ip` (writes root `.env` and `control-panel/.env`)
+- Both overlays: `public/overlay-hp.html`, `public/overlay-dice.html`

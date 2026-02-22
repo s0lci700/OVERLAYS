@@ -1,0 +1,54 @@
+name: JSDoc Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - copilot/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  docs:
+    name: Build and Check Docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate JSDoc documentation
+        uses: andstor/jsdoc-action@v1
+        with:
+          config_file: jsdoc.json
+          output_dir: docs/api
+
+      - name: Validate docs are up-to-date on pull requests
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain -- docs/api)" ]; then
+            echo "::error::Generated docs changed. Commit updated docs from docs/api."
+            git --no-pager diff -- docs/api | head -n 200
+            exit 1
+          fi
+
+      - name: Upload generated docs artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: jsdoc-api
+          path: docs/api
+          retention-days: 7
+
+      - name: Commit generated docs on push
+        if: github.event_name == 'push' && github.actor != 'github-actions[bot]'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update generated JSDoc"
+          file_pattern: docs/api/**
