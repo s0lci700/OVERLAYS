@@ -59,6 +59,7 @@ function parsePositiveInt(flagName, rawValue) {
 
 const ROUNDS = parsePositiveInt("--rounds", ROUNDS_RAW);
 const CONCURRENCY = parsePositiveInt("--concurrency", CONCURRENCY_RAW);
+
 // ── D&D 5e reference data ───────────────────────────────────────────────────
 
 /** Standard D&D 5e conditions (SRD p. 290-295) */
