@@ -242,7 +242,7 @@ async function phase_hpEdgeCases(characters, stats) {
     { hp_current: 0 },      // valid – knocked out
     { hp_current: -10 },    // should clamp to 0
     { hp_current: 1 },      // valid
-    { hp_current: 0.5 },    // fractional – finite number, accepted and clamped to valid range
+    { hp_current: 0.5 },    // fractional – finite number; accepted and clamped, fraction preserved by Math.max/Math.min
   ];
   const tasks = [];
   for (const char of characters) {
@@ -379,8 +379,8 @@ async function phase_invalidRequests(stats) {
     { p: () => request("POST", "/api/rolls", { charId: "char1", result: 1, sides: 0 }), want: 400 },
     // Rest with bad type
     { p: () => request("POST", "/api/characters/char1/rest", { type: "nap" }), want: 400 },
-    // Delete condition with invalid ID (not a valid 5-char short ID)
-    { p: () => request("DELETE", "/api/characters/char1/conditions/not-valid-id"), want: 400 },
+    // Delete condition with invalid condition ID (should be 5-char short ID)
+    { p: () => request("DELETE", "/api/characters/char1/conditions/bad-id"), want: 400 },
   ];
   let pass = 0;
   for (const { p, want } of cases) {
