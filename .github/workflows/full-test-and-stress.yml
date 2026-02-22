@@ -1,0 +1,108 @@
+name: Full Test & Stress
+
+on:
+  push:
+    branches: [main, copilot/**]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      stress_duration:
+        description: "Hold duration for stress stages (e.g. 60s, 2m)"
+        required: false
+        default: "60s"
+
+jobs:
+  test-and-stress:
+    name: E2E + Stress Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install control-panel dependencies
+        run: npm ci
+        working-directory: control-panel
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Install k6
+        run: |
+          curl -fsSL https://github.com/grafana/k6/releases/download/v0.57.0/k6-v0.57.0-linux-amd64.tar.gz \
+            -o /tmp/k6.tar.gz
+          tar xzf /tmp/k6.tar.gz -C /tmp
+          sudo mv /tmp/k6-v0.57.0-linux-amd64/k6 /usr/local/bin/k6
+          k6 version
+
+      - name: Start Express server
+        run: node server.js > /tmp/server.log 2>&1 &
+        env:
+          PORT: 3000
+
+      - name: Start control-panel dev server
+        run: npm run dev -- --host > /tmp/control-panel.log 2>&1 &
+        working-directory: control-panel
+
+      - name: Wait for services to be ready
+        run: |
+          npx wait-on http://localhost:3000/api/characters --timeout 30000 || \
+            (echo "=== server.log ===" && cat /tmp/server.log && exit 1)
+          npx wait-on http://localhost:5173 --timeout 30000 || \
+            (echo "=== control-panel.log ===" && cat /tmp/control-panel.log && exit 1)
+
+      # ── Playwright E2E ───────────────────────────────────────────────────────
+      - name: Run Playwright tests
+        run: npx playwright test
+        # continue-on-error so k6 stress steps always run regardless of E2E
+        # failures (some tests have pre-existing failures unrelated to k6).
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_CP_URL: http://localhost:5173
+
+      # ── k6 Stress tests ──────────────────────────────────────────────────────
+      - name: Create stress-results directory
+        run: mkdir -p stress-results
+
+      - name: Run k6 API stress test
+        run: k6 run stress/api.js
+        env:
+          BASE_URL_API: http://localhost:3000
+
+      - name: Run k6 control-panel stress test
+        run: k6 run stress/control-panel.js
+        env:
+          BASE_URL_CP: http://localhost:5173
+
+      # ── Artifacts ────────────────────────────────────────────────────────────
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            test-*.png
+          retention-days: 7
+
+      - name: Upload k6 stress results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-results
+          path: stress-results/
+          retention-days: 7

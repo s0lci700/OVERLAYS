@@ -6,7 +6,12 @@
   "scripts": {
     "setup-ip": "node scripts/setup-ip.js",
     "start": "node scripts/setup-ip.js && node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "npx playwright test",
+    "stress:api": "k6 run stress/api.js",
+    "stress:cp": "k6 run stress/control-panel.js",
+    "stress": "npm run stress:api && npm run stress:cp",
+    "test:full": "npm run test:e2e && npm run stress"
   },
   "repository": {
     "type": "git",
