@@ -34,8 +34,26 @@ function getArg(name, defaultValue) {
 }
 
 const BASE_URL = getArg("--url", process.env.SERVER_URL || "http://localhost:3000");
-const ROUNDS = parseInt(getArg("--rounds", "20"), 10);
-const CONCURRENCY = parseInt(getArg("--concurrency", "5"), 10);
+
+// Validate BASE_URL early so we get a clear error instead of a runtime crash.
+try {
+  new URL(BASE_URL);
+} catch {
+  console.error(`Invalid --url or SERVER_URL value: "${BASE_URL}"`);
+  process.exit(1);
+}
+
+function parsePositiveInt(flagName, rawValue) {
+  const value = parseInt(rawValue, 10);
+  if (!Number.isFinite(value) || value < 1) {
+    console.error(`Invalid value for ${flagName}: "${rawValue}". Expected a positive integer >= 1.`);
+    process.exit(1);
+  }
+  return value;
+}
+
+const ROUNDS = parsePositiveInt("--rounds", getArg("--rounds", "20"));
+const CONCURRENCY = parsePositiveInt("--concurrency", getArg("--concurrency", "5"));
 
 // ── D&D 5e reference data ───────────────────────────────────────────────────
 
@@ -126,6 +144,13 @@ class Stats {
     this.times.push(ms);
   }
 
+  /** Accumulate another Stats object's results into this one. */
+  merge(other) {
+    this.pass += other.pass;
+    this.fail += other.fail;
+    this.times.push(...other.times);
+  }
+
   get total() {
     return this.pass + this.fail;
   }
@@ -212,7 +237,7 @@ async function phase_hpEdgeCases(characters, stats) {
     { hp_current: 0 },      // valid – knocked out
     { hp_current: -10 },    // should clamp to 0
     { hp_current: 1 },      // valid
-    { hp_current: 0.5 },    // fractional – finite number, accepted and floor-clamped by Math.max/Math.min
+    { hp_current: 0.5 },    // fractional – finite number, accepted and clamped to valid range
   ];
   const tasks = [];
   for (const char of characters) {
@@ -272,32 +297,25 @@ async function phase_conditions(characters, stats) {
 
 async function phase_resources(characters, stats) {
   console.log("\n  Resources – spend and recover each pool");
-  const tasks = [];
-  for (const char of characters) {
+  // Each character's resources are updated sequentially (spend → half → max) to
+  // guarantee ordering; characters themselves run concurrently up to CONCURRENCY.
+  const characterTasks = characters.map((char) => async () => {
     for (const resource of char.resources) {
-      // Spend all uses
-      tasks.push(() =>
-        request("PUT", `/api/characters/${char.id}/resources/${resource.id}`, {
-          pool_current: 0,
-        }),
-      );
-      // Restore to half
-      tasks.push(() =>
-        request("PUT", `/api/characters/${char.id}/resources/${resource.id}`, {
-          pool_current: Math.ceil(resource.pool_max / 2),
-        }),
-      );
-      // Restore to max
-      tasks.push(() =>
-        request("PUT", `/api/characters/${char.id}/resources/${resource.id}`, {
-          pool_current: resource.pool_max,
-        }),
-      );
+      const steps = [0, Math.ceil(resource.pool_max / 2), resource.pool_max];
+      for (const pool_current of steps) {
+        const res = await request(
+          "PUT",
+          `/api/characters/${char.id}/resources/${resource.id}`,
+          { pool_current },
+        );
+        stats.record(res.status >= 200 && res.status < 300, res.ms);
+      }
     }
-  }
-  const results = await runBatch(tasks, CONCURRENCY);
-  results.forEach(({ ok, ms }) => stats.record(ok, ms));
-  console.log(`  → ${results.filter((r) => r.ok).length}/${results.length} passed`);
+    // runBatch expects each task to return a result object; return a sentinel.
+    return { status: 200, ms: 0 };
+  });
+  await runBatch(characterTasks, CONCURRENCY);
+  console.log(`  → ${stats.pass}/${stats.total} passed`);
 }
 
 async function phase_rests(characters, stats) {
@@ -401,7 +419,7 @@ async function main() {
   console.log("── Phase 1: Fetch characters ──────────────────");
   const charStats = new Stats("GET /api/characters");
   const characters = await phase_getCharacters(charStats);
-  charStats.times.forEach((ms, i) => globalStats.record(i < charStats.pass, ms));
+  globalStats.merge(charStats);
   if (!characters) {
     console.error("\n  Cannot proceed without characters. Exiting.");
     process.exit(1);
@@ -412,37 +430,37 @@ async function main() {
   const hpStats = new Stats("PUT /hp");
   await phase_hpUpdates(characters, hpStats);
   await phase_hpEdgeCases(characters, hpStats);
-  hpStats.times.forEach((ms, i) => globalStats.record(i < hpStats.pass, ms));
+  globalStats.merge(hpStats);
 
   // ── Phase 3: Conditions ──
   console.log("\n── Phase 3: Conditions ────────────────────────");
   const condStats = new Stats("POST+DELETE /conditions");
   await phase_conditions(characters, condStats);
-  condStats.times.forEach((ms, i) => globalStats.record(i < condStats.pass, ms));
+  globalStats.merge(condStats);
 
   // ── Phase 4: Resources ──
   console.log("\n── Phase 4: Resources ─────────────────────────");
   const resStats = new Stats("PUT /resources");
   await phase_resources(characters, resStats);
-  resStats.times.forEach((ms, i) => globalStats.record(i < resStats.pass, ms));
+  globalStats.merge(resStats);
 
   // ── Phase 5: Rests ──
   console.log("\n── Phase 5: Rests ─────────────────────────────");
   const restStats = new Stats("POST /rest");
   await phase_rests(characters, restStats);
-  restStats.times.forEach((ms, i) => globalStats.record(i < restStats.pass, ms));
+  globalStats.merge(restStats);
 
   // ── Phase 6: Dice rolls ──
   console.log("\n── Phase 6: Dice rolls ────────────────────────");
   const rollStats = new Stats("POST /rolls");
   await phase_rolls(characters, rollStats);
-  rollStats.times.forEach((ms, i) => globalStats.record(i < rollStats.pass, ms));
+  globalStats.merge(rollStats);
 
   // ── Phase 7: Validation / error paths ──
   console.log("\n── Phase 7: Input validation ──────────────────");
   const errStats = new Stats("4xx responses");
   await phase_invalidRequests(errStats);
-  errStats.times.forEach((ms, i) => globalStats.record(i < errStats.pass, ms));
+  globalStats.merge(errStats);
 
   // ── Summary ──
   const allStats = [
@@ -455,22 +473,22 @@ async function main() {
     { label: "Validation (4xx)", s: errStats },
   ];
 
-  console.log("\n╔════════════════════════════════════════════════════════════════╗");
-  console.log("║  RESULTS SUMMARY                                               ║");
-  console.log("╠══════════════════════════╦══════╦══════╦════════╦══════╦══════╣");
-  console.log("║  Endpoint                ║  OK  ║ FAIL ║ TOTAL  ║ AVG  ║ MAX  ║");
+  console.log("\n╔══════════════════════════════════════════════════════════════════╗");
+  console.log("║  RESULTS SUMMARY                                                 ║");
+  console.log("╠══════════════════════════╦══════╦══════╦════════╦════════╦════════╣");
+  console.log("║  Endpoint                ║  OK  ║ FAIL ║ TOTAL  ║  AVG   ║  MAX   ║");
   const tableRow = (label, s) =>
-    `║  ${label.padEnd(24)} ║ ${String(s.pass).padStart(4)} ║ ${String(s.fail).padStart(4)} ║ ${String(s.total).padStart(6)} ║ ${String(s.avgMs + "ms").padStart(4)} ║ ${String(s.maxMs + "ms").padStart(4)} ║`;
+    `║  ${label.padEnd(24)} ║ ${String(s.pass).padStart(4)} ║ ${String(s.fail).padStart(4)} ║ ${String(s.total).padStart(6)} ║ ${String(s.avgMs + "ms").padStart(6)} ║ ${String(s.maxMs + "ms").padStart(6)} ║`;
 
-  console.log("╠══════════════════════════╬══════╬══════╬════════╬══════╬══════╣");
+  console.log("╠══════════════════════════╬══════╬══════╬════════╬════════╬════════╣");
   for (const { label, s } of allStats) {
     console.log(tableRow(label, s));
   }
-  console.log("╠══════════════════════════╬══════╬══════╬════════╬══════╬══════╣");
+  console.log("╠══════════════════════════╬══════╬══════╬════════╬════════╬════════╣");
   console.log(tableRow("TOTAL", globalStats));
-  console.log("╚══════════════════════════╩══════╩══════╩════════╩══════╩══════╝");
+  console.log("╚══════════════════════════╩══════╩══════╩════════╩════════╩════════╝");
 
-  const failRate = globalStats.fail / globalStats.total;
+  const failRate = globalStats.total > 0 ? globalStats.fail / globalStats.total : 0;
   if (failRate > 0.05) {
     console.log(`\n  ⚠  Failure rate ${(failRate * 100).toFixed(1)}% exceeds 5% threshold.`);
     process.exit(1);

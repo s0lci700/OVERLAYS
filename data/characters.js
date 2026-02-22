@@ -32,6 +32,8 @@ const { randomUUID } = require("crypto");
  * @property {string}        id             - Stable identifier (e.g. "char1")
  * @property {string}        name           - Character name shown in overlays
  * @property {string}        player         - Player's real name
+ * @property {string}        class          - D&D 5e class (e.g. "Barbarian")
+ * @property {number}        level          - Character level
  * @property {number}        hp_current     - Current hit points (0–hp_max)
  * @property {number}        hp_max         - Maximum hit points
  * @property {number}        hp_temp        - Temporary HP (not counted in hp_current)
@@ -46,7 +48,7 @@ const { randomUUID } = require("crypto");
 /**
  * Simple in-memory character fixtures plus helper functions used by the API.
  * Five Level-5 D&D 5e characters covering the main archetypes:
- *   char1 – Barbarian, char2 – Monk/Rogue, char3 – Fighter,
+ *   char1 – Barbarian, char2 – Monk, char3 – Fighter,
  *   char4 – Wizard,    char5 – Cleric
  */
 const characters = [
@@ -201,8 +203,8 @@ const characters = [
       {
         id: "r11",
         name: "CHANNEL DIVINITY",
-        pool_max: 2,
-        pool_current: 2,
+        pool_max: 1,
+        pool_current: 1,
         recharge: "SHORT_REST",
       },
       {
