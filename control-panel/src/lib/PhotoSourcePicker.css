@@ -1,0 +1,241 @@
+/**
+ * PhotoSourcePicker Styles
+ * ========================
+ * Styles for the shared photo source selector (preset, URL, local file).
+ */
+
+.photo-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.photo-picker.dense {
+  gap: var(--space-2);
+}
+
+.photo-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+  width: 100%;
+  overflow: hidden;
+}
+
+.photo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  height: 100%;
+}
+
+.photo-segment-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.photo-segment-btn {
+  min-height: 40px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  background: var(--black-elevated);
+  color: var(--grey);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.photo-segment-btn.dense {
+  min-height: 34px;
+  font-size: 0.85rem;
+}
+
+.photo-segment-btn.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+.photo-select,
+.photo-input-row input {
+  min-height: 44px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  background: var(--black-elevated);
+  color: var(--grey);
+  font-family: var(--font-ui);
+  text-align: center;
+}
+
+.photo-select.dense,
+.photo-input-row input.dense {
+  min-height: 36px;
+  padding: 0 var(--space-2);
+}
+
+.photo-select {
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23888888' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+}
+
+.photo-select.dense {
+  padding-right: 32px;
+  background-position: right 8px center;
+}
+
+.photo-select:focus,
+.photo-input-row input:focus,
+.photo-file-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim);
+}
+
+.photo-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+}
+
+.photo-input-row.dense {
+  gap: var(--space-1);
+}
+
+.photo-clear-btn {
+  min-width: 40px;
+  min-height: 44px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  background: var(--black-elevated);
+  color: var(--grey);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast);
+}
+
+.photo-clear-btn.dense {
+  min-width: 34px;
+  min-height: 36px;
+  font-size: 0.9rem;
+}
+
+.photo-clear-btn:hover {
+  color: var(--white);
+  border-color: var(--red);
+  background: var(--red-dim);
+}
+
+.photo-file-input-hidden {
+  display: none;
+}
+
+.photo-dropzone {
+  min-height: 92px;
+  border: 1px dashed var(--grey-dim);
+  border-radius: var(--radius-md);
+  background: var(--black-elevated);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast),
+    background var(--t-fast);
+}
+
+.photo-dropzone.dense {
+  min-height: 74px;
+  padding: var(--space-2);
+}
+
+.photo-dropzone.active,
+.photo-dropzone:hover,
+.photo-dropzone:focus-visible {
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+.photo-dropzone-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+
+.photo-dropzone-subtitle {
+  font-size: 0.8rem;
+  color: var(--grey);
+}
+
+.photo-file-input {
+  color: var(--white);
+}
+
+.photo-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: stretch;
+  min-width: 0;
+  height: 100%;
+}
+
+.photo-preview-wrap .label-caps {
+  align-self: center;
+  text-align: center;
+}
+
+.photo-preview {
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--grey-dim);
+  align-self: center;
+}
+
+.photo-preview.dense {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+}
+
+.photo-picker-error {
+  font-size: 0.85rem;
+  color: var(--red);
+}
+
+@media (min-width: 900px) {
+  .photo-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photo-controls,
+  .photo-preview-wrap {
+    height: auto;
+  }
+
+  .photo-preview-wrap {
+    order: 0;
+  }
+}

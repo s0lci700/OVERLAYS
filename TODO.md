@@ -43,6 +43,7 @@
 - [x] **Cross-device sync** — phone receives HP/roll updates from server
 
 **What's Working:**
+
 - ✅ Control panel loads characters from server
 - ✅ HP updates from phone appear in OBS overlay instantly
 - ✅ Dice rolls broadcast to all devices
@@ -50,6 +51,7 @@
 - ✅ Phone can control game state remotely
 
 **What Still Needs Polish (Low Priority):**
+
 - Tailwind CSS styling (currently inline styles — functional but not pretty)
 - Last roll display in dice roller component
 - Character selector dropdown styling
@@ -69,6 +71,7 @@
 - [ ] Write demo script for pitch (3–4 clear steps)
 
 **Demo Flow (READY TO RECORD):**
+
 1. Control panel open on phone showing characters
 2. Damage character from phone → HP bar updates in OBS in <100ms
 3. Heal character from phone → HP bar color changes (green→yellow→red)
@@ -113,18 +116,21 @@
 - [ ] Combat log/history view in control panel
 - [ ] Character creation interface
 - [ ] Add initiative tracker for combat
+- [ ] Level-up should update derived stats (HP, proficiencies, resources)
 
 ---
 
 ## 📝 ARCHITECTURE SUMMARY
 
 **Server (Node.js + Express + Socket.io):**
+
 - Port: 3000 (192.168.1.82:3000)
 - In-memory character storage
 - Real-time event broadcasting
 - REST API for HP/rolls updates
 
 **Control Panel (Svelte + Vite):**
+
 - Port: 5173 (192.168.1.82:5173)
 - Socket.io connection to server
 - CharacterCard.svelte — Per-character HP control
@@ -132,13 +138,15 @@
 - Fully functional and tested ✓
 
 **Overlays (Vanilla HTML/CSS/JS):**
+
 - `public/overlay-hp.html` — HP bars (WORKING ✓)
 - `public/overlay-dice.html` — Dice popup (needs Socket.io connection)
 - Both 1920×1080, OBS-ready, transparent background
 
 **Data Flow:**
+
 ```
-Phone (Control Panel) 
+Phone (Control Panel)
   ↓ HTTP/WebSocket
 Server (192.168.1.82:3000)
   ↓ WebSocket Broadcast
@@ -150,6 +158,7 @@ OBS (Overlays) + Other Clients
 ## 🎯 STATUS: DAY 2 COMPLETE! DAY 3 IS JUST RECORDING!
 
 **What's Fully Functional:**
+
 - ✅ Backend server (stable, tested)
 - ✅ HP overlay (real-time, color transitions working)
 - ✅ Dice overlay (real-time, crit/fail detection working)
@@ -162,11 +171,13 @@ OBS (Overlays) + Other Clients
 - ✅ README and documentation complete
 
 **What's Left (Day 3):**
+
 1. **Optional:** Tailwind CSS styling (for video polish, not required)
 2. **Critical:** Record 2-3 min demo video
 3. **Monday:** Email demo to Héctor (8am, before meeting)
 4. **Monday:** Live pitch with working demo ready
 
 **You're 95% done. Thursday is just about showing it off on camera!** 🎬
+
 - `socket.io-client` IS already installed in `control-panel/node_modules`
 - Keep it simple — working > perfect

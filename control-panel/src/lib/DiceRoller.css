@@ -3,6 +3,29 @@
  * ===========================
  * Styles for the DiceRoller.svelte component.
  *
+ * Svelte ↔ CSS quick map (from DiceRoller.svelte):
+ *   - <div class="dice-panel"> … </div>
+ *       → `.dice-panel` (layout / vertical spacing)
+ *   - Character selector block:
+ *       <div class="char-selector"> … <select> … </select> … </div>
+ *       → `.char-selector`, `.select-wrap`, `.select-arrow`
+ *   - Modifier stepper block:
+ *       <div class="modifier-stepper-cluster">
+ *         <button class="modifier-stepper">−</button>
+ *         <input class="modifier-value" … />
+ *         <button class="modifier-stepper">+</button>
+ *       </div>
+ *       → `.modifier-stepper-cluster`, `.modifier-stepper`, `.modifier-value`
+ *       (buttons use press-and-hold handlers in Svelte)
+ *   - Dice grid buttons:
+ *       <div class="dice-grid"> … <button class="dice-btn"> … </button> … </div>
+ *       → `.dice-grid`, `.dice-btn`, `.dice-label`, `.d20-btn`, `.dice-icon`
+ *   - Roll result card:
+ *       <div class="roll-result" class:is-crit class:is-fail>
+ *         <div class="roll-number" class:crit class:fail> … </div>
+ *       </div>
+ *       → `.roll-result`, `.roll-number.crit`, `.roll-number.fail`
+ *
  * Sections:
  *   - Panel layout        — vertical flex container with spacing
  *   - Character selector  — dropdown for active character
@@ -34,6 +57,13 @@
   padding-bottom: var(--space-4);
 }
 
+@media (min-width: 768px) {
+  .dice-panel {
+    width: clamp(33vw, 40vw, 50vw);
+    margin: 0 auto;
+  }
+}
+
 /* ── Character Selector ── */
 .char-selector {
   display: flex;
@@ -59,7 +89,7 @@
 .select-wrap select {
   width: 100%;
   padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
-  background: transparent;
+  background: var(--black-elevated);
   color: var(--white);
   font-size: 1rem;
   font-weight: 500;
@@ -96,25 +126,60 @@
   letter-spacing: 0.12em;
 }
 
-.modifier-input input {
+.modifier-stepper-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0;
   background: var(--black-elevated);
   border: 1px solid var(--grey-dim);
   border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  color: var(--white);
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  font-weight: 700;
-  min-height: var(--space-12);
-  text-align: center;
+  padding: 2px;
   width: 100%;
-  transition: border-color var(--t-fast), outline-color var(--t-fast);
 }
 
-.modifier-input input:focus {
+.modifier-stepper {
+  flex: 0 0 80px;
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--grey-dim);
+  color: var(--grey);
+  font-size: 1rem;
+  line-height: 1;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+
+.modifier-stepper:hover {
+  background: var(--grey);
+  color: var(--white);
+}
+
+.modifier-value {
+  background: var(--black-elevated);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 60px;
+  text-align: center;
+  flex: 1;
+  width: auto;
+  transition:
+    border-color var(--t-fast),
+    outline-color var(--t-fast);
+}
+
+.modifier-value:focus {
   outline: 2px solid var(--cyan);
   outline-offset: -2px;
-  border-color: var(--cyan);
 }
 
 /* ── Dice Grid ── */
@@ -128,12 +193,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   min-height: 72px;
   border-radius: var(--radius-md);
   border: 1px solid var(--grey-dim);
   background: var(--black-card);
   box-shadow: 3px 3px 0px rgba(255, 255, 255, 0.05);
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast), background var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    color var(--t-fast),
+    box-shadow var(--t-fast),
+    transform var(--t-fast),
+    background var(--t-fast);
 }
 
 .dice-btn:hover {
@@ -151,6 +222,49 @@
   color: var(--purple);
 }
 
+.dice-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-color: var(--grey) !important;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  transition: background-color var(--t-fast);
+}
+
+.dice-btn:hover .dice-icon {
+  background-color: var(--purple);
+}
+
+.dice-icon--d4 {
+  mask-image: url("/icons/dice/d4.svg");
+  -webkit-mask-image: url("/icons/dice/d4.svg");
+}
+.dice-icon--d6 {
+  mask-image: url("/icons/dice/d6.svg");
+  -webkit-mask-image: url("/icons/dice/d6.svg");
+}
+.dice-icon--d8 {
+  mask-image: url("/icons/dice/d8.svg");
+  -webkit-mask-image: url("/icons/dice/d8.svg");
+}
+.dice-icon--d10 {
+  mask-image: url("/icons/dice/d10.svg");
+  -webkit-mask-image: url("/icons/dice/d10.svg");
+}
+.dice-icon--d12 {
+  mask-image: url("/icons/dice/d12.svg");
+  -webkit-mask-image: url("/icons/dice/d12.svg");
+}
+.dice-icon--d20 {
+  mask-image: url("/icons/dice/d20.svg");
+  -webkit-mask-image: url("/icons/dice/d20.svg");
+}
+
 .dice-label {
   font-family: var(--font-mono);
   font-size: 1.75rem;
@@ -162,8 +276,8 @@
 
 /* d20 — full width, purple accent */
 .d20-btn {
-  grid-column: 1 / -1;
-  min-height: 78px;
+  grid-column: auto;
+  min-height: 72px;
   border-color: rgba(80, 13, 245, 0.5);
   box-shadow: var(--shadow-purple);
 }
@@ -171,6 +285,10 @@
 .d20-btn .dice-label {
   font-size: 2rem;
   color: var(--purple);
+}
+
+.d20-btn .dice-icon {
+  background-color: var(--purple);
 }
 
 .d20-btn:hover {
@@ -211,7 +329,9 @@
   font-weight: 700;
   color: var(--white);
   line-height: 1;
-  transition: color var(--t-fast), text-shadow var(--t-fast);
+  transition:
+    color var(--t-fast),
+    text-shadow var(--t-fast);
 }
 
 .roll-number.crit {

@@ -1,7 +1,8 @@
 # Architecture Guide
 
 > Quick-reference map for navigating the DADOS & RISAS codebase.
-> Branch: `feat/design-esdh` (ESDH brand redesign)
+
+Fast lookup: see [docs/INDEX.md](docs/INDEX.md).
 
 ---
 
@@ -46,57 +47,86 @@ responds to the caller, and broadcasts a Socket.io event to **all** clients
 
 ### Backend (`/`)
 
-| File | Purpose | Key exports |
-|---|---|---|
-| `server.js` | Express app, Socket.io server, all API routes | Listens on `:3000` |
-| `data/characters.js` | Character fixtures + CRUD (HP, conditions, resources, rest) | `getAll`, `findById`, `updateHp`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources` |
-| `data/rolls.js` | Roll history logger | `getAll`, `logRoll` |
-| `data/resources.js` | **Unused** — standalone resource pool experiment | `getActive`, `forCharacter` |
-| `data/state.js` | **Unused** — snapshot aggregator re-exporting all data modules | `getSnapshot` |
+| File                 | Purpose                                                        | Key exports                                                                                               |
+| -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `server.js`          | Express app, Socket.io server, all API routes                  | Listens on `:3000`                                                                                        |
+| `data/characters.js` | Character fixtures + CRUD (HP, conditions, resources, rest)    | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources` |
+| `data/rolls.js`      | Roll history logger                                            | `getAll`, `logRoll`                                                                                       |
+| `data/photos.js`     | Photo assignment utility (random fallback from `assets/img/`)  | `ensureCharactersPhotos`, `ensureCharacterPhoto`                                                          |
+| `data/id.js`         | Short 5-character ID generator                                 | `createShortId`                                                                                           |
+| `data/resources.js`  | **Unused** — standalone resource pool experiment               | `getActive`, `forCharacter`                                                                               |
+| `data/state.js`      | **Unused** — snapshot aggregator re-exporting all data modules | `getSnapshot`                                                                                             |
 
 ### Control Panel (`/control-panel/src/`)
 
-| File | Purpose | Key exports / state |
-|---|---|---|
-| `main.js` | Svelte mount point | — |
-| `app.css` | Design tokens, CSS reset, shared bases, app shell layout | CSS custom properties |
-| `App.svelte` | Root component: header, tab navigation, content routing | `activeTab`, `connected` |
-| `lib/socket.js` | Socket.io singleton + Svelte stores | `socket`, `characters` (writable), `lastRoll` (writable), `serverPort` |
-| `lib/dashboardStore.js` | Activity history, pending action queue, role state | `history`, `pendingActions`, `isSyncing`, `currentRole`, `recordHistory`, `enqueuePending`, `dequeuePending` |
-| `lib/CharacterCard.svelte` | Per-character card: HP, conditions, resources, rest, damage/heal | Props: `character` |
-| `lib/CharacterCard.css` | Card styles: HP bar, pips, conditions, stepper | — |
-| `lib/DiceRoller.svelte` | Dice roller: character selector, modifier, d4–d20 grid | `selectedCharId`, `modifier` |
-| `lib/DiceRoller.css` | Dice grid, result card, crit/fail states | — |
+The control panel is a **SvelteKit** application. File-based routes live under `routes/`; reusable components and stores live under `lib/`.
+
+#### Routes
+
+| Route path             | File                                        | Purpose                                       |
+| ---------------------- | ------------------------------------------- | --------------------------------------------- |
+| `/`                    | `routes/+page.svelte`                       | Redirects to `/control/characters`            |
+| (all routes)           | `routes/+layout.svelte`                     | App shell: header, sidebar, navigation        |
+| `/control/characters`  | `routes/control/characters/+page.svelte`    | Character HP / conditions / resources view    |
+| `/control/dice`        | `routes/control/dice/+page.svelte`          | Dice roller view                              |
+| `/control` (shared)    | `routes/control/+layout.svelte`             | Characters / Dice bottom nav                  |
+| `/management/create`   | `routes/management/create/+page.svelte`     | Character creation form                       |
+| `/management/manage`   | `routes/management/manage/+page.svelte`     | Photo/data editing + bulk controls            |
+| `/management` (shared) | `routes/management/+layout.svelte`          | Create / Manage bottom nav                    |
+| `/dashboard`           | `routes/dashboard/+page.svelte`             | Live read-only dashboard (TV/monitor view)    |
+
+#### Library (`lib/`)
+
+| File                              | Purpose                                                          | Key exports / state                                                                                          |
+| --------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `lib/socket.js`                   | Socket.io singleton + Svelte stores                              | `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`                                      |
+| `lib/dashboardStore.js`           | Activity history, pending action queue, role state               | `history`, `pendingActions`, `isSyncing`, `currentRole`, `recordHistory`, `enqueuePending`, `dequeuePending` |
+| `lib/router.js`                   | Hash-based router helpers (for App.svelte fallback)              | `parseHash`, `updateHash`, `onHashChange`                                                                    |
+| `lib/CharacterCard.svelte`        | Per-character card: HP, conditions, resources, rest, damage/heal | Props: `character`                                                                                           |
+| `lib/CharacterCard.css`           | Card styles: HP bar, pips, conditions, stepper                   | —                                                                                                            |
+| `lib/CharacterCreationForm.svelte`| New character creation form                                      | —                                                                                                            |
+| `lib/CharacterCreationForm.css`   | Creation form styles                                             | —                                                                                                            |
+| `lib/CharacterManagement.svelte`  | Photo/data editing, bulk controls, character list                | —                                                                                                            |
+| `lib/CharacterManagement.css`     | Management panel styles                                          | —                                                                                                            |
+| `lib/CharacterBulkControls.css`   | Bulk action button styles                                        | —                                                                                                            |
+| `lib/PhotoSourcePicker.svelte`    | URL / file-upload photo picker                                   | —                                                                                                            |
+| `lib/PhotoSourcePicker.css`       | Photo picker styles                                              | —                                                                                                            |
+| `lib/DashboardCard.svelte`        | Per-character dashboard tile (read-only)                         | Props: `character`                                                                                           |
+| `lib/DashboardCard.css`           | Dashboard card styles                                            | —                                                                                                            |
+| `lib/Dashboard.css`               | Dashboard shell / grid styles                                    | —                                                                                                            |
+| `lib/DiceRoller.svelte`           | Dice roller: character selector, modifier, d4–d20 grid           | `selectedCharId`, `modifier`                                                                                 |
+| `lib/DiceRoller.css`              | Dice grid, result card, crit/fail states                         | —                                                                                                            |
 
 ### OBS Overlays (`/public/`)
 
-| File | Purpose |
-|---|---|
-| `overlay-hp.html` | HP bars overlay — positioned top-right, color-coded health states |
-| `overlay-hp.css` | HP overlay styles: gradients, pulse animation, status banner |
-| `overlay-dice.html` | Dice roll popup — bottom-center, anime.js bounce, auto-hide 4s |
-| `overlay-dice.css` | Dice card styles: crit/fail states, result number |
+| File                | Purpose                                                           |
+| ------------------- | ----------------------------------------------------------------- |
+| `overlay-hp.html`   | HP bars overlay — positioned top-right, color-coded health states |
+| `overlay-hp.css`    | HP overlay styles: gradients, pulse animation, status banner      |
+| `overlay-dice.html` | Dice roll popup — bottom-center, anime.js bounce, auto-hide 4s    |
+| `overlay-dice.css`  | Dice card styles: crit/fail states, result number                 |
 
 ### Documentation (`/docs/`)
 
-| File | Purpose |
-|---|---|
-| `ARCHITECTURE.md` | This file — codebase navigation |
+| File               | Purpose                                          |
+| ------------------ | ------------------------------------------------ |
+| `ARCHITECTURE.md`  | This file — codebase navigation                  |
+| `ENVIRONMENT.md`   | .env setup, IP configuration, overlay URLs       |
 | `SOCKET-EVENTS.md` | Complete Socket.io event reference with payloads |
-| `DESIGN-SYSTEM.md` | CSS tokens, typography, component style guide |
+| `DESIGN-SYSTEM.md` | CSS tokens, typography, component style guide    |
 
 ### Project Management (root)
 
-| File | Purpose |
-|---|---|
-| `README.md` | Setup guide, API reference, demo script |
-| `CLAUDE.md` | LLM project context (architecture, conventions, running instructions) |
-| `TODO.md` | Day-by-day task checklist |
-| `PROGRESS.md` | Development log with technical details |
-| `TRACKER.md` | One-page status for teammates |
-| `CONTEXTO_COMPLETO_PITCH.md` | Full pitch strategy context (Spanish) |
-| `DAY2_COMPLETION_REPORT.md` | Day 2 completion summary |
-| `control-panel/CONTROL-STATE-PLAN.md` | Transaction manager design plan (not yet implemented) |
+| File                                  | Purpose                                                               |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| `README.md`                           | Setup guide, API reference, demo script                               |
+| `CLAUDE.md`                           | LLM project context (architecture, conventions, running instructions) |
+| `TODO.md`                             | Day-by-day task checklist                                             |
+| `PROGRESS.md`                         | Development log with technical details                                |
+| `TRACKER.md`                          | One-page status for teammates                                         |
+| `CONTEXTO_COMPLETO_PITCH.md`          | Full pitch strategy context (Spanish)                                 |
+| `DAY2_COMPLETION_REPORT.md`           | Day 2 completion summary                                              |
+| `control-panel/CONTROL-STATE-PLAN.md` | Transaction manager design plan (not yet implemented)                 |
 
 ---
 
@@ -139,36 +169,40 @@ responds to the caller, and broadcasts a Socket.io event to **all** clients
 
 ## Key Design Decisions
 
-| Decision | Rationale |
-|---|---|
-| In-memory data (no DB) | MVP speed — characters reset on restart, fine for demo |
-| Vanilla JS for overlays | Lighter than frameworks, better OBS Browser Source performance |
-| Socket.io over raw WS | Auto-reconnect, room support, CDN available for overlay scripts |
+| Decision                                         | Rationale                                                               |
+| ------------------------------------------------ | ----------------------------------------------------------------------- |
+| In-memory data (no DB)                           | MVP speed — characters reset on restart, fine for demo                  |
+| Vanilla JS for overlays                          | Lighter than frameworks, better OBS Browser Source performance          |
+| Socket.io over raw WS                            | Auto-reconnect, room support, CDN available for overlay scripts         |
 | Svelte 5 runes (`$state`, `$derived`, `$effect`) | Latest Svelte reactivity model, simpler than stores for component state |
-| Separate CSS files per component | Avoids Svelte scoped style limitations with dynamic classes |
-| anime.js for animations | Small library, elastic/spring easing, already used in overlay-dice.html |
-| Hardcoded server IP | Demo-only — documented in README, must update per machine |
+| SvelteKit file-based routing                     | Clean URL structure, layout nesting, standard Svelte framework choice   |
+| Separate CSS files per component                 | Avoids Svelte scoped style limitations with dynamic classes             |
+| anime.js for animations                          | Small library, elastic/spring easing, already used in overlay-dice.html |
+| `.env` + `?server=` param for server URL         | No hardcoded IPs — `npm run setup-ip` auto-detects local address        |
 
 ---
 
-## Hardcoded IP Locations
+## Server URL Configuration
 
-The server IP `192.168.1.83` appears in these files — update all when switching machines:
+The project now uses `.env` files instead of hardcoding IP addresses:
 
-1. `server.js` — `const serverPort` and `const controlPanelPort`
-2. `control-panel/src/lib/socket.js` — `const serverPort` and `const controlPanelPort`
-3. `public/overlay-hp.html` — `const socket = io("http://...")`
-4. `public/overlay-dice.html` — `const socket = io("http://...")`
+1. Root `.env` (generated by `npm run setup-ip`) sets `PORT` and `CONTROL_PANEL_ORIGIN`.
+2. `control-panel/.env` sets `VITE_SERVER_URL` and `VITE_PORT` for the frontend.
+3. Overlays accept a `server` query parameter, for example:
+   `overlay-hp.html?server=http://192.168.1.83:3000`
+
+If the overlays are loaded without a query parameter, they fall back to
+`http://localhost:3000`.
 
 ---
 
-## Branch Context
+## Feature Summary
 
-The `feat/design-esdh` branch extends the MVP (main) with:
+The current codebase includes:
 
-- ESDH brand aesthetic (dark theme, Bebas Neue + JetBrains Mono + Dancing Script)
-- Condition management (add/remove status effects via API + Socket.io)
-- Resource pool system (pip-based UI, short/long rest restoration)
-- Dashboard store (activity history, pending actions, role state)
-- Separated CSS files per component
-- Comprehensive JSDoc documentation throughout
+- Full CRUD character management (create, update HP, update photo, update fields)
+- Condition system (add/remove D&D 5e status effects with intensity levels)
+- Resource pool system (Rage, Ki, Spell Slots, etc. with short/long rest recharge)
+- SvelteKit control panel with three top-level routes: `/control`, `/management`, `/dashboard`
+- Live dashboard view suitable for a TV or second monitor
+- Character photo support (URL or base64 data URI, with random fallback from `assets/img/`)
