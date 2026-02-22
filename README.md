@@ -17,16 +17,21 @@ Roll dice on your phone. A animated popup appears on OBS in under a second. Hit 
 
 **Everything that works right now:**
 
-| Feature                        | Status     |
-| ------------------------------ | ---------- |
-| HP bars update in real-time    | ✅ Working |
-| Dice roll popup (d4–d20)       | ✅ Working |
-| Nat 20 → **¡CRÍTICO!** glow    | ✅ Working |
-| Nat 1 → **¡PIFIA!** red glow   | ✅ Working |
-| Color-coded health states      | ✅ Working |
-| Phone control panel            | ✅ Working |
-| Multiple clients synced        | ✅ Working |
-| OBS-ready transparent overlays | ✅ Working |
+| Feature                            | Status     |
+| ---------------------------------- | ---------- |
+| HP bars update in real-time        | ✅ Working |
+| Dice roll popup (d4–d20)           | ✅ Working |
+| Nat 20 → **¡CRÍTICO!** glow        | ✅ Working |
+| Nat 1 → **¡PIFIA!** red glow       | ✅ Working |
+| Color-coded health states          | ✅ Working |
+| Phone control panel                | ✅ Working |
+| Multiple clients synced            | ✅ Working |
+| OBS-ready transparent overlays     | ✅ Working |
+| Character creation & management    | ✅ Working |
+| Status condition tracking          | ✅ Working |
+| Resource pools (Rage, Ki, etc.)    | ✅ Working |
+| Short / long rest restoration      | ✅ Working |
+| Live dashboard view                | ✅ Working |
 
 ---
 
@@ -168,9 +173,11 @@ OVERLAYS/
 │
 ├── data/                          # In-memory data modules
 │   ├── characters.js              # Character state + CRUD + template loader
+│   ├── rolls.js                   # Roll history logger
+│   ├── photos.js                  # Photo assignment utility
+│   ├── id.js                      # Short ID generator
 │   ├── template-characters.json   # Default swappable character template
-│   ├── test_characters.js         # Legacy template
-│   └── rolls.js                   # Roll history logger
+│   └── test_characters.js         # Legacy template (unused)
 │
 ├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
 │   ├── overlay-hp.html            # HP bars — always visible
@@ -178,25 +185,53 @@ OVERLAYS/
 │   ├── overlay-dice.html          # Dice popup — appears on roll, auto-hides
 │   └── overlay-dice.css           # Dice overlay styles
 │
-├── control-panel/                 # Svelte + Vite control panel
+├── control-panel/                 # SvelteKit + Vite control panel
 │   ├── src/
-│   │   ├── App.svelte             # Root: header, tab nav, content routing
+│   │   ├── routes/                # SvelteKit file-based routes
+│   │   │   ├── +layout.svelte         # App shell: header, sidebar, nav
+│   │   │   ├── +page.svelte           # Redirects / → /control/characters
+│   │   │   ├── control/               # Control tabs
+│   │   │   │   ├── +layout.svelte     # Characters / Dice bottom nav
+│   │   │   │   ├── characters/        # /control/characters
+│   │   │   │   └── dice/              # /control/dice
+│   │   │   ├── management/            # Management tabs
+│   │   │   │   ├── +layout.svelte     # Create / Manage bottom nav
+│   │   │   │   ├── create/            # /management/create
+│   │   │   │   └── manage/            # /management/manage
+│   │   │   └── dashboard/             # /dashboard — live read-only view
+│   │   ├── lib/
+│   │   │   ├── socket.js              # Socket.io singleton + Svelte stores
+│   │   │   ├── dashboardStore.js      # Activity history, pending actions
+│   │   │   ├── router.js              # Hash-based router helpers
+│   │   │   ├── CharacterCard.svelte   # HP, conditions, resources, rest
+│   │   │   ├── CharacterCard.css
+│   │   │   ├── CharacterCreationForm.svelte  # New character form
+│   │   │   ├── CharacterCreationForm.css
+│   │   │   ├── CharacterManagement.svelte    # Photo/data edit + bulk controls
+│   │   │   ├── CharacterManagement.css
+│   │   │   ├── CharacterBulkControls.css
+│   │   │   ├── PhotoSourcePicker.svelte      # URL / file photo picker
+│   │   │   ├── PhotoSourcePicker.css
+│   │   │   ├── DashboardCard.svelte          # Per-character dashboard tile
+│   │   │   ├── DashboardCard.css
+│   │   │   ├── Dashboard.css
+│   │   │   ├── DiceRoller.svelte      # d4/d6/d8/d10/d12/d20 buttons
+│   │   │   └── DiceRoller.css
 │   │   ├── app.css                # Design tokens + shared bases
-│   │   └── lib/
-│   │       ├── socket.js              # Socket.io singleton + Svelte stores
-│   │       ├── dashboardStore.js      # Activity history, pending actions
-│   │       ├── CharacterCard.svelte   # HP, conditions, resources, rest
-│   │       ├── CharacterCard.css
-│   │       ├── DiceRoller.svelte      # d4/d6/d8/d10/d12/d20 buttons
-│   │       └── DiceRoller.css
+│   │   └── app.html               # SvelteKit HTML template
 │   ├── vite.config.js
 │   └── package.json
 │
+├── scripts/                       # Local tooling
+│   └── setup-ip.js                # Auto-detect IP and write .env files
+│
 └── docs/                          # Technical reference docs
+    ├── INDEX.md                   # Quick navigation guide
     ├── ARCHITECTURE.md            # Codebase navigation + data-flow diagrams
-  ├── ENVIRONMENT.md             # .env setup, IP configuration, overlay URLs
+    ├── ENVIRONMENT.md             # .env setup, IP configuration, overlay URLs
     ├── SOCKET-EVENTS.md           # Complete Socket.io event reference
-    └── DESIGN-SYSTEM.md           # CSS tokens, typography, component guide
+    ├── DESIGN-SYSTEM.md           # CSS tokens, typography, component guide
+    └── testing.md                 # Playwright E2E + k6 stress test guide
 ```
 
 ---
@@ -229,6 +264,52 @@ Returns the full character list (including HP, conditions, and resources).
   }
 ]
 ```
+
+### `POST /api/characters`
+
+Creates a new character and broadcasts `character_created` to all clients.
+
+```http
+POST /api/characters
+Content-Type: application/json
+
+{
+  "name": "Theron",
+  "player": "Alex",
+  "hp_max": 14,
+  "hp_current": 14,
+  "armor_class": 15,
+  "speed_walk": 30
+}
+```
+
+**Response (201):** the created character object.
+
+### `PUT /api/characters/:id`
+
+Updates editable character fields (name, player, hp_max, hp_current, armor_class, speed_walk, class_primary, background, species, languages, alignment, proficiencies, equipment) and broadcasts `character_updated`.
+
+```http
+PUT /api/characters/CH101
+Content-Type: application/json
+
+{ "name": "Kael the Bold", "armor_class": 16 }
+```
+
+**Response:** the updated character object.
+
+### `PUT /api/characters/:id/photo`
+
+Updates a character's photo (URL string or base64 data URI) and broadcasts `character_updated`.
+
+```http
+PUT /api/characters/CH101/photo
+Content-Type: application/json
+
+{ "photo": "https://example.com/kael.png" }
+```
+
+**Response:** the updated character object.
 
 ### `PUT /api/characters/:id/hp`
 
@@ -403,16 +484,13 @@ curl -X PUT http://localhost:3000/api/characters/CH101/hp \
 - [x] REST API (characters, HP, conditions, resources, rest, rolls)
 - [x] HP overlay with health state animations
 - [x] Dice roll overlay with crit/fail detection
-- [x] Svelte control panel (phone-ready)
+- [x] Svelte control panel (phone-ready, SvelteKit routing)
 - [x] Real-time sync across all clients
 - [x] Condition management (add/remove status effects)
 - [x] Resource pool system (short/long rest restoration)
-
-### Day 3 (Polish)
-
-- [ ] Tailwind CSS styling on control panel
-- [ ] Record 2–3 min demo video
-- [ ] Screenshots for pitch email
+- [x] Character creation & management UI
+- [x] Photo upload/URL support per character
+- [x] Live dashboard view
 
 ### Post-Pitch (If Greenlit)
 

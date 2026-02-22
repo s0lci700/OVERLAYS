@@ -6,7 +6,7 @@
 
 ## 1. Context & goals
 
-- **Runtime stack:** Express 4.x server + Socket.io 4.x, Svelte Vite control panel, OBS overlays that consume WebSockets over the same hardcoded `http://192.168.1.83:3000` host.
+- **Runtime stack:** Express 5.x server + Socket.io 4.x, Svelte 5 / SvelteKit control panel, OBS overlays that consume WebSockets.
 - **Requirement:** Keep the whole pipeline JSON-first (no SQL for now), reliable for a 5‑hour live session, and orchestrate REST + WebSocket flows for HP, conditions, resources, rests, and dice rolls.
 - **Scope:** Hold the in-memory data modules (`data/characters`, `data/rolls`) as the single source of truth, broadcast every mutation via `io.emit`, and keep every client (control panel + overlays) in sync with sub-100 ms latency.
 
@@ -15,6 +15,9 @@
 | Method | Path                                     | Request DTO                                                                    | Response DTO   | Side effects                                      |
 | ------ | ---------------------------------------- | ------------------------------------------------------------------------------ | -------------- | ------------------------------------------------- | -------------------------------------------------------- |
 | GET    | `/api/characters`                        | _none_                                                                         | `Character[]`  | emits `initialData` when each socket connects     |
+| POST   | `/api/characters`                        | `CharacterCreate { name, player, hp_max, hp_current?, armor_class?, speed_walk?, photo? }` | `Character` (201) | emits `character_created { character }`      |
+| PUT    | `/api/characters/:id`                    | Partial `Character` fields (name, player, hp_max, hp_current, armor_class, speed_walk, class_primary, background, species, languages, alignment, proficiencies, equipment) | `Character` | emits `character_updated { character }` |
+| PUT    | `/api/characters/:id/photo`              | `{ photo: string }`                                                            | `Character`    | emits `character_updated { character }`           |
 | PUT    | `/api/characters/:id/hp`                 | `CharacterHPUpdate { hp_current: number }`                                     | `Character`    | emits `hp_updated { character, hp_current }`      |
 | POST   | `/api/characters/:id/conditions`         | `ConditionPayload { condition_name: string, intensity_level?: number }`        | `Condition`    | emits `condition_added { charId, condition }`     |
 | DELETE | `/api/characters/:id/conditions/:condId` | _none_                                                                         | `{ ok: true }` | emits `condition_removed { charId, conditionId }` |
@@ -33,6 +36,8 @@
 
 - `initialData { characters, rolls }` — emitted once per connection to hydrate everything.
 - `hp_updated { character, hp_current }`
+- `character_created { character }`
+- `character_updated { character }`
 - `condition_added { charId, condition }`
 - `condition_removed { charId, conditionId }`
 - `resource_updated { charId, resource }`

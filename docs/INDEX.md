@@ -36,11 +36,13 @@ entry points, and how the system hangs together.
 
 ## Control panel UI
 
-- Shell + layout: control-panel/src/App.svelte or control-panel/src/routes/+layout.svelte
+- Shell + layout: control-panel/src/routes/+layout.svelte
 - Character card: control-panel/src/lib/CharacterCard.svelte
 - Dice roller: control-panel/src/lib/DiceRoller.svelte
 - Character creation: control-panel/src/lib/CharacterCreationForm.svelte
-- Photo management: control-panel/src/lib/CharacterManagement.svelte
+- Character management: control-panel/src/lib/CharacterManagement.svelte
+- Photo picker: control-panel/src/lib/PhotoSourcePicker.svelte
+- Dashboard card: control-panel/src/lib/DashboardCard.svelte
 
 ## Overlay UI
 

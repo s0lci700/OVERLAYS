@@ -1,7 +1,6 @@
 # Socket.io Event Reference
 
 > Complete reference for all Socket.io events in DADOS & RISAS.
-> Branch: `feat/design-esdh`
 
 ---
 
@@ -73,7 +72,7 @@ Fired when any client connects. Server sends `initialData` in response.
 ### `character_updated`
 
 **Direction:** Server → all clients
-**When:** `PUT /api/characters/:id/photo` succeeds
+**When:** `PUT /api/characters/:id/photo` or `PUT /api/characters/:id` succeeds
 **Payload:**
 
 ```js

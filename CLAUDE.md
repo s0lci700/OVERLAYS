@@ -28,24 +28,36 @@ OBS Overlays (vanilla HTML/CSS/JS)
 
 ## Tech Stack
 
-- **Backend:** Node.js 18+, Express 4.x, Socket.io 4.x, SQLite3, cors
-- **Frontend:** Svelte 4.x, Vite, socket.io-client
+- **Backend:** Node.js 18+, Express 5.x, Socket.io 4.x, cors
+- **Frontend:** Svelte 5.x, SvelteKit, Vite 7.x, socket.io-client
 - **Overlays:** Vanilla JS/HTML/CSS, socket.io CDN, OBS Browser Source
 
 ## Socket.io Events
 
-| Event         | Direction     | Payload                                           |
-| ------------- | ------------- | ------------------------------------------------- |
-| `connection`  | server→client | —                                                 |
-| `initialData` | server→client | `{ characters, rolls }`                           |
-| `hp_updated`  | server→all    | `{ character, hp_current }`                       |
-| `dice_rolled` | server→all    | `{ charId, result, modifier, rollResult, sides }` |
+| Event               | Direction     | Payload                                           |
+| ------------------- | ------------- | ------------------------------------------------- |
+| `initialData`       | server→client | `{ characters, rolls }`                           |
+| `hp_updated`        | server→all    | `{ character, hp_current }`                       |
+| `character_created` | server→all    | `{ character }`                                   |
+| `character_updated` | server→all    | `{ character }`                                   |
+| `condition_added`   | server→all    | `{ charId, condition }`                           |
+| `condition_removed` | server→all    | `{ charId, conditionId }`                         |
+| `resource_updated`  | server→all    | `{ charId, resource }`                            |
+| `rest_taken`        | server→all    | `{ charId, type, restored[], character }`         |
+| `dice_rolled`       | server→all    | `{ charId, result, modifier, rollResult, sides }` |
 
 ## API Endpoints
 
 - `GET  /api/characters` — return all characters
-- `PUT  /api/characters/:id/hp` — update hp_current, emit Socket.io
-- `POST /api/rolls` — log roll, emit Socket.io
+- `POST /api/characters` — create a new character, emit `character_created`
+- `PUT  /api/characters/:id` — update character fields, emit `character_updated`
+- `PUT  /api/characters/:id/hp` — update hp_current, emit `hp_updated`
+- `PUT  /api/characters/:id/photo` — update character photo, emit `character_updated`
+- `POST /api/characters/:id/conditions` — add condition, emit `condition_added`
+- `DELETE /api/characters/:id/conditions/:condId` — remove condition, emit `condition_removed`
+- `PUT  /api/characters/:id/resources/:rid` — update resource pool, emit `resource_updated`
+- `POST /api/characters/:id/rest` — apply short/long rest, emit `rest_taken`
+- `POST /api/rolls` — log roll, emit `dice_rolled`
 
 ## In-Memory Demo Characters
 
@@ -83,22 +95,40 @@ let characters = [
 ```
 OVERLAYS/
 ├── CLAUDE.md
-├── ROADMAPS/
-│   ├── COMPLETE_DEVELOPMENT_ROADMAP.docx
-│   └── CRASH_COURSE_3_DAY_DEMO.docx
 ├── server.js
 ├── package.json
+├── .env.example
+├── data/
+│   ├── characters.js
+│   ├── rolls.js
+│   ├── photos.js
+│   ├── id.js
+│   └── template-characters.json
 ├── public/
 │   ├── overlay-hp.html
-│   └── overlay-dice.html
+│   ├── overlay-hp.css
+│   ├── overlay-dice.html
+│   └── overlay-dice.css
+├── scripts/
+│   └── setup-ip.js
 └── control-panel/
     └── src/
-        ├── App.svelte
-        ├── main.js
-        └── lib/
-            ├── socket.js           ← hardcoded server IP here
-            ├── CharacterCard.svelte
-            └── DiceRoller.svelte
+        ├── routes/
+        │   ├── +layout.svelte      ← app shell, sidebar, header
+        │   ├── +page.svelte        ← redirects to /control/characters
+        │   ├── control/            ← /control/characters + /control/dice
+        │   ├── management/         ← /management/create + /management/manage
+        │   └── dashboard/          ← /dashboard
+        ├── lib/
+        │   ├── socket.js           ← Socket.io singleton + stores
+        │   ├── dashboardStore.js
+        │   ├── CharacterCard.svelte
+        │   ├── CharacterCreationForm.svelte
+        │   ├── CharacterManagement.svelte
+        │   ├── PhotoSourcePicker.svelte
+        │   ├── DashboardCard.svelte
+        │   └── DiceRoller.svelte
+        └── app.css
 ```
 
 ## Common Debug Steps
@@ -116,17 +146,10 @@ OVERLAYS/
 - For phone testing: use `--host` flag with Vite, connect to server IP not localhost
 - PRAGMA foreign_keys=ON if using SQLite
 
-## Actual Implementation (as-built — differs from spec above)
-
-- Server event on connection: `initialData` (not `initial_state`)
-- Characters in code: `Kael` (CH101, Mara) / `Lyra` (CH102, Nico) / `Brum` (CH103, Iris)
-- Socket.io CDN version in use: `4.8.3` (in `overlay-hp.html`, `overlay-dice.html`)
-- Server IP hardcoded in `control-panel/src/lib/socket.js`: update to match your `ipconfig` IPv4
-
 ## Running the Project
 
 - Install deps (first time): `npm install` in root, then `npm install` in `control-panel/`
 - Server: `node server.js` (port 3000)
 - Control panel: `npm run dev -- --host` from `control-panel/` (port 5173)
-- Get local IP on Windows: `ipconfig` → IPv4 Address → update `control-panel/src/lib/socket.js`
-- Both overlays working: `public/overlay-hp.html`, `public/overlay-dice.html`
+- Auto-configure IPs: `npm run setup-ip` (writes root `.env` and `control-panel/.env`)
+- Both overlays: `public/overlay-hp.html`, `public/overlay-dice.html`

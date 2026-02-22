@@ -1,7 +1,6 @@
 # Design System
 
 > Visual language reference for DADOS & RISAS control panel and overlays.
-> Branch: `feat/design-esdh` (ESDH brand aesthetic)
 
 ---
 
