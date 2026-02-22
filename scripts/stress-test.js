@@ -43,18 +43,22 @@ try {
   process.exit(1);
 }
 
+const ROUNDS_RAW = getArg("--rounds", "20");
+const CONCURRENCY_RAW = getArg("--concurrency", "5");
+
 function parsePositiveInt(flagName, rawValue) {
   const value = parseInt(rawValue, 10);
   if (!Number.isFinite(value) || value < 1) {
-    console.error(`Invalid value for ${flagName}: "${rawValue}". Expected a positive integer >= 1.`);
+    console.error(
+      `Invalid value for ${flagName}: "${rawValue}". Expected a positive integer >= 1.`
+    );
     process.exit(1);
   }
   return value;
 }
 
-const ROUNDS = parsePositiveInt("--rounds", getArg("--rounds", "20"));
-const CONCURRENCY = parsePositiveInt("--concurrency", getArg("--concurrency", "5"));
-
+const ROUNDS = parsePositiveInt("--rounds", ROUNDS_RAW);
+const CONCURRENCY = parsePositiveInt("--concurrency", CONCURRENCY_RAW);
 // ── D&D 5e reference data ───────────────────────────────────────────────────
 
 /** Standard D&D 5e conditions (SRD p. 290-295) */
