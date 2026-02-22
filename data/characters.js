@@ -46,7 +46,7 @@ const { randomUUID } = require("crypto");
 /**
  * Simple in-memory character fixtures plus helper functions used by the API.
  * Five Level-5 D&D 5e characters covering the main archetypes:
- *   char1 – Barbarian, char2 – Monk/Rogue, char3 – Fighter,
+ *   char1 – Barbarian, char2 – Monk, char3 – Fighter,
  *   char4 – Wizard,    char5 – Cleric
  */
 const characters = [
