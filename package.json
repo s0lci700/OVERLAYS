@@ -1,7 +1,7 @@
 {
   "name": "overlays",
   "version": "1.0.0",
-  "description": "",
+  "description": "DnD management system and overlays for streaming",
   "main": "server.js",
   "scripts": {
     "setup-ip": "node scripts/setup-ip.js",
