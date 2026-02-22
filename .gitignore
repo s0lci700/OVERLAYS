@@ -2,6 +2,27 @@ node_modules/
 .env
 *.log
 .claude/
+.clone/
+.copilot/
+.mcp.json
 sugestion.html
+dice_suggestion.html
 tests-log/
+test-results/
 stress-results/
+control-panel/.env
+control-panel/node_modules
+control-panel/dist
+control-panel/build
+control-panel/.svelte-kit/
+
+
+# Build output
+control-panel/build/
+
+# Test screenshots
+test-*.png
+
+# OS files
+.DS_Store
+Thumbs.db
