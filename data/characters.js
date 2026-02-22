@@ -1,4 +1,4 @@
-const { randomUUID } = require("crypto");
+const { createShortId } = require("./id");
 
 /**
  * @typedef {Object} AbilityScores
@@ -284,7 +284,7 @@ function addCondition(id, { condition_name, intensity_level = 1 }) {
   const character = findById(id);
   if (!character) return null;
   const condition = {
-    id: randomUUID(),
+    id: createShortId(),
     condition_name,
     intensity_level,
     applied_at: new Date().toISOString(),

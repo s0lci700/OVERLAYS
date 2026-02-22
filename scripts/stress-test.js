@@ -379,8 +379,8 @@ async function phase_invalidRequests(stats) {
     { p: () => request("POST", "/api/rolls", { charId: "char1", result: 1, sides: 0 }), want: 400 },
     // Rest with bad type
     { p: () => request("POST", "/api/characters/char1/rest", { type: "nap" }), want: 400 },
-    // Delete condition with invalid UUID
-    { p: () => request("DELETE", "/api/characters/char1/conditions/not-a-uuid"), want: 400 },
+    // Delete condition with invalid ID (not a valid 5-char short ID)
+    { p: () => request("DELETE", "/api/characters/char1/conditions/not-valid-id"), want: 400 },
   ];
   let pass = 0;
   for (const { p, want } of cases) {
