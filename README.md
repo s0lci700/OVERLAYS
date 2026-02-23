@@ -9,6 +9,8 @@ Controlá personajes, puntos de vida y tiradas de dado desde el celular. Los ove
 ![Latency](https://img.shields.io/badge/latencia-%3C100ms-success)
 ![Built in](https://img.shields.io/badge/construido%20en-2%20días-orange)
 
+[![Latest Release](https://img.shields.io/github/v/release/s0lci700/OVERLAYS?label=descargar&logo=github)](https://github.com/s0lci700/OVERLAYS/releases/latest)
+
 ---
 
 ## Demo en vivo
