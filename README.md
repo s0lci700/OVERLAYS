@@ -1,37 +1,46 @@
-# DADOS & RISAS — Real-Time D&D Overlay System
+# DADOS & RISAS 🎲
 
-> A custom-built, production-ready overlay system for live D&D streaming. Control character HP and dice rolls from your phone. Watch it update in OBS instantly.
+**Sistema de producción en tiempo real para campañas de D&D en streaming.**
 
-![Status](https://img.shields.io/badge/status-MVP%20COMPLETE-brightgreen)
+Controlá personajes, puntos de vida y tiradas de dado desde el celular. Los overlays en OBS se actualizan al instante — sin recargar, sin delay, sin plugins.
+
+![Status](https://img.shields.io/badge/estado-MVP%20COMPLETO-brightgreen)
 ![Stack](https://img.shields.io/badge/stack-Node.js%20%2B%20Svelte%20%2B%20Socket.io-blue)
-![Latency](https://img.shields.io/badge/latency-%3C100ms-success)
-![Built in](https://img.shields.io/badge/built%20in-2%20days-orange)
-
-Quick navigation: see [docs/INDEX.md](docs/INDEX.md).
+![Latency](https://img.shields.io/badge/latencia-%3C100ms-success)
+![Built in](https://img.shields.io/badge/construido%20en-2%20días-orange)
 
 ---
 
-## What It Does
+## Demo en vivo
 
-Roll dice on your phone. A animated popup appears on OBS in under a second. Hit someone for damage. The HP bar updates, turns orange, starts pulsing red. No refresh. No lag. No plugins.
+> Abrí **`http://IP-DEL-SERVIDOR:3000`** desde cualquier dispositivo en la misma red — te muestra todos los links de overlays y el panel de control con las URLs ya configuradas.
 
-**Everything that works right now:**
+**Flujo del demo:**
 
-| Feature                            | Status     |
-| ---------------------------------- | ---------- |
-| HP bars update in real-time        | ✅ Working |
-| Dice roll popup (d4–d20)           | ✅ Working |
-| Nat 20 → **¡CRÍTICO!** glow        | ✅ Working |
-| Nat 1 → **¡PIFIA!** red glow       | ✅ Working |
-| Color-coded health states          | ✅ Working |
-| Phone control panel                | ✅ Working |
-| Multiple clients synced            | ✅ Working |
-| OBS-ready transparent overlays     | ✅ Working |
-| Character creation & management    | ✅ Working |
-| Status condition tracking          | ✅ Working |
-| Resource pools (Rage, Ki, etc.)    | ✅ Working |
-| Short / long rest restoration      | ✅ Working |
-| Live dashboard view                | ✅ Working |
+1. Abrir el panel en el celular → modificar el PV de Kael → la barra en OBS se anima sola
+2. Tirar un d20 → resultado animado aparece en pantalla → nat 20 activa flash **¡CRÍTICO!**
+3. Aplicar condición "Envenenado" → badge rojo aparece en el overlay y en el tracker
+4. *"Esto es solo el MVP — puedo agregar lo que necesiten"*
+
+---
+
+## ¿Qué hace?
+
+| Función | Estado |
+| ------- | ------ |
+| Barras de PV en tiempo real (colores por estado) | ✅ Funcionando |
+| Avatar del personaje + clase + nivel + CA en overlay | ✅ Funcionando |
+| Popup de tirada de dado (d4–d20) con animación | ✅ Funcionando |
+| Nat 20 → **¡CRÍTICO!** — flash cyan, número gigante | ✅ Funcionando |
+| Nat 1 → **¡PIFIA!** — flash rojo + shake | ✅ Funcionando |
+| Condiciones activas en tiempo real (Envenenado, Aturdido…) | ✅ Funcionando |
+| Tracker de recursos (Inspiración, Canalizar Divinidad…) | ✅ Funcionando |
+| Panel de control mobile-first desde el celular | ✅ Funcionando |
+| Múltiples clientes sincronizados (varios teléfonos a la vez) | ✅ Funcionando |
+| Overlays servidos por red — sin archivos locales en OBS | ✅ Funcionando |
+| Creación y gestión de personajes | ✅ Funcionando |
+| Descanso corto/largo con restauración de recursos | ✅ Funcionando |
+| Dashboard en vivo (lectura) | ✅ Funcionando |
 
 ---
 
@@ -150,16 +159,25 @@ cd control-panel
 npm run dev:auto
 ```
 
-### 5. Add overlays in OBS
+### 5. Agregar overlays en OBS
 
-1. Add Source → **Browser**
-2. Check **"Local file"**
-3. Browse to `public/overlay-hp.html`
-4. Width: **1920**, Height: **1080**
-5. Enable **"Refresh browser when scene becomes active"**
-6. Disable **"Shutdown source when not visible"**
+El servidor sirve los overlays por red — no necesitás navegar archivos locales en OBS.
 
-Repeat for `public/overlay-dice.html`.
+1. En OBS: **Fuentes → + → Navegador**
+2. En "URL" pegá la dirección que se muestra en `http://localhost:3000`
+3. Dimensiones: **1920 × 1080**
+4. Activar **"Actualizar navegador cuando la escena se active"**
+5. Desactivar **"Apagar fuente cuando no esté visible"**
+
+| Overlay | URL (reemplazar `IP` con la dirección del servidor) |
+|---------|-----------------------------------------------------|
+| HP Bars | `http://IP:3000/overlay-hp.html?server=http://IP:3000` |
+| Dados | `http://IP:3000/overlay-dice.html?server=http://IP:3000` |
+| Condiciones | `http://IP:3000/overlay-conditions.html?server=http://IP:3000` |
+
+> Las URLs exactas con tu IP real se muestran en `http://localhost:3000` (copiar y pegar directo).
+
+Repetir para cada overlay como capa separada en la misma escena.
 
 ---
 
@@ -179,11 +197,14 @@ OVERLAYS/
 │   ├── template-characters.json   # Default swappable character template
 │   └── test_characters.js         # Legacy template (unused)
 │
-├── public/                        # OBS overlay files (vanilla HTML/CSS/JS)
-│   ├── overlay-hp.html            # HP bars — always visible
-│   ├── overlay-hp.css             # HP overlay styles
-│   ├── overlay-dice.html          # Dice popup — appears on roll, auto-hides
-│   └── overlay-dice.css           # Dice overlay styles
+├── public/                        # OBS overlay files + landing page (servidos por red desde :3000)
+│   ├── index.html                 # Panel de inicio — muestra URLs con IP real
+│   ├── overlay-hp.html            # Barras de PV con avatares y condiciones
+│   ├── overlay-hp.css
+│   ├── overlay-dice.html          # Popup de tirada con flash crit/pifia
+│   ├── overlay-dice.css
+│   ├── overlay-conditions.html    # Panel de condiciones activas y recursos agotados
+│   └── tokens.css                 # Design tokens compartidos
 │
 ├── control-panel/                 # SvelteKit + Vite control panel
 │   ├── src/
@@ -402,29 +423,31 @@ See [`docs/SOCKET-EVENTS.md`](docs/SOCKET-EVENTS.md) for full payload shapes and
 
 ---
 
-## Overlay Details
+## Overlays
 
-### HP Overlay (`overlay-hp.html`)
+### HP (`overlay-hp.html`) — top-right, siempre visible
 
-Positioned top-right, 1920×1080, transparent background.
+Muestra una tarjeta por personaje con: avatar (foto o iniciales), clase + nivel, Clase de Armadura, barra de PV animada, PV temporal y badges de condiciones activas.
 
-| HP %   | Color  | Effect                     |
-| ------ | ------ | -------------------------- |
-| > 60%  | Green  | Healthy                    |
-| 30–60% | Orange | Injured                    |
-| < 30%  | Red    | Critical — pulse animation |
+| PV %   | Color    | Efecto                       |
+| ------ | -------- | ---------------------------- |
+| > 60%  | Verde    | Saludable                    |
+| 30–60% | Naranja  | Herido                       |
+| < 30%  | Rojo     | Crítico — animación pulsante |
 
-HP bars animate smoothly on every update (0.5s CSS transition). A status message fades in and out when HP changes.
+### Dados (`overlay-dice.html`) — centro inferior, popup
 
-### Dice Overlay (`overlay-dice.html`)
+Aparece con animación al tirar, se oculta solo después de 4s (6s en crítico).
 
-Centered at bottom, hidden by default. Appears with a pop-in animation when a roll comes in, auto-hides after 4 seconds.
+| Tirada     | Efecto                                      |
+| ---------- | ------------------------------------------- |
+| Natural 20 | Flash cyan, **¡CRÍTICO!**, número 100px     |
+| Natural 1  | Flash rojo, shake, **¡PIFIA!**              |
+| Resto      | Muestra resultado con desglose + fade-out   |
 
-| Roll            | Effect                     |
-| --------------- | -------------------------- |
-| Natural 20      | **¡CRÍTICO!** — green glow |
-| Natural 1       | **¡PIFIA!** — red glow     |
-| Everything else | Shows total with fade-out  |
+### Condiciones (`overlay-conditions.html`) — esquina inferior izquierda
+
+Panel que aparece automáticamente cuando algún personaje tiene condiciones activas o recursos agotados. Se oculta solo cuando todo está limpio.
 
 ## Tech Stack
 

@@ -3,20 +3,22 @@
   DADOS & RISAS - Dice Roll Overlay
   ==================================
   OBS Browser Source overlay for displaying animated dice roll results.
-  
+
   Setup:
   - Add as Browser Source in OBS (1920×1080)
   - Enable "Shutdown source when not visible" = OFF
   - Enable "Refresh browser when scene becomes active" = ON
   - Canvas body background must be transparent in OBS settings
-  
+
   Behavior:
   - Listens for 'dice_rolled' events from Socket.io server
   - Displays result with elastic bounce animation (anime.js)
-  - Auto-hides after 4 seconds with fade-out
-  - Shows critical hits (nat 20) and fails (nat 1) with special styling
+  - Shows character portrait (photo or initials fallback)
+  - Auto-hides after 4s (6s for crits)
+  - Shows critical hits (nat 20) with cyan screen flash + larger number
+  - Shows fails (nat 1) with red screen flash + shake animation
   - Clears previous timers to handle rapid consecutive rolls
-  
+
   Dependencies:
   - anime.js 3.2.1 (animation engine)
   - Socket.io 4.8.3 (real-time client)
@@ -34,13 +36,21 @@
     <link rel="stylesheet" href="overlay-dice.css" />
   </head>
   <body>
-    <!-- 
+    <!-- Full-canvas flash for crit/fail — sits behind the dice card -->
+    <div id="flash-overlay"></div>
+
+    <!--
       Dice Roll Card Container
       Initially hidden (display: none), shown via anime.js when dice_rolled event fires.
-      Positioned bottom-center via CSS (margin-left offset for centering).
+      Positioned bottom-center via CSS.
     -->
     <div id="dice-container">
       <div class="dice-card">
+        <!-- Character portrait (photo or initials) -->
+        <div class="dice-avatar" id="dice-avatar">
+          <span class="dice-avatar-initials" id="dice-avatar-initials">?</span>
+        </div>
+
         <!-- Character name who rolled the dice -->
         <div class="dice-character" id="char-name">—</div>
 
@@ -48,12 +58,12 @@
         <div class="dice-formula" id="dice-formula">d20</div>
 
         <!-- Roll breakdown showing base roll + modifier (e.g., "18 + 2") -->
-        <div class="dice-breakdown" id="dice-breakdown">5 + 2</div>
+        <div class="dice-breakdown" id="dice-breakdown">—</div>
 
         <!-- Large animated number showing final roll result -->
         <div class="dice-result" id="dice-result">—</div>
 
-        <!-- Context label (character name or "¡CRÍTICO!"/"¡PIFIA!") -->
+        <!-- Context label (¡CRÍTICO! / ¡PIFIA! / Total: N) -->
         <div class="dice-label" id="dice-label">—</div>
       </div>
     </div>
@@ -69,9 +79,9 @@
 
       /**
        * Socket.io connection to the server.
-       * Configure the server URL via the `server` query parameter, e.g.:
+       * Configure via `server` query parameter:
        *   overlay-dice.html?server=http://192.168.1.83:3000
-       * Falls back to http://localhost:3000 when no parameter is provided.
+       * Falls back to http://localhost:3000.
        */
       const serverUrl = new URLSearchParams(window.location.search).get("server") || "http://localhost:3000";
       const socket = io(serverUrl);
@@ -80,47 +90,111 @@
       // DOM Element References
       // ───────────────────────────────────────────────────────────────────────
 
-      /** Main container element that shows/hides with animation */
-      const container = document.getElementById("dice-container");
-
-      /** Character name display element */
-      const charName = document.getElementById("char-name");
-
-      /** Dice formula display (e.g., "d20") */
-      const diceFormula = document.getElementById("dice-formula");
-
-      /** Large result number element */
-      const diceResult = document.getElementById("dice-result");
-
-      /** Label/context text element */
-      const diceLabel = document.getElementById("dice-label");
+      const container    = document.getElementById("dice-container");
+      const flashOverlay = document.getElementById("flash-overlay");
+      const charName     = document.getElementById("char-name");
+      const diceFormula  = document.getElementById("dice-formula");
+      const diceResult   = document.getElementById("dice-result");
+      const diceLabel    = document.getElementById("dice-label");
+      const diceAvatar   = document.getElementById("dice-avatar");
+      const avatarInitials = document.getElementById("dice-avatar-initials");
 
       // ───────────────────────────────────────────────────────────────────────
-      // State Management
+      // State
       // ───────────────────────────────────────────────────────────────────────
 
-      /**
-       * Timer reference for auto-hide functionality.
-       * Cleared on new rolls to prevent premature hiding.
-       */
+      /** Timer reference for auto-hide */
       let hideTimer = null;
 
+      /** Local character map — populated from initialData for photo lookups */
+      const characterMap = {};
+
       // ───────────────────────────────────────────────────────────────────────
-      // Core Functions
+      // Utility Functions
+      // ───────────────────────────────────────────────────────────────────────
+
+      function getInitials(name) {
+        return (name || "?")
+          .split(" ")
+          .map((w) => w[0] || "")
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+      }
+
+      /**
+       * Updates the avatar circle with character photo or initials fallback.
+       * Photo path from server is relative ("/assets/img/..."), prefixed with serverUrl.
+       */
+      function updateDiceAvatar(data) {
+        const char = characterMap[data.charId];
+        const photoUrl = char && char.photo ? serverUrl + char.photo : null;
+
+        // Clear previous img
+        const existingImg = diceAvatar.querySelector("img");
+        if (existingImg) existingImg.remove();
+
+        if (photoUrl) {
+          avatarInitials.style.display = "none";
+          const img = document.createElement("img");
+          img.src = photoUrl;
+          img.alt = data.characterName || "";
+          img.onerror = () => {
+            img.remove();
+            avatarInitials.style.display = "";
+            avatarInitials.textContent = getInitials(data.characterName);
+          };
+          diceAvatar.appendChild(img);
+        } else {
+          avatarInitials.style.display = "";
+          avatarInitials.textContent = getInitials(data.characterName);
+        }
+      }
+
+      /**
+       * Triggers a brief full-canvas color flash (for crits and fails).
+       * Uses anime.js to fade the flash overlay in and immediately back out.
+       */
+      function triggerFlash(color) {
+        flashOverlay.style.background = color;
+        anime({
+          targets: flashOverlay,
+          opacity: [0, 0.75, 0],
+          duration: 450,
+          easing: "easeInOutQuad",
+        });
+      }
+
+      /**
+       * Shakes the dice container horizontally (for fails).
+       * Classic "error" shake pattern.
+       */
+      function triggerShake() {
+        anime({
+          targets: container,
+          translateX: [0, -14, 14, -9, 9, -5, 5, 0],
+          duration: 520,
+          easing: "easeInOutSine",
+        });
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Core Display Function
       // ───────────────────────────────────────────────────────────────────────
 
       /**
-       * Displays an animated dice roll result on screen.
+       * Displays an animated dice roll result.
        *
        * Animation Timeline:
-       * 1. Cancels any pending auto-hide timer
-       * 2. Populates card with roll data
-       * 3. Applies crit/fail styling if applicable
-       * 4. Fades in container from bottom (500ms)
-       * 5. Elastic bounces the result number (600ms, 100ms delay)
-       * 6. Auto-hides after 4 seconds
+       * 1. Cancel any pending auto-hide timer
+       * 2. Update avatar, populate card content, apply crit/fail classes
+       * 3. Trigger screen flash (crit = cyan, fail = red)
+       * 4. Fade in card from bottom (500ms)
+       * 5. Elastic bounce the result number (600-800ms, 100ms delay)
+       * 6. Auto-hide after hideDelay (4s normal, 6s crit)
        *
        * @param {Object} data - Roll data from server
+       * @param {string} data.charId - Character ID (for photo lookup)
        * @param {string} data.characterName - Name of character who rolled
        * @param {number} data.result - Base die result (before modifier)
        * @param {number} data.modifier - Modifier applied to roll
@@ -128,50 +202,58 @@
        * @param {number} data.sides - Number of sides on the die
        */
       function showRoll(data) {
-        // Cancel any existing auto-hide timer to handle rapid consecutive rolls
         if (hideTimer) clearTimeout(hideTimer);
 
-        // ─── Populate Roll Breakdown ─────────────────────────────────────────
-        const breakdownEl = document.getElementById("dice-breakdown");
-        if (data.modifier > 0) {
-          breakdownEl.textContent = `${data.result} + ${data.modifier}`;
-        } else if (data.modifier < 0) {
-          breakdownEl.textContent = `${data.result} - ${Math.abs(data.modifier)}`;
-        } else {
-          breakdownEl.textContent = `${data.result}`;
-        }
+        // ─── Update Avatar ────────────────────────────────────────────────
+        updateDiceAvatar(data);
 
-        // ─── Populate Card Content ───────────────────────────────────────────
+        // ─── Populate Card Content ────────────────────────────────────────
         charName.textContent = data.characterName || "Unknown";
         diceFormula.textContent = `d${data.sides ?? "?"}`;
         diceResult.textContent = data.rollResult;
 
-        // ─── Critical Hit / Fail Detection ───────────────────────────────────
-        // Natural 20 = critical success, Natural 1 = critical failure
-        // Applies special cyan (crit) or red (fail) styling via CSS classes
+        // Roll breakdown (e.g. "18 + 2", "5 - 1", or just "14")
+        const breakdownEl = document.getElementById("dice-breakdown");
+        if (data.modifier > 0) {
+          breakdownEl.textContent = `${data.result} + ${data.modifier}`;
+        } else if (data.modifier < 0) {
+          breakdownEl.textContent = `${data.result} − ${Math.abs(data.modifier)}`;
+        } else {
+          breakdownEl.textContent = `${data.result}`;
+        }
+
+        // ─── Crit / Fail Detection ────────────────────────────────────────
         diceResult.className = "dice-result";
         diceLabel.className = "dice-label";
+        container.classList.remove("is-crit", "is-fail");
+
+        let hideDelay = 4000;
+        let isCrit = false;
+
         if (data.result === 20 && data.sides === 20) {
           diceResult.classList.add("crit");
           diceLabel.classList.add("crit");
           diceLabel.textContent = "¡CRÍTICO!";
+          container.classList.add("is-crit");
+          triggerFlash("rgba(0, 212, 232, 0.45)");
+          hideDelay = 6000;
+          isCrit = true;
         } else if (data.result === 1 && data.sides === 20) {
           diceResult.classList.add("fail");
           diceLabel.classList.add("fail");
           diceLabel.textContent = "¡PIFIA!";
+          container.classList.add("is-fail");
+          triggerFlash("rgba(255, 77, 106, 0.45)");
+          triggerShake();
+          hideDelay = 4000;
         } else {
           diceLabel.textContent = `Total: ${data.rollResult}`;
         }
 
-        // ─── Show Animation ──────────────────────────────────────────────────
-        // Reset container to initial hidden state before animating in
+        // ─── Show Animation ───────────────────────────────────────────────
         container.style.display = "block";
-        anime.set(container, {
-          opacity: 0,
-          translateY: 40,
-        });
+        anime.set(container, { opacity: 0, translateY: 40, translateX: 0 });
 
-        // Animate container: fade in + slide up from bottom
         anime({
           targets: container,
           opacity: [0, 1],
@@ -180,19 +262,18 @@
           easing: "easeInOutQuad",
         });
 
-        // Animate result number: elastic bounce with slight delay for stagger effect
+        // Elastic bounce on the result number (slightly delayed for stagger)
         setTimeout(() => {
           anime({
             targets: diceResult,
             opacity: [0, 1],
-            scale: [0.3, 1.15, 1], // Scale past 1.0 then settle for elastic feel
-            duration: 600,
-            easing: "easeOutElastic(1, .6)",
+            scale: isCrit ? [0.2, 1.45, 1] : [0.3, 1.15, 1],
+            duration: isCrit ? 800 : 600,
+            easing: "easeOutElastic(1, .5)",
           });
         }, 100);
 
-        // ─── Auto-Hide Timer ─────────────────────────────────────────────────
-        // After 4 seconds, fade out and slide up slightly, then hide
+        // ─── Auto-Hide Timer ──────────────────────────────────────────────
         hideTimer = setTimeout(() => {
           anime({
             targets: container,
@@ -202,38 +283,34 @@
             easing: "easeInOutQuad",
             complete: () => {
               container.style.display = "none";
+              container.classList.remove("is-crit", "is-fail");
             },
           });
-        }, 4000);
+        }, hideDelay);
       }
 
       // ───────────────────────────────────────────────────────────────────────
       // Socket.io Event Handlers
       // ───────────────────────────────────────────────────────────────────────
 
-      /**
-       * Handles incoming dice roll events from the server.
-       * Triggered when any client rolls dice via the control panel.
-       *
-       * Event payload structure:
-       * {
-       *   charId: string,
-       *   characterName: string,
-       *   result: number,        // Base die result
-       *   modifier: number,      // Modifier applied
-       *   rollResult: number,    // Final result (result + modifier)
-       *   sides: number          // Die type (4, 6, 8, 10, 12, 20)
-       * }
-       */
+      /** Bootstrap character map for photo lookups */
+      socket.on("initialData", (data) => {
+        data.characters.forEach((c) => { characterMap[c.id] = c; });
+        console.log("Dice overlay: character map loaded", Object.keys(characterMap));
+      });
+
+      /** Keep character map fresh if photos or data change */
+      socket.on("character_updated", (data) => {
+        characterMap[data.character.id] = data.character;
+      });
+
+      /** Main dice roll handler */
       socket.on("dice_rolled", (data) => {
         console.log("Dice rolled:", data);
         showRoll(data);
       });
 
-      /** Fires when Socket.io successfully connects to the server */
       socket.on("connect", () => console.log("Dice overlay connected"));
-
-      /** Fires when Socket.io connection fails or is interrupted */
       socket.on("connect_error", (e) => console.error("Connection error:", e));
     </script>
   </body>

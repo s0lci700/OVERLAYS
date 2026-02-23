@@ -1,0 +1,367 @@
+<!doctype html>
+<!--
+  DADOS & RISAS - Conditions & Resources Overlay
+  ===============================================
+  OBS Browser Source overlay that shows a live panel of active conditions
+  and depleted resources across all characters. Appears automatically when
+  any character has a condition or empty resource pool; fades out when clear.
+
+  Setup:
+  - Add as Browser Source in OBS (1920×1080)
+  - Enable "Shutdown source when not visible" = OFF
+  - Enable "Refresh browser when scene becomes active" = ON
+  - Canvas body background must be transparent in OBS settings
+
+  Behavior:
+  - Fades in (bottom-left) when any character has active conditions or depleted resources
+  - Fades out when everything clears
+  - Red pills = active conditions (Poisoned, Stunned, etc.)
+  - Purple pills = depleted resource pools (INSPIRATION ✗, RAGE ✗)
+  - Listens to: initialData, condition_added, condition_removed,
+                resource_updated, rest_taken, character_updated
+
+  Dependencies:
+  - anime.js 3.2.1 (panel fade animations)
+  - Socket.io 4.8.3 (real-time client)
+  - tokens.css (shared design tokens)
+-->
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>DADOS & RISAS - Conditions Overlay</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="tokens.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1920px;
+        height: 1080px;
+        background: transparent;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+      }
+
+      /* ── Conditions Panel ────────────────────────────────────────────────── */
+
+      #conditions-panel {
+        position: absolute;
+        bottom: 50px;
+        left: 50px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Panel title — small label above the rows */
+      .panel-title {
+        color: rgba(255, 255, 255, 0.35);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        margin-bottom: 2px;
+      }
+
+      /* ── Character Rows ───────────────────────────────────────────────────── */
+
+      .char-condition-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.87);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 3px solid var(--red);
+        border-radius: var(--radius-md);
+        padding: 8px 14px 8px 12px;
+        min-width: 220px;
+        max-width: 480px;
+      }
+
+      /* Row for characters with only depleted resources (no conditions) */
+      .char-condition-row.depleted-only {
+        border-left-color: var(--purple);
+      }
+
+      .row-char-name {
+        color: var(--white);
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: normal;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+
+      .row-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+      }
+
+      /* ── Badges ──────────────────────────────────────────────────────────── */
+
+      /* Condition badge — red */
+      .cond-badge {
+        display: inline-block;
+        background: rgba(255, 77, 106, 0.15);
+        border: 1px solid rgba(255, 77, 106, 0.55);
+        border-radius: var(--radius-pill);
+        color: var(--red);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+      }
+
+      /* Depleted resource badge — purple */
+      .depleted-badge {
+        display: inline-block;
+        background: rgba(80, 13, 245, 0.15);
+        border: 1px solid rgba(80, 13, 245, 0.45);
+        border-radius: var(--radius-pill);
+        color: rgba(180, 150, 255, 1);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Conditions panel — dynamically populated, fades in/out via anime.js -->
+    <div id="conditions-panel">
+      <div class="panel-title">Estado activo</div>
+    </div>
+
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha384-fXdIufVbE9aU7STmdk/DWK0imNOozId9fTwzM/gi0NfPjphEIC3gq0M760UnsKVy" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js" integrity="sha384-kzavj5fiMwLKzzD1f8S7TeoVIEi7uKHvbTA3ueZkrzYq75pNQUiUi6Dy98Q3fxb0" crossorigin="anonymous"></script>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════════════
+      // Conditions Overlay Logic
+      // ═══════════════════════════════════════════════════════════════════════
+
+      const serverUrl = new URLSearchParams(window.location.search).get("server") || "http://localhost:3000";
+      const socket = io(serverUrl);
+
+      const panel = document.getElementById("conditions-panel");
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Local State
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Local character state map.
+       * charId → { name: string, conditions: Condition[], resources: Resource[] }
+       *
+       * Bootstrapped from initialData, then updated incrementally via events.
+       * This is the single source of truth for what the panel renders.
+       */
+      const state = {};
+
+      /** Whether the panel is currently visible */
+      let panelVisible = false;
+
+      // ───────────────────────────────────────────────────────────────────────
+      // State Mutation Functions
+      // ───────────────────────────────────────────────────────────────────────
+
+      function initFromCharacters(characters) {
+        characters.forEach((c) => {
+          state[c.id] = {
+            name: c.name,
+            conditions: [...(c.conditions || [])],
+            resources: [...(c.resources || [])],
+          };
+        });
+        renderPanel();
+      }
+
+      function applyConditionAdded(charId, condition) {
+        if (!state[charId]) return;
+        // Avoid duplicate IDs
+        const exists = state[charId].conditions.some((c) => c.id === condition.id);
+        if (!exists) state[charId].conditions.push(condition);
+        renderPanel();
+      }
+
+      function applyConditionRemoved(charId, conditionId) {
+        if (!state[charId]) return;
+        state[charId].conditions = state[charId].conditions.filter(
+          (c) => c.id !== conditionId
+        );
+        renderPanel();
+      }
+
+      function applyResourceUpdated(charId, resource) {
+        if (!state[charId]) return;
+        const idx = state[charId].resources.findIndex((r) => r.id === resource.id);
+        if (idx >= 0) {
+          state[charId].resources[idx] = resource;
+        } else {
+          state[charId].resources.push(resource);
+        }
+        renderPanel();
+      }
+
+      function applyRestTaken(charId, character) {
+        if (!state[charId]) return;
+        // Restore resources after rest
+        state[charId].resources = [...(character.resources || [])];
+        // Long rest clears conditions (game rule)
+        if (character.conditions) {
+          state[charId].conditions = [...character.conditions];
+        }
+        renderPanel();
+      }
+
+      function applyCharacterUpdated(character) {
+        if (!state[character.id]) return;
+        state[character.id].name = character.name;
+        if (character.conditions) {
+          state[character.id].conditions = [...character.conditions];
+        }
+        if (character.resources) {
+          state[character.id].resources = [...character.resources];
+        }
+        renderPanel();
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Render Logic
+      // ───────────────────────────────────────────────────────────────────────
+
+      /**
+       * Returns true if this character state has anything worth showing:
+       * - Any active conditions, OR
+       * - Any resource pool completely depleted (pool_current === 0)
+       */
+      function hasAnything(charState) {
+        const hasConditions = charState.conditions.length > 0;
+        const hasDepleted = charState.resources.some((r) => r.pool_current === 0 && r.pool_max > 0);
+        return hasConditions || hasDepleted;
+      }
+
+      /**
+       * Rebuilds and re-renders the conditions panel.
+       * Fades the panel in/out based on whether there is content to show.
+       */
+      function renderPanel() {
+        // Gather rows for characters with active conditions or depleted resources
+        const rows = Object.entries(state)
+          .filter(([, charState]) => hasAnything(charState))
+          .map(([charId, charState]) => {
+            const condBadges = charState.conditions
+              .map((c) => `<span class="cond-badge">${c.condition_name}</span>`)
+              .join("");
+
+            const depletedBadges = charState.resources
+              .filter((r) => r.pool_current === 0 && r.pool_max > 0)
+              .map((r) => `<span class="depleted-badge">${r.name} ✗</span>`)
+              .join("");
+
+            const hasOnlyDepleted = charState.conditions.length === 0;
+
+            return `
+              <div class="char-condition-row ${hasOnlyDepleted ? "depleted-only" : ""}"
+                   data-char-id="${charId}">
+                <div class="row-char-name">${charState.name}</div>
+                <div class="row-badges">${condBadges}${depletedBadges}</div>
+              </div>
+            `;
+          });
+
+        const willBeVisible = rows.length > 0;
+
+        // Update DOM: rebuild rows, keep the title div
+        const titleEl = panel.querySelector(".panel-title");
+        panel.innerHTML = "";
+        if (titleEl) panel.appendChild(titleEl);
+        rows.forEach((row) => {
+          const div = document.createElement("div");
+          div.innerHTML = row.trim();
+          panel.appendChild(div.firstChild);
+        });
+
+        // Animate visibility transitions
+        if (willBeVisible && !panelVisible) {
+          panelVisible = true;
+          anime({
+            targets: panel,
+            opacity: [0, 1],
+            translateY: [16, 0],
+            duration: 400,
+            easing: "easeOutQuad",
+          });
+        } else if (!willBeVisible && panelVisible) {
+          panelVisible = false;
+          anime({
+            targets: panel,
+            opacity: [1, 0],
+            translateY: [0, 16],
+            duration: 350,
+            easing: "easeInQuad",
+          });
+        }
+      }
+
+      // ───────────────────────────────────────────────────────────────────────
+      // Socket.io Event Handlers
+      // ───────────────────────────────────────────────────────────────────────
+
+      socket.on("initialData", (data) => {
+        console.log("Conditions overlay: initial data", data);
+        initFromCharacters(data.characters);
+      });
+
+      socket.on("condition_added", (data) => {
+        console.log("Condition added:", data);
+        applyConditionAdded(data.charId, data.condition);
+      });
+
+      socket.on("condition_removed", (data) => {
+        console.log("Condition removed:", data);
+        applyConditionRemoved(data.charId, data.conditionId);
+      });
+
+      socket.on("resource_updated", (data) => {
+        console.log("Resource updated:", data);
+        applyResourceUpdated(data.charId, data.resource);
+      });
+
+      socket.on("rest_taken", (data) => {
+        console.log("Rest taken:", data);
+        applyRestTaken(data.charId, data.character);
+      });
+
+      socket.on("character_updated", (data) => {
+        console.log("Character updated:", data);
+        applyCharacterUpdated(data.character);
+      });
+
+      socket.on("connect", () => console.log("Conditions overlay connected"));
+      socket.on("connect_error", (e) => console.error("Connection error:", e));
+    </script>
+  </body>
+</html>

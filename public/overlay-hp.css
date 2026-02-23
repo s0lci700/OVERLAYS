@@ -7,12 +7,15 @@
  * Sections:
  *   - Reset & body         — 1920×1080 transparent canvas
  *   - HP Container          — absolute top-right column of character cards
- *   - Character Info        — name (Bebas Neue) and player label
- *   - HP Bar                — animated fill with health-state gradients:
+ *   - Card Header           — avatar circle + name/class/meta info
+ *   - Character Info        — name (Bebas Neue), class badge, AC badge
+ *   - HP Bar                — 14px animated fill with health-state gradients:
  *                               .healthy  (>60%) green gradient + glow
  *                               .injured  (30-60%) orange gradient + glow
  *                               .critical (<30%) red gradient + pulse animation
+ *   - Temp HP               — pale white extension on bar right side
  *   - HP Text               — numeric display (JetBrains Mono, right-aligned)
+ *   - Conditions Row        — red pill badges for active conditions
  *   - Status Message        — centered banner for connection/update notices
  *                               auto-hides via fadeInOut keyframe (2s)
  *
@@ -21,7 +24,7 @@
  *
  * Fonts (loaded from Google Fonts in overlay-hp.html):
  *   "Bebas Neue"       — character names
- *   "JetBrains Mono"   — HP numbers, status messages
+ *   "JetBrains Mono"   — HP numbers, status messages, badges
  */
 
 @import url("tokens.css");
@@ -50,16 +53,75 @@ body {
   right: 50px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .character-hp {
   background: rgba(0, 0, 0, var(--alpha-solid, 0.88));
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-lg);
-  padding: 16px;
-  min-width: 360px;
+  padding: 14px 16px;
+  min-width: 380px;
   box-shadow: var(--shadow-card);
+  transition: background 0.5s ease;
+}
+
+/* Flash animation when a condition is added */
+@keyframes cardFlash {
+  0%   { background: rgba(255, 77, 106, 0.28); border-color: rgba(255, 77, 106, 0.6); }
+  100% { background: rgba(0, 0, 0, 0.88); border-color: rgba(255, 255, 255, 0.12); }
+}
+
+.character-hp.flash-condition {
+  animation: cardFlash 0.7s ease-out forwards;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Card Header — two-column layout: avatar | info
+   ───────────────────────────────────────────────────────────────────────── */
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Avatar Circle
+   ───────────────────────────────────────────────────────────────────────── */
+
+.char-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--grey-dim);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.char-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.char-avatar-initials {
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0.05em;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -69,19 +131,56 @@ body {
 .char-name {
   color: var(--white);
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 26px;
   font-weight: normal;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  line-height: 1;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.char-class {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 5px;
+}
+
+/* Meta row: player name + AC badge side by side */
+.char-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .char-player {
   color: var(--grey);
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 12px;
+}
+
+/* Armor Class badge — purple tint */
+.ac-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(80, 13, 245, 0.2);
+  border: 1px solid rgba(80, 13, 245, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  color: rgba(180, 150, 255, 1);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -90,7 +189,7 @@ body {
 
 .hp-bar-container {
   background: rgba(30, 30, 30, 0.9);
-  height: 8px;
+  height: 14px;
   border-radius: var(--radius-pill);
   overflow: hidden;
   position: relative;
@@ -103,22 +202,36 @@ body {
     width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.3s ease;
   border-radius: var(--radius-pill);
+  position: relative;
+  z-index: 1;
 }
 
 .hp-bar-fill.healthy {
   background: var(--gradient-healthy);
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
 }
 
 .hp-bar-fill.injured {
   background: var(--gradient-injured);
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
 }
 
 .hp-bar-fill.critical {
   background: var(--gradient-critical);
-  box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
+  box-shadow: 0 0 8px rgba(255, 77, 106, 0.5);
   animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Temp HP extension — pale white layer on top of the bar, right-aligned */
+.hp-bar-temp {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.32);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  z-index: 2;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes pulse {
@@ -127,18 +240,53 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.55;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HP Text
+   ───────────────────────────────────────────────────────────────────────── */
 
 .hp-text {
   color: var(--white);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
-  margin-top: 8px;
+  margin-top: 6px;
   text-align: right;
   letter-spacing: 0.04em;
+}
+
+.hp-text .hp-temp-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Conditions Row
+   ───────────────────────────────────────────────────────────────────────── */
+
+.conditions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.condition-badge {
+  display: inline-block;
+  background: rgba(255, 77, 106, 0.15);
+  border: 1px solid rgba(255, 77, 106, 0.6);
+  border-radius: var(--radius-pill);
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  letter-spacing: 0.1em;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

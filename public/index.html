@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DADOS & RISAS — Panel de Inicio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --black: #000000;
+        --black-card: #0d0d0d;
+        --black-elevated: #1a1a1a;
+        --white: #ffffff;
+        --grey: #888888;
+        --grey-dim: #333333;
+        --red: #ff4d6a;
+        --cyan: #00d4e8;
+        --purple: #500df5;
+        --font-display: "Bebas Neue", "Impact", sans-serif;
+        --font-mono: "JetBrains Mono", "Courier New", monospace;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        background: var(--black);
+        color: var(--white);
+        font-family: var(--font-mono);
+        min-height: 100vh;
+        padding: 48px 32px;
+      }
+
+      /* ── Layout ─────────────────────────────── */
+      .page {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      /* ── Header ─────────────────────────────── */
+      .header {
+        border-bottom: 1px solid var(--grey-dim);
+        padding-bottom: 32px;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        font-family: var(--font-display);
+        font-size: clamp(52px, 8vw, 88px);
+        letter-spacing: 0.04em;
+        line-height: 0.9;
+        color: var(--white);
+      }
+
+      .logo span {
+        color: var(--cyan);
+      }
+
+      .tagline {
+        margin-top: 14px;
+        color: var(--grey);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      /* ── Status bar ─────────────────────────── */
+      .status-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        font-size: 12px;
+        color: var(--grey);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--grey-dim);
+        flex-shrink: 0;
+        transition: background 0.3s;
+      }
+
+      .status-dot.online { background: #22c55e; }
+      .status-dot.pulse {
+        background: #22c55e;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+
+      .status-ip {
+        color: var(--cyan);
+        font-weight: 700;
+      }
+
+      /* ── Section ────────────────────────────── */
+      .section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 20px;
+        letter-spacing: 0.1em;
+        color: var(--grey);
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--grey-dim);
+      }
+
+      /* ── Link cards ─────────────────────────── */
+      .link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+      }
+
+      .link-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--black-card);
+        border: 1px solid var(--grey-dim);
+        border-radius: 8px;
+        padding: 16px 18px;
+        text-decoration: none;
+        color: var(--white);
+        transition: border-color 0.2s, transform 0.15s;
+        cursor: pointer;
+      }
+
+      .link-card:hover {
+        border-color: var(--cyan);
+        transform: translateY(-2px);
+      }
+
+      .link-card.red:hover { border-color: var(--red); }
+      .link-card.purple:hover { border-color: var(--purple); }
+
+      .link-card-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+        line-height: 1;
+        margin-top: 2px;
+      }
+
+      .link-card-body {}
+
+      .link-card-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+      }
+
+      .link-card-url {
+        font-size: 10px;
+        color: var(--grey);
+        letter-spacing: 0.06em;
+        word-break: break-all;
+      }
+
+      .link-card:hover .link-card-url { color: var(--cyan); }
+      .link-card.red:hover .link-card-url { color: var(--red); }
+      .link-card.purple:hover .link-card-url { color: var(--purple); }
+
+      .link-card-badge {
+        display: inline-block;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        border-radius: 3px;
+        margin-top: 6px;
+        background: rgba(0, 212, 232, 0.12);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 212, 232, 0.3);
+      }
+
+      .link-card.red .link-card-badge {
+        background: rgba(255, 77, 106, 0.12);
+        color: var(--red);
+        border-color: rgba(255, 77, 106, 0.3);
+      }
+
+      /* ── Steps ──────────────────────────────── */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        counter-reset: steps;
+      }
+
+      .step {
+        display: flex;
+        gap: 16px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--grey-dim);
+        counter-increment: steps;
+      }
+
+      .step:last-child { border-bottom: none; }
+
+      .step-number {
+        font-family: var(--font-display);
+        font-size: 28px;
+        color: var(--grey-dim);
+        flex-shrink: 0;
+        width: 32px;
+        line-height: 1;
+      }
+
+      .step-body {}
+
+      .step-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 4px;
+        letter-spacing: 0.04em;
+      }
+
+      .step-desc {
+        font-size: 11px;
+        color: var(--grey);
+        line-height: 1.7;
+        letter-spacing: 0.02em;
+      }
+
+      .step-desc code {
+        background: var(--black-elevated);
+        color: var(--cyan);
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        border: 1px solid var(--grey-dim);
+      }
+
+      /* ── OBS box ────────────────────────────── */
+      .obs-box {
+        background: var(--black-card);
+        border: 1px solid var(--grey-dim);
+        border-left: 3px solid var(--purple);
+        border-radius: 8px;
+        padding: 16px 20px;
+      }
+
+      .obs-box-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        letter-spacing: 0.1em;
+        color: rgba(180, 150, 255, 1);
+        margin-bottom: 12px;
+      }
+
+      .obs-url-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 12px;
+        background: var(--black-elevated);
+        border-radius: 5px;
+        margin-bottom: 8px;
+        border: 1px solid var(--grey-dim);
+      }
+
+      .obs-url-row:last-child { margin-bottom: 0; }
+
+      .obs-url-label {
+        font-size: 10px;
+        color: var(--grey);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        width: 80px;
+      }
+
+      .obs-url-value {
+        font-size: 11px;
+        color: var(--cyan);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        word-break: break-all;
+        flex: 1;
+        text-align: right;
+      }
+
+      /* ── Footer ─────────────────────────────── */
+      .footer {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid var(--grey-dim);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--grey);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      /* ── Loading state ──────────────────────── */
+      .loading { opacity: 0.4; font-style: italic; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+
+      <!-- ── Header ──────────────────────────── -->
+      <header class="header">
+        <div class="logo">DADOS <span>&</span> RISAS</div>
+        <div class="tagline">Sistema de producción en tiempo real · D&amp;D · OBS</div>
+        <div class="status-bar">
+          <div class="status-dot pulse" id="status-dot"></div>
+          <span>Servidor activo en&nbsp;</span>
+          <span class="status-ip" id="server-address">cargando...</span>
+        </div>
+      </header>
+
+      <!-- ── Panel de Control ─────────────────── -->
+      <section class="section">
+        <div class="section-title">Panel de Control</div>
+        <div class="link-grid">
+          <a class="link-card" id="link-cp" href="http://localhost:5173" target="_blank">
+            <div class="link-card-icon">🎛️</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Abrir Panel</div>
+              <div class="link-card-url" id="url-cp">http://localhost:5173</div>
+              <div class="link-card-badge">Control Panel · Puerto 5173</div>
+            </div>
+          </a>
+        </div>
+        <p style="margin-top:10px; font-size:11px; color:var(--grey); letter-spacing:0.04em;">
+          Usa este enlace en tu celular (misma red Wi-Fi) para controlar PV, tirar dados y gestionar condiciones.
+        </p>
+      </section>
+
+      <!-- ── Overlays OBS ─────────────────────── -->
+      <section class="section">
+        <div class="section-title">Overlays OBS</div>
+        <div class="link-grid">
+          <a class="link-card" id="link-hp" href="/overlay-hp.html" target="_blank">
+            <div class="link-card-icon">❤️</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Overlay HP</div>
+              <div class="link-card-url" id="url-hp">/overlay-hp.html</div>
+              <div class="link-card-badge">Browser Source · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card red" id="link-dice" href="/overlay-dice.html" target="_blank">
+            <div class="link-card-icon">🎲</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Overlay Dados</div>
+              <div class="link-card-url" id="url-dice">/overlay-dice.html</div>
+              <div class="link-card-badge" style="background:rgba(255,77,106,.12);color:var(--red);border-color:rgba(255,77,106,.3)">Browser Source · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card" id="link-cond" href="/overlay-conditions.html" target="_blank">
+            <div class="link-card-icon">⚡</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Overlay Condiciones</div>
+              <div class="link-card-url" id="url-cond">/overlay-conditions.html</div>
+              <div class="link-card-badge">Browser Source · 1920×1080</div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── Pasos para OBS ───────────────────── -->
+      <section class="section">
+        <div class="section-title">Configurar OBS</div>
+        <div class="obs-box">
+          <div class="obs-box-title">URLS PARA BROWSER SOURCE</div>
+          <div class="obs-url-row">
+            <span class="obs-url-label">HP Bars</span>
+            <span class="obs-url-value" id="obs-url-hp">cargando...</span>
+          </div>
+          <div class="obs-url-row">
+            <span class="obs-url-label">Dados</span>
+            <span class="obs-url-value" id="obs-url-dice">cargando...</span>
+          </div>
+          <div class="obs-url-row">
+            <span class="obs-url-label">Condiciones</span>
+            <span class="obs-url-value" id="obs-url-cond">cargando...</span>
+          </div>
+        </div>
+        <div class="steps" style="margin-top:16px;">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-body">
+              <div class="step-title">Agregar Browser Source en OBS</div>
+              <div class="step-desc">En OBS: Fuentes → + → Navegador. Resolución: <code>1920 × 1080</code>. Fondo transparente activado.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-body">
+              <div class="step-title">Pegar la URL del overlay</div>
+              <div class="step-desc">Copia una de las URLs de arriba (ej. HP Bars) y pégala como URL del Browser Source. OBS cargará el overlay automáticamente.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-body">
+              <div class="step-title">Repetir para cada overlay</div>
+              <div class="step-desc">Puedes tener los 3 overlays activos al mismo tiempo como capas separadas en la misma escena.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Cómo usar el panel ────────────────── -->
+      <section class="section">
+        <div class="section-title">Demo en 5 pasos</div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-body">
+              <div class="step-title">Abre el panel en el celular</div>
+              <div class="step-desc">Usa la URL del Panel de Control de arriba. Tiene que estar en la misma red Wi-Fi que este servidor.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-body">
+              <div class="step-title">Modifica el PV de un personaje</div>
+              <div class="step-desc">En el panel, cambia el PV de Hector. El overlay HP en OBS se actualiza en tiempo real — sin recargar.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-body">
+              <div class="step-title">Tira un dado</div>
+              <div class="step-desc">Usa el dado en el panel. El resultado aparece animado en el overlay. Un 20 natural activa el efecto <code>¡CRÍTICO!</code>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-body">
+              <div class="step-title">Aplica una condición</div>
+              <div class="step-desc">Marca "Envenenado" o cualquier condición en un personaje. Aparece como badge en el overlay HP y en el overlay Condiciones.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-body">
+              <div class="step-title">Esto es solo el MVP</div>
+              <div class="step-desc">Se puede agregar tracker de iniciativa, fotogramas animados, alertas de sonido, integración con Twitch, y más.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Footer ────────────────────────────── -->
+      <footer class="footer">
+        <span>DADOS &amp; RISAS — MVP Demo</span>
+        <span id="footer-ip" style="color:var(--cyan)">...</span>
+      </footer>
+
+    </div>
+
+    <script>
+      // Fetch the server's LAN IP and dynamically populate all URLs on the page.
+      // This makes the page work correctly whether opened at localhost or a LAN IP.
+      fetch('/api/info')
+        .then(r => r.json())
+        .then(({ ip, port }) => {
+          const base = `http://${ip}:${port}`;
+          const cpBase = `http://${ip}:5173`;
+          const serverParam = `?server=${base}`;
+
+          // Status bar
+          document.getElementById('server-address').textContent = base;
+          document.getElementById('footer-ip').textContent = base;
+
+          // Control panel link
+          document.getElementById('link-cp').href = cpBase;
+          document.getElementById('url-cp').textContent = cpBase;
+
+          // Overlay links (clickable previews)
+          const setOverlay = (linkId, urlId, path) => {
+            const url = base + path + serverParam;
+            document.getElementById(linkId).href = url;
+            document.getElementById(urlId).textContent = base + path;
+          };
+          setOverlay('link-hp',   'url-hp',   '/overlay-hp.html');
+          setOverlay('link-dice', 'url-dice', '/overlay-dice.html');
+          setOverlay('link-cond', 'url-cond', '/overlay-conditions.html');
+
+          // OBS copy-paste URLs (include ?server= param)
+          document.getElementById('obs-url-hp').textContent   = base + '/overlay-hp.html'   + serverParam;
+          document.getElementById('obs-url-dice').textContent = base + '/overlay-dice.html' + serverParam;
+          document.getElementById('obs-url-cond').textContent = base + '/overlay-conditions.html' + serverParam;
+        })
+        .catch(() => {
+          document.getElementById('server-address').textContent = 'localhost:3000';
+        });
+    </script>
+  </body>
+</html>

@@ -85,10 +85,15 @@ app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "1mb" }));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
-// Landing
-// Simple health check used during the demo to verify the API is reachable.
-app.get("/", (req, res) => {
-  res.status(200).send("Hello World!");
+// Serve the OBS overlays and landing page over the network.
+// OBS Browser Sources can now use http://IP:3000/overlay-hp.html instead of a local file path,
+// making the demo work on any machine on the LAN without file system access.
+app.use(express.static(path.join(__dirname, "public")));
+
+// Returns the server's LAN IP and port so the landing page (public/index.html)
+// can dynamically render correct URLs for OBS setup and the control panel.
+app.get("/api/info", (req, res) => {
+  res.json({ ip: getMainIP(), port: PORT });
 });
 
 // ── Characters ──────────────────────────────────────────────

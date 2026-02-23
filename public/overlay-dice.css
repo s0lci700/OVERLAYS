@@ -5,20 +5,24 @@
  * Canvas size: 1920×1080, transparent background required in OBS.
  *
  * Sections:
- *   - Reset & body       — 1920×1080 transparent canvas
- *   - Dice Container     — fixed bottom-center, hidden by default (anime.js shows it)
- *   - Dice Card           — dark glass card with cyan border accent
- *   - Dice Card Content   — character name, formula, result number, label
+ *   - Reset & body         — 1920×1080 transparent canvas
+ *   - Flash Overlay        — full-canvas flash for crits/fails (anime.js driven)
+ *   - Dice Container       — fixed bottom-center, hidden by default (anime.js shows it)
+ *   - Dice Card            — dark glass card with cyan border accent
+ *   - Dice Avatar          — 44px character portrait circle (photo or initials)
+ *   - Dice Card Content    — character name, formula, result number, label
  *
  * Visual states:
- *   .dice-result.crit  → cyan glow (natural 20)
- *   .dice-result.fail  → red glow (natural 1)
+ *   .dice-result.crit  → cyan glow (natural 20) — 100px
+ *   .dice-result.fail  → red glow (natural 1)   — 100px
  *   .dice-label.crit   → cyan text
  *   .dice-label.fail   → red text
+ *   #dice-container.is-crit → cyan card border glow
+ *   #dice-container.is-fail → red card border glow
  *
  * Fonts (loaded from Google Fonts in overlay-dice.html):
  *   "Bebas Neue"       — dice formula, label
- *   "JetBrains Mono"   — result number (80px bold)
+ *   "JetBrains Mono"   — result number (80px / 100px crit)
  *
  * Animation: container starts display:none + opacity:0.
  * anime.js in overlay-dice.html handles the show/hide lifecycle.
@@ -41,6 +45,18 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+   Flash Overlay — full canvas, behind everything else
+   ───────────────────────────────────────────────────────────────────────── */
+
+#flash-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 50;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
    Dice Container
    ───────────────────────────────────────────────────────────────────────── */
 
@@ -52,17 +68,63 @@ body {
   transform: translateX(-50%);
   display: none;
   opacity: 0;
+  z-index: 100;
 }
 
 .dice-card {
-  background: rgba(0, 0, 0, 0.92);
-  border: 1px solid rgba(0, 212, 232, 0.4);
+  background: rgba(0, 0, 0, 0.93);
+  border: 1px solid rgba(0, 212, 232, 0.35);
   border-top: 3px solid var(--cyan);
   border-radius: var(--radius-lg);
-  padding: 24px 48px;
+  padding: 20px 52px 24px;
   text-align: center;
-  min-width: 320px;
+  min-width: 340px;
   box-shadow: var(--shadow-cyan);
+}
+
+/* Crit: cyan card glow */
+#dice-container.is-crit .dice-card {
+  border-top-color: var(--cyan);
+  border-color: rgba(0, 212, 232, 0.5);
+  box-shadow: var(--shadow-cyan), 0 0 40px rgba(0, 212, 232, 0.25);
+}
+
+/* Fail: red card glow */
+#dice-container.is-fail .dice-card {
+  border-top-color: var(--red);
+  border-color: rgba(255, 77, 106, 0.5);
+  box-shadow: 4px 4px 0px var(--red), 0 0 40px rgba(255, 77, 106, 0.25);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dice Avatar — character portrait
+   ───────────────────────────────────────────────────────────────────────── */
+
+.dice-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  margin: 0 auto 10px;
+  background: var(--grey-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dice-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.dice-avatar-initials {
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -71,19 +133,29 @@ body {
 
 .dice-character {
   color: var(--grey);
-  font-size: 16px;
+  font-size: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   margin-bottom: 6px;
+  font-family: var(--font-mono);
 }
 
 .dice-formula {
   color: var(--cyan);
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 32px;
   font-weight: normal;
   letter-spacing: 0.1em;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.dice-breakdown {
+  color: var(--grey);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
 }
 
 .dice-result {
@@ -94,18 +166,25 @@ body {
   line-height: 1;
   transition:
     color 0.2s ease,
-    text-shadow 0.2s ease;
+    text-shadow 0.2s ease,
+    font-size 0.1s ease;
   opacity: 0;
 }
 
 .dice-result.crit {
   color: var(--cyan);
-  text-shadow: 0 0 24px rgba(0, 212, 232, 0.6);
+  font-size: 100px;
+  text-shadow:
+    0 0 24px rgba(0, 212, 232, 0.7),
+    0 0 60px rgba(0, 212, 232, 0.35);
 }
 
 .dice-result.fail {
   color: var(--red);
-  text-shadow: 0 0 24px rgba(255, 77, 106, 0.6);
+  font-size: 100px;
+  text-shadow:
+    0 0 24px rgba(255, 77, 106, 0.7),
+    0 0 60px rgba(255, 77, 106, 0.35);
 }
 
 .dice-label {
@@ -113,7 +192,7 @@ body {
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: normal;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-top: 10px;
 }

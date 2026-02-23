@@ -1,8 +1,8 @@
 [
   {
     "id": "CH101",
-    "name": "Kael",
-    "player": "Mara",
+    "name": "Hector",
+    "player": "Hector",
     "class_primary": { "name": "fighter", "level": 1 },
     "background": {
       "name": "soldier",
@@ -56,8 +56,8 @@
   },
   {
     "id": "CH102",
-    "name": "Lyra",
-    "player": "Nico",
+    "name": "Luis",
+    "player": "Luis",
     "class_primary": { "name": "bard", "level": 1 },
     "background": {
       "name": "acolyte",
@@ -119,8 +119,8 @@
   },
   {
     "id": "CH103",
-    "name": "Brum",
-    "player": "Iris",
+    "name": "Marcelo",
+    "player": "Marcelo",
     "class_primary": { "name": "cleric", "level": 1 },
     "background": {
       "name": "sage",
@@ -179,5 +179,68 @@
       }
     ],
     "photo": "/assets/img/wizard.png"
+  },
+  {
+    "id": "CH104",
+    "name": "Cynthia",
+    "player": "Cynthia",
+    "class_primary": { "name": "warlock", "level": 1 },
+    "background": {
+      "name": "charlatan",
+      "feat": "",
+      "skill_proficiencies": ["deception", "sleight_of_hand"],
+      "tool_proficiency": "forgery_kit"
+    },
+    "species": {
+      "name": "tiefling",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": ["darkvision", "hellish_resistance"]
+    },
+    "languages": ["common", "infernal", "abyssal"],
+    "alignment": "cn",
+    "proficiencies": {
+      "skills": ["deception", "arcana"],
+      "saving_throws": ["wis", "cha"],
+      "armor": ["light"],
+      "weapons": ["simple"],
+      "tools": ["forgery_kit"]
+    },
+    "equipment": {
+      "items": ["leather_armor", "dagger", "arcane_focus", "pack_dungeoneer"],
+      "coins": { "gp": 0, "sp": 0, "cp": 0 },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Crimson skin, small horns, sharp smile",
+      "personality": "Charming and unpredictable",
+      "ideals": "Power",
+      "bonds": "Mysterious patron",
+      "flaws": "Trusts no one"
+    },
+    "hp_current": 8,
+    "hp_max": 8,
+    "hp_temp": 0,
+    "armor_class": 13,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 9,
+      "dex": 14,
+      "con": 13,
+      "int": 12,
+      "wis": 10,
+      "cha": 17
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "RS401",
+        "name": "SPELL SLOTS",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "SHORT_REST"
+      }
+    ],
+    "photo": "/assets/img/thiefling.png"
   }
 ]

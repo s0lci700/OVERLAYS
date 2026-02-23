@@ -3,22 +3,23 @@
   DADOS & RISAS - HP Overlay
   ==========================
   OBS Browser Source overlay for displaying character HP bars in real-time.
-  
+
   Setup:
   - Add as Browser Source in OBS (1920×1080)
   - Enable "Shutdown source when not visible" = OFF
   - Enable "Refresh browser when scene becomes active" = ON
   - Canvas body background must be transparent in OBS settings
-  
+
   Behavior:
   - Receives initial character data on 'initialData' event
   - Listens for 'hp_updated' events to animate HP changes
   - Color-codes HP bars: green (>60%), orange (30-60%), red (<30%)
   - Critical HP (<30%) shows pulsing animation
-  - Displays brief status messages on connection/HP changes
-  
+  - Displays character avatar (photo or initials fallback)
+  - Shows class, level, armor class, and active conditions
+  - Condition badges appear/disappear in real-time with flash animation
+
   Dependencies:
-  - anime.js 3.2.1 (animation engine, currently unused but available)
   - Socket.io 4.8.3 (real-time client)
   - overlay-hp.css (external stylesheet)
 -->
@@ -41,7 +42,6 @@
     <div id="hp-container"></div>
 
     <!-- External Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha384-fXdIufVbE9aU7STmdk/DWK0imNOozId9fTwzM/gi0NfPjphEIC3gq0M760UnsKVy" crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/4.8.3/socket.io.min.js" integrity="sha384-kzavj5fiMwLKzzD1f8S7TeoVIEi7uKHvbTA3ueZkrzYq75pNQUiUi6Dy98Q3fxb0" crossorigin="anonymous"></script>
 
     <script>
@@ -62,54 +62,93 @@
       // DOM Element References
       // ───────────────────────────────────────────────────────────────────────
 
-      /** Container where character HP cards are rendered */
       const hpContainer = document.getElementById("hp-container");
-
-      /** Status banner element for connection/update messages */
       const statusMessage = document.getElementById("status");
 
       // ───────────────────────────────────────────────────────────────────────
       // Utility Functions
       // ───────────────────────────────────────────────────────────────────────
 
-      /**
-       * Displays a temporary status message banner at the top of the overlay.
-       * Message auto-hides after 2 seconds via CSS animation.
-       *
-       * @param {string} message - Text to display
-       */
       function showStatus(message) {
         statusMessage.textContent = message;
         statusMessage.classList.add("show");
         setTimeout(() => statusMessage.classList.remove("show"), 2000);
       }
 
-      /**
-       * Calculates HP as a percentage of max.
-       *
-       * @param {number} current - Current HP
-       * @param {number} max - Maximum HP
-       * @returns {number} Percentage (0-100)
-       */
       function getHPPercentage(current, max) {
-        return (current / max) * 100;
+        if (!max || max <= 0) return 0;
+        return Math.min(100, Math.max(0, (current / max) * 100));
       }
 
-      /**
-       * Determines HP bar color class based on health threshold.
-       *
-       * Thresholds:
-       * - healthy: >60% HP (green gradient)
-       * - injured: 30-60% HP (orange gradient)
-       * - critical: <30% HP (red gradient + pulse animation)
-       *
-       * @param {number} percentage - HP percentage (0-100)
-       * @returns {string} CSS class name
-       */
       function getHPClass(percentage) {
         if (percentage > 60) return "healthy";
         if (percentage > 30) return "injured";
         return "critical";
+      }
+
+      /** Get two-letter initials from a name */
+      function getInitials(name) {
+        return (name || "?")
+          .split(" ")
+          .map((w) => w[0] || "")
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+      }
+
+      /** Format class_primary as "FIGHTER • LV3" */
+      function getClassLabel(classPrimary) {
+        if (!classPrimary || !classPrimary.name) return "";
+        const name = classPrimary.name.toUpperCase();
+        const level = classPrimary.level || 1;
+        return `${name} • LV${level}`;
+      }
+
+      /**
+       * Builds avatar HTML — photo with initials fallback.
+       * Photo path comes from server as "/assets/img/barbarian.png",
+       * so we prefix with serverUrl to build a full URL.
+       */
+      function getAvatarHTML(character) {
+        const initials = getInitials(character.name);
+        if (character.photo) {
+          const photoUrl = serverUrl + character.photo;
+          return `
+            <img src="${photoUrl}" alt="${character.name}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display=''">
+            <span class="char-avatar-initials" style="display:none">${initials}</span>
+          `;
+        }
+        return `<span class="char-avatar-initials">${initials}</span>`;
+      }
+
+      /** Render condition badge pills (max 3 visible + overflow count) */
+      function getConditionsHTML(conditions) {
+        if (!conditions || conditions.length === 0) return "";
+        const visible = conditions.slice(0, 3);
+        const overflow =
+          conditions.length > 3
+            ? `<span class="condition-badge">+${conditions.length - 3}</span>`
+            : "";
+        return (
+          visible
+            .map(
+              (c) =>
+                `<span class="condition-badge" data-cond-id="${c.id}">${c.condition_name}</span>`
+            )
+            .join("") + overflow
+        );
+      }
+
+      /**
+       * Temp HP bar width — represents temp HP as a fraction of total capacity.
+       * e.g. hp_max=10, hp_temp=5 → temp bar is 33% (5/15) of container
+       */
+      function getTempHPWidth(character) {
+        const temp = character.hp_temp || 0;
+        if (temp <= 0) return 0;
+        const total = character.hp_max + temp;
+        return (temp / total) * 100;
       }
 
       // ───────────────────────────────────────────────────────────────────────
@@ -117,83 +156,104 @@
       // ───────────────────────────────────────────────────────────────────────
 
       /**
-       * Generates HTML for a single character HP card.
-       * Card includes character name, player name, HP bar, and HP text.
-       *
-       * The `data-char-id` attribute is used for targeted DOM updates
-       * when HP changes (see updateCharacterHP).
-       *
-       * @param {Object} character - Character data object
-       * @param {string} character.id - Unique character ID
-       * @param {string} character.name - Character name
-       * @param {string} character.player - Player name
-       * @param {number} character.hp_current - Current HP
-       * @param {number} character.hp_max - Maximum HP
-       * @returns {string} HTML markup for the character card
+       * Generates full HTML for a single character HP card.
+       * Layout: [avatar | name + class + meta] then HP bar + conditions.
        */
       function createCharacterHP(character) {
-        const percentage = getHPPercentage(
-          character.hp_current,
-          character.hp_max,
-        );
+        const percentage = getHPPercentage(character.hp_current, character.hp_max);
         const hpClass = getHPClass(percentage);
+        const classLabel = getClassLabel(character.class_primary);
+        const ac = character.armor_class != null ? character.armor_class : "—";
+        const tempWidth = getTempHPWidth(character);
+        const conditionsHTML = getConditionsHTML(character.conditions || []);
+        const tempLabel =
+          character.hp_temp > 0
+            ? `<span class="hp-temp-label">+${character.hp_temp} tmp</span>`
+            : "";
 
         return `
-                <div class="character-hp" data-char-id="${character.id}">
-                    <div class="char-name">${character.name}</div>
-                    <div class="char-player">${character.player}</div>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar-fill ${hpClass}" style="width: ${percentage}%"></div>
-                    </div>
-                    <div class="hp-text">${character.hp_current} / ${character.hp_max}</div>
+          <div class="character-hp" data-char-id="${character.id}">
+            <div class="card-header">
+              <div class="char-avatar">${getAvatarHTML(character)}</div>
+              <div class="card-header-info">
+                <div class="char-name">${character.name}</div>
+                ${classLabel ? `<div class="char-class">${classLabel}</div>` : ""}
+                <div class="char-meta">
+                  <div class="char-player">${character.player}</div>
+                  <div class="ac-badge">CA ${ac}</div>
                 </div>
-            `;
+              </div>
+            </div>
+            <div class="hp-bar-container">
+              <div class="hp-bar-fill ${hpClass}" style="width: ${percentage}%"></div>
+              ${tempWidth > 0 ? `<div class="hp-bar-temp" style="width: ${tempWidth}%"></div>` : ""}
+            </div>
+            <div class="hp-text">
+              ${character.hp_current} / ${character.hp_max}${tempLabel}
+            </div>
+            ${conditionsHTML ? `<div class="conditions-row">${conditionsHTML}</div>` : ""}
+          </div>
+        `;
       }
 
       /**
-       * Updates an existing character HP card in the DOM.
-       * Only mutates the HP bar fill and text, preserving the rest of the card.
-       * This is more efficient than re-rendering the entire card on each update.
-       *
-       * The HP bar width transition is handled by CSS (0.5s cubic-bezier).
-       *
-       * @param {Object} character - Updated character data
-       * @param {string} character.id - Character ID to target
-       * @param {number} character.hp_current - New current HP
-       * @param {number} character.hp_max - Maximum HP
+       * Efficient HP update — only mutates the bar fill, text, and temp HP.
+       * Preserves avatar and other card content to avoid flicker.
        */
       function updateCharacterHP(character) {
-        const charElement = document.querySelector(
-          `[data-char-id="${character.id}"]`,
-        );
+        const charElement = document.querySelector(`[data-char-id="${character.id}"]`);
         if (!charElement) return;
 
-        const percentage = getHPPercentage(
-          character.hp_current,
-          character.hp_max,
-        );
+        const percentage = getHPPercentage(character.hp_current, character.hp_max);
         const hpClass = getHPClass(percentage);
 
         const hpBarFill = charElement.querySelector(".hp-bar-fill");
         const hpText = charElement.querySelector(".hp-text");
 
-        // Update HP bar color class based on new percentage
-        hpBarFill.classList.remove("healthy", "injured", "critical");
-        hpBarFill.classList.add(hpClass);
+        if (hpBarFill) {
+          hpBarFill.classList.remove("healthy", "injured", "critical");
+          hpBarFill.classList.add(hpClass);
+          hpBarFill.style.width = percentage + "%";
+        }
 
-        // Update bar width (CSS transition handles animation)
-        hpBarFill.style.width = percentage + "%";
+        if (hpText) {
+          const tempLabel =
+            character.hp_temp > 0
+              ? `<span class="hp-temp-label">+${character.hp_temp} tmp</span>`
+              : "";
+          hpText.innerHTML = `${character.hp_current} / ${character.hp_max}${tempLabel}`;
+        }
 
-        // Update HP text display
-        hpText.textContent = `${character.hp_current} / ${character.hp_max}`;
+        // Update temp HP bar
+        const existingTemp = charElement.querySelector(".hp-bar-temp");
+        const tempWidth = getTempHPWidth(character);
+        const container = charElement.querySelector(".hp-bar-container");
+        if (container) {
+          if (tempWidth > 0) {
+            if (existingTemp) {
+              existingTemp.style.width = tempWidth + "%";
+            } else {
+              const tempBar = document.createElement("div");
+              tempBar.className = "hp-bar-temp";
+              tempBar.style.width = tempWidth + "%";
+              container.appendChild(tempBar);
+            }
+          } else if (existingTemp) {
+            existingTemp.remove();
+          }
+        }
       }
 
-      /**
-       * Renders all character HP cards on initial load.
-       * Called once when 'initialData' event fires from server.
-       *
-       * @param {Array} characters - Array of character objects
-       */
+      /** Full re-render of a single character card (for photo/name changes) */
+      function replaceCharacterCard(character) {
+        const charElement = document.querySelector(`[data-char-id="${character.id}"]`);
+        if (!charElement) return;
+        const temp = document.createElement("div");
+        temp.innerHTML = createCharacterHP(character).trim();
+        charElement.replaceWith(temp.firstChild);
+      }
+
+      /** Initial render — all character cards */
       function renderAllCharacters(characters) {
         hpContainer.innerHTML = characters.map(createCharacterHP).join("");
       }
@@ -202,72 +262,79 @@
       // Socket.io Event Handlers
       // ───────────────────────────────────────────────────────────────────────
 
-      /**
-       * Fires when Socket.io successfully connects to the server.
-       * Shows a brief success status message.
-       */
       socket.on("connect", () => {
         console.log("Connected to server");
         showStatus("✓ Conectado");
       });
 
-      /**
-       * Fires when Socket.io disconnects from the server.
-       * Shows a warning status message.
-       */
       socket.on("disconnect", () => {
         console.log("Disconnected from server");
         showStatus("✗ Desconectado");
       });
 
-      /**
-       * Receives initial character data on connection.
-       * Renders all character HP cards in the container.
-       *
-       * Event payload structure:
-       * {
-       *   characters: [
-       *     {
-       *       id: string,
-       *       name: string,
-       *       player: string,
-       *       hp_current: number,
-       *       hp_max: number,
-       *       armor_class: number,
-       *       speed_walk: number,
-       *       ...
-       *     },
-       *     ...
-       *   ],
-       *   rolls: [...]
-       * }
-       */
       socket.on("initialData", (data) => {
         console.log("Initial data received:", data);
         renderAllCharacters(data.characters);
       });
 
-      /**
-       * Handles HP update events from the server.
-       * Triggered when any client updates a character's HP.
-       * Updates only the affected character's card (efficient DOM mutation).
-       *
-       * Event payload structure:
-       * {
-       *   character: { id, name, hp_current, hp_max, ... },
-       *   hp_current: number  // Duplicate for convenience
-       * }
-       */
       socket.on("hp_updated", (data) => {
         console.log("HP updated:", data);
         updateCharacterHP(data.character);
         showStatus(`${data.character.name}: ${data.hp_current} HP`);
       });
 
-      /**
-       * Fires when Socket.io connection fails or encounters an error.
-       * Shows an error status message.
-       */
+      /** Full card refresh when photo, name, or other fields change */
+      socket.on("character_updated", (data) => {
+        console.log("Character updated:", data);
+        replaceCharacterCard(data.character);
+      });
+
+      /** Add a condition badge and flash the card */
+      socket.on("condition_added", (data) => {
+        console.log("Condition added:", data);
+        const charElement = document.querySelector(`[data-char-id="${data.charId}"]`);
+        if (!charElement) return;
+
+        // Ensure conditions row exists
+        let condRow = charElement.querySelector(".conditions-row");
+        if (!condRow) {
+          condRow = document.createElement("div");
+          condRow.className = "conditions-row";
+          charElement.appendChild(condRow);
+        }
+
+        // Only append if under the visible limit (3 badges)
+        const visibleBadges = condRow.querySelectorAll("[data-cond-id]").length;
+        if (visibleBadges < 3) {
+          const badge = document.createElement("span");
+          badge.className = "condition-badge";
+          badge.dataset.condId = data.condition.id;
+          badge.textContent = data.condition.condition_name;
+          condRow.appendChild(badge);
+        }
+
+        // Flash the card red
+        charElement.classList.remove("flash-condition");
+        void charElement.offsetWidth; // force reflow to restart animation
+        charElement.classList.add("flash-condition");
+        setTimeout(() => charElement.classList.remove("flash-condition"), 800);
+
+        showStatus(`${data.condition.condition_name} → ${data.charId}`);
+      });
+
+      /** Remove a condition badge */
+      socket.on("condition_removed", (data) => {
+        console.log("Condition removed:", data);
+        const charElement = document.querySelector(`[data-char-id="${data.charId}"]`);
+        if (!charElement) return;
+
+        const badge = charElement.querySelector(`[data-cond-id="${data.conditionId}"]`);
+        if (badge) badge.remove();
+
+        const condRow = charElement.querySelector(".conditions-row");
+        if (condRow && condRow.children.length === 0) condRow.remove();
+      });
+
       socket.on("connect_error", (error) => {
         console.error("Connection error:", error);
         showStatus("✗ Error de conexión");
