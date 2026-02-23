@@ -20,6 +20,9 @@ jobs:
           - os: macos-latest
             output: overlays-server
             asset_name: overlays-server-macos
+          - os: ubuntu-latest
+            output: overlays-server
+            asset_name: overlays-server-linux
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
