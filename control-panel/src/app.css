@@ -452,22 +452,31 @@ a {
 
 /* Character cards: single column on small screens, two on medium+. */
 .characters-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-3);
-  align-items: start;
+  /* Masonry-style column layout: use CSS columns for variable height cards.
+     Fallback to a single column on small screens. */
+  display: block;
+  column-gap: var(--space-3);
+  /* Try to balance column heights to reduce large reflows when items change */
+  -webkit-column-fill: balance;
+  column-fill: balance;
 }
 
-@media (min-width: 768px) {
+/* Single column on mobile */
+.characters-grid {
+  column-count: 1;
+}
+
+/* Two columns at tablet+ */
+@media (min-width: 640px) {
   .characters-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-count: 2;
   }
 }
 
-/* Only enable 3-column layout on large screens when there are more than 2 cards. */
-@media (min-width: 1024px) {
+/* Three columns at medium screens when there are 3+ cards */
+@media (min-width: 768px) {
   .characters-grid.grid-three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-count: 3;
   }
 }
 
