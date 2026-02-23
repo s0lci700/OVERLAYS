@@ -76,6 +76,18 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-pill: 999px;
+  /* Z-index scale: documented layer order. */
+  --z-sidebar-backdrop: 30;
+  --z-sidebar: 40;
+  --z-nav: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  /* Opacity tokens for consistent translucency across UI. */
+  --alpha-subtle: 0.04;
+  --alpha-dim: 0.12;
+  --alpha-medium: 0.35;
+  --alpha-overlay: 0.65;
+  --alpha-solid: 0.88;
   /* Motion presets to keep animations consistent. */
   --t-fast: 150ms ease;
   --t-normal: 250ms ease;
@@ -117,6 +129,27 @@ body {
   flex-direction: column;
 }
 
+/* Skip-to-content link: visible only on keyboard focus for a11y. */
+.skip-to-content {
+  position: absolute;
+  left: -999px;
+  top: var(--space-2);
+  z-index: 100;
+  background: var(--black-elevated);
+  color: var(--cyan);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--cyan);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.skip-to-content:focus {
+  left: var(--space-4);
+}
+
 button {
   /* Buttons are styled per-component; defaults keep them neutral. */
   cursor: pointer;
@@ -147,7 +180,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 select {
-  /* Hide native dropdown arrow; custom arrow icon is in markup. */
+  /* Reset native select for custom styling. */
   appearance: none;
   -webkit-appearance: none;
   font: inherit;
@@ -156,6 +189,33 @@ select {
   background: none;
   color: inherit;
   outline: none;
+}
+
+/* Reusable styled select: dark elevated bg, grey border, chevron arrow. */
+.selector {
+  min-height: 44px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  padding-right: 32px;
+  background-color: var(--black-elevated);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23888888' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
+  color: var(--white);
+  font-family: var(--font-ui);
+}
+
+.selector:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim);
+}
+
+.selector[multiple] {
+  min-height: 140px;
+  padding: var(--space-2) var(--space-3);
+  background-image: none;
 }
 
 h1,
@@ -256,6 +316,35 @@ a {
 .btn-base:active {
   transform: translate(3px, 3px);
   box-shadow: none !important;
+}
+
+/* ── Selection preview pills (below multi-selects) ── */
+.selection-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.selection-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0, 212, 232, 0.25);
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.selection-count {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  margin-left: var(--space-1);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -399,7 +488,7 @@ a {
   left: 0;
   right: 0;
   width: 100%;
-  z-index: 50;
+  z-index: var(--z-nav);
   flex-shrink: 0;
   display: flex;
   background: var(--black);
@@ -477,7 +566,7 @@ a {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 30;
+  z-index: var(--z-sidebar-backdrop);
 }
 
 .app-sidebar {
@@ -494,7 +583,7 @@ a {
   gap: var(--space-3);
   transform: translateX(-102%);
   transition: transform var(--t-normal);
-  z-index: 40;
+  z-index: var(--z-sidebar);
   overflow-y: auto;
 }
 

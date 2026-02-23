@@ -1,5 +1,11 @@
 {
   "[svelte]": {
     "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "/^cd c:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS ; node server\\.js$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   }
 }

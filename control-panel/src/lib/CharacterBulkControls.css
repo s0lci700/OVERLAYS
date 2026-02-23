@@ -116,3 +116,44 @@
   border-color: var(--grey);
   color: var(--white);
 }
+
+/* Inline error toast for bulk operations */
+.bulk-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(255, 77, 106, 0.15);
+  border: 1px solid rgba(255, 77, 106, 0.4);
+  border-radius: var(--radius-md);
+  color: var(--red);
+  font-size: 0.75rem;
+  font-family: var(--font-ui);
+  animation: bulkToastIn 0.25s ease-out;
+}
+
+.bulk-toast > span {
+  flex: 1;
+}
+
+.bulk-toast-close {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 var(--space-1);
+  line-height: 1;
+}
+
+@keyframes bulkToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

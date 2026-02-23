@@ -99,7 +99,7 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     await page.goto(`${CONTROL_PANEL_URL}/dashboard`);
 
     await expect(page.getByText("Dashboard de personajes")).toBeVisible();
-    await expect(page.getByText("Ultimas acciones")).toBeVisible();
+    await expect(page.getByText("Últimas acciones")).toBeVisible();
     await expect(page.getByText("Ultimos dados")).toBeVisible();
 
     const cards = page.locator(".dashboard-card");

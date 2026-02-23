@@ -15,6 +15,15 @@
   let selectedCount = $derived(selectedIds.size);
   let hasSelection = $derived(selectionMode && selectedCount > 0);
 
+  let bulkError = $state("");
+  let bulkErrorTimer;
+
+  function showBulkError(msg) {
+    bulkError = msg;
+    clearTimeout(bulkErrorTimer);
+    bulkErrorTimer = setTimeout(() => (bulkError = ""), 4000);
+  }
+
   function toggleSelectionMode() {
     selectionMode = !selectionMode;
     if (!selectionMode) {
@@ -77,7 +86,7 @@
       );
     } catch (error) {
       console.error("Bulk HP update failed", error);
-      alert("No se pudo actualizar a todos. Intenta nuevamente.");
+      showBulkError("No se pudo actualizar a todos. Intenta nuevamente.");
     }
   }
 
@@ -100,14 +109,26 @@
       );
     } catch (error) {
       console.error("Bulk rest failed", error);
-      alert("No se pudo aplicar el descanso a todos.");
+      showBulkError("No se pudo aplicar el descanso a todos.");
     }
   }
 </script>
 
 <section class="bulk-controls">
-  <span class="bulk-controls-title">Seleccion multiple</span>
+  <span class="bulk-controls-title">Selección múltiple</span>
   <span class="bulk-controls-count">{selectedCount} elegidos</span>
+
+  {#if bulkError}
+    <div class="bulk-toast" role="alert">
+      <span>{bulkError}</span>
+      <button
+        class="bulk-toast-close"
+        onclick={() => (bulkError = "")}
+        aria-label="Cerrar">&times;</button
+      >
+    </div>
+  {/if}
+
   <div class="bulk-controls-actions">
     <button
       class="bulk-toggle"
@@ -146,7 +167,7 @@
       onclick={() => applyBulkHp("damage")}
       disabled={!hasSelection}
     >
-      − Dano
+      − Daño
     </button>
     <button
       class="btn-base bulk-action heal"

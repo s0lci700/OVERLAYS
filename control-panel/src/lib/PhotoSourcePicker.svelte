@@ -165,6 +165,8 @@
           class="photo-segment-btn"
           class:dense
           class:active={source === "preset"}
+          role="tab"
+          aria-selected={source === "preset"}
           onclick={() => onSourceChange("preset")}
         >
           Preset
@@ -174,6 +176,8 @@
           class="photo-segment-btn"
           class:dense
           class:active={source === "url"}
+          role="tab"
+          aria-selected={source === "url"}
           onclick={() => onSourceChange("url")}
         >
           URL
@@ -183,6 +187,8 @@
           class="photo-segment-btn"
           class:dense
           class:active={source === "local"}
+          role="tab"
+          aria-selected={source === "local"}
           onclick={() => onSourceChange("local")}
         >
           Archivo Local
@@ -190,9 +196,35 @@
       </div>
 
       {#if source === "preset"}
+        <!-- Preset gallery: show thumbnails for quick selection similar to the modal design -->
+        <div class="photo-gallery" role="list">
+          {#each options as option (option.value)}
+            <button
+              type="button"
+              class="photo-thumb"
+              class:active={option.value === presetValue}
+              aria-pressed={option.value === presetValue}
+              onclick={() => onPresetChange(option.value)}
+              title={option.label}
+            >
+              {#if option.value}
+                <img
+                  src={resolveOptionalPhotoSrc(option.value)}
+                  alt={option.label}
+                />
+              {:else}
+                <div class="photo-random">Aleatorio</div>
+              {/if}
+              <span class="thumb-label">{option.label}</span>
+              {#if option.value === presetValue}
+                <span class="thumb-check">✓</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+        <!-- Hidden native select kept for accessibility/ forms integration -->
         <select
-          class="photo-select"
-          class:dense
+          class="photo-select visually-hidden"
           value={presetValue}
           onchange={(event) => onPresetChange(event.currentTarget.value)}
         >

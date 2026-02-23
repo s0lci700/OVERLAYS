@@ -1,15 +1,20 @@
-/**
- * CharacterCreationForm Styles
- * ============================
- * Styles for the character creation form card and its inputs.
- */
+/*
+  CharacterCreationForm Styles
+  ============================
+  Inline documentation:
+  - This stylesheet only contains presentation rules for the `CharacterCreationForm`
+    component. It is intentionally scoped to class names used by the component.
+  - Keep selectors simple — component markup relies on these utility tokens
+    (e.g., `.create-grid--two`) to adapt layout across breakpoints.
+  - Avoid adding global overrides here; prefer shared tokens in `app.css`.
+*/
 
 /* Root container: relies on shared card layout from .card-base and adds vertical rhythm. */
 .character-create {
   width: 100%;
-  max-width: 860px;
+  max-width: 1200px;
   margin-inline: auto;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 /* Header block: title + helper subtitle. */
@@ -32,46 +37,174 @@
   font-size: 0.85rem;
 }
 
+/*
+  Field selector mapping (quick reference):
+  - Foto (photo picker/modal): markup uses `.photo-section` in the Svelte
+    template; visual styles live in `PhotoSourcePicker.css` (`.photo-modal-card`,
+    `.photo-preview-inline`, `.photo-dropzone`, `.photo-gallery`).
+  - Nombre / Jugador (text inputs): styled by `.create-field` and
+    `.create-field input` below.
+  - HP / AC / VEL and other grouped stats: use `.create-grid` and the
+    modifiers `.create-grid--two` / `.create-grid--three` to control columns.
+*/
+
+/* Group-specific layout helpers
+   These rules target the explicit grouping classes added to the template so
+   you can tune each block independently without touching generic utilities.
+*/
+
+/* 1) Identity: Nombre + Jugador — two equal columns on wide screens */
+.identity-group {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: var(--space-2);
+  align-items: start;
+}
+@media (max-width: 480px) {
+  .identity-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 2) Stats: HP MAX / AC / VEL — prefer three columns on desktop */
+.stats-grid {
+  gap: var(--space-2);
+}
+@media (max-width: 720px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 3) Options block: broader grid for character options; let `.create-grid--two`
+   promote to three columns at large widths while keeping sensible defaults. */
+
+.options-section .create-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 1100px) {
+  .options-section .create-grid--two {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 4) Languages block: keep selects tall but compact, two columns on tablet */
+
+.languages-section .create-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+@media (max-width: 720px) {
+  .languages-section .create-grid--two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 5) Equipment block: items + trinket — keep two columns but allow the items
+   column to flex larger while the trinket select remains compact. */
+.equipment-section {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: var(--space-2);
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .equipment-section {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Form stack: each field group separated by spacing scale. */
 .create-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
+/*
+  Top-level form layout.
+  - `grid-template-columns: 1fr auto` creates two areas:
+    * `1fr` main column for the form fields (flows vertically)
+    * `auto` reserved for an optional sidebar/tooling column (used sparingly)
+  - The sidebar column is intentionally `auto` so it only takes the width it
+    needs; responsive rules elsewhere collapse or repurpose this column on
+    narrow viewports.
+*/
 .create-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-3);
-}
-
-.create-fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.create-photo {
-  order: -1;
-  align-self: start;
-}
-
-/* Stats row (HP/AC/VEL). Mobile-first single column by default. */
-.create-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-2);
 }
 
+/*
+  Fields column (main vertical stack).
+  - A simple vertical flex container that stacks each `.create-section` and
+    input block. Keeps consistent vertical rhythm using the design token gap.
+  - This container lives in the main `1fr` area of `.create-layout`.
+*/
+.create-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Stats row (HP/AC/VEL). Mobile-first single column by default. */
+/*
+  Compact form grid (mobile-first).
+  - Used for small grouped rows (e.g., HP / AC / VEL). Defaults to a single
+    column on narrow viewports so inputs stack vertically for comfortable touch
+    targets.
+  - Paired variations toggle this class to a multi-column layout using the
+    modifier classes below.
+*/
+.create-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  gap: var(--space-2);
+}
+
+/*
+  Two-column utility grid.
+  - Promotes grouped controls (like class + subclass, or paired selects) to a
+    two-column layout when there is enough horizontal space.
+  - At wider breakpoints this modifier is promoted further (see media query)
+    to place more controls on the same row and reduce vertical scrolling.
+*/
 .create-grid--two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Three-column grid for wider viewports. */
+/*
+  Three-column utility grid.
+  - Used for denser option groups where three compact controls should appear
+    side-by-side (e.g., numeric / short selects).
+  - Apply sparingly; on small viewports it naturally collapses back to single
+    column via the base `.create-grid` rules and breakpoints.
+*/
+.create-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/*
+  Section wrapper.
+  - Groups related form controls into a visually separated block. Each
+    `.create-section` adds a small top padding and a subtle top border to
+    delineate sections (identity, options, languages, etc.).
+  - Internally uses a vertical flow so headings, controls and helper text
+    naturally stack.
+*/
 .create-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-top: var(--space-3);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--grey-dim);
 }
 
@@ -86,12 +219,12 @@
 .create-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 /* Input baseline styles aligned with panel dark theme. */
-.create-field input,
-.create-field select {
+.create-field input {
+  /* max-width: 1fr; */
   min-height: 44px;
   border: 1px solid var(--grey-dim);
   border-radius: var(--radius-md);
@@ -101,14 +234,8 @@
   font-family: var(--font-ui);
 }
 
-.create-field select[multiple] {
-  min-height: 140px;
-  padding: var(--space-2) var(--space-3);
-}
-
 /* Focus visibility for keyboard/touch-edit interactions. */
-.create-field input:focus,
-.create-field select:focus {
+.create-field input:focus {
   border-color: var(--cyan);
   box-shadow: 0 0 0 1px var(--cyan-dim);
 }
@@ -153,13 +280,12 @@
   }
 }
 
-@media (min-width: 900px) {
-  .create-layout {
-    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 320px);
-    align-items: start;
-  }
+/* Desktop layout intentionally single-column for form fields; photo picker is an inline section.
+   The sidebar grid was removed to avoid an empty column beneath the photo picker. */
 
-  .create-photo {
-    order: 0;
+/* On wide screens, promote 2-col option grids to 3-col for better screen usage. */
+@media (min-width: 1100px) {
+  .create-grid--two {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

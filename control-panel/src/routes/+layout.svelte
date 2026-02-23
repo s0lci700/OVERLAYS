@@ -17,17 +17,12 @@
     isSidebarOpen = !isSidebarOpen;
   }
 
-  function navigateTo(path) {
-    window.location.hash = "";
-    window.location.pathname = path;
-    isSidebarOpen = false;
-  }
-
   let isDashboard = $derived($page.url.pathname.startsWith("/dashboard"));
   let isManagement = $derived($page.url.pathname.includes("/management"));
 </script>
 
 <div class="app-shell">
+  <a class="skip-to-content" href="#main-content">Saltar al contenido</a>
   <header class="app-header">
     <div class="brand-wordmark">
       <span class="brand-block">ESDH</span>
@@ -54,7 +49,7 @@
     </div>
   </header>
 
-  <main class="app-main">
+  <main class="app-main" id="main-content">
     {@render children()}
   </main>
 

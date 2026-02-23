@@ -28,13 +28,18 @@
     "/assets/img/wizard.png",
   ];
 
-  function resolvePhotoSrc(photoPath) {
+  function resolvePhotoSrc(photoPath, charId) {
     if (!photoPath) {
-      const randomOption =
-        FALLBACK_PHOTO_OPTIONS[
-          Math.floor(Math.random() * FALLBACK_PHOTO_OPTIONS.length)
-        ];
-      return `${SERVER_URL}${randomOption}`;
+      const index = charId
+        ? Math.abs(
+            [...charId].reduce(
+              (h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0,
+              0,
+            ),
+          ) % FALLBACK_PHOTO_OPTIONS.length
+        : 0;
+      const fallback = FALLBACK_PHOTO_OPTIONS[index];
+      return `${SERVER_URL}${fallback}`;
     }
 
     if (
@@ -87,6 +92,19 @@
   /** Previous HP value for detecting damage and triggering flash animation. */
   let prevHp = 0;
 
+  /** Inline error message shown inside the card (replaces window.alert). */
+  let cardError = $state("");
+  let cardErrorTimer;
+
+  /** Loading guard — prevents spam-clicking action buttons during API calls. */
+  let isUpdating = $state(false);
+
+  function showCardError(msg) {
+    cardError = msg;
+    clearTimeout(cardErrorTimer);
+    cardErrorTimer = setTimeout(() => (cardError = ""), 4000);
+  }
+
   // Initialize prevHp on mount to avoid capturing `character` at module evaluation time
   onMount(() => {
     prevHp = character.hp_current;
@@ -131,14 +149,14 @@
 
       animate(charBodyEl, {
         height: 0,
-        duration: 700,
+        duration: 400,
         ease: "inOutCubic",
       });
 
       animate(charBodyEl, {
         opacity: 0,
-        duration: 450,
-        delay: 150,
+        duration: 300,
+        delay: 80,
         ease: "linear",
         complete: () => {
           charBodyEl.style.display = "none";
@@ -188,6 +206,9 @@
    * @param {'damage' | 'heal'} type - Whether to subtract or add HP
    */
   async function updateHp(type) {
+    if (isUpdating) return;
+    isUpdating = true;
+    if (navigator.vibrate) navigator.vibrate(40);
     let newHp =
       type === "damage"
         ? character.hp_current - amount
@@ -204,13 +225,13 @@
       );
       if (!response.ok) {
         console.error("Failed to update HP", response.status);
-        alert("Failed to update HP. Please try again.");
+        showCardError("Error al actualizar HP. Intenta de nuevo.");
       }
     } catch (error) {
       console.error("Error while updating HP", error);
-      alert(
-        "An error occurred while updating HP. Please check your connection and try again.",
-      );
+      showCardError("Sin conexión. Revisa tu red e intenta de nuevo.");
+    } finally {
+      isUpdating = false;
     }
   }
 
@@ -270,22 +291,28 @@
    * @param {'short' | 'long'} type - Whether a short or long rest
    */
   async function takeRest(type) {
-    const response = await fetch(
-      `${SERVER_URL}/api/characters/${character.id}/rest`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type }),
-      },
-    );
-    if (!response.ok) console.error("Failed to take rest", response.status);
+    if (isUpdating) return;
+    isUpdating = true;
+    try {
+      const response = await fetch(
+        `${SERVER_URL}/api/characters/${character.id}/rest`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type }),
+        },
+      );
+      if (!response.ok) console.error("Failed to take rest", response.status);
+    } finally {
+      isUpdating = false;
+    }
   }
 
   function handlePhotoError(event) {
     const imgEl = event.currentTarget;
     if (imgEl.dataset.fallbackApplied === "true") return;
     imgEl.dataset.fallbackApplied = "true";
-    imgEl.src = resolvePhotoSrc("");
+    imgEl.src = resolvePhotoSrc("", character.id);
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -304,7 +331,7 @@
         : "hp--critical",
   );
 
-  const photoSrc = $derived(resolvePhotoSrc(character.photo));
+  const photoSrc = $derived(resolvePhotoSrc(character.photo, character.id));
 </script>
 
 <!-- ────────────────────────────────────────────────────────────────────────
@@ -319,6 +346,18 @@
 >
   <!-- Damage flash overlay, animated when HP is reduced -->
   <div class="hit-flash" bind:this={hitFlashEl}></div>
+
+  <!-- Inline error toast (replaces window.alert) -->
+  {#if cardError}
+    <div class="card-toast" role="alert">
+      <span class="card-toast-msg">{cardError}</span>
+      <button
+        class="card-toast-close"
+        onclick={() => (cardError = "")}
+        aria-label="Cerrar">&times;</button
+      >
+    </div>
+  {/if}
 
   <!-- Character name, player name, and current/max HP display -->
   <div class="char-header">
@@ -439,18 +478,26 @@
       <!-- Short/long rest buttons to restore resources -->
       <fieldset class="rest-buttons">
         <legend class="rest-label">DESCANSOS</legend>
-        <button class="btn-base btn-rest" onclick={() => takeRest("short")}
-          >CORTO</button
+        <button
+          class="btn-base btn-rest"
+          onclick={() => takeRest("short")}
+          disabled={isUpdating}>CORTO</button
         >
-        <button class="btn-base btn-rest" onclick={() => takeRest("long")}
-          >LARGO</button
+        <button
+          class="btn-base btn-rest"
+          onclick={() => takeRest("long")}
+          disabled={isUpdating}>LARGO</button
         >
       </fieldset>
     {/if}
 
     <!-- HP damage/healing controls -->
     <div class="char-controls">
-      <button class="btn-base btn-damage" onclick={() => updateHp("damage")}>
+      <button
+        class="btn-base btn-damage"
+        disabled={isUpdating}
+        onclick={() => updateHp("damage")}
+      >
         − DAÑO
       </button>
 
@@ -476,7 +523,11 @@
         >
       </div>
 
-      <button class="btn-base btn-heal" onclick={() => updateHp("heal")}>
+      <button
+        class="btn-base btn-heal"
+        disabled={isUpdating}
+        onclick={() => updateHp("heal")}
+      >
         + CURAR
       </button>
     </div>

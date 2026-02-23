@@ -16,6 +16,9 @@ control-panel/dist
 control-panel/build
 control-panel/.svelte-kit/
 
+*.png
+./*.yaml
+.playwright-cli/*.yml
 
 # Build output
 control-panel/build/

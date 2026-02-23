@@ -6,6 +6,7 @@
 -->
 <script>
   import "./CharacterManagement.css";
+  import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
   import characterOptions from "../../../docs/character-options.template.json";
@@ -49,6 +50,15 @@
   let editOpenById = $state({});
 
   let activePhotoId = $state(null);
+  let photoDialogEl = $state(null);
+
+  $effect(() => {
+    if (activePhotoId && photoDialogEl && !photoDialogEl.open) {
+      photoDialogEl.showModal();
+    } else if (!activePhotoId && photoDialogEl?.open) {
+      photoDialogEl.close();
+    }
+  });
 
   /**
    * @typedef {{key: string, label: string}} OptionEntry
@@ -99,6 +109,17 @@
       alignmentOptions.map((option) => [option.key, option.label]),
     ),
   };
+
+  // Unified label lookup for pill previews.
+  const labelOf = new Map([
+    ...languageOptions.map((o) => [o.key, o.label]),
+    ...rareLanguageOptions.map((o) => [o.key, o.label]),
+    ...skillOptions.map((o) => [o.key, o.label]),
+    ...toolOptions.map((o) => [o.key, o.label]),
+    ...armorOptions.map((o) => [o.key, o.label]),
+    ...weaponOptions.map((o) => [o.key, o.label]),
+    ...itemOptions.map((o) => [o.key, o.label]),
+  ]);
 
   const FALLBACK_PHOTO_OPTIONS = [
     "/assets/img/barbarian.png",
@@ -632,6 +653,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Clase</span>
                   <select
+                    class="selector"
                     value={classPrimaryById[character.id]}
                     oninput={(event) =>
                       (classPrimaryById = updateField(
@@ -649,6 +671,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Subclase</span>
                   <select
+                    class="selector"
                     value={classSubclassById[character.id]}
                     oninput={(event) =>
                       (classSubclassById = updateField(
@@ -686,6 +709,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Background</span>
                   <select
+                    class="selector"
                     value={backgroundNameById[character.id]}
                     oninput={(event) =>
                       (backgroundNameById = updateField(
@@ -703,6 +727,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Feat</span>
                   <select
+                    class="selector"
                     value={backgroundFeatById[character.id]}
                     oninput={(event) =>
                       (backgroundFeatById = updateField(
@@ -725,6 +750,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Especie</span>
                   <select
+                    class="selector"
                     value={speciesNameById[character.id]}
                     oninput={(event) =>
                       (speciesNameById = updateField(
@@ -742,6 +768,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Tamaño</span>
                   <select
+                    class="selector"
                     value={speciesSizeById[character.id]}
                     oninput={(event) =>
                       (speciesSizeById = updateField(
@@ -759,6 +786,7 @@
                 <label class="manage-field">
                   <span class="label-caps">Alineamiento</span>
                   <select
+                    class="selector"
                     value={alignmentById[character.id]}
                     oninput={(event) =>
                       (alignmentById = updateField(
@@ -779,226 +807,196 @@
             <div class="manage-section">
               <h4 class="manage-section-title">Idiomas y proficiencias</h4>
               <div class="manage-grid-two">
-                <label class="manage-field">
-                  <span class="label-caps">Idiomas</span>
-                  <select
-                    multiple
-                    size={Math.max(3, Math.min(6, languageOptions.length || 3))}
-                    value={languagesById[character.id]}
-                    oninput={(event) =>
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Idiomas {#if languagesById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{languagesById[character.id].length}</span
+                      >{/if}</span
+                  >
+                  <MultiSelect
+                    options={languageOptions}
+                    selected={languagesById[character.id] || []}
+                    onchange={(v) =>
                       (languagesById = updateListField(
                         languagesById,
                         character.id,
-                        getSelectValues(event),
+                        v,
                       ))}
+                    size={Math.max(3, Math.min(6, languageOptions.length || 3))}
+                  />
+                  {#if languagesById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each languagesById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Idiomas raros {#if rareLanguagesById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{rareLanguagesById[character.id].length}</span
+                      >{/if}</span
                   >
-                    {#if languageOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each languageOptions as option}
-                        <option
-                          value={option.key}
-                          selected={languagesById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
-                <label class="manage-field">
-                  <span class="label-caps">Idiomas raros</span>
-                  <select
-                    multiple
+                  <MultiSelect
+                    options={rareLanguageOptions}
+                    selected={rareLanguagesById[character.id] || []}
+                    onchange={(v) =>
+                      (rareLanguagesById = updateListField(
+                        rareLanguagesById,
+                        character.id,
+                        v,
+                      ))}
                     size={Math.max(
                       3,
                       Math.min(6, rareLanguageOptions.length || 3),
                     )}
-                    value={rareLanguagesById[character.id]}
-                    oninput={(event) =>
-                      (rareLanguagesById = updateListField(
-                        rareLanguagesById,
-                        character.id,
-                        getSelectValues(event),
-                      ))}
-                  >
-                    {#if rareLanguageOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each rareLanguageOptions as option}
-                        <option
-                          value={option.key}
-                          selected={rareLanguagesById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
+                  />
+                  {#if rareLanguagesById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each rareLanguagesById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
               </div>
               <div class="manage-grid-two">
-                <label class="manage-field">
-                  <span class="label-caps">Skills</span>
-                  <select
-                    multiple
-                    size={Math.max(4, Math.min(8, skillOptions.length || 4))}
-                    value={skillsById[character.id]}
-                    oninput={(event) =>
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Skills {#if skillsById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{skillsById[character.id].length}</span
+                      >{/if}</span
+                  >
+                  <MultiSelect
+                    options={skillOptions}
+                    selected={skillsById[character.id] || []}
+                    onchange={(v) =>
                       (skillsById = updateListField(
                         skillsById,
                         character.id,
-                        getSelectValues(event),
+                        v,
                       ))}
+                    size={Math.max(4, Math.min(8, skillOptions.length || 4))}
+                  />
+                  {#if skillsById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each skillsById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Herramientas {#if toolsById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{toolsById[character.id].length}</span
+                      >{/if}</span
                   >
-                    {#if skillOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each skillOptions as option}
-                        <option
-                          value={option.key}
-                          selected={skillsById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
-                <label class="manage-field">
-                  <span class="label-caps">Herramientas</span>
-                  <select
-                    multiple
+                  <MultiSelect
+                    options={toolOptions}
+                    selected={toolsById[character.id] || []}
+                    onchange={(v) =>
+                      (toolsById = updateListField(toolsById, character.id, v))}
                     size={Math.max(4, Math.min(8, toolOptions.length || 4))}
-                    value={toolsById[character.id]}
-                    oninput={(event) =>
-                      (toolsById = updateListField(
-                        toolsById,
-                        character.id,
-                        getSelectValues(event),
-                      ))}
-                  >
-                    {#if toolOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each toolOptions as option}
-                        <option
-                          value={option.key}
-                          selected={toolsById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
+                  />
+                  {#if toolsById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each toolsById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
               </div>
               <div class="manage-grid-two">
-                <label class="manage-field">
-                  <span class="label-caps">Armadura</span>
-                  <select
-                    multiple
-                    size={Math.max(3, Math.min(6, armorOptions.length || 3))}
-                    value={armorById[character.id]}
-                    oninput={(event) =>
-                      (armorById = updateListField(
-                        armorById,
-                        character.id,
-                        getSelectValues(event),
-                      ))}
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Armadura {#if armorById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{armorById[character.id]
+                          .length}/{armorOptions.length}</span
+                      >{/if}</span
                   >
-                    {#if armorOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each armorOptions as option}
-                        <option
-                          value={option.key}
-                          selected={armorById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
-                <label class="manage-field">
-                  <span class="label-caps">Armas</span>
-                  <select
-                    multiple
-                    size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
-                    value={weaponsById[character.id]}
-                    oninput={(event) =>
+                  <MultiSelect
+                    options={armorOptions}
+                    selected={armorById[character.id] || []}
+                    onchange={(v) =>
+                      (armorById = updateListField(armorById, character.id, v))}
+                    size={Math.max(3, Math.min(6, armorOptions.length || 3))}
+                  />
+                  {#if armorById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each armorById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Armas {#if weaponsById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{weaponsById[character.id]
+                          .length}/{weaponOptions.length}</span
+                      >{/if}</span
+                  >
+                  <MultiSelect
+                    options={weaponOptions}
+                    selected={weaponsById[character.id] || []}
+                    onchange={(v) =>
                       (weaponsById = updateListField(
                         weaponsById,
                         character.id,
-                        getSelectValues(event),
+                        v,
                       ))}
-                  >
-                    {#if weaponOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each weaponOptions as option}
-                        <option
-                          value={option.key}
-                          selected={weaponsById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
+                    size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
+                  />
+                  {#if weaponsById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each weaponsById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
               </div>
             </div>
 
             <div class="manage-section">
               <h4 class="manage-section-title">Equipo</h4>
               <div class="manage-grid-two">
-                <label class="manage-field">
-                  <span class="label-caps">Items</span>
-                  <select
-                    multiple
-                    size={Math.max(3, Math.min(6, itemOptions.length || 3))}
-                    value={itemsById[character.id]}
-                    oninput={(event) =>
-                      (itemsById = updateListField(
-                        itemsById,
-                        character.id,
-                        getSelectValues(event),
-                      ))}
-                    disabled={itemOptions.length === 0}
+                <div class="manage-field">
+                  <span class="label-caps"
+                    >Items {#if itemsById[character.id]?.length > 0}<span
+                        class="selection-count"
+                        >{itemsById[character.id].length}</span
+                      >{/if}</span
                   >
-                    {#if itemOptions.length === 0}
-                      <option value="">Sin opciones</option>
-                    {:else}
-                      {#each itemOptions as option}
-                        <option
-                          value={option.key}
-                          selected={itemsById[character.id]?.includes(
-                            option.key,
-                          )}
-                        >
-                          {option.label}
-                        </option>
-                      {/each}
-                    {/if}
-                  </select>
-                </label>
+                  <MultiSelect
+                    options={itemOptions}
+                    selected={itemsById[character.id] || []}
+                    onchange={(v) =>
+                      (itemsById = updateListField(itemsById, character.id, v))}
+                    disabled={itemOptions.length === 0}
+                    size={Math.max(3, Math.min(6, itemOptions.length || 3))}
+                  />
+                  {#if itemsById[character.id]?.length > 0}
+                    <div class="selection-pills">
+                      {#each itemsById[character.id] as key}<span
+                          class="selection-pill">{labelOf.get(key) || key}</span
+                        >{/each}
+                    </div>
+                  {/if}
+                </div>
                 <label class="manage-field">
                   <span class="label-caps">Trinket</span>
                   <select
+                    class="selector"
                     value={trinketById[character.id]}
                     oninput={(event) =>
                       (trinketById = updateField(
@@ -1059,13 +1057,12 @@
 </section>
 
 {#if activePhotoId}
-  <button
-    class="photo-modal-backdrop"
-    type="button"
-    aria-label="Cerrar editor de foto"
-    onclick={closePhotoEditor}
-  ></button>
-  <dialog class="photo-modal" open aria-labelledby="photo-modal-title">
+  <dialog
+    class="photo-modal"
+    bind:this={photoDialogEl}
+    aria-labelledby="photo-modal-title"
+    onclose={closePhotoEditor}
+  >
     <div class="photo-modal-card card-base">
       <header class="photo-modal-head">
         <h3 id="photo-modal-title" class="photo-modal-title">Editar foto</h3>

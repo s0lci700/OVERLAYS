@@ -99,6 +99,7 @@
    * @param {number} diceType - Number of sides on the die
    */
   async function rollDice(diceType) {
+    if (navigator.vibrate) navigator.vibrate(50);
     let rollValue = roll(diceType);
 
     const payload = {

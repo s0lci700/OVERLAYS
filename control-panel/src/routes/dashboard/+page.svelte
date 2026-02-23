@@ -63,9 +63,9 @@
   {/if}
 
   <section class="dashboard-meta">
-    <div class="dashboard-log">
+    <div class="dashboard-log" aria-live="polite">
       <div class="dashboard-log-head">
-        <h2 class="dashboard-log-title">Ultimas acciones</h2>
+        <h2 class="dashboard-log-title">Últimas acciones</h2>
       </div>
       <ul class="dashboard-log-list">
         {#each actionHistory as entry (entry.timestamp)}
@@ -85,9 +85,9 @@
       </ul>
     </div>
 
-    <div class="dashboard-log">
+    <div class="dashboard-log" aria-live="polite">
       <div class="dashboard-log-head">
-        <h2 class="dashboard-log-title">Ultimos dados</h2>
+        <h2 class="dashboard-log-title">Últimos dados</h2>
       </div>
       <ul class="dashboard-log-list">
         {#each rollHistory as entry (entry.timestamp)}
