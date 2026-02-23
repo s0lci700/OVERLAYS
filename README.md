@@ -15,7 +15,7 @@ Controlá personajes, puntos de vida y tiradas de dado desde el celular. Los ove
 
 ## Demo en vivo
 
-> Abrí **`http://IP-DEL-SERVIDOR:3000`** desde cualquier dispositivo en la misma red — te muestra todos los links de overlays y el panel de control con las URLs ya configuradas.
+> Abrí **`http://IP-DEL-SERVIDOR:3001`** desde cualquier dispositivo en la misma red — te muestra todos los links de overlays y el panel de control con las URLs ya configuradas.
 
 **Flujo del demo:**
 
@@ -54,7 +54,7 @@ Phone / Tablet
         │
         │  HTTP PUT + POST
         ▼
-  Node.js Server (Express + Socket.io) :3000
+  Node.js Server (Express + Socket.io) :3001
         │
         │  WebSocket broadcast (< 100ms)
         ├──────────────────────┐
@@ -103,7 +103,7 @@ Root `.env`:
 
 | Variable               | Default                 | Description                                        |
 | ---------------------- | ----------------------- | -------------------------------------------------- |
-| `PORT`                 | `3000`                  | Server port                                        |
+| `PORT`                 | `3001`                  | Server port                                        |
 | `CONTROL_PANEL_ORIGIN` | `http://localhost:5173` | CORS origin for the control panel                  |
 | `CHARACTERS_TEMPLATE`  | `template-characters`   | Character seed file in `data/` (without extension) |
 
@@ -111,7 +111,7 @@ Control panel `control-panel/.env`:
 
 | Variable          | Default                 | Description             |
 | ----------------- | ----------------------- | ----------------------- |
-| `VITE_SERVER_URL` | `http://localhost:3000` | Backend server base URL |
+| `VITE_SERVER_URL` | `http://localhost:3001` | Backend server base URL |
 | `VITE_PORT`       | `5173`                  | Vite dev server port    |
 
 ### 3. Configure overlay server URL
@@ -120,11 +120,11 @@ Overlays read the server URL from a query string. Pass the backend URL when addi
 Browser Source in OBS (or when testing in a browser):
 
 ```
-overlay-hp.html?server=http://YOUR_IP:3000
-overlay-dice.html?server=http://YOUR_IP:3000
+overlay-hp.html?server=http://YOUR_IP:3001
+overlay-dice.html?server=http://YOUR_IP:3001
 ```
 
-If you omit the parameter, overlays default to `http://localhost:3000`.
+If you omit the parameter, overlays default to `http://localhost:3001`.
 
 Find your IP if you need to build the URL manually:
 
@@ -142,7 +142,7 @@ ifconfig | grep inet
 
 ```bash
 node server.js
-# → Server is running on port 3000
+# → Server is running on port 3001
 ```
 
 **Terminal 2 — Control panel (with LAN access for phone):**
@@ -166,18 +166,18 @@ npm run dev:auto
 El servidor sirve los overlays por red — no necesitás navegar archivos locales en OBS.
 
 1. En OBS: **Fuentes → + → Navegador**
-2. En "URL" pegá la dirección que se muestra en `http://localhost:3000`
+2. En "URL" pegá la dirección que se muestra en `http://localhost:3001`
 3. Dimensiones: **1920 × 1080**
 4. Activar **"Actualizar navegador cuando la escena se active"**
 5. Desactivar **"Apagar fuente cuando no esté visible"**
 
 | Overlay | URL (reemplazar `IP` con la dirección del servidor) |
 |---------|-----------------------------------------------------|
-| HP Bars | `http://IP:3000/overlay-hp.html?server=http://IP:3000` |
-| Dados | `http://IP:3000/overlay-dice.html?server=http://IP:3000` |
-| Condiciones | `http://IP:3000/overlay-conditions.html?server=http://IP:3000` |
+| HP Bars | `http://IP:3001/overlay-hp.html?server=http://IP:3001` |
+| Dados | `http://IP:3001/overlay-dice.html?server=http://IP:3001` |
+| Condiciones | `http://IP:3001/overlay-conditions.html?server=http://IP:3001` |
 
-> Las URLs exactas con tu IP real se muestran en `http://localhost:3000` (copiar y pegar directo).
+> Las URLs exactas con tu IP real se muestran en `http://localhost:3001` (copiar y pegar directo).
 
 Repetir para cada overlay como capa separada en la misma escena.
 
@@ -199,7 +199,7 @@ OVERLAYS/
 │   ├── template-characters.json   # Default swappable character template
 │   └── test_characters.js         # Legacy template (unused)
 │
-├── public/                        # OBS overlay files + landing page (servidos por red desde :3000)
+├── public/                        # OBS overlay files + landing page (servidos por red desde :3001)
 │   ├── index.html                 # Panel de inicio — muestra URLs con IP real
 │   ├── overlay-hp.html            # Barras de PV con avatares y condiciones
 │   ├── overlay-hp.css
@@ -469,7 +469,7 @@ No database required for the demo. Characters reset when the server restarts —
 
 | Problem                  | Fix                                                                                          |
 | ------------------------ | -------------------------------------------------------------------------------------------- |
-| Overlay not connecting   | Check that `server.js` is running on port 3000                                               |
+| Overlay not connecting   | Check that `server.js` is running on port 3001                                               |
 | Phone can't reach server | Run `npm run setup-ip`, ensure `VITE_SERVER_URL` matches your IP, restart Vite with `--host` |
 | OBS overlay blank        | Right-click Browser Source → Interact → check console (F12)                                  |
 | HP not updating          | Verify the `PUT` request in Network tab, check server logs                                   |
@@ -478,10 +478,10 @@ Quick API test:
 
 ```bash
 # Verify server is up
-curl http://localhost:3000/api/characters
+curl http://localhost:3001/api/characters
 
 # Manual HP update
-curl -X PUT http://localhost:3000/api/characters/CH101/hp \
+curl -X PUT http://localhost:3001/api/characters/CH101/hp \
   -H "Content-Type: application/json" \
   -d '{"hp_current": 10}'
 ```
