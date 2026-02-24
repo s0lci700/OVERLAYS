@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -42,7 +43,7 @@ const customLogger = {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "");
   return {
-    plugins: [sveltekit()],
+    plugins: [sveltekit(), tailwindcss()],
     customLogger,
     server: {
       port: parseInt(env.VITE_PORT || "5173", 10),
