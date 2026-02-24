@@ -70,6 +70,7 @@ entry points, and how the system hangs together.
 
 - docs/ARCHITECTURE.md for deeper architecture and data flow
 - docs/DESIGN-SYSTEM.md for UI tokens and component mapping
+- docs/BUN-MIGRATION.md for the Bun migration guide, pros/cons, and Vite FAQ
 - docs/CHARACTER-CREATION-PLAN.md for the 2024 creation flow plan
 - docs/character-options.template.json for placeholder selection lists
 - README.md for setup and demo script
