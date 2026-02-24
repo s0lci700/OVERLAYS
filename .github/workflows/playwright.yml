@@ -18,40 +18,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install root dependencies
-        run: npm ci
+        run: bun install
 
       - name: Install control-panel dependencies
-        run: npm ci
+        run: bun install
         working-directory: control-panel
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium
 
       - name: Start Express server
-        run: node server.js > /tmp/server.log 2>&1 &
+        run: bun server.js > /tmp/server.log 2>&1 &
         env:
           PORT: 3000
 
       - name: Start control-panel dev server
-        run: npm run dev -- --host > /tmp/control-panel.log 2>&1 &
+        run: bun run dev -- --host > /tmp/control-panel.log 2>&1 &
         working-directory: control-panel
 
       - name: Wait for services to be ready
         run: |
-          npx wait-on http://localhost:3000/api/characters --timeout 30000 || \
+          bunx wait-on http://localhost:3000/api/characters --timeout 30000 || \
             (echo "=== server.log ===" && cat /tmp/server.log && exit 1)
-          npx wait-on http://localhost:5173 --timeout 30000 || \
+          bunx wait-on http://localhost:5173 --timeout 30000 || \
             (echo "=== control-panel.log ===" && cat /tmp/control-panel.log && exit 1)
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: bunx playwright test
         env:
           PLAYWRIGHT_BASE_URL: http://localhost:3000
           PLAYWRIGHT_CP_URL: http://localhost:5173

@@ -51,10 +51,10 @@ entry points, and how the system hangs together.
 
 ## Common tasks
 
-- Auto-configure IPs: npm run setup-ip
-- Run backend: node server.js
-- Run control panel: cd control-panel && npm run dev -- --host
-- Control panel auto IP: cd control-panel && npm run dev:auto
+- Auto-configure IPs: bun run setup-ip
+- Run backend: bun server.js
+- Run control panel: cd control-panel && bun run dev -- --host
+- Control panel auto IP: cd control-panel && bun run dev:auto
 
 ## Testing
 

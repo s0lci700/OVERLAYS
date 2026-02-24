@@ -6,7 +6,7 @@ This project uses .env files plus optional query parameters to keep all clients
 ## Quick setup (recommended)
 
 ```bash
-npm run setup-ip
+bun run setup-ip
 ```
 
 This script auto-detects your local IPv4 address and writes:

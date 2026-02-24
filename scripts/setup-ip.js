@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * setup-ip.js
  * -----------
@@ -10,7 +10,7 @@
  *   <repo-root>/.env              – PORT, CONTROL_PANEL_ORIGIN
  *   control-panel/.env            – VITE_SERVER_URL, VITE_PORT
  *
- * Run standalone:  node scripts/setup-ip.js
+ * Run standalone:  bun scripts/setup-ip.js
  * Run via npm:     npm start  (see package.json)
  */
 

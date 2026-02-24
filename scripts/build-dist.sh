@@ -28,7 +28,7 @@ echo ""
 # ── 1. Pre-build del control panel ──────────────────────────────────────────
 echo "  → Compilando control panel (SvelteKit)..."
 cd "$ROOT_DIR/control-panel"
-npm run build
+bun run build
 cd "$ROOT_DIR"
 echo "  ✓  Control panel compilado en control-panel/build/"
 
@@ -94,7 +94,7 @@ chmod +x "$SERVIDOR"
 SRV_PID=$!
 echo "  ✓  Servidor en http://localhost:3000  (PID $SRV_PID)"
 sleep 2
-node panel-build/index.js &
+bun panel-build/index.js &
 PANEL_PID=$!
 echo "  ✓  Panel en http://localhost:5173  (PID $PANEL_PID)"
 sleep 3
@@ -116,7 +116,7 @@ echo   DADOS ^& RISAS — Iniciando...
 echo.
 start "Servidor" cmd /k "servidor-win.exe"
 timeout /t 3 /nobreak >nul
-start "Panel" cmd /k "node panel-build\index.js"
+start "Panel" cmd /k "bun panel-build\index.js"
 timeout /t 5 /nobreak >nul
 start "" "http://localhost:3000"
 echo   ✓  Servidor:  http://localhost:3000
