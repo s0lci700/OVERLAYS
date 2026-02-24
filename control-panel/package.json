@@ -4,17 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "dev:auto": "node ../scripts/setup-ip.js && vite dev --host",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "bun --bun vite dev",
+    "dev:auto": "bun ../scripts/setup-ip.js && bun --bun vite dev --host",
+    "build": "bun --bun vite build",
+    "preview": "bun --bun vite preview"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^3.2.2",
-    "@sveltejs/adapter-node": "^5.5.3",
     "@sveltejs/kit": "^2.12.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "svelte": "^5.45.2",
+    "svelte-adapter-bun": "^1.0.1",
     "vite": "^7.3.1"
   },
   "dependencies": {

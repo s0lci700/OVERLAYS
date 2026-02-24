@@ -4,14 +4,14 @@
   "description": "DnD management system and overlays for streaming",
   "main": "server.js",
   "scripts": {
-    "setup-ip": "node scripts/setup-ip.js",
-    "start": "node scripts/setup-ip.js && node server.js",
+    "setup-ip": "bun scripts/setup-ip.js",
+    "start": "bun scripts/setup-ip.js && bun server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:e2e": "npx playwright test",
+    "test:e2e": "bunx playwright test",
     "stress:api": "k6 run stress/api.js",
     "stress:cp": "k6 run stress/control-panel.js",
-    "stress": "npm run stress:api && npm run stress:cp",
-    "test:full": "npm run test:e2e && npm run stress"
+    "stress": "bun run stress:api && bun run stress:cp",
+    "test:full": "bun run test:e2e && bun run stress"
   },
   "repository": {
     "type": "git",

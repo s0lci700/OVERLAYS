@@ -51,10 +51,10 @@ entry points, and how the system hangs together.
 
 ## Common tasks
 
-- Auto-configure IPs: npm run setup-ip
-- Run backend: node server.js
-- Run control panel: cd control-panel && npm run dev -- --host
-- Control panel auto IP: cd control-panel && npm run dev:auto
+- Auto-configure IPs: bun run setup-ip
+- Run backend: bun server.js
+- Run control panel: cd control-panel && bun run dev -- --host
+- Control panel auto IP: cd control-panel && bun run dev:auto
 
 ## Testing
 
@@ -70,6 +70,7 @@ entry points, and how the system hangs together.
 
 - docs/ARCHITECTURE.md for deeper architecture and data flow
 - docs/DESIGN-SYSTEM.md for UI tokens and component mapping
+- docs/BUN-MIGRATION.md for the Bun migration guide, pros/cons, and Vite FAQ
 - docs/CHARACTER-CREATION-PLAN.md for the 2024 creation flow plan
 - docs/character-options.template.json for placeholder selection lists
 - README.md for setup and demo script

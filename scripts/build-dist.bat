@@ -18,7 +18,7 @@ cd /d "%~dp0.."
 :: ── 1. Pre-build del control panel ─────────────────────────────────────────
 echo   --^> Compilando control panel...
 cd control-panel
-call npm run build
+call bun run build
 cd ..
 echo   OK  Control panel compilado
 
@@ -64,7 +64,7 @@ echo echo   DADOS ^& RISAS — Iniciando...
 echo echo.
 echo start "Servidor" cmd /k "servidor-win.exe"
 echo timeout /t 3 /nobreak ^>nul
-echo start "Panel" cmd /k "node panel-build\index.js"
+echo start "Panel" cmd /k "bun panel-build\index.js"
 echo timeout /t 5 /nobreak ^>nul
 echo start "" "http://localhost:3000"
 echo echo   OK  Servidor:  http://localhost:3000
@@ -88,7 +88,7 @@ echo fi
 echo chmod +x "$SERVIDOR"
 echo "$SERVIDOR" ^& SRV=$!
 echo sleep 2
-echo node panel-build/index.js ^& PAN=$!
+echo bun panel-build/index.js ^& PAN=$!
 echo sleep 3
 echo open "http://localhost:3000"
 echo echo "Abri http://localhost:3000 en el celular"

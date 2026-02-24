@@ -9,13 +9,13 @@ echo "  🎲 DADOS & RISAS — Iniciando demo..."
 echo ""
 
 # Start backend server
-node server.js &
+bun server.js &
 SERVER_PID=$!
 echo "  ✓  Servidor en http://localhost:3000  (PID $SERVER_PID)"
 sleep 2
 
 # Start control panel with --host so phones on the LAN can reach it
-cd control-panel && npm run dev -- --host &
+cd control-panel && bun run dev -- --host &
 PANEL_PID=$!
 cd ..
 echo "  ✓  Panel de control en http://localhost:5173  (PID $PANEL_PID)"
