@@ -238,3 +238,85 @@ Both overlays share these constraints:
 - Container: fixed bottom-center (`bottom: 80px`)
 - Centered with negative margin-left offset
 - Min-width: 320px card
+
+---
+
+## shadcn-svelte Component Library
+
+The control panel includes [shadcn-svelte](https://shadcn-svelte.com) components integrated with the brand design tokens.
+
+### Setup
+
+shadcn-svelte is configured with:
+- **Tailwind CSS v4** via `@tailwindcss/vite` (no `tailwind.config.js` needed)
+- **bits-ui** headless primitives
+- **clsx** + **tailwind-merge** via the `cn()` utility
+
+### Using Components
+
+```svelte
+<script>
+  import { Button, Badge, Card, CardContent } from '$lib/components/ui';
+</script>
+
+<!-- Buttons map to brand colors via CSS variables -->
+<Button variant="default">Primary Action</Button>
+<Button variant="destructive">Damage</Button>
+<Button variant="outline">Secondary</Button>
+<Button variant="ghost">Ghost</Button>
+
+<!-- Badges for status indicators -->
+<Badge>Default</Badge>
+<Badge variant="secondary">Secondary</Badge>
+<Badge variant="destructive">Critical</Badge>
+<Badge variant="outline">Outline</Badge>
+
+<!-- Cards -->
+<Card>
+  <CardContent>Content here</CardContent>
+</Card>
+```
+
+### Available Components
+
+| Component | File | Description |
+|---|---|---|
+| `Button` | `ui/button.svelte` | Action button, 6 variants, 4 sizes |
+| `Badge` | `ui/badge.svelte` | Status indicator pill |
+| `Card` | `ui/card.svelte` | Container with brand border |
+| `CardHeader` | `ui/card-header.svelte` | Card top section |
+| `CardTitle` | `ui/card-title.svelte` | Card heading |
+| `CardDescription` | `ui/card-description.svelte` | Card subtitle |
+| `CardContent` | `ui/card-content.svelte` | Card body content |
+| `CardFooter` | `ui/card-footer.svelte` | Card bottom section |
+| `Input` | `ui/input.svelte` | Text input field |
+| `Label` | `ui/label.svelte` | Accessible form label |
+| `Separator` | `ui/separator.svelte` | Horizontal or vertical divider |
+
+### Color Mapping
+
+The shadcn CSS variables are mapped to the brand palette:
+
+| shadcn token | Brand mapping |
+|---|---|
+| `--primary` | `--red` (#FF4D6A) |
+| `--accent` | `--cyan` (#00D4E8) |
+| `--background` | `--black` (#000000) |
+| `--card` | `--black-card` (#0D0D0D) |
+| `--border` | `--grey-dim` (#333333) |
+| `--muted-foreground` | `--grey` (#888888) |
+
+### Adding More Components
+
+Use the `cn()` utility for Tailwind class merging:
+
+```js
+import { cn } from '$lib/utils.js';
+
+// In component script:
+let { class: className = '' } = $props();
+const styles = cn('base-classes', conditionalClass && 'applied-class', className);
+```
+
+To add more components from the shadcn-svelte registry, follow the patterns
+in `src/lib/components/ui/` and reference the design tokens listed above.
