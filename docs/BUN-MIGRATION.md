@@ -23,23 +23,65 @@ They serve completely different roles (see below).
 | **Bun** | Runtime + package manager | Runs `server.js`, installs dependencies, executes scripts |
 | **Vite** | Module bundler + dev server | Compiles Svelte components, serves HMR during dev, tree-shakes the production build |
 
-When you run `bun run dev` inside `control-panel/`, Bun is simply **invoking
-Vite** (`vite dev`). Bun is the launcher; Vite does the actual SvelteKit
-compilation. The [Bun SvelteKit guide](https://bun.com/docs/guides/ecosystem/sveltekit)
-confirms this pattern — it uses Bun *alongside* Vite, not instead of it.
+When you run `bun --bun run dev` inside `control-panel/`, Bun **invokes
+Vite** with its own JS engine (JavaScriptCore) rather than Node. The `--bun`
+flag is the key detail: without it, `bun run dev` executes `vite dev` on the
+system Node.js; with it, Vite runs entirely on Bun.
 
-**Vite cannot be removed from a SvelteKit project.** SvelteKit's official
-build toolchain is built on top of Vite through `@sveltejs/vite-plugin-svelte`.
-Removing Vite would break the Svelte compiler, HMR, SSR prerendering, and
-the adapter-node build. Nothing in the Bun ecosystem provides an equivalent
-SvelteKit bundler today.
+The [official Bun SvelteKit guide](https://bun.sh/guides/ecosystem/sveltekit)
+shows exactly this pattern:
 
-**Conclusion:** Keep Vite for the control panel. Use Bun as the runtime and
-package manager everywhere else. This is exactly what has already been done.
+```bash
+bun --bun run dev    # Vite runs on Bun's engine
+bun --bun run build  # build also runs on Bun
+```
+
+**Vite itself cannot be removed from a SvelteKit project.** SvelteKit's
+compiler and HMR are built on top of `@sveltejs/vite-plugin-svelte`. Bun
+does not provide an equivalent bundler. What Bun brings is:
+
+- The `--bun` flag runs Vite faster (Bun's module resolver is quicker than Node's)
+- `svelte-adapter-bun` replaces `@sveltejs/adapter-node` so the production
+  build output starts with `bun ./build/index.js` instead of `node ./build/index.js`
+
+**Conclusion:** Keep Vite for the control panel. Use Bun (`--bun` flag +
+`svelte-adapter-bun`) to run it natively on the Bun runtime. This is what
+this migration now implements.
 
 ---
 
 ## What was migrated
+
+### Control panel (`control-panel/`)
+
+Two changes aligned with the [official Bun SvelteKit guide](https://bun.sh/guides/ecosystem/sveltekit):
+
+**`--bun` flag on all Vite scripts**
+
+```json
+"dev":     "bun --bun vite dev",
+"build":   "bun --bun vite build",
+"preview": "bun --bun vite preview"
+```
+
+Without `--bun`, `bun run dev` invokes Vite on Node. With `--bun`, Vite runs
+on Bun's JS engine directly.
+
+**`svelte-adapter-bun` instead of `@sveltejs/adapter-node`**
+
+```js
+// svelte.config.js — before
+import adapter from "@sveltejs/adapter-node";
+
+// after
+import adapter from "svelte-adapter-bun";
+```
+
+This changes the production build output so the server is started with:
+
+```bash
+bun ./build/index.js   # instead of node ./build/index.js
+```
 
 ### Backend (`server.js`, `data/`, `scripts/`)
 
@@ -167,10 +209,10 @@ Then add to `.gitignore` if desired (or leave it committed — both are valid):
 |------|-------------------|-------------|
 | Install deps | `npm install` | `bun install` |
 | Start server | `node server.js` | `bun server.js` |
-| Start control panel | `npm run dev -- --host` | `bun run dev -- --host` |
+| Start control panel | `npm run dev -- --host` | `bun --bun run dev -- --host` |
 | Auto-configure IPs | `npm run setup-ip` | `bun run setup-ip` |
 | Run E2E tests | `npx playwright test` | `bunx playwright test` |
-| Build control panel | `npm run build` | `bun run build` |
+| Build control panel | `npm run build` | `bun --bun run build` |
 | Build binary | `bun build --compile server.js` | _(unchanged)_ |
 
 ---
