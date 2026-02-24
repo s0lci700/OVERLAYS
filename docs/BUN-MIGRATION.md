@@ -153,7 +153,7 @@ instead of `node` / `npm`.
 |---|------|------------------------------|
 | 1 | **Bun ≠ production-hardened Node.js** | Bun is stable (v1.x) but younger than Node. For a pitch/demo project the risk is acceptable; for a high-volume SaaS it warrants more evaluation. |
 | 2 | **CommonJS edge cases** | A handful of npm packages use `__filename`, dynamic `require()` tricks, or native addons that Bun does not support. `express`, `socket.io`, `cors`, and `dotenv` are all tested and working. |
-| 3 | **`bun.lockb` vs `package-lock.json`** | Bun generates a binary lockfile (`bun.lockb`). If other contributors use `npm`, the lockfiles diverge. Options: commit `bun.lockb` and tell all contributors to use Bun, or keep `package-lock.json` and let Bun read it. |
+| 3 | **`bun.lockb` regeneration needed** | `control-panel/package-lock.json` was removed (it referenced deleted adapters). Run `cd control-panel && bun install` once to generate a fresh `bun.lockb`. |
 | 4 | **`oven-sh/setup-bun` maturity** | The GitHub Action is actively maintained by the Bun team but has fewer users than `actions/setup-node`. Watch for breaking changes on major Bun releases. |
 | 5 | **`dotenv` redundancy** | `server.js` still calls `require("dotenv").config()`. Under Bun this is a no-op because Bun loads `.env` automatically, but the package remains in `dependencies`. It can be removed in a future cleanup commit. |
 | 6 | **Vite still required** | The frontend still depends on Node.js-ecosystem Vite. Bun does not eliminate this dependency — it just runs Vite faster. |
@@ -184,21 +184,26 @@ If you want to remove it:
 
 ---
 
-## Remaining optional improvement — add `bun.lockb`
+## First-time setup after checkout
 
-To lock exact dependency versions across all machines, commit the Bun lockfile:
+The stale `control-panel/package-lock.json` (which referenced the removed
+adapters) has been deleted. Run `bun install` once to regenerate the lockfile
+with the correct dependencies:
 
 ```bash
-bun install          # generates / updates bun.lockb
-git add bun.lockb
-git commit -m "chore: add bun lockfile"
+# Root dependencies
+bun install
+
+# Control panel — generates bun.lockb with svelte-adapter-bun
+cd control-panel && bun install
 ```
 
-Then add to `.gitignore` if desired (or leave it committed — both are valid):
+Bun creates a binary `bun.lockb`. Commit it to lock exact versions for
+reproducible installs:
 
-```
-# keep this if you commit bun.lockb:
-# bun.lockb
+```bash
+git add bun.lockb control-panel/bun.lockb
+git commit -m "chore: add bun lockfiles"
 ```
 
 ---
@@ -212,7 +217,7 @@ Then add to `.gitignore` if desired (or leave it committed — both are valid):
 | Start control panel | `npm run dev -- --host` | `bun run dev -- --host` |
 | Auto-configure IPs | `npm run setup-ip` | `bun run setup-ip` |
 | Run E2E tests | `npx playwright test` | `bunx playwright test` |
-| Build control panel | `npm run build` | `bun --bun run build` |
+| Build control panel | `npm run build` | `bun run build` |
 | Build binary | `bun build --compile server.js` | _(unchanged)_ |
 
 ---
