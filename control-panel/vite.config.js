@@ -43,7 +43,7 @@ const customLogger = {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "");
   return {
-    plugins: [tailwindcss(), sveltekit()],
+    plugins: [sveltekit(), tailwindcss()],
     customLogger,
     server: {
       port: parseInt(env.VITE_PORT || "5173", 10),
