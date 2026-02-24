@@ -209,7 +209,7 @@ Then add to `.gitignore` if desired (or leave it committed — both are valid):
 |------|-------------------|-------------|
 | Install deps | `npm install` | `bun install` |
 | Start server | `node server.js` | `bun server.js` |
-| Start control panel | `npm run dev -- --host` | `bun --bun run dev -- --host` |
+| Start control panel | `npm run dev -- --host` | `bun run dev -- --host` |
 | Auto-configure IPs | `npm run setup-ip` | `bun run setup-ip` |
 | Run E2E tests | `npx playwright test` | `bunx playwright test` |
 | Build control panel | `npm run build` | `bun --bun run build` |
