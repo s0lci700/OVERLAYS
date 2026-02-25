@@ -121,10 +121,11 @@
 }
 
 .manage-edit-toggle {
-  border-color: var(--grey-dim) !important;
+  border: 2px solid var(--grey-dim) !important;
   background: transparent !important;
   color: var(--grey) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-edit-toggle:hover {
@@ -210,17 +211,19 @@
 }
 
 .manage-save-btn {
-  border-color: var(--cyan) !important;
+  border: 2px solid var(--cyan) !important;
   background: var(--cyan-dim) !important;
   color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--neutral {
-  border-color: var(--grey-dim) !important;
+  border: 2px solid var(--grey-dim) !important;
   background: transparent !important;
   color: var(--grey) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--neutral:hover {
@@ -229,10 +232,11 @@
 }
 
 .manage-save-btn--outline {
-  border-color: var(--cyan) !important;
+  border: 2px solid var(--cyan) !important;
   background: transparent !important;
   color: var(--cyan) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--outline:hover {
@@ -316,7 +320,7 @@
 
 /* Toggle button for showing/hiding read-only info */
 .manage-info-toggle {
-  border-color: var(--grey-dim) !important;
+  border: 2px solid var(--grey-dim) !important;
   background: transparent !important;
   color: var(--grey) !important;
   box-shadow: none;
@@ -324,6 +328,7 @@
   padding: 4px 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-info-toggle:hover {
@@ -417,9 +422,10 @@
 
 .manage-delete-btn {
   background: transparent !important;
-  border: 1px solid var(--red) !important;
+  border: 2px solid var(--red) !important;
   color: var(--red) !important;
   margin-top: var(--space-4);
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-delete-btn:hover:not(:disabled) {

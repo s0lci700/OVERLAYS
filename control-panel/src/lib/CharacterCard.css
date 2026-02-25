@@ -434,30 +434,34 @@
 
 .btn-damage {
   background: var(--red-dim) !important;
-  border-color: var(--red) !important;
+  border: 2px solid var(--red) !important;
   color: var(--red) !important;
   white-space: nowrap;
   min-width: 0;
+  border-radius: var(--radius-md) !important;
 }
 
 .btn-damage:hover {
   background: var(--red) !important;
   color: var(--white) !important;
   box-shadow: var(--shadow-red);
+  border-color: var(--red) !important;
 }
 
 .btn-heal {
   background: var(--cyan-dim) !important;
-  border-color: var(--cyan) !important;
+  border: 2px solid var(--cyan) !important;
   color: var(--cyan) !important;
   white-space: nowrap;
   min-width: 0;
+  border-radius: var(--radius-md) !important;
 }
 
 .btn-heal:hover {
   background: var(--cyan) !important;
   color: var(--black) !important;
   box-shadow: var(--shadow-cyan);
+  border-color: var(--cyan) !important;
 }
 
 .stepper-cluster {
@@ -670,8 +674,9 @@
   font-size: 0.95rem;
   padding: var(--space-2) var(--space-3);
   color: var(--grey) !important;
-  border-color: var(--grey-dim) !important;
+  border: 2px solid var(--grey-dim) !important;
   min-height: 40px;
+  border-radius: var(--radius-md) !important;
   transition:
     color var(--t-fast),
     border-color var(--t-fast),

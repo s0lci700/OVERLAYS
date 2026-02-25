@@ -244,10 +244,11 @@
 
 /* Primary submit action inherits .btn-base and overrides accent colors. */
 .create-submit {
-  border-color: var(--cyan) !important;
+  border: 2px solid var(--cyan) !important;
   background: var(--cyan-dim) !important;
   color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
+  border-radius: var(--radius-md) !important;
 }
 
 /* Prevent accidental double-submit while async request is running. */
