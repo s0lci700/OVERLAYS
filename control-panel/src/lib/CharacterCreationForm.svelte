@@ -419,22 +419,22 @@
           </div>
           <div class="create-field">
             <Label for="ac-input" class="label-caps">AC</Label>
-            <Input 
+            <Input
               id="ac-input"
-              type="number" 
-              min="0" 
-              max="99" 
-              bind:value={armorClass} 
+              type="number"
+              min="0"
+              max="99"
+              bind:value={armorClass}
             />
           </div>
           <div class="create-field">
             <Label for="speed-input" class="label-caps">VEL</Label>
-            <Input 
+            <Input
               id="speed-input"
-              type="number" 
-              min="0" 
-              max="200" 
-              bind:value={speedWalk} 
+              type="number"
+              min="0"
+              max="200"
+              bind:value={speedWalk}
             />
           </div>
         </div>
@@ -471,12 +471,7 @@
             </label>
             <label class="create-field">
               <span class="label-caps">Nivel</span>
-              <Input 
-                type="number" 
-                min="1" 
-                max="20" 
-                bind:value={classLevel} 
-              />
+              <Input type="number" min="1" max="20" bind:value={classLevel} />
             </label>
             <label class="create-field">
               <span class="label-caps">Background</span>

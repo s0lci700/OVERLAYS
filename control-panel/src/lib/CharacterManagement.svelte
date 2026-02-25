@@ -784,7 +784,9 @@
         {#if editOpenById[character.id]}
           <div class="manage-form">
             <div class="manage-field">
-              <Label for={`name-${character.id}`} class="label-caps">Nombre</Label>
+              <Label for={`name-${character.id}`} class="label-caps"
+                >Nombre</Label
+              >
               <Input
                 id={`name-${character.id}`}
                 type="text"
@@ -799,7 +801,9 @@
               />
             </div>
             <div class="manage-field">
-              <Label for={`player-${character.id}`} class="label-caps">Jugador</Label>
+              <Label for={`player-${character.id}`} class="label-caps"
+                >Jugador</Label
+              >
               <Input
                 id={`player-${character.id}`}
                 type="text"
@@ -815,7 +819,9 @@
             </div>
             <div class="manage-grid-fields">
               <div class="manage-field">
-                <Label for={`hp-max-${character.id}`} class="label-caps">HP MAX</Label>
+                <Label for={`hp-max-${character.id}`} class="label-caps"
+                  >HP MAX</Label
+                >
                 <Input
                   id={`hp-max-${character.id}`}
                   type="number"
@@ -847,7 +853,9 @@
                 />
               </div>
               <div class="manage-field">
-                <Label for={`speed-${character.id}`} class="label-caps">VEL</Label>
+                <Label for={`speed-${character.id}`} class="label-caps"
+                  >VEL</Label
+                >
                 <Input
                   id={`speed-${character.id}`}
                   type="number"
@@ -909,7 +917,9 @@
                   </select>
                 </label>
                 <div class="manage-field">
-                  <Label for={`level-${character.id}`} class="label-caps">Nivel</Label>
+                  <Label for={`level-${character.id}`} class="label-caps"
+                    >Nivel</Label
+                  >
                   <Input
                     id={`level-${character.id}`}
                     type="number"

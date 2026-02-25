@@ -163,7 +163,9 @@
       >
         <Button
           type="button"
-          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'preset' ? 'active' : ''}"
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'preset'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "preset"}
           onclick={() => onSourceChange("preset")}
@@ -172,7 +174,9 @@
         </Button>
         <Button
           type="button"
-          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'url' ? 'active' : ''}"
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'url'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "url"}
           onclick={() => onSourceChange("url")}
@@ -181,7 +185,9 @@
         </Button>
         <Button
           type="button"
-          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'local' ? 'active' : ''}"
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'local'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "local"}
           onclick={() => onSourceChange("local")}

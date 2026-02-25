@@ -473,12 +473,12 @@
         <Button
           class="btn-rest"
           onclick={() => takeRest("short")}
-          disabled={isUpdating} >CORTO</Button
+          disabled={isUpdating}>CORTO</Button
         >
         <Button
           class="btn-rest"
           onclick={() => takeRest("long")}
-          disabled={isUpdating} >LARGO</Button
+          disabled={isUpdating}>LARGO</Button
         >
       </fieldset>
     {/if}
