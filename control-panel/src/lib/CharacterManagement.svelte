@@ -11,6 +11,7 @@
   import { characters, SERVER_URL } from "./socket";
   import * as Dialog from "$lib/components/ui/dialog";
   import characterOptions from "../../../docs/character-options.template.json";
+  import { fade } from "svelte/transition";
 
   const PHOTO_OPTIONS = [
     { label: "Aleatorio", value: "" },
@@ -49,6 +50,10 @@
   let itemsById = $state({});
   let trinketById = $state({});
   let editOpenById = $state({});
+  // Per-card toggle state for read-only info panel (true = open, false = closed)
+  let infoOpenById = $state({});
+  // Per-card toggle state for nested loadout detail (true = expanded, false = collapsed)
+  let loadoutOpenById = $state({});
 
   let activePhotoId = $state(null);
 
@@ -360,11 +365,108 @@
       .filter((value) => value.length > 0);
   }
 
+  /**
+   * Toggle edit mode for a character card.
+   * When opening edit mode, automatically close the info panel to avoid UI clutter.
+   */
   function toggleEdit(charId) {
+    const nowOpen = !editOpenById[charId];
     editOpenById = {
       ...editOpenById,
-      [charId]: !editOpenById[charId],
+      [charId]: nowOpen,
     };
+    // Auto-close info panel when entering edit mode
+    if (nowOpen && infoOpenById[charId]) {
+      infoOpenById = { ...infoOpenById, [charId]: false };
+      loadoutOpenById = { ...loadoutOpenById, [charId]: false };
+    }
+  }
+
+  /**
+   * Toggle read-only info panel for a character card.
+   * When closed, also reset the nested loadout detail state to avoid orphaned UI.
+   */
+  function toggleInfo(charId) {
+    const nowOpen = !infoOpenById[charId];
+    infoOpenById = { ...infoOpenById, [charId]: nowOpen };
+    // Auto-reset loadout detail when closing parent info panel
+    if (!nowOpen) {
+      loadoutOpenById = { ...loadoutOpenById, [charId]: false };
+    }
+  }
+
+  /**
+   * Toggle nested loadout detail within the info panel.
+   * Shows full equipment breakdown (armor/weapons/items/trinket).
+   */
+  function toggleLoadout(charId) {
+    loadoutOpenById = {
+      ...loadoutOpenById,
+      [charId]: !loadoutOpenById[charId],
+    };
+  }
+
+  /**
+   * Build a human-readable class+level string (e.g., "Guerrero 5").
+   */
+  function buildReadOnlyClass(charId) {
+    const classKey = classPrimaryById[charId];
+    if (!classKey) return "Sin clase";
+    const label = resolveLabel(labelMaps.class, classKey, classKey);
+    const level = Number(classLevelById[charId] ?? 1) || 1;
+    return `${label} ${level}`;
+  }
+
+  /**
+   * Build a compact "Background / Especie" line for read-only display.
+   */
+  function buildProfileSummary(charId) {
+    const bg = backgroundNameById[charId]
+      ? labelOf.get(backgroundNameById[charId]) || backgroundNameById[charId]
+      : "Sin background";
+    const sp = speciesNameById[charId]
+      ? resolveLabel(
+          labelMaps.species,
+          speciesNameById[charId],
+          speciesNameById[charId],
+        )
+      : "Sin especie";
+    return `${bg} / ${sp}`;
+  }
+
+  /**
+   * Build a comma-separated languages list (common + rare combined).
+   */
+  function buildLanguagesSummary(charId) {
+    const common = languagesById[charId] || [];
+    const rare = rareLanguagesById[charId] || [];
+    const all = [...common, ...rare].map((key) => labelOf.get(key) || key);
+    return all.length > 0 ? all.join(", ") : "Ninguno";
+  }
+
+  /**
+   * Build a short loadout summary showing counts (e.g., "2 skills, 3 armaduras").
+   */
+  function buildLoadoutSummary(charId) {
+    const skillCount = (skillsById[charId] || []).length;
+    const armorCount = (armorById[charId] || []).length;
+    const weaponCount = (weaponsById[charId] || []).length;
+    const itemCount = (itemsById[charId] || []).length;
+    const parts = [];
+    if (skillCount > 0) parts.push(`${skillCount} skills`);
+    if (armorCount > 0) parts.push(`${armorCount} armaduras`);
+    if (weaponCount > 0) parts.push(`${weaponCount} armas`);
+    if (itemCount > 0) parts.push(`${itemCount} items`);
+    return parts.length > 0 ? parts.join(", ") : "Sin competencias";
+  }
+
+  /**
+   * Format a selection list into a compact comma-separated string.
+   */
+  function formatSelectionListCompact(keys) {
+    if (!Array.isArray(keys) || keys.length === 0) return "Ninguno";
+    const labels = keys.map((key) => labelOf.get(key) || key);
+    return labels.join(", ");
   }
 
   function resolveLabel(map, key, fallback) {
@@ -558,6 +660,132 @@
                 "Alineamiento no definido",
               )}
             </span>
+          </div>
+
+          <!-- Read-only info panel: toggle to show/hide full character data -->
+          <div class="manage-readonly">
+            <button
+              class="btn-base manage-info-toggle"
+              type="button"
+              onclick={() => toggleInfo(character.id)}
+              aria-expanded={infoOpenById[character.id] ? "true" : "false"}
+            >
+              {infoOpenById[character.id] ? "OCULTAR INFO" : "VER INFO"}
+            </button>
+
+            {#if infoOpenById[character.id]}
+              <div
+                class="manage-readonly-grid"
+                transition:fade={{ duration: 140 }}
+              >
+                <div class="manage-readonly-item">
+                  <span class="manage-readonly-label">Clase / Nivel</span>
+                  <span class="manage-readonly-value"
+                    >{buildReadOnlyClass(character.id)}</span
+                  >
+                </div>
+                <div class="manage-readonly-item">
+                  <span class="manage-readonly-label">Background / Especie</span
+                  >
+                  <span class="manage-readonly-value"
+                    >{buildProfileSummary(character.id)}</span
+                  >
+                </div>
+                <div class="manage-readonly-item">
+                  <span class="manage-readonly-label">Alineamiento</span>
+                  <span class="manage-readonly-value"
+                    >{resolveLabel(
+                      labelMaps.alignment,
+                      alignmentById[character.id],
+                      "No definido",
+                    )}</span
+                  >
+                </div>
+                <div class="manage-readonly-item">
+                  <span class="manage-readonly-label">Idiomas</span>
+                  <span class="manage-readonly-value"
+                    >{buildLanguagesSummary(character.id)}</span
+                  >
+                </div>
+                <div class="manage-readonly-item">
+                  <span class="manage-readonly-label manage-readonly-expand">
+                    Competencias y equipo
+                    <button
+                      type="button"
+                      class="btn-base manage-info-toggle"
+                      onclick={() => toggleLoadout(character.id)}
+                      aria-expanded={loadoutOpenById[character.id]
+                        ? "true"
+                        : "false"}
+                    >
+                      {loadoutOpenById[character.id]
+                        ? "ocultar detalle"
+                        : "ver detalle"}
+                    </button>
+                  </span>
+                  {#if !loadoutOpenById[character.id]}
+                    <span class="manage-readonly-value"
+                      >{buildLoadoutSummary(character.id)}</span
+                    >
+                  {:else}
+                    <div
+                      class="manage-loadout-details"
+                      transition:fade={{ duration: 120 }}
+                    >
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Skills:</span>
+                        <span class="manage-loadout-val"
+                          >{formatSelectionListCompact(
+                            skillsById[character.id],
+                          )}</span
+                        >
+                      </div>
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Herramientas:</span>
+                        <span class="manage-loadout-val"
+                          >{formatSelectionListCompact(
+                            toolsById[character.id],
+                          )}</span
+                        >
+                      </div>
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Armadura:</span>
+                        <span class="manage-loadout-val"
+                          >{formatSelectionListCompact(
+                            armorById[character.id],
+                          )}</span
+                        >
+                      </div>
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Armas:</span>
+                        <span class="manage-loadout-val"
+                          >{formatSelectionListCompact(
+                            weaponsById[character.id],
+                          )}</span
+                        >
+                      </div>
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Items:</span>
+                        <span class="manage-loadout-val"
+                          >{formatSelectionListCompact(
+                            itemsById[character.id],
+                          )}</span
+                        >
+                      </div>
+                      <div class="manage-loadout-line">
+                        <span class="manage-loadout-key">Trinket:</span>
+                        <span class="manage-loadout-val"
+                          >{trinketById[character.id]
+                            ? labelOf.get(trinketById[character.id]) ||
+                              trinketById[character.id]
+                            : "Ninguno"}</span
+                        >
+                      </div>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {/if}
           </div>
         {/if}
 
@@ -1050,7 +1278,9 @@
 
 <Dialog.Root
   open={!!activePhotoId}
-  onOpenChange={(open) => { if (!open) closePhotoEditor(); }}
+  onOpenChange={(open) => {
+    if (!open) closePhotoEditor();
+  }}
 >
   <Dialog.Content
     class="photo-modal-card card-base"
