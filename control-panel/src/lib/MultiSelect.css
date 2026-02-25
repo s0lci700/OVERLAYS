@@ -53,8 +53,16 @@
   background: var(--cyan-dim);
 }
 
-.ms-option.ms-selected:hover:not(:disabled) {
+.ms-option.ms-selected:hover {
   background: rgba(0, 212, 232, 0.18);
+}
+
+/* Keyboard-focused option (aria-activedescendant) */
+.ms-option.ms-focused {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+  outline: 1px solid var(--cyan);
+  outline-offset: -1px;
 }
 
 .ms-label {

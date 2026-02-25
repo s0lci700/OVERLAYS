@@ -76,8 +76,8 @@
 
 /* Card connects seamlessly to the handle above it */
 .char-card-exit-wrap .char-card {
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .char-card-exit-wrap.is-dragging {
@@ -99,6 +99,7 @@
 .char-card {
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-lg);
   /* smooth visual transitions for small layout shifts */
   transition:
     border-color 220ms cubic-bezier(0.2, 0.9, 0.2, 1),
@@ -250,7 +251,9 @@
 }
 .char-header-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
   gap: var(--space-2);
   flex-shrink: 0;
 }
@@ -261,6 +264,7 @@
   gap: var(--space-half);
   min-width: 0;
   overflow: hidden;
+  flex: 1;
 }
 
 .char-name {
@@ -301,6 +305,7 @@
   align-items: baseline;
   gap: var(--space-half);
   flex-shrink: 0;
+  order: 1;
 }
 
 .collapse-toggle {
@@ -431,6 +436,8 @@
   background: var(--red-dim);
   border-color: var(--red);
   color: var(--red);
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .btn-damage:hover {
@@ -443,6 +450,8 @@
   background: var(--cyan-dim);
   border-color: var(--cyan);
   color: var(--cyan);
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .btn-heal:hover {
@@ -674,4 +683,30 @@
   color: var(--white);
   border-color: var(--grey);
   background: var(--grey-dim);
+}
+
+/* Tablet: tighten HP action buttons to prevent text overflow. */
+@media (max-width: 900px) {
+  .char-controls {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .btn-damage,
+  .btn-heal {
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    padding: 0 var(--space-2);
+  }
+}
+
+/* Mobile: reduce name size and button text size further. */
+@media (max-width: 640px) {
+  .char-name {
+    font-size: 1.2rem;
+  }
+
+  .btn-damage,
+  .btn-heal {
+    font-size: 0.8rem;
+  }
 }

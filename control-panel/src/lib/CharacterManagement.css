@@ -410,3 +410,44 @@
   color: var(--white);
   line-height: 1.4;
 }
+
+/* ── Delete ─────────────────────────────────────────────── */
+
+.manage-delete-btn {
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+  margin-top: var(--space-4);
+}
+
+.manage-delete-btn:hover:not(:disabled) {
+  background: var(--red-dim);
+}
+
+/* AlertDialog confirmation panel */
+.delete-confirm-dialog {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.delete-confirm-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--red);
+  letter-spacing: 0.04em;
+}
+
+.delete-confirm-desc {
+  font-size: 0.85rem;
+  color: var(--grey);
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}

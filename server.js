@@ -408,6 +408,16 @@ app.delete("/api/characters/:id/conditions/:condId", (req, res) => {
   return res.status(200).json({ ok: true });
 });
 
+// Delete a character permanently and broadcast the removal to all clients.
+app.delete("/api/characters/:id", (req, res) => {
+  const removed = characterModule.removeCharacter(req.params.id);
+  if (!removed)
+    return res.status(404).json({ error: "Character not found" });
+  io.emit("character_deleted", { charId: req.params.id });
+  console.log(`Character deleted: ${req.params.id}`);
+  return res.status(200).json({ ok: true });
+});
+
 // ── Resources ────────────────────────────────────────────────
 
 // Update limited resources (rage, ki, etc.) and broadcast the refreshed pool.

@@ -6,10 +6,15 @@
 -->
 <script>
   import "./CharacterManagement.css";
+  import "$lib/components/ui/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
+  import SelectionPills from "$lib/components/ui/pills/SelectionPills.svelte";
+  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
   import * as Dialog from "$lib/components/ui/dialog";
+  import { resolvePhotoSrc } from "./utils.js";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import characterOptions from "../../../docs/character-options.template.json";
   import { fade } from "svelte/transition";
 
@@ -56,6 +61,9 @@
   let loadoutOpenById = $state({});
 
   let activePhotoId = $state(null);
+
+  /** ID of the character pending deletion — drives the AlertDialog. */
+  let pendingDeleteId = $state(null);
 
   /**
    * @typedef {{key: string, label: string}} OptionEntry
@@ -117,37 +125,6 @@
     ...weaponOptions.map((o) => [o.key, o.label]),
     ...itemOptions.map((o) => [o.key, o.label]),
   ]);
-
-  const FALLBACK_PHOTO_OPTIONS = [
-    "/assets/img/barbarian.png",
-    "/assets/img/elf.png",
-    "/assets/img/wizard.png",
-  ];
-
-  function resolvePhotoSrc(photoPath) {
-    if (!photoPath) {
-      const randomOption =
-        FALLBACK_PHOTO_OPTIONS[
-          Math.floor(Math.random() * FALLBACK_PHOTO_OPTIONS.length)
-        ];
-      return `${SERVER_URL}${randomOption}`;
-    }
-
-    if (
-      photoPath.startsWith("http://") ||
-      photoPath.startsWith("https://") ||
-      photoPath.startsWith("data:") ||
-      photoPath.startsWith("blob:")
-    ) {
-      return photoPath;
-    }
-
-    if (photoPath.startsWith("/")) {
-      return `${SERVER_URL}${photoPath}`;
-    }
-
-    return `${SERVER_URL}/${photoPath.replace(/^\/+/, "")}`;
-  }
 
   function inferSource(photoValue) {
     if (!photoValue || PHOTO_OPTIONS.some((o) => o.value === photoValue)) {
@@ -339,6 +316,20 @@
       };
     } finally {
       isSavingById = { ...isSavingById, [charId]: false };
+    }
+  }
+
+  async function deleteCharacter(charId) {
+    try {
+      const response = await fetch(`${SERVER_URL}/api/characters/${charId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok)
+        console.error("Failed to delete character", response.status);
+    } catch (error) {
+      console.error("Error deleting character", error);
+    } finally {
+      pendingDeleteId = null;
     }
   }
 
@@ -616,7 +607,7 @@
             >
               <img
                 class="manage-photo"
-                src={resolvePhotoSrc(character.photo)}
+                src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
                 alt={character.name}
               />
               <span class="manage-photo-hint">Editar foto</span>
@@ -624,9 +615,7 @@
             <div class="manage-names">
               <h3 class="manage-char-name">{character.name}</h3>
               <span class="manage-char-player">{character.player}</span>
-              <span class="manage-char-level">
-                NIVEL {Number(classLevelById[character.id] ?? 1) || 1}
-              </span>
+              <LevelPill level={classLevelById[character.id]} />
             </div>
           </div>
           <button
@@ -1045,13 +1034,10 @@
                       ))}
                     size={Math.max(3, Math.min(6, languageOptions.length || 3))}
                   />
-                  {#if languagesById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each languagesById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={languagesById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1074,13 +1060,10 @@
                       Math.min(6, rareLanguageOptions.length || 3),
                     )}
                   />
-                  {#if rareLanguagesById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each rareLanguagesById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={rareLanguagesById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
               <div class="manage-grid-two">
@@ -1102,13 +1085,10 @@
                       ))}
                     size={Math.max(4, Math.min(8, skillOptions.length || 4))}
                   />
-                  {#if skillsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each skillsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={skillsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1124,13 +1104,10 @@
                       (toolsById = updateListField(toolsById, character.id, v))}
                     size={Math.max(4, Math.min(8, toolOptions.length || 4))}
                   />
-                  {#if toolsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each toolsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={toolsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
               <div class="manage-grid-two">
@@ -1149,13 +1126,10 @@
                       (armorById = updateListField(armorById, character.id, v))}
                     size={Math.max(3, Math.min(6, armorOptions.length || 3))}
                   />
-                  {#if armorById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each armorById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={armorById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1176,13 +1150,10 @@
                       ))}
                     size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
                   />
-                  {#if weaponsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each weaponsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={weaponsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
             </div>
@@ -1205,13 +1176,10 @@
                     disabled={itemOptions.length === 0}
                     size={Math.max(3, Math.min(6, itemOptions.length || 3))}
                   />
-                  {#if itemsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each itemsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={itemsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <label class="manage-field">
                   <span class="label-caps">Trinket</span>
@@ -1268,6 +1236,13 @@
               <span class="manage-note">
                 Subir nivel solo ajusta el nivel por ahora.
               </span>
+              <button
+                class="btn-base manage-delete-btn"
+                type="button"
+                onclick={() => (pendingDeleteId = character.id)}
+              >
+                ELIMINAR PERSONAJE
+              </button>
             </div>
           </div>
         {/if}
@@ -1333,3 +1308,34 @@
     {/if}
   </Dialog.Content>
 </Dialog.Root>
+
+<AlertDialog.Root
+  open={!!pendingDeleteId}
+  onOpenChange={(open) => {
+    if (!open) pendingDeleteId = null;
+  }}
+>
+  <AlertDialog.Content class="card-base delete-confirm-dialog">
+    <AlertDialog.Title class="delete-confirm-title">
+      ¿Eliminar personaje?
+    </AlertDialog.Title>
+    <AlertDialog.Description class="delete-confirm-desc">
+      Esta acción no se puede deshacer. El personaje se eliminará de la sesión
+      para todos los jugadores.
+    </AlertDialog.Description>
+    <div class="delete-confirm-actions">
+      <AlertDialog.Cancel
+        class="btn-base manage-save-btn manage-save-btn--neutral"
+        onclick={() => (pendingDeleteId = null)}
+      >
+        CANCELAR
+      </AlertDialog.Cancel>
+      <AlertDialog.Action
+        class="btn-base manage-delete-btn"
+        onclick={() => deleteCharacter(pendingDeleteId)}
+      >
+        SÍ, ELIMINAR
+      </AlertDialog.Action>
+    </div>
+  </AlertDialog.Content>
+</AlertDialog.Root>

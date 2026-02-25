@@ -11,9 +11,10 @@
 -->
 <script>
   import "./CharacterCreationForm.css";
+  import "$lib/components/ui/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
-  import Modal from "./Modal.svelte";
+  import * as Dialog from "./components/ui/dialog/index.js";
   import { SERVER_URL } from "./socket";
   import characterOptions from "../../../docs/character-options.template.json";
 
@@ -65,6 +66,8 @@
     { label: "Barbarian", value: "/assets/img/barbarian.png" },
     { label: "Elf", value: "/assets/img/elf.png" },
     { label: "Wizard", value: "/assets/img/wizard.png" },
+    { label: "Thiefling", value: "/assets/img/thiefling.png" },
+    { label: "Dwarf", value: "/assets/img/dwarf.png" },
   ];
 
   /**
@@ -336,45 +339,40 @@
               <img src={getResolvedPhotoValue()} alt="Preview foto" />
             </div>
           {/if}
-          {#if showPhotoModal}
-            <Modal>
-              <div
-                class="photo-modal-overlay"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="photo-modal-title"
-              >
-                <div class="photo-modal-card card-base">
-                  <header class="photo-modal-head">
-                    <h3 id="photo-modal-title" class="photo-modal-title">
-                      Seleccionar foto
-                    </h3>
-                    <button
-                      class="photo-modal-close"
-                      type="button"
-                      aria-label="Cerrar"
-                      onclick={() => (showPhotoModal = false)}>✕</button
-                    >
-                  </header>
+          <Dialog.Root bind:open={showPhotoModal}>
+            <Dialog.Content
+              class="photo-modal-card card-base"
+              showCloseButton={false}
+              aria-labelledby="photo-modal-title-create"
+            >
+              <header class="photo-modal-head">
+                <h3 id="photo-modal-title-create" class="photo-modal-title">
+                  Seleccionar foto
+                </h3>
+                <button
+                  class="photo-modal-close"
+                  type="button"
+                  aria-label="Cerrar"
+                  onclick={() => (showPhotoModal = false)}>✕</button
+                >
+              </header>
 
-                  <PhotoSourcePicker
-                    options={AVAILABLE_PHOTOS}
-                    source={photoSource}
-                    presetValue={photo}
-                    urlValue={customPhotoUrl}
-                    localValue={localPhotoDataUrl}
-                    serverUrl={SERVER_URL}
-                    dense={true}
-                    onSourceChange={(value) => (photoSource = value)}
-                    onPresetChange={(value) => (photo = value)}
-                    onUrlChange={(value) => (customPhotoUrl = value)}
-                    onLocalChange={(value) => (localPhotoDataUrl = value)}
-                    onError={handlePhotoPickerError}
-                  />
-                </div>
-              </div>
-            </Modal>
-          {/if}
+              <PhotoSourcePicker
+                options={AVAILABLE_PHOTOS}
+                source={photoSource}
+                presetValue={photo}
+                urlValue={customPhotoUrl}
+                localValue={localPhotoDataUrl}
+                serverUrl={SERVER_URL}
+                dense={true}
+                onSourceChange={(value) => (photoSource = value)}
+                onPresetChange={(value) => (photo = value)}
+                onUrlChange={(value) => (customPhotoUrl = value)}
+                onLocalChange={(value) => (localPhotoDataUrl = value)}
+                onError={handlePhotoPickerError}
+              />
+            </Dialog.Content>
+          </Dialog.Root>
         </div>
         <!-- Required identity fields. Arrange 'Nombre' and 'Jugador' side-by-side -->
         <div class="create-grid create-grid--two identity-group">
