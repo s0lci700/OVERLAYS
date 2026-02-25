@@ -1,27 +1,53 @@
+# Node modules
 node_modules/
+control-panel/node_modules/
+
+# Build / distribution
+control-panel/build/
+build/
+dist/
+public/build/
+public/_app/
+
+# Environment / secrets
 .env
+.env.*
+.env.local
+.env.*.local
+control-panel/.env
+control-panel/.env.*
+control-panel/.env.local
+control-panel/.env.*.local
+
+# Lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Logs / test output
 *.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+tests-log/
+test-results/
+playwright-report/
+server_job_output.txt
+panel_*.txt
+panel_out_tail.txt
+panel_response__*.txt
+panel_fetch_results.json
+
+# Local agent / tools
 .claude/
 .clone/
 .copilot/
 .mcp.json
-sugestion.html
-dice_suggestion.html
-tests-log/
-test-results/
-stress-results/
-control-panel/.env
-control-panel/node_modules
-control-panel/dist
-control-panel/build
-control-panel/.svelte-kit/
-
-*.png
-./*.yaml
-.playwright-cli/*.yml
-
-# Build output
-control-panel/build/
 
 # Test screenshots
 test-*.png
@@ -29,3 +55,40 @@ test-*.png
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Caches / temp
+.cache/
+.vite/
+coverage/
+tmp/
+temp/
+*.tmp
+*.swp
+
+# Python / virtualenv
+__pycache__/
+venv/
+
+# Misc
+*.local
+*.zip
+*.tar.gz
+
+# Playwright CLI configs
+.playwright-cli/*.yml
+
+# keep these example pages out of accidental commits
+sugestion.html
+dice_suggestion.html
+photo-analysis-desktop.png
+
+
+# Output from control panel
+/out
+
+# keep these demo files out of accidental commits
+start-demo.*
+scripts/panel-server.cjs
+public/control-lite.html
+control-panel/svelte.config.js.bak

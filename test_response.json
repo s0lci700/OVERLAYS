@@ -1,0 +1,274 @@
+[
+  {
+    "id": "CH101",
+    "name": "Hector",
+    "player": "Hector",
+    "class_primary": {
+      "name": "fighter",
+      "level": 1
+    },
+    "background": {
+      "name": "soldier",
+      "feat": "",
+      "skill_proficiencies": ["athletics", "intimidation"],
+      "tool_proficiency": "gaming_set"
+    },
+    "species": {
+      "name": "human",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": []
+    },
+    "languages": ["common", "dwarvish", "orc"],
+    "alignment": "lg",
+    "proficiencies": {
+      "skills": ["athletics", "intimidation"],
+      "saving_throws": ["str", "con"],
+      "armor": ["light", "medium", "heavy", "shields"],
+      "weapons": ["simple", "martial"],
+      "tools": ["gaming_set"]
+    },
+    "equipment": {
+      "items": ["chain_mail", "shield", "longsword", "pack_soldier"],
+      "coins": {
+        "gp": 0,
+        "sp": 0,
+        "cp": 0
+      },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Tall, scarred, calm",
+      "personality": "Disciplined and loyal",
+      "ideals": "Protect the weak",
+      "bonds": "Old unit",
+      "flaws": "Slow to trust"
+    },
+    "hp_current": 12,
+    "hp_max": 12,
+    "hp_temp": 0,
+    "armor_class": 18,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 16,
+      "dex": 12,
+      "con": 14,
+      "int": 10,
+      "wis": 11,
+      "cha": 13
+    },
+    "conditions": [],
+    "resources": [],
+    "photo": "/assets/img/barbarian.png"
+  },
+  {
+    "id": "CH102",
+    "name": "Luis",
+    "player": "Luis",
+    "class_primary": {
+      "name": "bard",
+      "level": 1
+    },
+    "background": {
+      "name": "acolyte",
+      "feat": "",
+      "skill_proficiencies": ["insight", "persuasion"],
+      "tool_proficiency": "musical_instrument"
+    },
+    "species": {
+      "name": "elf",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": []
+    },
+    "languages": ["common", "elvish", "celestial"],
+    "alignment": "ng",
+    "proficiencies": {
+      "skills": ["insight", "persuasion"],
+      "saving_throws": ["dex", "cha"],
+      "armor": ["light"],
+      "weapons": ["simple"],
+      "tools": ["musical_instrument"]
+    },
+    "equipment": {
+      "items": ["leather_armor", "rapier", "lute", "pack_entertainer"],
+      "coins": {
+        "gp": 0,
+        "sp": 0,
+        "cp": 0
+      },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Silver hair, bright eyes",
+      "personality": "Curious and optimistic",
+      "ideals": "Knowledge",
+      "bonds": "Temple mentor",
+      "flaws": "Overconfident"
+    },
+    "hp_current": 8,
+    "hp_max": 8,
+    "hp_temp": 0,
+    "armor_class": 13,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 12,
+      "int": 13,
+      "wis": 10,
+      "cha": 16
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "RS201",
+        "name": "INSPIRATION",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "DM"
+      }
+    ],
+    "photo": "/assets/img/elf.png"
+  },
+  {
+    "id": "CH103",
+    "name": "Marcelo",
+    "player": "Marcelo",
+    "class_primary": {
+      "name": "cleric",
+      "level": 1
+    },
+    "background": {
+      "name": "sage",
+      "feat": "",
+      "skill_proficiencies": ["history", "medicine"],
+      "tool_proficiency": "herbalism_kit"
+    },
+    "species": {
+      "name": "dwarf",
+      "size": "medium",
+      "speed_walk": 25,
+      "traits": []
+    },
+    "languages": ["common", "dwarvish", "giant"],
+    "alignment": "ln",
+    "proficiencies": {
+      "skills": ["history", "medicine"],
+      "saving_throws": ["wis", "cha"],
+      "armor": ["light", "medium", "shields"],
+      "weapons": ["simple"],
+      "tools": ["herbalism_kit"]
+    },
+    "equipment": {
+      "items": ["scale_mail", "shield", "mace", "pack_priest"],
+      "coins": {
+        "gp": 0,
+        "sp": 0,
+        "cp": 0
+      },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Broad shoulders, braided beard",
+      "personality": "Patient and methodical",
+      "ideals": "Duty",
+      "bonds": "Clan archive",
+      "flaws": "Stubborn"
+    },
+    "hp_current": 9,
+    "hp_max": 9,
+    "hp_temp": 0,
+    "armor_class": 17,
+    "speed_walk": 25,
+    "ability_scores": {
+      "str": 12,
+      "dex": 10,
+      "con": 14,
+      "int": 13,
+      "wis": 16,
+      "cha": 11
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "RS301",
+        "name": "CHANNEL DIVINITY",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "SHORT_REST"
+      }
+    ],
+    "photo": "/assets/img/wizard.png"
+  },
+  {
+    "id": "CH104",
+    "name": "Cynthia",
+    "player": "Cynthia",
+    "class_primary": {
+      "name": "warlock",
+      "level": 1
+    },
+    "background": {
+      "name": "charlatan",
+      "feat": "",
+      "skill_proficiencies": ["deception", "sleight_of_hand"],
+      "tool_proficiency": "forgery_kit"
+    },
+    "species": {
+      "name": "tiefling",
+      "size": "medium",
+      "speed_walk": 30,
+      "traits": ["darkvision", "hellish_resistance"]
+    },
+    "languages": ["common", "infernal", "abyssal"],
+    "alignment": "cn",
+    "proficiencies": {
+      "skills": ["deception", "arcana"],
+      "saving_throws": ["wis", "cha"],
+      "armor": ["light"],
+      "weapons": ["simple"],
+      "tools": ["forgery_kit"]
+    },
+    "equipment": {
+      "items": ["leather_armor", "dagger", "arcane_focus", "pack_dungeoneer"],
+      "coins": {
+        "gp": 0,
+        "sp": 0,
+        "cp": 0
+      },
+      "trinket": ""
+    },
+    "notes": {
+      "appearance": "Crimson skin, small horns, sharp smile",
+      "personality": "Charming and unpredictable",
+      "ideals": "Power",
+      "bonds": "Mysterious patron",
+      "flaws": "Trusts no one"
+    },
+    "hp_current": 8,
+    "hp_max": 8,
+    "hp_temp": 0,
+    "armor_class": 13,
+    "speed_walk": 30,
+    "ability_scores": {
+      "str": 9,
+      "dex": 14,
+      "con": 13,
+      "int": 12,
+      "wis": 10,
+      "cha": 17
+    },
+    "conditions": [],
+    "resources": [
+      {
+        "id": "RS401",
+        "name": "SPELL SLOTS",
+        "pool_max": 1,
+        "pool_current": 1,
+        "recharge": "SHORT_REST"
+      }
+    ],
+    "photo": "/assets/img/thiefling.png"
+  }
+]
