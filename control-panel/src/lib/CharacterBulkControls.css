@@ -95,26 +95,26 @@
 }
 
 .bulk-action.damage {
-  border-color: var(--red);
-  color: var(--red);
+  border-color: var(--red) !important;
+  color: var(--red) !important;
   box-shadow: var(--shadow-red);
 }
 
 .bulk-action.heal {
-  border-color: var(--cyan);
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
 }
 
 .bulk-action.rest {
-  border-color: var(--grey-dim);
-  color: var(--grey);
+  border-color: var(--grey-dim) !important;
+  color: var(--grey) !important;
   box-shadow: none;
 }
 
 .bulk-action.rest:hover {
-  border-color: var(--grey);
-  color: var(--white);
+  border-color: var(--grey) !important;
+  color: var(--white) !important;
 }
 
 /* Inline error toast for bulk operations */

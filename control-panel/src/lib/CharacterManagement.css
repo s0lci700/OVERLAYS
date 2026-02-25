@@ -121,15 +121,15 @@
 }
 
 .manage-edit-toggle {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border-color: var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
 }
 
 .manage-edit-toggle:hover {
-  border-color: var(--grey);
-  color: var(--white);
+  border-color: var(--grey) !important;
+  color: var(--white) !important;
 }
 
 .manage-form {
@@ -208,34 +208,34 @@
 }
 
 .manage-save-btn {
-  border-color: var(--cyan);
-  background: var(--cyan-dim);
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  background: var(--cyan-dim) !important;
+  color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
 }
 
 .manage-save-btn--neutral {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border-color: var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
 }
 
 .manage-save-btn--neutral:hover {
-  border-color: var(--grey);
-  color: var(--white);
+  border-color: var(--grey) !important;
+  color: var(--white) !important;
 }
 
 .manage-save-btn--outline {
-  border-color: var(--cyan);
-  background: transparent;
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  background: transparent !important;
+  color: var(--cyan) !important;
   box-shadow: none;
 }
 
 .manage-save-btn--outline:hover {
-  border-color: var(--cyan);
-  color: var(--white);
+  border-color: var(--cyan) !important;
+  color: var(--white) !important;
 }
 
 .manage-save-btn:disabled {
@@ -314,9 +314,9 @@
 
 /* Toggle button for showing/hiding read-only info */
 .manage-info-toggle {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border-color: var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
   font-size: 0.7rem;
   padding: 4px 10px;
@@ -325,8 +325,8 @@
 }
 
 .manage-info-toggle:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  color: var(--cyan) !important;
 }
 
 /* Container for read-only data block */
@@ -414,14 +414,14 @@
 /* ── Delete ─────────────────────────────────────────────── */
 
 .manage-delete-btn {
-  background: transparent;
-  border: 1px solid var(--red);
-  color: var(--red);
+  background: transparent !important;
+  border: 1px solid var(--red) !important;
+  color: var(--red) !important;
   margin-top: var(--space-4);
 }
 
 .manage-delete-btn:hover:not(:disabled) {
-  background: var(--red-dim);
+  background: var(--red-dim) !important;
 }
 
 /* AlertDialog confirmation panel */

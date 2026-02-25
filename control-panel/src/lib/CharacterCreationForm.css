@@ -242,9 +242,9 @@
 
 /* Primary submit action inherits .btn-base and overrides accent colors. */
 .create-submit {
-  border-color: var(--cyan);
-  background: var(--cyan-dim);
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  background: var(--cyan-dim) !important;
+  color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
 }
 

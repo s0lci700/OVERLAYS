@@ -184,8 +184,8 @@
   gap: var(--space-2);
   min-height: 72px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--grey-dim);
-  background: var(--black-card);
+  border: 1px solid var(--grey-dim) !important;
+  background: var(--black-card) !important;
   box-shadow: var(--shadow-card);
   transition:
     border-color var(--t-fast),
@@ -196,14 +196,14 @@
 }
 
 .dice-btn:hover {
-  border-color: var(--purple);
+  border-color: var(--purple) !important;
   box-shadow: var(--shadow-purple);
 }
 
 .dice-btn:active {
   transform: translate(3px, 3px);
   box-shadow: none;
-  border-color: var(--purple);
+  border-color: var(--purple) !important;
 }
 
 .dice-btn:hover .dice-label {
