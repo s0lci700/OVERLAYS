@@ -15,6 +15,9 @@
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import * as Dialog from "./components/ui/dialog/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
   import { SERVER_URL } from "./socket";
   import characterOptions from "../../../docs/character-options.template.json";
 
@@ -376,49 +379,64 @@
         </div>
         <!-- Required identity fields. Arrange 'Nombre' and 'Jugador' side-by-side -->
         <div class="create-grid create-grid--two identity-group">
-          <label class="create-field">
-            <span class="label-caps">Nombre</span>
-            <input
+          <div class="create-field">
+            <Label for="name-input" class="label-caps">Nombre</Label>
+            <Input
+              id="name-input"
               type="text"
               placeholder="Ej. Valeria"
               bind:value={name}
               maxlength="40"
               required
             />
-          </label>
+          </div>
 
-          <label class="create-field">
-            <span class="label-caps">Jugador</span>
-            <input
+          <div class="create-field">
+            <Label for="player-input" class="label-caps">Jugador</Label>
+            <Input
+              id="player-input"
               type="text"
               placeholder="Ej. Sol"
               bind:value={player}
               maxlength="40"
               required
             />
-          </label>
+          </div>
         </div>
 
         <!-- Core combat stats. -->
         <div class="create-grid stats-grid">
-          <label class="create-field">
-            <span class="label-caps">HP MAX</span>
-            <input
+          <div class="create-field">
+            <Label for="hp-max-input" class="label-caps">HP MAX</Label>
+            <Input
+              id="hp-max-input"
               type="number"
               min="1"
               max="999"
               bind:value={hpMax}
               required
             />
-          </label>
-          <label class="create-field">
-            <span class="label-caps">AC</span>
-            <input type="number" min="0" max="99" bind:value={armorClass} />
-          </label>
-          <label class="create-field">
-            <span class="label-caps">VEL</span>
-            <input type="number" min="0" max="200" bind:value={speedWalk} />
-          </label>
+          </div>
+          <div class="create-field">
+            <Label for="ac-input" class="label-caps">AC</Label>
+            <Input 
+              id="ac-input"
+              type="number" 
+              min="0" 
+              max="99" 
+              bind:value={armorClass} 
+            />
+          </div>
+          <div class="create-field">
+            <Label for="speed-input" class="label-caps">VEL</Label>
+            <Input 
+              id="speed-input"
+              type="number" 
+              min="0" 
+              max="200" 
+              bind:value={speedWalk} 
+            />
+          </div>
         </div>
 
         <!-- Section: Character Options (class, background, species, alignment) -->
@@ -453,7 +471,12 @@
             </label>
             <label class="create-field">
               <span class="label-caps">Nivel</span>
-              <input type="number" min="1" max="20" bind:value={classLevel} />
+              <Input 
+                type="number" 
+                min="1" 
+                max="20" 
+                bind:value={classLevel} 
+              />
             </label>
             <label class="create-field">
               <span class="label-caps">Background</span>
@@ -694,13 +717,13 @@
     </div>
 
     <!-- Submit button stays disabled until form is valid and not in-flight. -->
-    <button
-      class="create-submit btn-base"
+    <Button
+      class="create-submit"
       type="submit"
       disabled={!isFormValid || isSubmitting}
     >
       {isSubmitting ? "CREANDO..." : "CREAR PERSONAJE"}
-    </button>
+    </Button>
 
     <!-- Inline API feedback for operators during live sessions. -->
     {#if errorMessage}

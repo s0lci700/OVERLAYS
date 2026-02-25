@@ -21,6 +21,7 @@
   import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
   import { resolvePhotoSrc } from "./utils.js";
   import * as Tooltip from "./components/ui/tooltip/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { animate } from "animejs";
   // Helper wrapper to keep existing animate(element, options) usage.
   // const animate = (el, opts) => anime(Object.assign({ targets: el }, opts));
@@ -469,28 +470,28 @@
       <!-- Short/long rest buttons to restore resources -->
       <fieldset class="rest-buttons">
         <legend class="rest-label">DESCANSOS</legend>
-        <button
-          class="btn-base btn-rest"
+        <Button
+          class="btn-rest"
           onclick={() => takeRest("short")}
-          disabled={isUpdating}>CORTO</button
+          disabled={isUpdating} >CORTO</Button
         >
-        <button
-          class="btn-base btn-rest"
+        <Button
+          class="btn-rest"
           onclick={() => takeRest("long")}
-          disabled={isUpdating}>LARGO</button
+          disabled={isUpdating} >LARGO</Button
         >
       </fieldset>
     {/if}
 
     <!-- HP damage/healing controls -->
     <div class="char-controls">
-      <button
-        class="btn-base btn-damage"
+      <Button
+        class="btn-damage"
         disabled={isUpdating}
         onclick={() => updateHp("damage")}
       >
         − DAÑO
-      </button>
+      </Button>
 
       <!-- Stepper control for adjusting damage/healing amount -->
       <div class="stepper-cluster">
@@ -514,13 +515,13 @@
         >
       </div>
 
-      <button
-        class="btn-base btn-heal"
+      <Button
+        class="btn-heal"
         disabled={isUpdating}
         onclick={() => updateHp("heal")}
       >
         + CURAR
-      </button>
+      </Button>
     </div>
   </div>
 </article>

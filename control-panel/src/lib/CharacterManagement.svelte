@@ -13,6 +13,9 @@
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
   import * as Dialog from "$lib/components/ui/dialog";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
   import { resolvePhotoSrc } from "./utils.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import characterOptions from "../../../docs/character-options.template.json";
@@ -599,7 +602,7 @@
       <article class="manage-card card-base" data-char-id={character.id}>
         <header class="manage-card-head">
           <div class="manage-identity">
-            <button
+            <Button
               class="manage-photo-btn"
               type="button"
               onclick={() => openPhotoEditor(character.id)}
@@ -611,21 +614,21 @@
                 alt={character.name}
               />
               <span class="manage-photo-hint">Editar foto</span>
-            </button>
+            </Button>
             <div class="manage-names">
               <h3 class="manage-char-name">{character.name}</h3>
               <span class="manage-char-player">{character.player}</span>
               <LevelPill level={classLevelById[character.id]} />
             </div>
           </div>
-          <button
+          <Button
             class="btn-base manage-edit-toggle"
             type="button"
             onclick={() => toggleEdit(character.id)}
             aria-expanded={editOpenById[character.id] ? "true" : "false"}
           >
             {editOpenById[character.id] ? "CERRAR EDICION" : "EDITAR PERSONAJE"}
-          </button>
+          </Button>
         </header>
 
         {#if !editOpenById[character.id]}
@@ -653,14 +656,14 @@
 
           <!-- Read-only info panel: toggle to show/hide full character data -->
           <div class="manage-readonly">
-            <button
+            <Button
               class="btn-base manage-info-toggle"
               type="button"
               onclick={() => toggleInfo(character.id)}
               aria-expanded={infoOpenById[character.id] ? "true" : "false"}
             >
               {infoOpenById[character.id] ? "OCULTAR INFO" : "VER INFO"}
-            </button>
+            </Button>
 
             {#if infoOpenById[character.id]}
               <div
@@ -699,7 +702,7 @@
                 <div class="manage-readonly-item">
                   <span class="manage-readonly-label manage-readonly-expand">
                     Competencias y equipo
-                    <button
+                    <Button
                       type="button"
                       class="btn-base manage-info-toggle"
                       onclick={() => toggleLoadout(character.id)}
@@ -710,7 +713,7 @@
                       {loadoutOpenById[character.id]
                         ? "ocultar detalle"
                         : "ver detalle"}
-                    </button>
+                    </Button>
                   </span>
                   {#if !loadoutOpenById[character.id]}
                     <span class="manage-readonly-value"
@@ -780,9 +783,10 @@
 
         {#if editOpenById[character.id]}
           <div class="manage-form">
-            <label class="manage-field">
-              <span class="label-caps">Nombre</span>
-              <input
+            <div class="manage-field">
+              <Label for={`name-${character.id}`} class="label-caps">Nombre</Label>
+              <Input
+                id={`name-${character.id}`}
                 type="text"
                 value={nameById[character.id]}
                 oninput={(event) =>
@@ -793,10 +797,11 @@
                   ))}
                 maxlength="40"
               />
-            </label>
-            <label class="manage-field">
-              <span class="label-caps">Jugador</span>
-              <input
+            </div>
+            <div class="manage-field">
+              <Label for={`player-${character.id}`} class="label-caps">Jugador</Label>
+              <Input
+                id={`player-${character.id}`}
                 type="text"
                 value={playerById[character.id]}
                 oninput={(event) =>
@@ -807,11 +812,12 @@
                   ))}
                 maxlength="40"
               />
-            </label>
+            </div>
             <div class="manage-grid-fields">
-              <label class="manage-field">
-                <span class="label-caps">HP MAX</span>
-                <input
+              <div class="manage-field">
+                <Label for={`hp-max-${character.id}`} class="label-caps">HP MAX</Label>
+                <Input
+                  id={`hp-max-${character.id}`}
                   type="number"
                   min="1"
                   max="999"
@@ -823,10 +829,11 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
-              <label class="manage-field">
-                <span class="label-caps">AC</span>
-                <input
+              </div>
+              <div class="manage-field">
+                <Label for={`ac-${character.id}`} class="label-caps">AC</Label>
+                <Input
+                  id={`ac-${character.id}`}
                   type="number"
                   min="0"
                   max="99"
@@ -838,10 +845,11 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
-              <label class="manage-field">
-                <span class="label-caps">VEL</span>
-                <input
+              </div>
+              <div class="manage-field">
+                <Label for={`speed-${character.id}`} class="label-caps">VEL</Label>
+                <Input
+                  id={`speed-${character.id}`}
                   type="number"
                   min="0"
                   max="200"
@@ -853,7 +861,7 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
+              </div>
             </div>
 
             <div class="manage-section">
@@ -900,9 +908,10 @@
                     {/if}
                   </select>
                 </label>
-                <label class="manage-field">
-                  <span class="label-caps">Nivel</span>
-                  <input
+                <div class="manage-field">
+                  <Label for={`level-${character.id}`} class="label-caps">Nivel</Label>
+                  <Input
+                    id={`level-${character.id}`}
                     type="number"
                     min="1"
                     max="20"
@@ -914,7 +923,7 @@
                         event.currentTarget.value,
                       ))}
                   />
-                </label>
+                </div>
                 <label class="manage-field">
                   <span class="label-caps">Background</span>
                   <select
@@ -1208,15 +1217,15 @@
             </div>
 
             <div class="manage-actions">
-              <button
+              <Button
                 class="btn-base manage-save-btn manage-save-btn--outline"
                 type="button"
                 onclick={() => levelUpCharacter(character.id)}
                 disabled={isSavingProfileById[character.id]}
               >
                 SUBIR NIVEL
-              </button>
-              <button
+              </Button>
+              <Button
                 class="btn-base manage-save-btn manage-save-btn--neutral"
                 type="button"
                 onclick={() => saveProfile(character.id)}
@@ -1225,7 +1234,7 @@
                 {isSavingProfileById[character.id]
                   ? "GUARDANDO..."
                   : "GUARDAR DATOS"}
-              </button>
+              </Button>
               {#if profileFeedbackById[character.id]?.text}
                 <span
                   class={`manage-feedback ${profileFeedbackById[character.id].type}`}
@@ -1236,13 +1245,13 @@
               <span class="manage-note">
                 Subir nivel solo ajusta el nivel por ahora.
               </span>
-              <button
+              <Button
                 class="btn-base manage-delete-btn"
                 type="button"
                 onclick={() => (pendingDeleteId = character.id)}
               >
                 ELIMINAR PERSONAJE
-              </button>
+              </Button>
             </div>
           </div>
         {/if}
@@ -1291,14 +1300,14 @@
       />
 
       <div class="photo-modal-actions">
-        <button
+        <Button
           class="btn-base manage-save-btn"
           type="button"
           onclick={() => savePhoto(activePhotoId)}
           disabled={isSavingById[activePhotoId]}
         >
           {isSavingById[activePhotoId] ? "GUARDANDO..." : "ACTUALIZAR FOTO"}
-        </button>
+        </Button>
         {#if feedbackById[activePhotoId]?.text}
           <span class={`manage-feedback ${feedbackById[activePhotoId].type}`}>
             {feedbackById[activePhotoId].text}

@@ -5,42 +5,35 @@ export function cn(...inputs) {
 	return twMerge(clsx(inputs));
 }
 
-const FALLBACK_PHOTOS = [
-  "/assets/img/barbarian.png",
-  "/assets/img/elf.png",
-  "/assets/img/wizard.png",
-];
-
 /**
- * Resolve a character photo path to an absolute URL.
- * - Absolute URLs (http/https/data/blob) are returned as-is.
- * - Server-relative paths are prefixed with serverUrl.
- * - Null/empty paths fall back to a deterministic preset based on charId hash
- *   (so the same character always gets the same fallback avatar).
- *
- * @param {string|null} photoPath
- * @param {string} serverUrl   — e.g. SERVER_URL from socket.js
- * @param {string} [charId]    — optional, used for deterministic fallback
+ * Resolve a photo path to a full URL or data URL
+ * @param {string} photoPath - The photo path from character data
+ * @param {string} serverUrl - Base server URL for relative paths
+ * @param {string} charId - Character ID for fallback generation
+ * @returns {string} Full URL or data URL for the photo
  */
-export function resolvePhotoSrc(photoPath, serverUrl, charId) {
-  if (!photoPath) {
-    const index = charId
-      ? Math.abs(
-          [...charId].reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0),
-        ) % FALLBACK_PHOTOS.length
-      : 0;
-    return `${serverUrl}${FALLBACK_PHOTOS[index]}`;
-  }
-  if (
-    photoPath.startsWith("http://") ||
-    photoPath.startsWith("https://") ||
-    photoPath.startsWith("data:") ||
-    photoPath.startsWith("blob:")
-  ) {
-    return photoPath;
-  }
-  if (photoPath.startsWith("/")) return `${serverUrl}${photoPath}`;
-  return `${serverUrl}/${photoPath.replace(/^\/+/, "")}`;
+export function resolvePhotoSrc(photoPath = "", serverUrl = "", charId = "") {
+	// If no photo path, return a data URL placeholder or server placeholder
+	if (!photoPath) {
+		return `${serverUrl}/assets/img/placeholder.png`;
+	}
+
+	// Already a full URL or data URL
+	if (
+		photoPath.startsWith("http://") ||
+		photoPath.startsWith("https://") ||
+		photoPath.startsWith("data:") ||
+		photoPath.startsWith("blob:")
+	) {
+		return photoPath;
+	}
+
+	// Relative path — combine with server URL
+	if (photoPath.startsWith("/")) {
+		return `${serverUrl}${photoPath}`;
+	}
+
+	return `${serverUrl}/${photoPath.replace(/^\/+/, "")}`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

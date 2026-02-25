@@ -4,6 +4,7 @@
 <script>
   import "$lib/CharacterBulkControls.css";
   import CharacterCard from "$lib/CharacterCard.svelte";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { characters, SERVER_URL } from "$lib/socket.js";
   import { createDraggable } from "animejs";
   import { onMount } from "svelte";
@@ -268,38 +269,38 @@
         aria-label="Cantidad de HP"
       />
     </div>
-    <button
-      class="btn-base bulk-action damage"
+    <Button
+      class="bulk-action damage"
       type="button"
       onclick={() => applyBulkHp("damage")}
       disabled={!hasSelection}
     >
       − Daño
-    </button>
-    <button
-      class="btn-base bulk-action heal"
+    </Button>
+    <Button
+      class="bulk-action heal"
       type="button"
       onclick={() => applyBulkHp("heal")}
       disabled={!hasSelection}
     >
       + Curar
-    </button>
-    <button
-      class="btn-base bulk-action rest"
+    </Button>
+    <Button
+      class="bulk-action rest"
       type="button"
       onclick={() => applyBulkRest("short")}
       disabled={!hasSelection}
     >
       Descanso corto
-    </button>
-    <button
-      class="btn-base bulk-action rest"
+    </Button>
+    <Button
+      class="bulk-action rest"
       type="button"
       onclick={() => applyBulkRest("long")}
       disabled={!hasSelection}
     >
       Descanso largo
-    </button>
+    </Button>
   </div>
 </section>
 

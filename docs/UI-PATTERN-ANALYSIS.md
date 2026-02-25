@@ -8,12 +8,14 @@
 ## Executive Summary
 
 Current codebase uses:
+
 - **Base design tokens** in `src/app.css` (brand colors, spacing, typography)
 - **Custom component CSS** for individual features (CharacterCard, DiceRoller, etc.)
 - **bits-ui primitives** already in use (Dialog, Tooltip)
 - **Tailwind CSS v4** already installed (via `@tailwindcss/vite`)
 
 **Finding:** ~7 major UI patterns repeat across 5+ components. These are candidates for shadcn-svelte, which would:
+
 - Reduce CSS duplication
 - Add missing ARIA attributes and keyboard navigation
 - Maintain your existing dark aesthetic (no breaking changes)
@@ -27,17 +29,18 @@ Current codebase uses:
 
 **Current Usage:** Repeats across ~8 components
 
-| Component | Button Class | Pattern | Instances |
-|-----------|-------------|---------|-----------|
-| `CharacterCard` | `.btn-damage`, `.btn-heal`, `.btn-rest` | Base + color variant + size | 4 buttons |
-| `DiceRoller` | `.dice-btn` (d4–d20) | Base + purple accent | 6 buttons |
-| `CharacterBulkControls` | `.bulk-action` → damage/heal/rest | Base + color variant | 4 buttons |
-| `CharacterCreationForm` | `.create-submit` | Base + cyan primary | 1 button |
-| `CharacterManagement` | `.manage-edit-toggle`, `.manage-delete-btn` | Base + grey variant | 2 buttons |
-| `PhotoSourcePicker` | `.photo-clear-btn` | Base + grey variant | 3 buttons |
-| Routes (control/manage) | Navigation buttons | Base + nav styling | 6+ buttons |
+| Component               | Button Class                                | Pattern                     | Instances  |
+| ----------------------- | ------------------------------------------- | --------------------------- | ---------- |
+| `CharacterCard`         | `.btn-damage`, `.btn-heal`, `.btn-rest`     | Base + color variant + size | 4 buttons  |
+| `DiceRoller`            | `.dice-btn` (d4–d20)                        | Base + purple accent        | 6 buttons  |
+| `CharacterBulkControls` | `.bulk-action` → damage/heal/rest           | Base + color variant        | 4 buttons  |
+| `CharacterCreationForm` | `.create-submit`                            | Base + cyan primary         | 1 button   |
+| `CharacterManagement`   | `.manage-edit-toggle`, `.manage-delete-btn` | Base + grey variant         | 2 buttons  |
+| `PhotoSourcePicker`     | `.photo-clear-btn`                          | Base + grey variant         | 3 buttons  |
+| Routes (control/manage) | Navigation buttons                          | Base + nav styling          | 6+ buttons |
 
 **Duplication:** All buttons follow the same pattern:
+
 ```css
 /* Repeated pattern across all button types */
 .btn-* {
@@ -67,6 +70,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Button` component with variants
+
 ```svelte
 <Button variant="destructive" size="md" disabled={isLoading}>
   − DAÑO
@@ -78,6 +82,7 @@ Current codebase uses:
 ```
 
 **Benefit:**
+
 - ✅ Single source of truth for button styling
 - ✅ Built-in `disabled` prop handling
 - ✅ Avoids class utility sprawl
@@ -90,16 +95,17 @@ Current codebase uses:
 
 **Current Usage:** 6 components repeat form field layout
 
-| Component | Field Type | Pattern | Count |
-|-----------|-----------|---------|-------|
-| `CharacterCreationForm` | Text, Number | Label + Input + Validation | 8 fields |
-| `CharacterManagement` | Text, Number | Label + Input + Edit mode | 6 fields |
-| `PhotoSourcePicker` | Text (readonly) | Label + Input + Clear btn | 3 fields |
-| `DiceRoller` | Number, Select | Label + Input + Stepper | 2 fields |
-| Control routes | Text | Search/filter inputs | 2+ fields |
-| Bulk controls | Number | Amount selector | 1 field |
+| Component               | Field Type      | Pattern                    | Count     |
+| ----------------------- | --------------- | -------------------------- | --------- |
+| `CharacterCreationForm` | Text, Number    | Label + Input + Validation | 8 fields  |
+| `CharacterManagement`   | Text, Number    | Label + Input + Edit mode  | 6 fields  |
+| `PhotoSourcePicker`     | Text (readonly) | Label + Input + Clear btn  | 3 fields  |
+| `DiceRoller`            | Number, Select  | Label + Input + Stepper    | 2 fields  |
+| Control routes          | Text            | Search/filter inputs       | 2+ fields |
+| Bulk controls           | Number          | Amount selector            | 1 field   |
 
 **Duplication:** Identical layout repeated in CSS:
+
 ```css
 /* CharacterCreationForm.css */
 .create-field {
@@ -126,6 +132,7 @@ Current codebase uses:
 ```
 
 **Validation Message Pattern:** Repeated in multiple places:
+
 ```svelte
 {#if errorMessage}
   <p class="create-feedback error">{errorMessage}</p>
@@ -133,6 +140,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidates:** `Form` + `Input` + `Label`
+
 ```svelte
 <script>
   import { Form, Input, Label } from "$lib/components/ui";
@@ -153,6 +161,7 @@ Current codebase uses:
 ```
 
 **Benefit:**
+
 - ✅ Eliminates 200+ lines of `.css` duplication (same 5–7 rules in 6 files)
 - ✅ Consistent label-input-error message layout
 - ✅ Automatic `aria-describedby` linking for error messages
@@ -165,13 +174,14 @@ Current codebase uses:
 
 **Current Usage:** 3 components
 
-| Component | Use Case | Current Implementation | Issue |
-|-----------|----------|----------------------|-------|
-| `CharacterCreationForm` | Photo picker modal | `Modal.svelte` | No focus trap; Tab escapes modal |
-| `PhotoSourcePicker` | Photo modal overlay | `Modal.svelte` | No focus trap; Escape doesn't close |
-| `CharacterManagement` (future) | Delete confirmation | Manual `div` + backdrop | No modal semantics |
+| Component                      | Use Case            | Current Implementation  | Issue                               |
+| ------------------------------ | ------------------- | ----------------------- | ----------------------------------- |
+| `CharacterCreationForm`        | Photo picker modal  | `Modal.svelte`          | No focus trap; Tab escapes modal    |
+| `PhotoSourcePicker`            | Photo modal overlay | `Modal.svelte`          | No focus trap; Escape doesn't close |
+| `CharacterManagement` (future) | Delete confirmation | Manual `div` + backdrop | No modal semantics                  |
 
 **Current Code Pattern (Modal.svelte):**
+
 ```svelte
 <script>
   import * as Dialog from "./components/ui/dialog/index.js";
@@ -186,6 +196,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** Already partially using bits-ui `Dialog` (in your imports). The `shadcn-svelte` wrapper adds:
+
 - ✅ Focus trap: Tab stays within modal
 - ✅ Escape key: Closes modal automatically
 - ✅ `aria-modal="true"` + `aria-label` wiring
@@ -200,12 +211,13 @@ Current codebase uses:
 
 **Current Usage:** 2 components
 
-| Component | Use Case | Pattern | Issue |
-|-----------|----------|---------|-------|
-| `CharacterCreationForm` | Languages, Skills, Tools, etc. | Custom `MultiSelect.svelte` | No keyboard nav; `aria-activedescendant` only |
-| `PhotoSourcePicker` (tabs) | Photo source selection | Manual button group | No `role="tablist"` or `aria-selected` |
+| Component                  | Use Case                       | Pattern                     | Issue                                         |
+| -------------------------- | ------------------------------ | --------------------------- | --------------------------------------------- |
+| `CharacterCreationForm`    | Languages, Skills, Tools, etc. | Custom `MultiSelect.svelte` | No keyboard nav; `aria-activedescendant` only |
+| `PhotoSourcePicker` (tabs) | Photo source selection         | Manual button group         | No `role="tablist"` or `aria-selected`        |
 
 **Current Implementation (MultiSelect.svelte):**
+
 ```svelte
 <!-- Has keyboard support but limited ARIA -->
 <div
@@ -231,6 +243,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Listbox` from bits-ui (via shadcn)
+
 ```svelte
 <script>
   import { Listbox } from "$lib/components/ui/listbox";
@@ -249,6 +262,7 @@ Current codebase uses:
 ```
 
 **Benefit:**
+
 - ✅ Full keyboard navigation (arrows, Home/End, type-to-jump)
 - ✅ Proper `aria-selected`, `aria-disabled` wiring
 - ✅ Screen reader announces "X of Y items selected"
@@ -261,15 +275,16 @@ Current codebase uses:
 
 **Current Usage:** 1 component template reused
 
-| Component | Use Case | Current Implementation | Issue |
-|-----------|----------|----------------------|-------|
+| Component       | Use Case                          | Current Implementation                                   | Issue                                            |
+| --------------- | --------------------------------- | -------------------------------------------------------- | ------------------------------------------------ |
 | `CharacterCard` | Expand/collapse stats & resources | Manual `collapsed` boolean + `anime.js` height animation | `aria-expanded` only; no `aria-controls` linking |
 
 **Current Pattern (CharacterCard.svelte):**
+
 ```svelte
 <script>
   let isCollapsed = $state(false);
-  
+
   $effect(() => {
     // Manual anime.js height animation
     animate(charBodyEl, { height: isCollapsed ? 0 : targetHeight, ... });
@@ -290,6 +305,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Collapsible` from bits-ui (via shadcn)
+
 ```svelte
 <script>
   import { Collapsible } from "$lib/components/ui/collapsible";
@@ -299,7 +315,7 @@ Current codebase uses:
   <Collapsible.Trigger class="collapse-toggle">
     ▾ <span class="sr-only">{isExpanded ? "Colapsar" : "Expandir"}</span>
   </Collapsible.Trigger>
-  
+
   <Collapsible.Content class="char-body">
     <!-- Content — automatic aria-labelledby + aria-controls wiring -->
   </Collapsible.Content>
@@ -307,6 +323,7 @@ Current codebase uses:
 ```
 
 **Benefit:**
+
 - ✅ Automatic `aria-controls` linking (content ID ↔ button)
 - ✅ Built-in CSS custom properties for animate (`:data-state="open"` / `closed`)
 - ✅ Removes anime.js dependency for this one use case
@@ -318,13 +335,14 @@ Current codebase uses:
 
 **Current Usage:** 2+ components
 
-| Component | Pattern | Current CSS | Issues |
-|-----------|---------|-----------|--------|
-| `CharacterCard` | Condition pills | `.condition-pill` (button style) | Visual only; no component reuse |
-| `LevelPill` | Level display | `.level-pill` (span style) | Hardcoded styles; not a component |
-| `DashboardCard` (future) | Status badges | Would need custom CSS | Duplicates pill patterns |
+| Component                | Pattern         | Current CSS                      | Issues                            |
+| ------------------------ | --------------- | -------------------------------- | --------------------------------- |
+| `CharacterCard`          | Condition pills | `.condition-pill` (button style) | Visual only; no component reuse   |
+| `LevelPill`              | Level display   | `.level-pill` (span style)       | Hardcoded styles; not a component |
+| `DashboardCard` (future) | Status badges   | Would need custom CSS            | Duplicates pill patterns          |
 
 **Current Implementation:**
+
 ```svelte
 <!-- CharacterCard -->
 {#each character.conditions as condition}
@@ -340,6 +358,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Badge` component
+
 ```svelte
 <script>
   import { Badge } from "$lib/components/ui/badge";
@@ -357,6 +376,7 @@ Current codebase uses:
 ```
 
 **Benefit:**
+
 - ✅ Semantic pill component with consistent padding/radius
 - ✅ Pre-built variants (default, secondary, destructive, outline)
 - ✅ Reusable for future status/category displays
@@ -368,13 +388,14 @@ Current codebase uses:
 
 **Current Usage:** 5+ components
 
-| Component | Class | Current CSS | Note |
-|-----------|-------|-----------|------|
-| `CharacterCard` | `.card-base` | Base card styling | Solid, reused effectively |
-| `DashboardCard` | Extends `.card-base` | Base + dashboard variant | Minimal duplication |
-| `CharacterCreationForm` | `.character-create` → `.card-base` | Works well | No change needed |
+| Component               | Class                              | Current CSS              | Note                      |
+| ----------------------- | ---------------------------------- | ------------------------ | ------------------------- |
+| `CharacterCard`         | `.card-base`                       | Base card styling        | Solid, reused effectively |
+| `DashboardCard`         | Extends `.card-base`               | Base + dashboard variant | Minimal duplication       |
+| `CharacterCreationForm` | `.character-create` → `.card-base` | Works well               | No change needed          |
 
 **Assessment:** This pattern is already well-abstracted via `.card-base` in `app.css`. shadcn-svelte `Card` component would add:
+
 - Semantic `<article>` or `<section>` wrapping
 - Built-in `Card.Header`, `Card.Content`, `Card.Footer` slots
 
@@ -386,12 +407,13 @@ Current codebase uses:
 
 **Current Usage:** 2 components
 
-| Component | Use Case | Current Implementation |
-|-----------|----------|----------------------|
-| `DiceRoller` | Modifier stepper (−20 to +20) | Manual `+` / `−` buttons + number input |
-| `CharacterCard` | HP amount stepper (1–999) | Manual `+` / `−` buttons + number input |
+| Component       | Use Case                      | Current Implementation                  |
+| --------------- | ----------------------------- | --------------------------------------- |
+| `DiceRoller`    | Modifier stepper (−20 to +20) | Manual `+` / `−` buttons + number input |
+| `CharacterCard` | HP amount stepper (1–999)     | Manual `+` / `−` buttons + number input |
 
 **Current Pattern:**
+
 ```svelte
 <!-- DiceRoller -->
 <button onclick={() => decrementModifier()}>−</button>
@@ -405,6 +427,7 @@ Current codebase uses:
 ```
 
 **CSS (CharacterCard.css):**
+
 ```css
 .stepper {
   display: flex;
@@ -427,6 +450,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Input` component with custom stepper wrapper
+
 ```svelte
 <script>
   import { Input } from "$lib/components/ui/input";
@@ -447,12 +471,13 @@ Current codebase uses:
 
 **Current Usage:** 2 components
 
-| Component | Use Case | Current Implementation |
-|-----------|----------|----------------------|
-| `DiceRoller` | Character selector | Native `<select>` with `.selector` class |
-| `PhotoSourcePicker` | Photo source tabs | Manual button group (acts like select) |
+| Component           | Use Case           | Current Implementation                   |
+| ------------------- | ------------------ | ---------------------------------------- |
+| `DiceRoller`        | Character selector | Native `<select>` with `.selector` class |
+| `PhotoSourcePicker` | Photo source tabs  | Manual button group (acts like select)   |
 
 **Current CSS Pattern:**
+
 ```css
 .selector {
   min-height: 44px;
@@ -471,6 +496,7 @@ Current codebase uses:
 ```
 
 **shadcn-svelte Candidate:** `Select` component (if PhotoSourcePicker tabs become a proper select)
+
 ```svelte
 <script>
   import { Select } from "$lib/components/ui/select";
@@ -495,6 +521,7 @@ Current codebase uses:
 ## Implementation Timeline
 
 ### Phase 0: Setup (Already Complete ✅)
+
 - ✅ Tailwind CSS v4 installed
 - ✅ `@tailwindcss/vite` in `vite.config.js`
 - ✅ bits-ui in `package.json`
@@ -576,12 +603,12 @@ npx shadcn-svelte@latest add badge
 
 ## Risk Assessment
 
-| Risk | Likelihood | Mitigation |
-|------|-----------|-----------|
-| Tailwind CSS conflicts with custom CSS | Low | Both systems can coexist; shadcn components apply CSS variables, not class utilities |
-| Token mapping doesn't apply to shadcn components | Low | CSS variable aliases are standard; test one component first |
-| Modal focus trap breaks existing behavior | Low | bits-ui Dialog is well-tested; test in PhotoSourcePicker first |
-| Keyboard nav in MultiSelect breaks existing logic | Low | Wrap bits-ui inside existing component; keep data flow unchanged |
+| Risk                                              | Likelihood | Mitigation                                                                           |
+| ------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
+| Tailwind CSS conflicts with custom CSS            | Low        | Both systems can coexist; shadcn components apply CSS variables, not class utilities |
+| Token mapping doesn't apply to shadcn components  | Low        | CSS variable aliases are standard; test one component first                          |
+| Modal focus trap breaks existing behavior         | Low        | bits-ui Dialog is well-tested; test in PhotoSourcePicker first                       |
+| Keyboard nav in MultiSelect breaks existing logic | Low        | Wrap bits-ui inside existing component; keep data flow unchanged                     |
 
 ---
 
@@ -597,4 +624,3 @@ This project has 7–9 strong candidates for shadcn-svelte migration, organized 
 **ROI:** ~300 lines of duplicated CSS removed, 3 accessibility gaps fixed, improved DX for future features
 
 Proceed with Phase 1 setup when ready; no breaking changes to UI or token system.
-

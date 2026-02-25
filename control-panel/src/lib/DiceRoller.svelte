@@ -18,6 +18,7 @@
 <script>
   import "./DiceRoller.css";
   import { characters, SERVER_URL, lastRoll } from "./socket";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { get } from "svelte/store";
   import { animate } from "animejs";
   // Keep existing animate(element, options) callsites working.
@@ -261,16 +262,16 @@
   <!-- Dice Button Grid -->
   <div class="dice-grid">
     {#each [4, 6, 8, 10, 12] as diceType (diceType)}
-      <button class="dice-btn" onclick={() => rollDice(diceType)}>
+      <Button class="dice-btn" onclick={() => rollDice(diceType)}>
         <span class={`dice-icon dice-icon--d${diceType}`} aria-hidden="true"
         ></span>
         <span class="dice-label">d{diceType}</span>
-      </button>
+      </Button>
     {/each}
-    <button class="dice-btn d20-btn" onclick={() => rollDice(20)}>
+    <Button class="dice-btn d20-btn" onclick={() => rollDice(20)}>
       <span class="dice-icon dice-icon--d20" aria-hidden="true"></span>
       <span class="dice-label">d20</span>
-    </button>
+    </Button>
   </div>
 
   <!-- Roll Result Display (shows when a roll is active) -->
