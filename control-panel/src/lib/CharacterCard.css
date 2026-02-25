@@ -439,6 +439,9 @@
   white-space: nowrap;
   min-width: 0;
   border-radius: var(--radius-md) !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.04em !important;
 }
 
 .btn-damage:hover {
@@ -455,6 +458,9 @@
   white-space: nowrap;
   min-width: 0;
   border-radius: var(--radius-md) !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.04em !important;
 }
 
 .btn-heal:hover {
@@ -672,6 +678,8 @@
 
 .btn-rest {
   font-size: 0.95rem;
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.04em !important;
   padding: var(--space-2) var(--space-3);
   color: var(--grey) !important;
   border: 2px solid var(--grey-dim) !important;
