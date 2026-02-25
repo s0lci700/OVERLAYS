@@ -83,6 +83,15 @@
   function handleContainerBlur() {
     focusedIndex = -1;
   }
+
+  function handleOptionKeydown(event, key, index) {
+    if (disabled) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      focusedIndex = index;
+      toggle(key);
+    }
+  }
 </script>
 
 <div
@@ -110,6 +119,8 @@
         class:ms-focused={isFocused}
         role="option"
         aria-selected={isSelected}
+        tabindex={disabled ? -1 : (isFocused ? 0 : -1)}
+        onkeydown={(e) => handleOptionKeydown(e, option.key, i)}
         onclick={() => { focusedIndex = i; toggle(option.key); }}
       >
         <span class="ms-label">{option.label}</span>
