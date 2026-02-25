@@ -158,19 +158,21 @@
   gap: var(--space-1);
 }
 
-.manage-field input {
-  min-height: 44px;
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
-  padding: 0 var(--space-3);
-  background: var(--black-elevated);
-  color: var(--white);
-  font-family: var(--font-ui);
+.manage-field input,
+.manage-field :global([data-slot="input"]) {
+  min-height: 44px !important;
+  border: 1px solid var(--grey-dim) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 var(--space-3) !important;
+  background: var(--black-elevated) !important;
+  color: var(--white) !important;
+  font-family: var(--font-ui) !important;
 }
 
-.manage-field input:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 1px var(--cyan-dim);
+.manage-field input:focus,
+.manage-field :global([data-slot="input"]:focus) {
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 0 1px var(--cyan-dim) !important;
 }
 
 .manage-grid-fields {

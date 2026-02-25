@@ -118,3 +118,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .label-caps {
+    display: block;
+    font-size: 0.7rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--grey);
+  }
+}
