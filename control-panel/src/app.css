@@ -51,6 +51,14 @@
   --hp-healthy: #22c55e;
   --hp-injured: #f59e0b;
   --hp-critical: #ff4d6a;
+  /* Dim / start colors for HP gradients (used as gradient start stop) */
+  --hp-healthy-dim: #15803d;
+  --hp-injured-dim: #b45309;
+  --hp-critical-dim: #991b1b;
+  /* Mid-opacity purple for borders */
+  --purple-mid: rgba(80, 13, 245, 0.5);
+  /* Half-step spacing for tight layouts */
+  --space-half: 2px;
   /* Drop shadows preserve the pixel/retro accent style. */
   --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05);
   --shadow-red: 3px 3px 0px #ff4d6a;
@@ -261,6 +269,12 @@ a {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1;
+}
+
+/* Focus-visible helper for keyboard users (used across interactive controls) */
+:where(.btn-damage, .btn-heal, .btn-rest, .dice-btn, .condition-pill, .stepper, .nav-tab):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
 }
 
 .mono-num {

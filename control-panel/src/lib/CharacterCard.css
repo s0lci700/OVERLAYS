@@ -258,7 +258,7 @@
 .char-identity {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-half);
   min-width: 0;
   overflow: hidden;
 }
@@ -299,7 +299,7 @@
 .char-hp-nums {
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  gap: var(--space-half);
   flex-shrink: 0;
 }
 
@@ -373,7 +373,7 @@
 */
 .hp-track {
   height: 6px;
-  background: #222;
+  background: var(--black-elevated);
   border-radius: var(--radius-pill);
   overflow: hidden;
   margin-top: var(--space-2);
@@ -388,17 +388,17 @@
 }
 
 .hp-fill.hp--healthy {
-  background: linear-gradient(90deg, #15803d, #22c55e);
+  background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy));
   box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
 }
 
 .hp-fill.hp--injured {
-  background: linear-gradient(90deg, #b45309, #f59e0b);
+  background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured));
   box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
 }
 
 .hp-fill.hp--critical {
-  background: linear-gradient(90deg, #991b1b, #ff4d6a);
+  background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
   box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
   animation: barPulse 1.5s ease-in-out infinite;
 }
