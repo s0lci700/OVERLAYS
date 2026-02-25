@@ -347,7 +347,7 @@
   transition: color var(--t-fast);
 }
 
-.hp-cur.critical {
+.hp-cur.is-critical {
   color: var(--red);
 }
 
@@ -398,7 +398,11 @@
 }
 
 .hp-fill.hp--critical {
-  background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
+  background: linear-gradient(
+    90deg,
+    var(--hp-critical-dim),
+    var(--hp-critical)
+  );
   box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
   animation: barPulse 1.5s ease-in-out infinite;
 }
@@ -504,12 +508,7 @@
   gap: var(--space-1);
 }
 
-.stat-label {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  color: var(--grey);
-  letter-spacing: 0.1em;
-}
+/* stat labels now use the shared .label-caps utility in app.css */
 
 .stat-value {
   font-family: var(--font-mono);
@@ -570,13 +569,7 @@
   gap: var(--space-3);
 }
 
-.resource-label {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--grey);
-  letter-spacing: 0.1em;
-  flex-shrink: 0;
-}
+/* resource labels now use the shared .label-caps utility in app.css */
 
 .resource-pips {
   display: flex;

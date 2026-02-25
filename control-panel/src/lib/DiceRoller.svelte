@@ -20,6 +20,8 @@
   import { characters, SERVER_URL, lastRoll } from "./socket";
   import { get } from "svelte/store";
   import { animate } from "animejs";
+  // Keep existing animate(element, options) callsites working.
+  // const animate = (el, opts) => anime(Object.assign({ targets: el }, opts));
   import { tick } from "svelte";
 
   // ═══════════════════════════════════════════════════════════════
@@ -213,7 +215,7 @@
 <div class="dice-panel">
   <!-- Character Selection Dropdown -->
   <div class="char-selector">
-    <label class="selector-label" for="char-select">PERSONAJE ACTIVO</label>
+    <label class="label-caps" for="char-select">PERSONAJE ACTIVO</label>
     <div class="select-wrap">
       <select id="char-select" bind:value={selectedCharId}>
         {#each $characters as character (character.id)}
@@ -226,7 +228,7 @@
 
   <!-- Roll Modifier Input -->
   <div class="modifier-input">
-    <label class="modifier-label" for="modifier">MODIFICADOR</label>
+    <label class="label-caps" for="modifier">MODIFICADOR</label>
     <div class="modifier-stepper-cluster">
       <button
         class="modifier-stepper"
@@ -275,10 +277,10 @@
   {#if $lastRoll}
     <div class="roll-result" class:is-crit={isCrit} class:is-fail={isFail}>
       <div class="roll-die-label">D{$lastRoll.sides}</div>
-      <div class="roll-number" class:crit={isCrit} class:fail={isFail}>
+      <div class="roll-number" class:is-crit={isCrit} class:is-fail={isFail}>
         {$lastRoll.rollResult}
       </div>
-      <div class="roll-label" class:crit={isCrit} class:fail={isFail}>
+      <div class="roll-label" class:is-crit={isCrit} class:is-fail={isFail}>
         {#if isCrit}¡CRÍTICO!{:else if isFail}¡PIFIA!{:else}{$lastRoll.characterName ??
             $lastRoll.charId}{/if}
       </div>

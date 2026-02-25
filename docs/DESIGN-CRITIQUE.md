@@ -1,7 +1,53 @@
 # Design Critique — DADOS & RISAS
 
 > Comprehensive UI/UX audit of the control panel, overlays, and design system.
-> Date: 2026-02-22 | Reviewer: UI Design Specialist
+> Original: 2026-02-22 | **Delta update: 2026-02-25**
+
+---
+
+## Delta Update — 2026-02-25
+
+*Status of issues since the original critique. The project grew significantly: SvelteKit migration, 8 new components (CharacterBulkControls, CharacterCreationForm, CharacterManagement, Dashboard, DashboardCard, Modal, MultiSelect, PhotoSourcePicker), new routes structure, and drag-to-reorder on character cards.*
+
+### ✅ Fixed
+
+| # | Issue | Resolution |
+|---|-------|-----------|
+| P0 #2 | `window.alert()` for errors | Replaced with `.card-toast` inline component with animation |
+| P1 #4 | `<select multiple>` anti-pattern | `MultiSelect.svelte` component built — custom listbox with toggle + checkmarks |
+| P2 #11 | No shared token source for overlays | `public/tokens.css` created (but still diverges — see below) |
+| P2 #14 | No skip-to-content link | `.skip-to-content` added to `app.css` |
+| P2 #19 | No z-index or alpha opacity scales | `--z-*` and `--alpha-*` tokens added to `app.css` |
+| P4 audit | Missing focus-visible outlines | `:where(...)` focus-visible rule added covering all core interactive elements |
+| P4 audit | `.label-caps` unused in templates | DiceRoller and CharacterCard now use `class="label-caps"` in markup; local re-implementations deleted |
+| P4 audit | State modifier naming inconsistency | Unified to `is-` prefix: `.is-critical`, `.is-crit`, `.is-fail`, `.is-selected` |
+| P4 audit | HP gradient hardcoded hex values | `--hp-healthy-dim`, `--hp-injured-dim`, `--hp-critical-dim` tokens added and used |
+| P4 audit | `.dice-btn` hardcoded shadow | Now uses `var(--shadow-card)` |
+| P4 audit | `.d20-btn` hardcoded border | Now uses `var(--purple-mid)` |
+
+### ⚠️ Partially Fixed
+
+| # | Issue | Status |
+|---|-------|--------|
+| P2 #11 | `tokens.css` token sync | File exists but shadow values diverge (see DESIGN-SYSTEM.md §Token Sync) |
+
+### ❌ Still Open
+
+| Priority | Issue |
+|----------|-------|
+| P0 #1 | Cyan mismatch in level pills — `#00D4FF` vs `#00D4E8` |
+| P0 #3 | Spanish diacriticals — "Seleccion multiple", "Dano" still present |
+| P1 #5 | Modal focus trap missing — `<dialog open>` rendered without `showModal()` |
+| P1 #6 | `role="tablist"` without `role="tab"` in PhotoSourcePicker |
+| P1 #7 | No loading/disabled state on buttons during API calls |
+| P1 #8 | d20 button not full-width (`grid-column: auto` not `1 / -1`) |
+| P1 #9 | Photo fallback seeds randomly, not from character ID |
+| P1 #10 | Sidebar uses `window.location.pathname` instead of SvelteKit `goto()` |
+| P2 #13 | `aria-live` missing on real-time regions (HP updates, dashboard log) |
+| P2 #16 | Dual-nav (sidebar + bottom tabs) creates wayfinding confusion |
+| P2 #17 | Collapse animation 700ms, expand 250ms — asymmetric |
+| — | `.char-card.collapsed` should be `.is-collapsed` for naming consistency |
+| — | anime.js imported two ways across components (deep path vs named export) |
 
 ---
 

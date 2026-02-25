@@ -71,13 +71,6 @@
   gap: var(--space-2);
 }
 
-.selector-label {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--grey);
-  letter-spacing: 0.12em;
-}
-
 .select-wrap {
   position: relative;
   background: var(--black-elevated);
@@ -119,12 +112,7 @@
   gap: var(--space-2);
 }
 
-.modifier-label {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--grey);
-  letter-spacing: 0.12em;
-}
+/* Labels use the shared .label-caps utility in app.css */
 
 .modifier-stepper-cluster {
   display: flex;
@@ -335,12 +323,12 @@
     text-shadow var(--t-fast);
 }
 
-.roll-number.crit {
+.roll-number.is-crit {
   color: var(--cyan);
   text-shadow: 0 0 24px rgba(0, 212, 232, 0.5);
 }
 
-.roll-number.fail {
+.roll-number.is-fail {
   color: var(--red);
   text-shadow: 0 0 24px rgba(255, 77, 106, 0.5);
 }
@@ -353,10 +341,10 @@
   text-transform: uppercase;
 }
 
-.roll-label.crit {
+.roll-label.is-crit {
   color: var(--cyan);
 }
 
-.roll-label.fail {
+.roll-label.is-fail {
   color: var(--red);
 }

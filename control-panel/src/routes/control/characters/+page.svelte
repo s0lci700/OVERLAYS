@@ -17,7 +17,9 @@
 
   let displayChars = $derived(
     sortOrder
-      ? sortOrder.map((id) => $characters.find((c) => c.id === id)).filter(Boolean)
+      ? sortOrder
+          .map((id) => $characters.find((c) => c.id === id))
+          .filter(Boolean)
       : $characters,
   );
 
@@ -51,7 +53,9 @@
         // Capture snap targets = Y-delta from this card's center to every other card's center
         const thisRect = node.getBoundingClientRect();
         const thisCenterY = thisRect.top + thisRect.height / 2;
-        const wrappers = Array.from(gridEl.querySelectorAll(".char-card-exit-wrap"));
+        const wrappers = Array.from(
+          gridEl.querySelectorAll(".char-card-exit-wrap"),
+        );
         snapValues = wrappers.map((w) => {
           const r = w.getBoundingClientRect();
           return r.top + r.height / 2 - thisCenterY;
@@ -299,10 +303,19 @@
   </div>
 </section>
 
-<div bind:this={gridEl} class="characters-grid" class:grid-three={$characters.length > 2}>
+<div
+  bind:this={gridEl}
+  class="characters-grid"
+  class:grid-three={$characters.length > 2}
+>
   {#each displayChars as character (character.id)}
-    <div use:draggableCard={character.id} out:cardExit class="char-card-exit-wrap">
-      <button class="drag-handle" type="button" aria-label="Reordenar">⠿</button>
+    <div
+      use:draggableCard={character.id}
+      out:cardExit
+      class="char-card-exit-wrap"
+    >
+      <button class="drag-handle" type="button" aria-label="Reordenar">⠿</button
+      >
       <CharacterCard
         {character}
         selectable={selectionMode}

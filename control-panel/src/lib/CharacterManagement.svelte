@@ -9,6 +9,7 @@
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
+  import * as Dialog from "$lib/components/ui/dialog";
   import characterOptions from "../../../docs/character-options.template.json";
 
   const PHOTO_OPTIONS = [
@@ -50,15 +51,6 @@
   let editOpenById = $state({});
 
   let activePhotoId = $state(null);
-  let photoDialogEl = $state(null);
-
-  $effect(() => {
-    if (activePhotoId && photoDialogEl && !photoDialogEl.open) {
-      photoDialogEl.showModal();
-    } else if (!activePhotoId && photoDialogEl?.open) {
-      photoDialogEl.close();
-    }
-  });
 
   /**
    * @typedef {{key: string, label: string}} OptionEntry
@@ -1056,26 +1048,28 @@
   </div>
 </section>
 
-{#if activePhotoId}
-  <dialog
-    class="photo-modal"
-    bind:this={photoDialogEl}
+<Dialog.Root
+  open={!!activePhotoId}
+  onOpenChange={(open) => { if (!open) closePhotoEditor(); }}
+>
+  <Dialog.Content
+    class="photo-modal-card card-base"
+    showCloseButton={false}
     aria-labelledby="photo-modal-title"
-    onclose={closePhotoEditor}
   >
-    <div class="photo-modal-card card-base">
-      <header class="photo-modal-head">
-        <h3 id="photo-modal-title" class="photo-modal-title">Editar foto</h3>
-        <button
-          class="photo-modal-close"
-          type="button"
-          aria-label="Cerrar"
-          onclick={closePhotoEditor}
-        >
-          ✕
-        </button>
-      </header>
+    <header class="photo-modal-head">
+      <h3 id="photo-modal-title" class="photo-modal-title">Editar foto</h3>
+      <button
+        class="photo-modal-close"
+        type="button"
+        aria-label="Cerrar"
+        onclick={closePhotoEditor}
+      >
+        ✕
+      </button>
+    </header>
 
+    {#if activePhotoId}
       <PhotoSourcePicker
         title="Foto"
         options={PHOTO_OPTIONS}
@@ -1106,6 +1100,6 @@
           </span>
         {/if}
       </div>
-    </div>
-  </dialog>
-{/if}
+    {/if}
+  </Dialog.Content>
+</Dialog.Root>

@@ -18,7 +18,11 @@
 -->
 <script>
   import "./CharacterCard.css";
-  import { animate, spring } from "animejs";
+  import { animate } from "animejs";
+  // Helper wrapper to keep existing animate(element, options) usage.
+  // const animate = (el, opts) => anime(Object.assign({ targets: el }, opts));
+  // Lightweight spring helper that returns an anime easing string.
+  const spring = (_opts = {}) => "spring(1, 80, 10, 0)";
   import { onMount } from "svelte";
   import { SERVER_URL } from "./socket";
 
@@ -390,7 +394,7 @@
     </div>
     <div class="char-header-actions">
       <div class="char-hp-nums">
-        <span class="hp-cur" class:critical={hpPercent <= 30}
+        <span class="hp-cur" class:is-critical={hpPercent <= 30}
           >{character.hp_current}</span
         >
         <span class="hp-sep">/</span>
@@ -430,12 +434,12 @@
     <!-- Armor Class and Speed (stat block) -->
     <div class="char-stats">
       <div class="stat-item">
-        <span class="stat-label">CA</span>
+        <span class="label-caps">CA</span>
         <span class="stat-value">{character.armor_class}</span>
       </div>
       <span class="stat-divider">|</span>
       <div class="stat-item">
-        <span class="stat-label">VEL</span>
+        <span class="label-caps">VEL</span>
         <span class="stat-value">{character.speed_walk}ft</span>
       </div>
     </div>
@@ -458,7 +462,7 @@
       <div class="resources-section">
         {#each character.resources as resource (resource.id)}
           <div class="resource-row">
-            <span class="resource-label">{resource.name}</span>
+            <span class="label-caps">{resource.name}</span>
             <!-- Clickable pip buttons for spending/recovering resources -->
             <div class="resource-pips">
               {#each Array(resource.pool_max) as _, i (i)}

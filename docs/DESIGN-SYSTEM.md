@@ -1,240 +1,411 @@
-# Design System
+# Dados & Risas — Design System
+**Version:** 2.0 | **Updated:** 2026-02-25 | **Stack:** Svelte 5 + SvelteKit + Vite
 
-> Visual language reference for DADOS & RISAS control panel and overlays.
-
----
-
-## Color Palette
-
-### Core Brand Colors
-
-| Token | Hex | Usage |
-|---|---|---|
-| `--red` | `#FF4D6A` | Primary action, damage, critical HP, conditions |
-| `--cyan` | `#00D4E8` | Accent, healing, connection status, dice crit |
-| `--purple` | `#500DF5` | Dice/d20 highlight, scrollbar |
-
-### Dim Variants (12% opacity backgrounds)
-
-| Token | Value | Usage |
-|---|---|---|
-| `--red-dim` | `rgba(255, 77, 106, 0.12)` | Damage button background |
-| `--cyan-dim` | `rgba(0, 212, 232, 0.12)` | Heal button background |
-| `--purple-dim` | `rgba(80, 13, 245, 0.12)` | d20 button hover |
-
-### Neutrals
-
-| Token | Hex | Usage |
-|---|---|---|
-| `--black` | `#000000` | Page background |
-| `--black-card` | `#0D0D0D` | Card backgrounds |
-| `--black-elevated` | `#1A1A1A` | Elevated surfaces (inputs, steppers) |
-| `--white` | `#FFFFFF` | Primary text |
-| `--grey` | `#888888` | Secondary text, labels |
-| `--grey-dim` | `#333333` | Borders, dividers |
-
-### HP Health States
-
-| Token | Hex | Threshold | Visual |
-|---|---|---|---|
-| `--hp-healthy` | `#22C55E` | >60% HP | Green gradient + glow |
-| `--hp-injured` | `#F59E0B` | 30–60% HP | Orange gradient + glow |
-| `--hp-critical` | `#FF4D6A` | <30% HP | Red gradient + pulse animation |
-
-HP bar gradients go from a darker shade to the token color:
-- Healthy: `#15803D → #22C55E`
-- Injured: `#B45309 → #F59E0B`
-- Critical: `#991B1B → #FF4D6A`
+> This document is the canonical reference for all design decisions in the Dados & Risas Overlay System. It covers the control panel (`control-panel/src/`) and the shared overlay token layer (`public/tokens.css`).
 
 ---
 
-## Typography
+## Architecture Overview
 
-### Font Stack
+```
+src/
+├── app.css                    ← Canonical token source + shared base classes
+├── routes/
+│   ├── +layout.svelte         ← Root shell: header, nav, sidebar
+│   ├── +page.svelte           ← Redirects to /control/characters
+│   ├── control/
+│   │   ├── +layout.svelte     ← Control sub-layout
+│   │   ├── characters/+page.svelte  ← HP management, conditions, resources
+│   │   └── dice/+page.svelte        ← Dice roller
+│   ├── dashboard/+page.svelte       ← Activity history, analytics
+│   └── management/
+│       ├── +layout.svelte
+│       ├── create/+page.svelte      ← Character creation form
+│       └── manage/+page.svelte      ← Character list / bulk actions
+└── lib/
+    ├── CharacterCard.svelte/.css         ← Per-character HP panel
+    ├── CharacterBulkControls.svelte/.css ← Multi-select bulk actions
+    ├── CharacterCreationForm.svelte/.css ← New character wizard
+    ├── CharacterManagement.svelte/.css   ← Management list view
+    ├── Dashboard.css / DashboardCard.svelte/.css
+    ├── DiceRoller.svelte/.css
+    ├── Modal.svelte                      ← Reusable dialog overlay
+    ├── MultiSelect.svelte/.css           ← Custom multi-select listbox
+    ├── PhotoSourcePicker.svelte/.css     ← Avatar source chooser
+    └── socket.js                         ← Socket.io + shared stores
 
-| Token | Family | Weight | Usage |
-|---|---|---|---|
-| `--font-display` | Bebas Neue | 400 | Headings, labels, brand, nav tabs |
-| `--font-script` | Dancing Script | 700 | Brand ampersand ("& Risas") |
-| `--font-mono` | JetBrains Mono | 400, 700 | Numbers, HP, dice results, code |
-| `--font-ui` | system-ui | — | Body text, form elements |
+public/
+└── tokens.css   ← Overlay-shared token subset (see §Token Sync below)
+```
 
-### Utility Classes
-
-| Class | Effect |
-|---|---|
-| `.font-display` | `font-family: var(--font-display)` |
-| `.font-mono` | `font-family: var(--font-mono)` |
-| `.font-script` | `font-family: var(--font-script)` |
-| `.label-caps` | Small caps label (Bebas Neue, 0.8rem, grey, uppercase, 0.12em spacing) |
-| `.mono-num` | Bold monospace number (JetBrains Mono 700) |
-| `.sr-only` | Screen-reader only (visually hidden) |
-
----
-
-## Spacing Scale
-
-| Token | Value |
-|---|---|
-| `--space-1` | 4px |
-| `--space-2` | 8px |
-| `--space-3` | 12px |
-| `--space-4` | 16px |
-| `--space-5` | 20px |
-| `--space-6` | 24px |
-| `--space-8` | 32px |
-| `--space-10` | 40px |
-| `--space-12` | 48px |
+Token flow: `app.css :root` defines all tokens → components reference them → `public/tokens.css` mirrors the subset needed by OBS overlay HTML files.
 
 ---
 
-## Border Radius
+## Design Tokens
 
-| Token | Value | Usage |
-|---|---|---|
-| `--radius-sm` | 4px | Stepper buttons |
-| `--radius-md` | 8px | Buttons, inputs |
-| `--radius-lg` | 12px | Cards |
-| `--radius-pill` | 999px | HP bars, condition pills, scrollbar |
+All tokens live in `:root` in `src/app.css`. Reference them as `var(--token-name)`.
+
+### Brand Colors
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--red` | `#FF4D6A` | Damage, conditions, critical state, danger |
+| `--red-dim` | `rgba(255,77,106,0.12)` | Damage button bg, condition pill bg |
+| `--cyan` | `#00D4E8` | Healing, selection, focus rings, links |
+| `--cyan-dim` | `rgba(0,212,232,0.12)` | Heal button bg, selected state bg |
+| `--purple` | `rgba(80,13,245,1)` | d20 button accent |
+| `--purple-dim` | `rgba(80,13,245,0.12)` | d20 button bg |
+| `--purple-mid` | `rgba(80,13,245,0.50)` | d20 border color at rest |
+
+> ⚠️ `--cyan` is `#00D4E8`. Do not use `#00D4FF` — that shade is off-brand and appears only in a known bug in `tokens.css` level-pill styles (tracked).
+
+### Neutral / Surface Colors
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--black` | `#0A0A0A` | Page background |
+| `--black-card` | `#111111` | Card surface |
+| `--black-elevated` | `#1A1A1A` | Elevated surfaces, input bg, hp-track |
+| `--white` | `#F0F0F0` | Primary text, active labels |
+| `--grey` | `#888888` | Secondary text, inactive labels |
+| `--grey-dim` | `rgba(136,136,136,0.15)` | Subtle borders, dividers |
+
+### HP Health-State Colors
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--hp-healthy` | `#22C55E` | HP bar end color (>60%) |
+| `--hp-healthy-dim` | `#15803D` | HP bar start color (gradient left) |
+| `--hp-injured` | `#F59E0B` | HP bar end color (30–60%) |
+| `--hp-injured-dim` | `#B45309` | HP bar start color |
+| `--hp-critical` | `#FF4D6A` | HP bar end color (<30%) |
+| `--hp-critical-dim` | `#991B1B` | HP bar start color |
+
+### Spacing Scale
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--space-half` | `2px` | Sub-pixel tight gaps (char-identity, hp-nums) |
+| `--space-1` | `4px` | Minimum comfortable gap |
+| `--space-2` | `8px` | Default component gap |
+| `--space-3` | `12px` | Section internal padding |
+| `--space-4` | `16px` | Card padding |
+| `--space-5` | `24px` | Section separation |
+| `--space-6` | `32px` | Large layout gap |
+| `--space-7` | `48px` | Page-level spacing |
+
+### Border Radii
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--radius-sm` | `4px` | Small UI elements (steppers, tags) |
+| `--radius-md` | `8px` | Cards, inputs, buttons |
+| `--radius-lg` | `12px` | Large cards |
+| `--radius-pill` | `999px` | Pills, badges, HP track |
+
+### Shadows
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--shadow-card` | `3px 3px 0px rgba(255,255,255,0.05)` | Cards, dice buttons |
+| `--shadow-cyan` | `3px 3px 0px #00D4E8` | Heal button active shadow |
+| `--shadow-red` | `3px 3px 0px #FF4D6A` | Damage button active shadow |
+| `--shadow-purple` | `3px 3px 0px rgba(80,13,245,0.6)` | d20 button active shadow |
+
+> ⚠️ `tokens.css` currently has divergent shadow values. See §Token Sync.
+
+### Motion
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--t-fast` | `120ms ease` | Hover states, toggles |
+| `--t-normal` | `220ms ease` | State transitions |
+| `--t-slow` | `360ms ease` | Layout shifts, panels |
+
+### Typography
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--font-display` | `'Black Ops One', sans-serif` | Character names, brand, labels |
+| `--font-ui` | `'Inter', sans-serif` | Body text, form labels, most UI |
+| `--font-mono` | `'JetBrains Mono', monospace` | HP numbers, dice results, values |
+
+### Z-Index Scale
+
+| Token | Value | Layer |
+|-------|-------|-------|
+| `--z-sidebar-backdrop` | `30` | Sidebar overlay scrim |
+| `--z-sidebar` | `40` | Sidebar panel |
+| `--z-nav` | `50` | Bottom navigation |
+| `--z-modal-backdrop` | `60` | Modal scrim |
+| `--z-modal` | `70` | Modal panel |
+
+### Alpha Opacity Scale
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--alpha-subtle` | `0.04` | Hover tints |
+| `--alpha-dim` | `0.12` | Dim overlays, tinted backgrounds |
+| `--alpha-medium` | `0.35` | Mid-opacity borders |
+| `--alpha-overlay` | `0.65` | Scrim/overlay backdrops |
+| `--alpha-solid` | `0.88` | Near-opaque fills |
 
 ---
 
-## Shadows
+## Shared Base Classes
 
-| Token | Value | Usage |
-|---|---|---|
-| `--shadow-card` | `4px 4px 0px rgba(255,255,255,0.05)` | Card base |
-| `--shadow-red` | `3px 3px 0px #FF4D6A` | Damage button hover |
-| `--shadow-cyan` | `3px 3px 0px #00D4E8` | Heal button hover, dice result |
-| `--shadow-purple` | `4px 4px 0px #500DF5` | d20 button, dice button hover |
-
-The offset shadow style (no blur, solid color) creates a retro/comic
-aesthetic consistent with the D&D theme.
-
----
-
-## Transitions
-
-| Token | Value | Usage |
-|---|---|---|
-| `--t-fast` | `150ms ease` | Button hover/active, color changes |
-| `--t-normal` | `250ms ease` | Connection dot, HP bar color |
-| `--t-spring` | `280ms cubic-bezier(0.34, 1.56, 0.64, 1)` | Bounce effects (available, not yet used) |
-
----
-
-## Shared Component Bases
+Defined in `app.css`. Extend rather than re-implement.
 
 ### `.card-base`
-Base card container used by CharacterCard:
-- Background: `--black-card`
-- Border: 1px `--grey-dim`
-- Radius: `--radius-lg`
-- Shadow: `--shadow-card`
-- Flex column, gap `--space-3`, padding `--space-4`
+Dark card surface with border and shadow. All character cards and dashboard cards extend this.
+
+```css
+/* bg var(--black-card), border 1px solid var(--grey-dim),
+   border-radius var(--radius-lg), box-shadow var(--shadow-card),
+   padding var(--space-4), display flex column, gap var(--space-3) */
+```
 
 ### `.btn-base`
-Base button used by damage/heal/rest buttons:
-- Font: Bebas Neue, 1.1rem, 0.04em spacing
-- Radius: `--radius-md`
-- Min-height: 52px
-- Border: 1px solid
-- Active state: translates 3px right+down, removes shadow (press effect)
+Shared button foundation. All action buttons extend this.
 
-### CharacterCard component + styles
-The control panel imports `control-panel/src/lib/CharacterCard.css` directly inside `CharacterCard.svelte`, so every class listed below maps one-to-one with the markup in the same file:
-- `.char-card` and `.hit-flash` wrap the `<article>` and damage overlay that the script animates via `hitFlashEl`.
-- `.char-header`, `.char-identity`, `.char-name`, and `.char-player` match the header block that renders the character and player names.
-- `.hp-track` and `.hp-fill` control the progress bar: `CharacterCard.svelte` derives `hpPercent`/`hpClass` and applies `hp--healthy`, `hp--injured`, or `hp--critical` to trigger the gradients and pulse defined in CSS.
-- `.char-controls`, `.btn-damage`, `.btn-heal`, `.stepper-cluster`, `.stepper`, and `.amount-input` describe the damage/heal controls at the bottom of the card.
-- `.char-stats`, `.stat-item`, `.stat-label`, `.stat-value`, and `.stat-divider` cover the AC/speed row.
-- `.conditions-row` and `.condition-pill` style removable condition pills rendered via `{#each character.conditions}`.
-- `.resources-section`, `.resource-row`, `.resource-label`, `.resource-pips`, and the `.pip` variants (e.g., `.pip--long_rest`, `.pip--short_rest`, `.pip--filled`) describe the resource pools, while `.rest-buttons` and `.btn-rest` handle the short/long rest interface.
+```css
+/* display flex, align-items center, justify-content center,
+   border-radius var(--radius-md), border 1px solid,
+   font-family var(--font-display), text-transform uppercase,
+   letter-spacing 0.08em, cursor pointer,
+   :active → translate(3px,3px) + box-shadow none */
+```
 
-Keeping these class names aligned enables the component to toggle classes via Svelte bindings (e.g., `class:is-critical`, `class:critical`, and `class="{hpClass}"`) while the CSS file centralizes colors, animations, and responsive spacing.
+### `.label-caps`
+Small uppercase label. **Do not re-implement locally.** Apply as a class in the template.
+
+```css
+/* font-family var(--font-display), font-size 0.8rem, color var(--grey),
+   letter-spacing 0.12em, text-transform uppercase, line-height 1 */
+```
+
+Used in: `DiceRoller.svelte` (PERSONAJE ACTIVO, MODIFICADOR), `CharacterCard.svelte` (stat and resource labels via template class).
+
+### `.selector`
+Reusable `<select>` wrapper. Apply to any select element for consistent styling.
+
+### `.selection-pills` / `.selection-pill`
+Shared tag/pill display for multi-value selections.
+
+### `.skip-to-content`
+Accessibility skip link. Positioned offscreen, surfaces on focus.
+
+### `.characters-grid`
+Responsive CSS-columns layout for character cards. 1 column → 2 columns at medium breakpoint.
+
+### `.app-sidebar`
+Slide-in sidebar panel at `z-index: var(--z-sidebar)`. Includes backdrop at `z-index: var(--z-sidebar-backdrop)`.
 
 ---
 
 ## App Shell Layout
 
 ```
-┌─────────────────────────────────────────┐
-│ .app-header                              │
-│   .brand-wordmark   .header-meta         │
-│   "DADOS & Risas"   ● 2                  │
-├─────────────────────────────────────────┤
-│ .app-main                                │
-│   (scrollable content area)              │
-│                                          │
-│   .tab-panel                             │
-│     CharacterCard / DiceRoller /         │
-│     Dashboard                            │
-│                                          │
-├─────────────────────────────────────────┤
-│ .bottom-nav                              │
-│   ⚔ PERSONAJES  ⬡ DADOS  ⧉ DASHBOARD  │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────┐
+│  .app-header                    │  Fixed top — brand + conn dot + char count
+│  .header-menu  [☰]              │  Sidebar trigger (mobile)
+├─────────────────────────────────┤
+│                                 │
+│  .app-main / <main>             │  Scrollable flex-grow area
+│                                 │
+├─────────────────────────────────┤
+│  .bottom-nav                    │  Fixed bottom — z: var(--z-nav)
+│  [PERSONAJES] [DADOS] [PANEL]   │
+└─────────────────────────────────┘
+
+.app-sidebar slides in from left when open
 ```
 
-- Header: fixed top, brand + connection indicator + character count
-- Main: flex-1, scrollable, padding `--space-4`
-- Nav: fixed bottom, 3 equal tabs with icon + label
-- Active tab: red border-top + red text + subtle red background
+---
+
+## Component Inventory
+
+### CharacterCard
+**File:** `CharacterCard.svelte / CharacterCard.css`
+
+**States:**
+
+| Class | Applied to | Condition |
+|-------|-----------|-----------|
+| `.is-critical` | `.char-card`, `.hp-cur` | HP ≤ 30% |
+| `.is-selected` | `.char-card` | Checkbox checked |
+| `.collapsed` | `.char-card` | Card collapsed (tracked: should be `.is-collapsed`) |
+| `.is-dragging` | `.char-card-exit-wrap` | During drag-to-reorder |
+
+**Drag-to-reorder:** `.char-card-exit-wrap` wraps each card. `.drag-handle` is a 20px strip above the card.
+
+**Hit flash:** `.hit-flash` overlay fades in/out via anime.js on HP decrease.
+
+**Card toast:** `.card-toast` — inline error messaging (replaces `window.alert()`).
+
+---
+
+### CharacterBulkControls
+Contextual action bar appearing when ≥1 card is selected. Bulk damage / heal / rest / condition operations.
+
+---
+
+### CharacterCreationForm
+Multi-field form: name, player, class, level, HP max, AC, movement, avatar (via PhotoSourcePicker), resources.
+
+---
+
+### CharacterManagement
+List view of all characters with edit/delete. Used in `management/manage` route.
+
+---
+
+### DashboardCard
+Stat/metric card. Extends `.card-base`.
+
+---
+
+### DiceRoller
+**File:** `DiceRoller.svelte / DiceRoller.css`
+
+**States:**
+
+| Class | Applied to | Condition |
+|-------|-----------|-----------|
+| `.is-crit` | `.roll-result`, `.roll-number`, `.roll-label` | Natural 20 on d20 |
+| `.is-fail` | `.roll-result`, `.roll-number`, `.roll-label` | Natural 1 |
+
+**d20 button:** Full-width, purple accent, 4px active offset (intentionally heavier than the 3px standard).
+
+---
+
+### Modal
+**File:** `Modal.svelte`
+Reusable dialog overlay. `z-index: var(--z-modal)`, backdrop at `z-index: var(--z-modal-backdrop)`.
+
+> ⚠️ **Known gap:** Focus trap not yet implemented. P1 accessibility issue.
+
+---
+
+### MultiSelect
+**File:** `MultiSelect.svelte / MultiSelect.css`
+Custom listbox replacing `<select multiple>`. Click to toggle, checkmark for selected state.
+
+**Classes:** `.multiselect`, `.ms-option`, `.ms-option.ms-selected`, `.ms-label`, `.ms-check`, `.ms-empty`
+
+---
+
+### PhotoSourcePicker
+Avatar source selection: URL, file upload, or preset portraits. Used inside CharacterCreationForm.
+
+---
+
+## Resource Pip Color Coding
+
+| Class | Recovery Type | Color |
+|-------|--------------|-------|
+| `.pip--long_rest` | Long rest only | Red (`--red`) |
+| `.pip--short_rest` | Short or long rest | Cyan (`--cyan`) |
+| `.pip--turn` | Per-turn / rechargeable | Grey (`--grey`) |
+| `.pip--dm` | DM-controlled | Grey (`--grey`) |
+
+Filled state: `.pip--filled` adds background + glow `box-shadow`.
 
 ---
 
 ## Animations
 
-### Control Panel (anime.js)
-
-| Animation | Where | Effect |
-|---|---|---|
-| Damage flash | CharacterCard | Red overlay fades from 0.5→0 opacity (700ms) |
-| Dice result slide | DiceRoller | Container slides up + fades in (200ms) |
-| Dice number bounce | DiceRoller | Scale 0.3→1 with elastic easing (450ms) |
-| Tab transition | App.svelte | `fadeUp` keyframe: opacity 0→1, translateY 6px→0 |
-
-### OBS Overlays (anime.js + CSS)
-
-| Animation | Where | Effect |
-|---|---|---|
-| HP bar transition | overlay-hp.css | Width 0.5s cubic-bezier, color 0.3s ease |
-| Critical pulse | overlay-hp.css | Opacity 1→0.6→1, 1.5s infinite |
-| Status fade | overlay-hp.css | fadeInOut keyframe (2s) |
-| Dice card pop | overlay-dice.html | Fade in + slide up 500ms, number elastic bounce 600ms |
-| Dice auto-hide | overlay-dice.html | Fade out + slide up after 4s (500ms) |
-
----
-
-## Resource Pip Colors
-
-Pips are color-coded by recharge type to help DMs quickly identify which
-resources are restored by different rest types:
-
-| Recharge Type | Border Color | Filled Color | Glow |
-|---|---|---|---|
-| `LONG_REST` | `--red` | `--red` | Red glow |
-| `SHORT_REST` | `--cyan` | `--cyan` | Cyan glow |
-| `TURN` | `--grey` | `--grey` | None |
-| `DM` | `--grey` | `--grey` | None |
+| Animation | Target | Trigger | Mechanism |
+|-----------|--------|---------|-----------|
+| HP damage flash | `.hit-flash` | HP decrease | anime.js |
+| Dice result bounce | `.roll-result`, `.roll-number` | Roll broadcast | anime.js |
+| HP bar width | `.hp-fill` | Any HP change | CSS `transition: width` |
+| Card collapse | `.char-body` height | Toggle | CSS transition |
+| Card toast | `.card-toast` | Error event | CSS `@keyframes toastIn` |
+| Drag elevation | `.char-card-exit-wrap.is-dragging` | Drag start | JS class toggle |
 
 ---
 
 ## OBS Overlay Specifics
 
-Both overlays share these constraints:
-- Canvas: 1920×1080 pixels (matching OBS Browser Source dimensions)
-- Background: `transparent` (required for OBS compositing)
-- Fonts: loaded from Google Fonts CDN (Bebas Neue, JetBrains Mono)
-- Socket.io: loaded from CDN v4.8.3
-- anime.js: loaded from CDN v3.2.1
+Three HTML files in `public/` loaded as OBS Browser Sources (1920×1080, transparent):
 
-### HP Overlay positioning
-- Container: absolute top-right (`top: 50px, right: 50px`)
-- Cards stacked vertically with 20px gap
-- Min-width: 360px per card
+| File | Purpose |
+|------|---------|
+| `overlay-hp.html` | HP bars, character avatars, class badges, AC, conditions |
+| `overlay-dice.html` | Animated dice roll popup with crit flash, character avatar, auto-hide |
+| `overlay-conditions.html` | Active conditions + depleted resources panel |
 
-### Dice Overlay positioning
-- Container: fixed bottom-center (`bottom: 80px`)
-- Centered with negative margin-left offset
-- Min-width: 320px card
+Overlays import `public/tokens.css` for their token values — this file must stay in sync with `app.css`.
+
+---
+
+## Token Sync Status — `app.css` vs `tokens.css`
+
+### Known Divergences (2026-02-25)
+
+| Token | `app.css` | `tokens.css` | Impact |
+|-------|-----------|-------------|--------|
+| `--shadow-card` | `3px 3px 0px rgba(255,255,255,0.05)` | `4px 4px 0px rgba(0,0,0,0.9)` | Overlays show dark opaque shadow |
+| `--shadow-cyan` | `3px 3px 0px #00D4E8` | `4px 4px 0px #00D4E8` | Heal shadow larger in overlays |
+
+### In `tokens.css` only
+- `--gradient-healthy`, `--gradient-injured`, `--gradient-critical` (full gradient shorthands)
+
+### In `app.css` only (missing from `tokens.css`)
+- All alpha tokens (`--alpha-*`)
+- Z-index scale (`--z-*`)
+- `--red-dim`, `--cyan-dim`, `--purple-dim`, `--purple-mid`
+- Spacing scale (`--space-*`)
+- All transition tokens (`--t-*`)
+- `--shadow-red`, `--shadow-purple`
+- `--hp-healthy-dim`, `--hp-injured-dim`, `--hp-critical-dim`
+
+**Recommendation:** Treat `app.css` as the single source of truth. Add a build step to extract and copy the `:root {}` block to `public/tokens.css`, filtered to overlay-relevant tokens only.
+
+---
+
+## Focus-Visible Standard
+
+All interactive elements use `outline: 2px solid var(--cyan); outline-offset: 2px`. The shared rule in `app.css` covers the core button set:
+
+```css
+:where(.btn-damage, .btn-heal, .btn-rest, .dice-btn,
+       .condition-pill, .stepper, .nav-tab):focus-visible {
+  outline: 2px solid var(--cyan);
+  border-radius: var(--radius-sm);
+  outline-offset: 2px;
+}
+```
+
+New components should follow this same pattern.
+
+---
+
+## State Modifier Naming Convention
+
+Use `is-` prefix for all boolean state modifiers. This is the established convention throughout the codebase.
+
+```
+✅ .char-card.is-critical
+✅ .hp-cur.is-critical
+✅ .roll-result.is-crit
+✅ .roll-result.is-fail
+✅ .char-card.is-selected
+⚠️ .char-card.collapsed     ← should become .char-card.is-collapsed
+```
+
+---
+
+## Known Open Issues
+
+| Priority | Issue | Location |
+|----------|-------|---------|
+| P1 | Modal has no focus trap — tab escapes | `Modal.svelte` |
+| P2 | `tokens.css` shadow values diverge from `app.css` | `public/tokens.css` |
+| P2 | anime.js imported via two different paths across components | `CharacterCard.svelte` vs `DiceRoller.svelte` |
+| P2 | `.char-card.collapsed` should be `.is-collapsed` | `CharacterCard.css` |
+| P3 | No automated token sync between `app.css` and `tokens.css` | build config |
+
+*Full context and recommendations in DESIGN-CRITIQUE.md.*

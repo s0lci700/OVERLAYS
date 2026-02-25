@@ -27,7 +27,12 @@
       "Bash(test:*)",
       "Bash(curl:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(bun add:*)",
+      "Bash(npx shadcn-svelte@latest init:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(npx shadcn-svelte@latest add:*)"
     ]
   },
   "hooks": {

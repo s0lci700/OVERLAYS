@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DADOS & RISAS — Global Stylesheet & Design System
  * ==================================================
  * Central design tokens, CSS reset, typography utilities, shared component
@@ -27,7 +27,12 @@
  * (CharacterCard.css, DiceRoller.css).
  */
 
+/* shadcn-svelte infrastructure */
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════
    DESIGN TOKENS
@@ -100,6 +105,63 @@
   --t-fast: 150ms ease;
   --t-normal: 250ms ease;
   --t-spring: 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* shadcn-svelte semantic aliases — point back to existing tokens */
+  --background: var(--black);
+  --foreground: var(--white);
+  --card: var(--black-card);
+  --card-foreground: var(--white);
+  --popover: var(--black-elevated);
+  --popover-foreground: var(--white);
+  --primary: var(--cyan);
+  --primary-foreground: var(--black);
+  --secondary: var(--black-elevated);
+  --secondary-foreground: var(--grey);
+  --muted: var(--black-elevated);
+  --muted-foreground: var(--grey);
+  --accent: var(--purple);
+  --accent-foreground: var(--white);
+  --destructive: var(--red);
+  --destructive-foreground: var(--white);
+  --border: var(--grey-dim);
+  --input: var(--black-elevated);
+  --ring: var(--cyan);
+  --radius: var(--radius-md);
+}
+
+/* shadcn @theme inline — maps semantic vars to Tailwind utility classes */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -123,7 +185,8 @@ body {
   /* Global canvas uses black to preserve OBS overlay continuity. */
   background: var(--black);
   color: var(--white);
-  font-family: var(--font-ui);
+  /* Enforce the control-panel UI font to override Tailwind/shadcn defaults */
+  font-family: var(--font-ui) !important;
   line-height: 1.5;
   min-height: 100dvh;
   overflow-x: hidden;
@@ -135,6 +198,49 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+/* ========================================================================
+   Font enforcement for shadcn / Tailwind interaction
+
+   Some shadcn or Tailwind base styles can override the intended font
+   stack. These rules make the design tokens the single source of truth
+   for typography across the control panel while keeping headings and
+   numeric UI elements using their brand fonts.
+   ======================================================================== */
+html,
+body,
+#app {
+  font-family: var(--font-ui) !important;
+}
+
+/* Headings and compact labels use the display font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.label-caps,
+.skip-to-content {
+  font-family: var(--font-display) !important;
+}
+
+/* Numeric UI uses the mono font for consistent alignment */
+.hp-cur,
+.hp-max,
+.hp-sep,
+.roll-number,
+.stat-value,
+.mono-num {
+  font-family: var(--font-mono) !important;
+}
+
+/* Reaffirm monospace for inputs that display numeric values */
+input[type="number"],
+.amount-input,
+.modifier-value {
+  font-family: var(--font-mono) !important;
 }
 
 /* Skip-to-content link: visible only on keyboard focus for a11y. */
@@ -272,7 +378,15 @@ a {
 }
 
 /* Focus-visible helper for keyboard users (used across interactive controls) */
-:where(.btn-damage, .btn-heal, .btn-rest, .dice-btn, .condition-pill, .stepper, .nav-tab):focus-visible {
+:where(
+  .btn-damage,
+  .btn-heal,
+  .btn-rest,
+  .dice-btn,
+  .condition-pill,
+  .stepper,
+  .nav-tab
+):focus-visible {
   outline: 2px solid var(--cyan);
   outline-offset: 2px;
 }
@@ -639,6 +753,35 @@ a {
 .app-sidebar-close:hover {
   color: var(--white);
   border-color: var(--grey);
+}
+
+.app-sidebar-link {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  color: var(--grey);
+  background: var(--black-card);
+  text-align: center;
+  padding: 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.app-sidebar-link.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+.app-sidebar-link:not(.active):hover {
+  color: var(--white);
+  border-color: var(--grey);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .app-sidebar-link {
