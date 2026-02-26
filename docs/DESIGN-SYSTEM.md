@@ -1,5 +1,7 @@
 # Dados & Risas — Design System
-**Version:** 2.0 | **Updated:** 2026-02-25 | **Stack:** Svelte 5 + SvelteKit + Vite
+**Version:** 2.1 | **Updated:** 2026-02-26 | **Stack:** Svelte 5 + SvelteKit + Vite
+
+> **Token pipeline update (v2.1):** The canonical token source is now `design/tokens.json`. Run `bun run generate:tokens` to regenerate `control-panel/src/generated-tokens.css` and `public/tokens.css` from JSON. See [`docs/THEMING.md`](./THEMING.md) for full details.
 
 > This document is the canonical reference for all design decisions in the Dados & Risas Overlay System. It covers the control panel (`control-panel/src/`) and the shared overlay token layer (`public/tokens.css`).
 
@@ -9,7 +11,7 @@
 
 ```
 src/
-├── app.css                    ← Canonical token source + shared base classes
+├── app.css                    ← shadcn aliases + CSS reset/utilities (tokens imported from generated-tokens.css)
 ├── routes/
 │   ├── +layout.svelte         ← Root shell: header, nav, sidebar
 │   ├── +page.svelte           ← Redirects to /control/characters
@@ -38,7 +40,9 @@ public/
 └── tokens.css   ← Overlay-shared token subset (see §Token Sync below)
 ```
 
-Token flow: `app.css :root` defines all tokens → components reference them → `public/tokens.css` mirrors the subset needed by OBS overlay HTML files.
+Token flow: `design/tokens.json` (canonical) → `bun run generate:tokens` → `generated-tokens.css` (control panel) + `public/tokens.css` (overlays) → components reference `var(--token-name)`.
+
+> See [`docs/THEMING.md`](./THEMING.md) for generator usage, live theme editor, and how to add new tokens.
 
 ---
 
@@ -341,28 +345,21 @@ Overlays import `public/tokens.css` for their token values — this file must st
 
 ---
 
-## Token Sync Status — `app.css` vs `tokens.css`
+## Token Sync Status
 
-### Known Divergences (2026-02-25)
+> ✅ **Resolved in v2.1** — divergences between `app.css` and `tokens.css` are eliminated.
+> Both files are now generated from `design/tokens.json` via `bun run generate:tokens`.
+> The previous manual sync issues documented below no longer apply.
 
-| Token | `app.css` | `tokens.css` | Impact |
-|-------|-----------|-------------|--------|
-| `--shadow-card` | `3px 3px 0px rgba(255,255,255,0.05)` | `4px 4px 0px rgba(0,0,0,0.9)` | Overlays show dark opaque shadow |
-| `--shadow-cyan` | `3px 3px 0px #00D4E8` | `4px 4px 0px #00D4E8` | Heal shadow larger in overlays |
+Previously tracked divergences (now resolved):
 
-### In `tokens.css` only
-- `--gradient-healthy`, `--gradient-injured`, `--gradient-critical` (full gradient shorthands)
+| Token | Was in `app.css` | Was in `tokens.css` | Resolution |
+|-------|-----------------|---------------------|-----------|
+| `--shadow-card` | `3px 3px 0px rgba(255,255,255,0.05)` | `4px 4px 0px rgba(0,0,0,0.9)` | Unified in `tokens.json` → `4px 4px 0px rgba(255,255,255,0.05)` |
+| `--shadow-cyan` | `3px 3px 0px #00D4E8` | `4px 4px 0px #00D4E8` | Unified in `tokens.json` → `3px 3px 0px #00d4e8` |
+| Gradient shorthands | missing | present | Added to `tokens.json` `overlayGradients` group |
 
-### In `app.css` only (missing from `tokens.css`)
-- All alpha tokens (`--alpha-*`)
-- Z-index scale (`--z-*`)
-- `--red-dim`, `--cyan-dim`, `--purple-dim`, `--purple-mid`
-- Spacing scale (`--space-*`)
-- All transition tokens (`--t-*`)
-- `--shadow-red`, `--shadow-purple`
-- `--hp-healthy-dim`, `--hp-injured-dim`, `--hp-critical-dim`
-
-**Recommendation:** Treat `app.css` as the single source of truth. Add a build step to extract and copy the `:root {}` block to `public/tokens.css`, filtered to overlay-relevant tokens only.
+See [`docs/THEMING.md`](./THEMING.md) for how to edit tokens and run the generator.
 
 ---
 
@@ -403,9 +400,9 @@ Use `is-` prefix for all boolean state modifiers. This is the established conven
 | Priority | Issue | Location |
 |----------|-------|---------|
 | P1 | Modal has no focus trap — tab escapes | `Modal.svelte` |
-| P2 | `tokens.css` shadow values diverge from `app.css` | `public/tokens.css` |
+| ✅ fixed | `tokens.css` shadow values diverge from `app.css` | resolved via `design/tokens.json` generator |
 | P2 | anime.js imported via two different paths across components | `CharacterCard.svelte` vs `DiceRoller.svelte` |
 | P2 | `.char-card.collapsed` should be `.is-collapsed` | `CharacterCard.css` |
-| P3 | No automated token sync between `app.css` and `tokens.css` | build config |
+| ✅ fixed | No automated token sync between `app.css` and `tokens.css` | resolved via `bun run generate:tokens` |
 
 *Full context and recommendations in DESIGN-CRITIQUE.md.*

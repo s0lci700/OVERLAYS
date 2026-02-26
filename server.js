@@ -96,6 +96,17 @@ app.get("/api/info", (req, res) => {
   res.json({ ip: getMainIP(), port: PORT });
 });
 
+// Returns the canonical design tokens JSON from design/tokens.json.
+// Consumed by the live theme editor webtool at /theme-editor/index.html.
+app.get("/api/tokens", (req, res) => {
+  try {
+    const tokens = require(path.join(__dirname, "design", "tokens.json"));
+    res.json(tokens);
+  } catch (err) {
+    res.status(500).json({ error: "Could not read design tokens." });
+  }
+});
+
 // ── Characters ──────────────────────────────────────────────
 
 // Return the full character roster, including HP, resources, and conditions.
