@@ -51,6 +51,7 @@ panel_fetch_results.json
 
 # Test screenshots
 test-*.png
+screenshot-results/
 
 # OS files
 .DS_Store
