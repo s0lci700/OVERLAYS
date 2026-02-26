@@ -3,9 +3,8 @@
  * Source: design/tokens.json
  * Regenerate: bun run generate:tokens
  *
- * Shared Design Tokens — Dados & Risas Design Tokens
- * Single source of truth for brand colors, fonts, spacing, and shadows.
- * Imported by OBS overlay HTML files.
+ * Dados & Risas Design Tokens v1.0.0
+ * Canonical single-source-of-truth design tokens for the Dados & Risas overlay system. Edit this file and run `bun run generate:tokens` to regenerate control-panel and overlay CSS.
  */
 
 :root {
@@ -28,19 +27,39 @@
   --hp-healthy-dim: #15803d; /* HP gradient start — healthy */
   --hp-injured-dim: #b45309; /* HP gradient start — injured */
   --hp-critical-dim: #991b1b; /* HP gradient start — critical */
-  --gradient-healthy: linear-gradient(90deg, #15803d, #22c55e); /* HP bar gradient — healthy (overlay-only shorthand) */
-  --gradient-injured: linear-gradient(90deg, #b45309, #f59e0b); /* HP bar gradient — injured (overlay-only shorthand) */
-  --gradient-critical: linear-gradient(90deg, #991b1b, #ff4d6a); /* HP bar gradient — critical (overlay-only shorthand) */
   --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif; /* Headings, labels, brand text */
   --font-script: "Dancing Script", cursive; /* Brand ampersand (& Risas) */
   --font-mono: "JetBrains Mono", "Courier New", monospace; /* Numbers, HP values, dice results */
   --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* Body text, form elements */
-  --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05); /* Default card shadow (control panel) */
-  --shadow-red: 3px 3px 0px #ff4d6a; /* Red pixel-art accent shadow */
-  --shadow-cyan: 3px 3px 0px #00d4e8; /* Cyan pixel-art accent shadow */
-  --shadow-purple: 4px 4px 0px #500df5; /* Purple pixel-art accent shadow */
+  --space-half: 2px; /* Half-step for tight layouts */
+  --space-1: 4px; /* 4px base unit */
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
   --radius-sm: 4px; /* Small — buttons, tags */
   --radius-md: 8px; /* Medium — cards, inputs */
   --radius-lg: 12px; /* Large — modals, panels */
   --radius-pill: 999px; /* Pill badges */
+  --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05); /* Default card shadow (control panel) */
+  --shadow-red: 3px 3px 0px #ff4d6a; /* Red pixel-art accent shadow */
+  --shadow-cyan: 3px 3px 0px #00d4e8; /* Cyan pixel-art accent shadow */
+  --shadow-purple: 4px 4px 0px #500df5; /* Purple pixel-art accent shadow */
+  --t-fast: 150ms ease; /* Fast micro-interactions */
+  --t-normal: 250ms ease; /* Standard transitions */
+  --t-spring: 280ms cubic-bezier(0.34, 1.56, 0.64, 1); /* Springy entrance animations */
+  --alpha-subtle: 0.04; /* Barely-there background tint */
+  --alpha-dim: 0.12; /* Dim overlay / hover fill */
+  --alpha-medium: 0.35; /* Medium translucency */
+  --alpha-overlay: 0.65; /* Modal / drawer backdrop */
+  --alpha-solid: 0.88; /* Near-opaque surface */
+  --z-sidebar-backdrop: 30; /* Sidebar backdrop layer */
+  --z-sidebar: 40; /* Sidebar panel layer */
+  --z-nav: 50; /* Bottom navigation layer */
+  --z-modal-backdrop: 60; /* Modal backdrop layer */
+  --z-modal: 70; /* Modal panel layer */
 }
