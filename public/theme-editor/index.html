@@ -451,10 +451,20 @@
   }
 
   // ── Saved themes ──────────────────────────────────────────────────
+  // Theme names must be non-empty, ≤50 chars, and contain only word chars, spaces, or hyphens.
+  const SAFE_THEME_NAME_RE = /^[\w\s\-]{1,50}$/;
+
   function loadSavedThemes() {
     try {
       const raw = localStorage.getItem("__dr_themes__") || "{}";
-      savedThemes = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      // Strip any keys that don't match the safe-name pattern before use.
+      savedThemes = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        if (SAFE_THEME_NAME_RE.test(k) && typeof v === "object" && v !== null) {
+          savedThemes[k] = v;
+        }
+      }
     } catch (e) {
       console.warn("Failed to load saved themes from localStorage:", e);
       savedThemes = {};
@@ -565,6 +575,10 @@
   document.getElementById("btn-save-theme").addEventListener("click", () => {
     const name = prompt("Theme name:");
     if (!name) return;
+    if (!SAFE_THEME_NAME_RE.test(name)) {
+      setStatus("✗ Theme name must be 1–50 alphanumeric/space/hyphen characters", "err");
+      return;
+    }
     savedThemes[name] = { ...overrides };
     persistThemes();
     renderSavedThemes();
