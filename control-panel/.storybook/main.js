@@ -13,6 +13,15 @@ const config = {
     "@storybook/addon-mcp",
   ],
   framework: "@storybook/sveltekit",
+  // Serve the repo-level `assets` folder at /assets so stories can load
+  // images like `/assets/img/barbarian.png` used across the control panel.
+  staticDirs: [
+    { from: path.resolve(__dirname, "..", "..", "assets"), to: "/assets" },
+    {
+      from: path.resolve(__dirname, "../static"),
+      to: "/assets/",
+    },
+  ],
 
   /**
    * Alias $lib/socket to a static mock so Storybook never tries to

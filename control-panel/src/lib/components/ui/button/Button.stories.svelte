@@ -9,7 +9,14 @@
     argTypes: {
       variant: {
         control: { type: "select" },
-        options: ["default", "destructive", "outline", "secondary", "ghost", "link"],
+        options: [
+          "default",
+          "destructive",
+          "outline",
+          "secondary",
+          "ghost",
+          "link",
+        ],
       },
       size: {
         control: { type: "select" },
@@ -57,7 +64,9 @@
 </Story>
 
 <Story name="All Variants">
-  <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 16px;">
+  <div
+    style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 16px;"
+  >
     <Button variant="default">Default</Button>
     <Button variant="destructive">Destructive</Button>
     <Button variant="outline">Outline</Button>

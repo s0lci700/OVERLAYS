@@ -8,6 +8,7 @@
   import { characters, SERVER_URL } from "$lib/socket.js";
   import { createDraggable } from "animejs";
   import { onMount } from "svelte";
+  import CharacterBulkControls from "$lib/CharacterBulkControls.svelte";
 
   const DEFAULT_BULK_AMOUNT = 5;
 
@@ -222,87 +223,19 @@
   }
 </script>
 
-<section class="bulk-controls">
-  <span class="bulk-controls-title">Selección múltiple</span>
-  <span class="bulk-controls-count">{selectedCount} elegidos</span>
-
-  {#if bulkError}
-    <div class="bulk-toast" role="alert">
-      <span>{bulkError}</span>
-      <button
-        class="bulk-toast-close"
-        onclick={() => (bulkError = "")}
-        aria-label="Cerrar">&times;</button
-      >
-    </div>
-  {/if}
-
-  <div class="bulk-controls-actions">
-    <button
-      class="bulk-toggle"
-      class:is-active={selectionMode}
-      type="button"
-      onclick={toggleSelectionMode}
-    >
-      Modo multi
-    </button>
-    <button class="bulk-toggle" type="button" onclick={selectAll}>
-      Seleccionar todos
-    </button>
-    <button
-      class="bulk-toggle"
-      type="button"
-      onclick={clearSelection}
-      disabled={!hasSelection}
-    >
-      Limpiar
-    </button>
-  </div>
-  <div class="bulk-controls-actions">
-    <div class="bulk-amount">
-      <span class="bulk-controls-title">Cantidad</span>
-      <input
-        type="number"
-        min="1"
-        max="999"
-        bind:value={bulkAmount}
-        aria-label="Cantidad de HP"
-      />
-    </div>
-    <Button
-      class="bulk-action damage"
-      type="button"
-      onclick={() => applyBulkHp("damage")}
-      disabled={!hasSelection}
-    >
-      − Daño
-    </Button>
-    <Button
-      class="bulk-action heal"
-      type="button"
-      onclick={() => applyBulkHp("heal")}
-      disabled={!hasSelection}
-    >
-      + Curar
-    </Button>
-    <Button
-      class="bulk-action rest"
-      type="button"
-      onclick={() => applyBulkRest("short")}
-      disabled={!hasSelection}
-    >
-      Descanso corto
-    </Button>
-    <Button
-      class="bulk-action rest"
-      type="button"
-      onclick={() => applyBulkRest("long")}
-      disabled={!hasSelection}
-    >
-      Descanso largo
-    </Button>
-  </div>
-</section>
+<CharacterBulkControls
+  {selectedCount}
+  bind:selectionMode
+  {hasSelection}
+  bind:bulkAmount
+  {bulkError}
+  on:toggleSelectionMode={() => toggleSelectionMode()}
+  on:selectAll={() => selectAll()}
+  on:clearSelection={() => clearSelection()}
+  on:applyBulkHp={(e) => applyBulkHp(e.detail.type)}
+  on:applyBulkRest={(e) => applyBulkRest(e.detail.type)}
+  on:clearError={() => (bulkError = "")}
+/>
 
 <div
   bind:this={gridEl}
