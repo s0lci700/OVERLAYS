@@ -19,6 +19,9 @@
 <script>
   import "./CharacterCard.css";
   import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
+  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
+  import { StatDisplay } from "$lib/components/ui/stat-display/index.js";
+  import { Stepper } from "$lib/components/ui/stepper/index.js";
   import { resolvePhotoSrc } from "./utils.js";
   import * as Tooltip from "./components/ui/tooltip/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
@@ -404,24 +407,19 @@
     <!-- Armor Class and Speed (stat block) -->
     <Tooltip.Provider delayDuration={300}>
       <div class="char-stats">
-        <div class="stat-item">
-          <Tooltip.Root>
-            <Tooltip.Trigger><span class="label-caps">CA</span></Tooltip.Trigger
-            >
-            <Tooltip.Content>Clase de Armadura</Tooltip.Content>
-          </Tooltip.Root>
-          <span class="stat-value">{character.armor_class}</span>
-        </div>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            <StatDisplay label="CA" value={character.armor_class} variant="inline" />
+          </Tooltip.Trigger>
+          <Tooltip.Content>Clase de Armadura</Tooltip.Content>
+        </Tooltip.Root>
         <span class="stat-divider">|</span>
-        <div class="stat-item">
-          <Tooltip.Root>
-            <Tooltip.Trigger
-              ><span class="label-caps">VEL</span></Tooltip.Trigger
-            >
-            <Tooltip.Content>Velocidad de movimiento</Tooltip.Content>
-          </Tooltip.Root>
-          <span class="stat-value">{character.speed_walk}ft</span>
-        </div>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            <StatDisplay label="VEL" value="{character.speed_walk}ft" variant="inline" />
+          </Tooltip.Trigger>
+          <Tooltip.Content>Velocidad de movimiento</Tooltip.Content>
+        </Tooltip.Root>
       </div>
     </Tooltip.Provider>
 
@@ -432,11 +430,12 @@
           {#each character.conditions as condition (condition.id)}
             <Tooltip.Root>
               <Tooltip.Trigger>
-                <button
-                  class="condition-pill"
-                  onclick={() => removeCondition(condition.id)}
-                  >{condition.condition_name} ×</button
-                >
+                <ConditionPill
+                  label={condition.condition_name}
+                  variant="condition"
+                  interactive
+                  onRemove={() => removeCondition(condition.id)}
+                />
               </Tooltip.Trigger>
               <Tooltip.Content>Clic para eliminar condición</Tooltip.Content>
             </Tooltip.Root>
@@ -494,26 +493,7 @@
       </Button>
 
       <!-- Stepper control for adjusting damage/healing amount -->
-      <div class="stepper-cluster">
-        <button
-          class="stepper"
-          onclick={() => (amount = Math.max(1, amount - 1))}
-          aria-label="Reducir"><span class="stepper-text">−</span></button
-        >
-        <input
-          class="amount-input"
-          type="number"
-          bind:value={amount}
-          min="1"
-          max="999"
-          aria-label="Cantidad"
-        />
-        <button
-          class="stepper"
-          onclick={() => (amount = Math.min(999, amount + 1))}
-          aria-label="Aumentar"><span class="stepper-text">+</span></button
-        >
-      </div>
+      <Stepper bind:value={amount} min={1} max={999} size="sm" />
 
       <Button
         class="btn-heal"

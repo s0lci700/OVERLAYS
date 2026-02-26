@@ -18,6 +18,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { resolvePhotoSrc } from "./utils.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
+  import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
   import characterOptions from "../../../docs/character-options.template.json";
   import { fade } from "svelte/transition";
 
@@ -670,35 +671,10 @@
                 class="manage-readonly-grid"
                 transition:fade={{ duration: 140 }}
               >
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Clase / Nivel</span>
-                  <span class="manage-readonly-value"
-                    >{buildReadOnlyClass(character.id)}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Background / Especie</span
-                  >
-                  <span class="manage-readonly-value"
-                    >{buildProfileSummary(character.id)}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Alineamiento</span>
-                  <span class="manage-readonly-value"
-                    >{resolveLabel(
-                      labelMaps.alignment,
-                      alignmentById[character.id],
-                      "No definido",
-                    )}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Idiomas</span>
-                  <span class="manage-readonly-value"
-                    >{buildLanguagesSummary(character.id)}</span
-                  >
-                </div>
+                <ReadOnlyField label="Clase / Nivel" value={buildReadOnlyClass(character.id)} class="manage-readonly-item" />
+                <ReadOnlyField label="Background / Especie" value={buildProfileSummary(character.id)} class="manage-readonly-item" />
+                <ReadOnlyField label="Alineamiento" value={resolveLabel(labelMaps.alignment, alignmentById[character.id], "No definido")} class="manage-readonly-item" />
+                <ReadOnlyField label="Idiomas" value={buildLanguagesSummary(character.id)} class="manage-readonly-item" />
                 <div class="manage-readonly-item">
                   <span class="manage-readonly-label manage-readonly-expand">
                     Competencias y equipo

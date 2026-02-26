@@ -19,6 +19,7 @@
   import "./DiceRoller.css";
   import { characters, SERVER_URL, lastRoll } from "./socket";
   import { Button } from "$lib/components/ui/button/index.js";
+  import Stepper from "$lib/components/ui/stepper/stepper.svelte";
   import { get } from "svelte/store";
   import { animate } from "animejs";
   // Keep existing animate(element, options) callsites working.
@@ -37,11 +38,6 @@
 
   const MIN_MODIFIER = -20;
   const MAX_MODIFIER = 20;
-  const HOLD_DELAY_MS = 250;
-  const HOLD_INTERVAL_MS = 80;
-
-  let holdTimeoutId = null;
-  let holdIntervalId = null;
 
   /** Stores the current anime.js animation instance to allow cancellation on rapid rolls. */
   let lastAnimation = null;
@@ -57,42 +53,6 @@
    */
   function roll(diceType) {
     return Math.floor(Math.random() * diceType) + 1;
-  }
-
-  function clampModifier(value) {
-    const parsedValue = Number(value);
-    if (!Number.isFinite(parsedValue)) {
-      modifier = 0;
-      return;
-    }
-    modifier = Math.max(MIN_MODIFIER, Math.min(MAX_MODIFIER, parsedValue));
-  }
-
-  function incrementModifier() {
-    modifier = Math.min(MAX_MODIFIER, modifier + 1);
-  }
-
-  function decrementModifier() {
-    modifier = Math.max(MIN_MODIFIER, modifier - 1);
-  }
-
-  function clearHold() {
-    if (holdTimeoutId) {
-      clearTimeout(holdTimeoutId);
-      holdTimeoutId = null;
-    }
-    if (holdIntervalId) {
-      clearInterval(holdIntervalId);
-      holdIntervalId = null;
-    }
-  }
-
-  function startHold(action) {
-    clearHold();
-    action();
-    holdTimeoutId = setTimeout(() => {
-      holdIntervalId = setInterval(action, HOLD_INTERVAL_MS);
-    }, HOLD_DELAY_MS);
   }
 
   /**
@@ -230,33 +190,7 @@
   <!-- Roll Modifier Input -->
   <div class="modifier-input">
     <label class="label-caps" for="modifier">MODIFICADOR</label>
-    <div class="modifier-stepper-cluster">
-      <button
-        class="modifier-stepper"
-        onpointerdown={() => startHold(decrementModifier)}
-        onpointerup={clearHold}
-        onpointerleave={clearHold}
-        onpointercancel={clearHold}
-        aria-label="Reducir modificador">−</button
-      >
-      <input
-        id="modifier"
-        class="modifier-value"
-        type="number"
-        bind:value={modifier}
-        min="-20"
-        max="20"
-        onblur={() => clampModifier(modifier)}
-      />
-      <button
-        class="modifier-stepper"
-        onpointerdown={() => startHold(incrementModifier)}
-        onpointerup={clearHold}
-        onpointerleave={clearHold}
-        onpointercancel={clearHold}
-        aria-label="Aumentar modificador">+</button
-      >
-    </div>
+    <Stepper bind:value={modifier} min={MIN_MODIFIER} max={MAX_MODIFIER} size="lg" />
   </div>
 
   <!-- Dice Button Grid -->

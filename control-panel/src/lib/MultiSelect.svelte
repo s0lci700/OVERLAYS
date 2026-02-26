@@ -13,13 +13,25 @@
 <script>
   import "./MultiSelect.css";
 
+  function generateId() {
+    try {
+      if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+      ) {
+        return crypto.randomUUID().slice(0, 8);
+      }
+    } catch (e) {}
+    return Math.random().toString(36).slice(2, 10);
+  }
+
   let {
     options = [],
     selected = [],
     onchange = () => {},
     disabled = false,
     size = 4,
-    id = crypto.randomUUID().slice(0, 8),
+    id = generateId(),
   } = $props();
 
   /** Index of the logically focused option (for aria-activedescendant). */
@@ -86,7 +98,7 @@
 
   function handleOptionKeydown(event, key, index) {
     if (disabled) return;
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       focusedIndex = index;
       toggle(key);
@@ -119,9 +131,12 @@
         class:ms-focused={isFocused}
         role="option"
         aria-selected={isSelected}
-        tabindex={disabled ? -1 : (isFocused ? 0 : -1)}
+        tabindex={disabled ? -1 : isFocused ? 0 : -1}
         onkeydown={(e) => handleOptionKeydown(e, option.key, i)}
-        onclick={() => { focusedIndex = i; toggle(option.key); }}
+        onclick={() => {
+          focusedIndex = i;
+          toggle(option.key);
+        }}
       >
         <span class="ms-label">{option.label}</span>
         {#if isSelected}
