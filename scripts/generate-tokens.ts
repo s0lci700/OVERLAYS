@@ -39,7 +39,14 @@ interface TokensFile {
   overlayGradients: TokenGroup;
 }
 
-const tokens: TokensFile = JSON.parse(readFileSync(tokensPath, "utf-8"));
+let tokens: TokensFile;
+try {
+  tokens = JSON.parse(readFileSync(tokensPath, "utf-8"));
+} catch (err) {
+  const msg = err instanceof Error ? err.message : String(err);
+  console.error(`❌  Failed to read or parse ${tokensPath}: ${msg}`);
+  process.exit(1);
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -91,7 +98,13 @@ const cpCSS =
   ) + "\n";
 
 const cpOutPath = join(ROOT, "control-panel", "src", "generated-tokens.css");
-writeFileSync(cpOutPath, cpCSS, "utf-8");
+try {
+  writeFileSync(cpOutPath, cpCSS, "utf-8");
+} catch (err) {
+  const msg = err instanceof Error ? err.message : String(err);
+  console.error(`❌  Failed to write ${cpOutPath}: ${msg}`);
+  process.exit(1);
+}
 console.log(`✅  Wrote ${cpOutPath}`);
 
 // ── 2. public/tokens.css (overlay subset) ────────────────────────────────────
@@ -121,7 +134,13 @@ const overlayCSS =
   ) + "\n";
 
 const overlayOutPath = join(ROOT, "public", "tokens.css");
-writeFileSync(overlayOutPath, overlayCSS, "utf-8");
+try {
+  writeFileSync(overlayOutPath, overlayCSS, "utf-8");
+} catch (err) {
+  const msg = err instanceof Error ? err.message : String(err);
+  console.error(`❌  Failed to write ${overlayOutPath}: ${msg}`);
+  process.exit(1);
+}
 console.log(`✅  Wrote ${overlayOutPath}`);
 
 console.log("🎨  Token generation complete.");

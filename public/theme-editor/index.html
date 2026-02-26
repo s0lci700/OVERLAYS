@@ -397,6 +397,10 @@
         input.value = overrides[tokenName] ?? entry.value;
         input.dataset.token = tokenName;
 
+        // Declare colorPicker before the text-input listener so the closure
+        // can safely reference it even for non-color tokens (where it stays null).
+        let colorPicker = null;
+
         input.addEventListener("input", () => {
           overrides[tokenName] = input.value;
           if (colorPicker) colorPicker.value = toHex(input.value);
@@ -406,7 +410,7 @@
         wrap.appendChild(input);
 
         if (isColorValue(entry.value)) {
-          const colorPicker = document.createElement("input");
+          colorPicker = document.createElement("input");
           colorPicker.type = "color";
           colorPicker.value = toHex(overrides[tokenName] ?? entry.value);
           colorPicker.title = tokenName;
@@ -448,7 +452,13 @@
 
   // ── Saved themes ──────────────────────────────────────────────────
   function loadSavedThemes() {
-    try { savedThemes = JSON.parse(localStorage.getItem("__dr_themes__") || "{}"); } catch { savedThemes = {}; }
+    try {
+      const raw = localStorage.getItem("__dr_themes__") || "{}";
+      savedThemes = JSON.parse(raw);
+    } catch (e) {
+      console.warn("Failed to load saved themes from localStorage:", e);
+      savedThemes = {};
+    }
     renderSavedThemes();
   }
 
@@ -505,7 +515,17 @@
     file.text().then(txt => {
       try {
         const parsed = JSON.parse(txt);
-        overrides = parsed.overrides || parsed;
+        const raw = parsed.overrides || parsed;
+        // Only accept keys that exist in the canonical token set to prevent
+        // arbitrary CSS variable injection from a malicious theme file.
+        const knownTokens = canonicalTokens._flat || {};
+        const sanitized = {};
+        for (const [k, v] of Object.entries(raw)) {
+          if (Object.prototype.hasOwnProperty.call(knownTokens, k)) {
+            sanitized[k] = String(v);
+          }
+        }
+        overrides = sanitized;
         document.querySelectorAll(".token-input").forEach(input => {
           const tok = input.dataset.token;
           if (overrides[tok] !== undefined) input.value = overrides[tok];
