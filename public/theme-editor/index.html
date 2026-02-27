@@ -561,7 +561,6 @@
   document.getElementById("overlay-select").addEventListener("change", e => {
     const frame = document.getElementById("preview-frame");
     frame.src = e.target.value;
-    frame.addEventListener("load", applyToPreview, { once: true });
   });
   document.getElementById("btn-reset").addEventListener("click", () => {
     overrides = {};
