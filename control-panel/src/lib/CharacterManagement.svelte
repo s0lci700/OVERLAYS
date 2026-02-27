@@ -6,10 +6,19 @@
 -->
 <script>
   import "./CharacterManagement.css";
+  import "$lib/components/ui/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
+  import SelectionPills from "$lib/components/ui/pills/SelectionPills.svelte";
+  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
   import * as Dialog from "$lib/components/ui/dialog";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { resolvePhotoSrc } from "./utils.js";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
+  import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
   import characterOptions from "../../../docs/character-options.template.json";
   import { fade } from "svelte/transition";
 
@@ -56,6 +65,9 @@
   let loadoutOpenById = $state({});
 
   let activePhotoId = $state(null);
+
+  /** ID of the character pending deletion — drives the AlertDialog. */
+  let pendingDeleteId = $state(null);
 
   /**
    * @typedef {{key: string, label: string}} OptionEntry
@@ -117,37 +129,6 @@
     ...weaponOptions.map((o) => [o.key, o.label]),
     ...itemOptions.map((o) => [o.key, o.label]),
   ]);
-
-  const FALLBACK_PHOTO_OPTIONS = [
-    "/assets/img/barbarian.png",
-    "/assets/img/elf.png",
-    "/assets/img/wizard.png",
-  ];
-
-  function resolvePhotoSrc(photoPath) {
-    if (!photoPath) {
-      const randomOption =
-        FALLBACK_PHOTO_OPTIONS[
-          Math.floor(Math.random() * FALLBACK_PHOTO_OPTIONS.length)
-        ];
-      return `${SERVER_URL}${randomOption}`;
-    }
-
-    if (
-      photoPath.startsWith("http://") ||
-      photoPath.startsWith("https://") ||
-      photoPath.startsWith("data:") ||
-      photoPath.startsWith("blob:")
-    ) {
-      return photoPath;
-    }
-
-    if (photoPath.startsWith("/")) {
-      return `${SERVER_URL}${photoPath}`;
-    }
-
-    return `${SERVER_URL}/${photoPath.replace(/^\/+/, "")}`;
-  }
 
   function inferSource(photoValue) {
     if (!photoValue || PHOTO_OPTIONS.some((o) => o.value === photoValue)) {
@@ -339,6 +320,20 @@
       };
     } finally {
       isSavingById = { ...isSavingById, [charId]: false };
+    }
+  }
+
+  async function deleteCharacter(charId) {
+    try {
+      const response = await fetch(`${SERVER_URL}/api/characters/${charId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok)
+        console.error("Failed to delete character", response.status);
+    } catch (error) {
+      console.error("Error deleting character", error);
+    } finally {
+      pendingDeleteId = null;
     }
   }
 
@@ -608,7 +603,7 @@
       <article class="manage-card card-base" data-char-id={character.id}>
         <header class="manage-card-head">
           <div class="manage-identity">
-            <button
+            <Button
               class="manage-photo-btn"
               type="button"
               onclick={() => openPhotoEditor(character.id)}
@@ -616,27 +611,25 @@
             >
               <img
                 class="manage-photo"
-                src={resolvePhotoSrc(character.photo)}
+                src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
                 alt={character.name}
               />
               <span class="manage-photo-hint">Editar foto</span>
-            </button>
+            </Button>
             <div class="manage-names">
               <h3 class="manage-char-name">{character.name}</h3>
               <span class="manage-char-player">{character.player}</span>
-              <span class="manage-char-level">
-                NIVEL {Number(classLevelById[character.id] ?? 1) || 1}
-              </span>
+              <LevelPill level={classLevelById[character.id]} />
             </div>
           </div>
-          <button
+          <Button
             class="btn-base manage-edit-toggle"
             type="button"
             onclick={() => toggleEdit(character.id)}
             aria-expanded={editOpenById[character.id] ? "true" : "false"}
           >
             {editOpenById[character.id] ? "CERRAR EDICION" : "EDITAR PERSONAJE"}
-          </button>
+          </Button>
         </header>
 
         {#if !editOpenById[character.id]}
@@ -664,53 +657,28 @@
 
           <!-- Read-only info panel: toggle to show/hide full character data -->
           <div class="manage-readonly">
-            <button
+            <Button
               class="btn-base manage-info-toggle"
               type="button"
               onclick={() => toggleInfo(character.id)}
               aria-expanded={infoOpenById[character.id] ? "true" : "false"}
             >
               {infoOpenById[character.id] ? "OCULTAR INFO" : "VER INFO"}
-            </button>
+            </Button>
 
             {#if infoOpenById[character.id]}
               <div
                 class="manage-readonly-grid"
                 transition:fade={{ duration: 140 }}
               >
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Clase / Nivel</span>
-                  <span class="manage-readonly-value"
-                    >{buildReadOnlyClass(character.id)}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Background / Especie</span
-                  >
-                  <span class="manage-readonly-value"
-                    >{buildProfileSummary(character.id)}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Alineamiento</span>
-                  <span class="manage-readonly-value"
-                    >{resolveLabel(
-                      labelMaps.alignment,
-                      alignmentById[character.id],
-                      "No definido",
-                    )}</span
-                  >
-                </div>
-                <div class="manage-readonly-item">
-                  <span class="manage-readonly-label">Idiomas</span>
-                  <span class="manage-readonly-value"
-                    >{buildLanguagesSummary(character.id)}</span
-                  >
-                </div>
+                <ReadOnlyField label="Clase / Nivel" value={buildReadOnlyClass(character.id)} class="manage-readonly-item" />
+                <ReadOnlyField label="Background / Especie" value={buildProfileSummary(character.id)} class="manage-readonly-item" />
+                <ReadOnlyField label="Alineamiento" value={resolveLabel(labelMaps.alignment, alignmentById[character.id], "No definido")} class="manage-readonly-item" />
+                <ReadOnlyField label="Idiomas" value={buildLanguagesSummary(character.id)} class="manage-readonly-item" />
                 <div class="manage-readonly-item">
                   <span class="manage-readonly-label manage-readonly-expand">
                     Competencias y equipo
-                    <button
+                    <Button
                       type="button"
                       class="btn-base manage-info-toggle"
                       onclick={() => toggleLoadout(character.id)}
@@ -721,7 +689,7 @@
                       {loadoutOpenById[character.id]
                         ? "ocultar detalle"
                         : "ver detalle"}
-                    </button>
+                    </Button>
                   </span>
                   {#if !loadoutOpenById[character.id]}
                     <span class="manage-readonly-value"
@@ -791,9 +759,12 @@
 
         {#if editOpenById[character.id]}
           <div class="manage-form">
-            <label class="manage-field">
-              <span class="label-caps">Nombre</span>
-              <input
+            <div class="manage-field">
+              <Label for={`name-${character.id}`} class="label-caps"
+                >Nombre</Label
+              >
+              <Input
+                id={`name-${character.id}`}
                 type="text"
                 value={nameById[character.id]}
                 oninput={(event) =>
@@ -804,10 +775,13 @@
                   ))}
                 maxlength="40"
               />
-            </label>
-            <label class="manage-field">
-              <span class="label-caps">Jugador</span>
-              <input
+            </div>
+            <div class="manage-field">
+              <Label for={`player-${character.id}`} class="label-caps"
+                >Jugador</Label
+              >
+              <Input
+                id={`player-${character.id}`}
                 type="text"
                 value={playerById[character.id]}
                 oninput={(event) =>
@@ -818,11 +792,14 @@
                   ))}
                 maxlength="40"
               />
-            </label>
+            </div>
             <div class="manage-grid-fields">
-              <label class="manage-field">
-                <span class="label-caps">HP MAX</span>
-                <input
+              <div class="manage-field">
+                <Label for={`hp-max-${character.id}`} class="label-caps"
+                  >HP MAX</Label
+                >
+                <Input
+                  id={`hp-max-${character.id}`}
                   type="number"
                   min="1"
                   max="999"
@@ -834,10 +811,11 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
-              <label class="manage-field">
-                <span class="label-caps">AC</span>
-                <input
+              </div>
+              <div class="manage-field">
+                <Label for={`ac-${character.id}`} class="label-caps">AC</Label>
+                <Input
+                  id={`ac-${character.id}`}
                   type="number"
                   min="0"
                   max="99"
@@ -849,10 +827,13 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
-              <label class="manage-field">
-                <span class="label-caps">VEL</span>
-                <input
+              </div>
+              <div class="manage-field">
+                <Label for={`speed-${character.id}`} class="label-caps"
+                  >VEL</Label
+                >
+                <Input
+                  id={`speed-${character.id}`}
                   type="number"
                   min="0"
                   max="200"
@@ -864,7 +845,7 @@
                       event.currentTarget.value,
                     ))}
                 />
-              </label>
+              </div>
             </div>
 
             <div class="manage-section">
@@ -911,9 +892,12 @@
                     {/if}
                   </select>
                 </label>
-                <label class="manage-field">
-                  <span class="label-caps">Nivel</span>
-                  <input
+                <div class="manage-field">
+                  <Label for={`level-${character.id}`} class="label-caps"
+                    >Nivel</Label
+                  >
+                  <Input
+                    id={`level-${character.id}`}
                     type="number"
                     min="1"
                     max="20"
@@ -925,7 +909,7 @@
                         event.currentTarget.value,
                       ))}
                   />
-                </label>
+                </div>
                 <label class="manage-field">
                   <span class="label-caps">Background</span>
                   <select
@@ -1045,13 +1029,10 @@
                       ))}
                     size={Math.max(3, Math.min(6, languageOptions.length || 3))}
                   />
-                  {#if languagesById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each languagesById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={languagesById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1074,13 +1055,10 @@
                       Math.min(6, rareLanguageOptions.length || 3),
                     )}
                   />
-                  {#if rareLanguagesById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each rareLanguagesById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={rareLanguagesById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
               <div class="manage-grid-two">
@@ -1102,13 +1080,10 @@
                       ))}
                     size={Math.max(4, Math.min(8, skillOptions.length || 4))}
                   />
-                  {#if skillsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each skillsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={skillsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1124,13 +1099,10 @@
                       (toolsById = updateListField(toolsById, character.id, v))}
                     size={Math.max(4, Math.min(8, toolOptions.length || 4))}
                   />
-                  {#if toolsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each toolsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={toolsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
               <div class="manage-grid-two">
@@ -1149,13 +1121,10 @@
                       (armorById = updateListField(armorById, character.id, v))}
                     size={Math.max(3, Math.min(6, armorOptions.length || 3))}
                   />
-                  {#if armorById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each armorById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={armorById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <div class="manage-field">
                   <span class="label-caps"
@@ -1176,13 +1145,10 @@
                       ))}
                     size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
                   />
-                  {#if weaponsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each weaponsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={weaponsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
               </div>
             </div>
@@ -1205,13 +1171,10 @@
                     disabled={itemOptions.length === 0}
                     size={Math.max(3, Math.min(6, itemOptions.length || 3))}
                   />
-                  {#if itemsById[character.id]?.length > 0}
-                    <div class="selection-pills">
-                      {#each itemsById[character.id] as key}<span
-                          class="selection-pill">{labelOf.get(key) || key}</span
-                        >{/each}
-                    </div>
-                  {/if}
+                  <SelectionPills
+                    keys={itemsById[character.id] || []}
+                    {labelOf}
+                  />
                 </div>
                 <label class="manage-field">
                   <span class="label-caps">Trinket</span>
@@ -1240,15 +1203,15 @@
             </div>
 
             <div class="manage-actions">
-              <button
+              <Button
                 class="btn-base manage-save-btn manage-save-btn--outline"
                 type="button"
                 onclick={() => levelUpCharacter(character.id)}
                 disabled={isSavingProfileById[character.id]}
               >
                 SUBIR NIVEL
-              </button>
-              <button
+              </Button>
+              <Button
                 class="btn-base manage-save-btn manage-save-btn--neutral"
                 type="button"
                 onclick={() => saveProfile(character.id)}
@@ -1257,7 +1220,7 @@
                 {isSavingProfileById[character.id]
                   ? "GUARDANDO..."
                   : "GUARDAR DATOS"}
-              </button>
+              </Button>
               {#if profileFeedbackById[character.id]?.text}
                 <span
                   class={`manage-feedback ${profileFeedbackById[character.id].type}`}
@@ -1268,6 +1231,13 @@
               <span class="manage-note">
                 Subir nivel solo ajusta el nivel por ahora.
               </span>
+              <Button
+                class="btn-base manage-delete-btn"
+                type="button"
+                onclick={() => (pendingDeleteId = character.id)}
+              >
+                ELIMINAR PERSONAJE
+              </Button>
             </div>
           </div>
         {/if}
@@ -1316,14 +1286,14 @@
       />
 
       <div class="photo-modal-actions">
-        <button
+        <Button
           class="btn-base manage-save-btn"
           type="button"
           onclick={() => savePhoto(activePhotoId)}
           disabled={isSavingById[activePhotoId]}
         >
           {isSavingById[activePhotoId] ? "GUARDANDO..." : "ACTUALIZAR FOTO"}
-        </button>
+        </Button>
         {#if feedbackById[activePhotoId]?.text}
           <span class={`manage-feedback ${feedbackById[activePhotoId].type}`}>
             {feedbackById[activePhotoId].text}
@@ -1333,3 +1303,34 @@
     {/if}
   </Dialog.Content>
 </Dialog.Root>
+
+<AlertDialog.Root
+  open={!!pendingDeleteId}
+  onOpenChange={(open) => {
+    if (!open) pendingDeleteId = null;
+  }}
+>
+  <AlertDialog.Content class="card-base delete-confirm-dialog">
+    <AlertDialog.Title class="delete-confirm-title">
+      ¿Eliminar personaje?
+    </AlertDialog.Title>
+    <AlertDialog.Description class="delete-confirm-desc">
+      Esta acción no se puede deshacer. El personaje se eliminará de la sesión
+      para todos los jugadores.
+    </AlertDialog.Description>
+    <div class="delete-confirm-actions">
+      <AlertDialog.Cancel
+        class="btn-base manage-save-btn manage-save-btn--neutral"
+        onclick={() => (pendingDeleteId = null)}
+      >
+        CANCELAR
+      </AlertDialog.Cancel>
+      <AlertDialog.Action
+        class="btn-base manage-delete-btn"
+        onclick={() => deleteCharacter(pendingDeleteId)}
+      >
+        SÍ, ELIMINAR
+      </AlertDialog.Action>
+    </div>
+  </AlertDialog.Content>
+</AlertDialog.Root>

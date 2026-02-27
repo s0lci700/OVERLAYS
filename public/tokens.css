@@ -1,42 +1,46 @@
 /**
- * Shared Design Tokens — ESDH TTRPG
- * ===================================
- * Single source of truth for brand colors, fonts, spacing, and shadows.
- * Imported by both overlay CSS files to stay in sync with the control panel.
+ * GENERATED — do not edit by hand.
+ * Source: design/tokens.json
+ * Regenerate: bun run generate:tokens
  *
- * When brand colors change, update ONLY this file — overlays update automatically.
+ * Shared Design Tokens — Dados & Risas Design Tokens
+ * Single source of truth for brand colors, fonts, spacing, and shadows.
+ * Imported by OBS overlay HTML files.
  */
 
 :root {
-  /* Core neutrals */
-  --black: #000000;
-  --black-card: #0d0d0d;
-  --black-elevated: #1a1a1a;
-  --white: #ffffff;
-  --grey: #888888;
-  --grey-dim: #333333;
-  /* Brand accents */
-  --red: #ff4d6a;
-  --cyan: #00d4e8;
-  --purple: #500df5;
-  /* HP thresholds */
-  --hp-healthy: #22c55e;
-  --hp-injured: #f59e0b;
-  --hp-critical: #ff4d6a;
-  /* HP gradients */
-  --gradient-healthy: linear-gradient(90deg, #15803d, #22c55e);
-  --gradient-injured: linear-gradient(90deg, #b45309, #f59e0b);
-  --gradient-critical: linear-gradient(90deg, #991b1b, #ff4d6a);
-  /* Font families */
-  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
-  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Shadows */
-  --shadow-card: 4px 4px 0px rgba(0, 0, 0, 0.9);
-  --shadow-cyan: 4px 4px 0px #00d4e8;
-  /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-pill: 999px;
+  --black: #000000; /* Global canvas / app background */
+  --black-card: #0d0d0d; /* Card surfaces */
+  --black-elevated: #1a1a1a; /* Elevated surfaces, inputs, popovers */
+  --white: #ffffff; /* Primary text */
+  --grey: #888888; /* Secondary / muted text */
+  --grey-dim: #333333; /* Subtle borders and dividers */
+  --red: #ff4d6a; /* Primary action / damage / critical state */
+  --red-dim: rgba(255, 77, 106, 0.12); /* Red tint for hover/active backgrounds */
+  --cyan: #00d4e8; /* Accent / healing / connection indicator */
+  --cyan-dim: rgba(0, 212, 232, 0.12); /* Cyan tint for hover/active backgrounds */
+  --purple: #500df5; /* Dice / d20 highlight */
+  --purple-dim: rgba(80, 13, 245, 0.12); /* Purple tint for hover/active backgrounds */
+  --purple-mid: rgba(80, 13, 245, 0.5); /* Mid-opacity purple for borders */
+  --hp-healthy: #22c55e; /* HP bar — healthy (>50%) */
+  --hp-injured: #f59e0b; /* HP bar — injured (25–50%) */
+  --hp-critical: #ff4d6a; /* HP bar — critical (<25%) */
+  --hp-healthy-dim: #15803d; /* HP gradient start — healthy */
+  --hp-injured-dim: #b45309; /* HP gradient start — injured */
+  --hp-critical-dim: #991b1b; /* HP gradient start — critical */
+  --gradient-healthy: linear-gradient(90deg, #15803d, #22c55e); /* HP bar gradient — healthy (overlay-only shorthand) */
+  --gradient-injured: linear-gradient(90deg, #b45309, #f59e0b); /* HP bar gradient — injured (overlay-only shorthand) */
+  --gradient-critical: linear-gradient(90deg, #991b1b, #ff4d6a); /* HP bar gradient — critical (overlay-only shorthand) */
+  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif; /* Headings, labels, brand text */
+  --font-script: "Dancing Script", cursive; /* Brand ampersand (& Risas) */
+  --font-mono: "JetBrains Mono", "Courier New", monospace; /* Numbers, HP values, dice results */
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* Body text, form elements */
+  --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05); /* Default card shadow (control panel) */
+  --shadow-red: 3px 3px 0px #ff4d6a; /* Red pixel-art accent shadow */
+  --shadow-cyan: 3px 3px 0px #00d4e8; /* Cyan pixel-art accent shadow */
+  --shadow-purple: 4px 4px 0px #500df5; /* Purple pixel-art accent shadow */
+  --radius-sm: 4px; /* Small — buttons, tags */
+  --radius-md: 8px; /* Medium — cards, inputs */
+  --radius-lg: 12px; /* Large — modals, panels */
+  --radius-pill: 999px; /* Pill badges */
 }

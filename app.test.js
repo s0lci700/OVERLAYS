@@ -44,6 +44,36 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
     console.log(`  Found ${characters.length} characters`);
   });
 
+  test("/api/tokens returns valid design token JSON", async ({ request }) => {
+    const response = await request.get(`${SERVER_URL}/api/tokens`);
+    expect(response.ok()).toBeTruthy();
+
+    const tokens = await response.json();
+
+    // Top-level groups must exist
+    expect(tokens).toHaveProperty("meta");
+    expect(tokens).toHaveProperty("colors");
+    expect(tokens).toHaveProperty("hp");
+    expect(tokens).toHaveProperty("typography");
+    expect(tokens).toHaveProperty("spacing");
+    expect(tokens).toHaveProperty("shadows");
+    expect(tokens).toHaveProperty("motion");
+
+    // Each group must be an object with token entries containing a 'value' field
+    for (const group of ["colors", "hp", "typography", "spacing", "shadows", "motion"]) {
+      expect(typeof tokens[group]).toBe("object");
+      for (const [key, entry] of Object.entries(tokens[group])) {
+        expect(entry).toHaveProperty("value");
+        expect(key.startsWith("--")).toBeTruthy();
+      }
+    }
+
+    // Spot-check known brand tokens
+    expect(tokens.colors["--red"].value).toBe("#ff4d6a");
+    expect(tokens.colors["--cyan"].value).toBe("#00d4e8");
+
+    console.log("✓ /api/tokens returns valid token schema");
+  });
   test("Template characters are available", async ({ request }) => {
     const characters = await getCharacters(request);
     const ids = characters.map((c) => c.id);

@@ -348,6 +348,18 @@ function removeCondition(charId, conditionId) {
 }
 
 /**
+ * Permanently remove a character from the in-memory list.
+ * @param {string} charId
+ * @returns {boolean} true if found and removed, false if not found
+ */
+function removeCharacter(charId) {
+  const index = characters.findIndex((c) => c.id === charId);
+  if (index === -1) return false;
+  characters.splice(index, 1);
+  return true;
+}
+
+/**
  * Update a resource's pool_current while respecting its bounds.
  * @param {string} charId
  * @param {string} resourceId
@@ -508,6 +520,7 @@ module.exports = {
   updateCharacterData,
   addCondition,
   removeCondition,
+  removeCharacter,
   updateResource,
   restoreResources,
   createCharacter,

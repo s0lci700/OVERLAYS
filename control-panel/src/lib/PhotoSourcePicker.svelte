@@ -6,6 +6,7 @@
 -->
 <script>
   import "./PhotoSourcePicker.css";
+  import { Button } from "$lib/components/ui/button/index.js";
 
   let {
     title = "",
@@ -160,49 +161,48 @@
         role="tablist"
         aria-label="Tipo de foto"
       >
-        <button
+        <Button
           type="button"
-          class="photo-segment-btn"
-          class:dense
-          class:active={source === "preset"}
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'preset'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "preset"}
           onclick={() => onSourceChange("preset")}
         >
           Preset
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          class="photo-segment-btn"
-          class:dense
-          class:active={source === "url"}
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'url'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "url"}
           onclick={() => onSourceChange("url")}
         >
           URL
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          class="photo-segment-btn"
-          class:dense
-          class:active={source === "local"}
+          class="photo-segment-btn {dense ? 'dense' : ''} {source === 'local'
+            ? 'active'
+            : ''}"
           role="tab"
           aria-selected={source === "local"}
           onclick={() => onSourceChange("local")}
         >
           Archivo Local
-        </button>
+        </Button>
       </div>
 
       {#if source === "preset"}
         <!-- Preset gallery: show thumbnails for quick selection similar to the modal design -->
         <div class="photo-gallery" role="list">
           {#each options as option (option.value)}
-            <button
+            <Button
               type="button"
-              class="photo-thumb"
-              class:active={option.value === presetValue}
+              class="photo-thumb {option.value === presetValue ? 'active' : ''}"
               aria-pressed={option.value === presetValue}
               onclick={() => onPresetChange(option.value)}
               title={option.label}
@@ -219,7 +219,7 @@
               {#if option.value === presetValue}
                 <span class="thumb-check">✓</span>
               {/if}
-            </button>
+            </Button>
           {/each}
         </div>
         <!-- Hidden native select kept for accessibility/ forms integration -->

@@ -32,7 +32,9 @@
       "Bash(npx shadcn-svelte@latest init:*)",
       "Bash(echo:*)",
       "Bash(printf:*)",
-      "Bash(npx shadcn-svelte@latest add:*)"
+      "Bash(npx shadcn-svelte@latest add:*)",
+      "mcp__Shadcn_UI__get_component",
+      "Bash(node -e:*)"
     ]
   },
   "hooks": {

@@ -223,29 +223,32 @@
 }
 
 /* Input baseline styles aligned with panel dark theme. */
-.create-field input {
+.create-field input,
+.create-field :global([data-slot="input"]) {
   /* max-width: 1fr; */
-  min-height: 44px;
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
-  padding: 0 var(--space-3);
-  background: var(--black-elevated);
-  color: var(--white);
-  font-family: var(--font-ui);
+  min-height: 44px !important;
+  border: 1px solid var(--grey-dim) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 var(--space-3) !important;
+  background: var(--black-elevated) !important;
+  color: var(--white) !important;
+  font-family: var(--font-ui) !important;
 }
 
 /* Focus visibility for keyboard/touch-edit interactions. */
-.create-field input:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 1px var(--cyan-dim);
+.create-field input:focus,
+.create-field :global([data-slot="input"]:focus) {
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 0 1px var(--cyan-dim) !important;
 }
 
 /* Primary submit action inherits .btn-base and overrides accent colors. */
 .create-submit {
-  border-color: var(--cyan);
-  background: var(--cyan-dim);
-  color: var(--cyan);
+  border: 2px solid var(--cyan) !important;
+  background: var(--cyan-dim) !important;
+  color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
+  border-radius: var(--radius-md) !important;
 }
 
 /* Prevent accidental double-submit while async request is running. */

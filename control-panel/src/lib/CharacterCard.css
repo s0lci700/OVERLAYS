@@ -76,8 +76,8 @@
 
 /* Card connects seamlessly to the handle above it */
 .char-card-exit-wrap .char-card {
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .char-card-exit-wrap.is-dragging {
@@ -99,6 +99,7 @@
 .char-card {
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-lg);
   /* smooth visual transitions for small layout shifts */
   transition:
     border-color 220ms cubic-bezier(0.2, 0.9, 0.2, 1),
@@ -250,7 +251,9 @@
 }
 .char-header-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
   gap: var(--space-2);
   flex-shrink: 0;
 }
@@ -261,6 +264,7 @@
   gap: var(--space-half);
   min-width: 0;
   overflow: hidden;
+  flex: 1;
 }
 
 .char-name {
@@ -301,6 +305,7 @@
   align-items: baseline;
   gap: var(--space-half);
   flex-shrink: 0;
+  order: 1;
 }
 
 .collapse-toggle {
@@ -428,27 +433,41 @@
 }
 
 .btn-damage {
-  background: var(--red-dim);
-  border-color: var(--red);
-  color: var(--red);
+  background: var(--red-dim) !important;
+  border: 2px solid var(--red) !important;
+  color: var(--red) !important;
+  white-space: nowrap;
+  min-width: 0;
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.04em !important;
 }
 
 .btn-damage:hover {
-  background: var(--red);
-  color: var(--white);
+  background: var(--red) !important;
+  color: var(--white) !important;
   box-shadow: var(--shadow-red);
+  border-color: var(--red) !important;
 }
 
 .btn-heal {
-  background: var(--cyan-dim);
-  border-color: var(--cyan);
-  color: var(--cyan);
+  background: var(--cyan-dim) !important;
+  border: 2px solid var(--cyan) !important;
+  color: var(--cyan) !important;
+  white-space: nowrap;
+  min-width: 0;
+  border-radius: var(--radius-md) !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.04em !important;
 }
 
 .btn-heal:hover {
-  background: var(--cyan);
-  color: var(--black);
+  background: var(--cyan) !important;
+  color: var(--black) !important;
   box-shadow: var(--shadow-cyan);
+  border-color: var(--cyan) !important;
 }
 
 .stepper-cluster {
@@ -659,10 +678,13 @@
 
 .btn-rest {
   font-size: 0.95rem;
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.04em !important;
   padding: var(--space-2) var(--space-3);
-  color: var(--grey);
-  border-color: var(--grey-dim);
+  color: var(--grey) !important;
+  border: 2px solid var(--grey-dim) !important;
   min-height: 40px;
+  border-radius: var(--radius-md) !important;
   transition:
     color var(--t-fast),
     border-color var(--t-fast),
@@ -671,7 +693,33 @@
 }
 
 .btn-rest:hover {
-  color: var(--white);
-  border-color: var(--grey);
-  background: var(--grey-dim);
+  color: var(--white) !important;
+  border-color: var(--grey) !important;
+  background: var(--grey-dim) !important;
+}
+
+/* Tablet: tighten HP action buttons to prevent text overflow. */
+@media (max-width: 900px) {
+  .char-controls {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .btn-damage,
+  .btn-heal {
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    padding: 0 var(--space-2);
+  }
+}
+
+/* Mobile: reduce name size and button text size further. */
+@media (max-width: 640px) {
+  .char-name {
+    font-size: 1.2rem;
+  }
+
+  .btn-damage,
+  .btn-heal {
+    font-size: 0.8rem;
+  }
 }

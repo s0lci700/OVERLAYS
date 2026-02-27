@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "setup-ip": "bun scripts/setup-ip.js",
+    "generate:tokens": "bun scripts/generate-tokens.ts",
     "start": "bun scripts/setup-ip.js && bun server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "bunx playwright test",
@@ -30,11 +31,13 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "playwright": "^1.58.2",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "prettier": "^3.8.1",
-    "prettier-plugin-svelte": "^3.5.0"
+    "prettier-plugin-svelte": "^3.5.0",
+    "svelte-check": "^4.4.3"
   }
 }

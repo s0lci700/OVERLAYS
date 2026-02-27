@@ -18,6 +18,13 @@
 -->
 <script>
   import "./CharacterCard.css";
+  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
+  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
+  import { StatDisplay } from "$lib/components/ui/stat-display/index.js";
+  import { Stepper } from "$lib/components/ui/stepper/index.js";
+  import { resolvePhotoSrc } from "./utils.js";
+  import * as Tooltip from "./components/ui/tooltip/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { animate } from "animejs";
   // Helper wrapper to keep existing animate(element, options) usage.
   // const animate = (el, opts) => anime(Object.assign({ targets: el }, opts));
@@ -25,42 +32,6 @@
   const spring = (_opts = {}) => "spring(1, 80, 10, 0)";
   import { onMount } from "svelte";
   import { SERVER_URL } from "./socket";
-
-  const FALLBACK_PHOTO_OPTIONS = [
-    "/assets/img/barbarian.png",
-    "/assets/img/elf.png",
-    "/assets/img/wizard.png",
-  ];
-
-  function resolvePhotoSrc(photoPath, charId) {
-    if (!photoPath) {
-      const index = charId
-        ? Math.abs(
-            [...charId].reduce(
-              (h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0,
-              0,
-            ),
-          ) % FALLBACK_PHOTO_OPTIONS.length
-        : 0;
-      const fallback = FALLBACK_PHOTO_OPTIONS[index];
-      return `${SERVER_URL}${fallback}`;
-    }
-
-    if (
-      photoPath.startsWith("http://") ||
-      photoPath.startsWith("https://") ||
-      photoPath.startsWith("data:") ||
-      photoPath.startsWith("blob:")
-    ) {
-      return photoPath;
-    }
-
-    if (photoPath.startsWith("/")) {
-      return `${SERVER_URL}${photoPath}`;
-    }
-
-    return `${SERVER_URL}/${photoPath.replace(/^\/+/, "")}`;
-  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props
@@ -316,7 +287,7 @@
     const imgEl = event.currentTarget;
     if (imgEl.dataset.fallbackApplied === "true") return;
     imgEl.dataset.fallbackApplied = "true";
-    imgEl.src = resolvePhotoSrc("", character.id);
+    imgEl.src = resolvePhotoSrc("", SERVER_URL, character.id);
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -335,7 +306,9 @@
         : "hp--critical",
   );
 
-  const photoSrc = $derived(resolvePhotoSrc(character.photo, character.id));
+  const photoSrc = $derived(
+    resolvePhotoSrc(character.photo, SERVER_URL, character.id),
+  );
 </script>
 
 <!-- ────────────────────────────────────────────────────────────────────────
@@ -388,11 +361,21 @@
     <div class="char-identity">
       <h2 class="char-name">{character.name}</h2>
       <span class="char-player">{character.player}</span>
-      <span class="char-level">
-        NIVEL {Number(character.class_primary?.level ?? 1) || 1}
-      </span>
+      <LevelPill level={character.class_primary?.level} />
     </div>
     <div class="char-header-actions">
+      <button
+        class="collapse-toggle"
+        type="button"
+        aria-expanded={!isCollapsed}
+        aria-controls={`char-body-${character.id}`}
+        data-state={isCollapsed ? "closed" : "open"}
+        onclick={toggleCollapse}
+      >
+        <span class="collapse-icon" aria-hidden="true">▾</span>
+        <span class="sr-only">{isCollapsed ? "Expandir" : "Colapsar"}</span>
+      </button>
+
       <div class="char-hp-nums">
         <span class="hp-cur" class:is-critical={hpPercent <= 30}
           >{character.hp_current}</span
@@ -400,17 +383,6 @@
         <span class="hp-sep">/</span>
         <span class="hp-max">{character.hp_max}</span>
       </div>
-
-      <button
-        class="collapse-toggle"
-        type="button"
-        aria-expanded={!isCollapsed}
-        aria-controls={`char-body-${character.id}`}
-        onclick={toggleCollapse}
-      >
-        <span class="collapse-icon" aria-hidden="true">▾</span>
-        <span class="sr-only">{isCollapsed ? "Expandir" : "Colapsar"}</span>
-      </button>
     </div>
   </div>
 
@@ -429,32 +401,47 @@
   <div
     class="char-body"
     id={`char-body-${character.id}`}
+    data-state={isVisualCollapsed ? "closed" : "open"}
     bind:this={charBodyEl}
   >
     <!-- Armor Class and Speed (stat block) -->
-    <div class="char-stats">
-      <div class="stat-item">
-        <span class="label-caps">CA</span>
-        <span class="stat-value">{character.armor_class}</span>
+    <Tooltip.Provider delayDuration={300}>
+      <div class="char-stats">
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            <StatDisplay label="CA" value={character.armor_class} variant="inline" />
+          </Tooltip.Trigger>
+          <Tooltip.Content>Clase de Armadura</Tooltip.Content>
+        </Tooltip.Root>
+        <span class="stat-divider">|</span>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            <StatDisplay label="VEL" value="{character.speed_walk}ft" variant="inline" />
+          </Tooltip.Trigger>
+          <Tooltip.Content>Velocidad de movimiento</Tooltip.Content>
+        </Tooltip.Root>
       </div>
-      <span class="stat-divider">|</span>
-      <div class="stat-item">
-        <span class="label-caps">VEL</span>
-        <span class="stat-value">{character.speed_walk}ft</span>
-      </div>
-    </div>
+    </Tooltip.Provider>
 
     <!-- Conditions/status effects (removable with close button) -->
     {#if character.conditions && character.conditions.length > 0}
-      <div class="conditions-row">
-        {#each character.conditions as condition (condition.id)}
-          <button
-            class="condition-pill"
-            onclick={() => removeCondition(condition.id)}
-            >{condition.condition_name} ×</button
-          >
-        {/each}
-      </div>
+      <Tooltip.Provider delayDuration={400}>
+        <div class="conditions-row">
+          {#each character.conditions as condition (condition.id)}
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                <ConditionPill
+                  label={condition.condition_name}
+                  variant="condition"
+                  interactive
+                  onRemove={() => removeCondition(condition.id)}
+                />
+              </Tooltip.Trigger>
+              <Tooltip.Content>Clic para eliminar condición</Tooltip.Content>
+            </Tooltip.Root>
+          {/each}
+        </div>
+      </Tooltip.Provider>
     {/if}
 
     <!-- Resource pools (spell slots, action economy, etc.) with pip UI -->
@@ -482,58 +469,39 @@
       <!-- Short/long rest buttons to restore resources -->
       <fieldset class="rest-buttons">
         <legend class="rest-label">DESCANSOS</legend>
-        <button
-          class="btn-base btn-rest"
+        <Button
+          class="btn-rest"
           onclick={() => takeRest("short")}
-          disabled={isUpdating}>CORTO</button
+          disabled={isUpdating}>CORTO</Button
         >
-        <button
-          class="btn-base btn-rest"
+        <Button
+          class="btn-rest"
           onclick={() => takeRest("long")}
-          disabled={isUpdating}>LARGO</button
+          disabled={isUpdating}>LARGO</Button
         >
       </fieldset>
     {/if}
 
     <!-- HP damage/healing controls -->
     <div class="char-controls">
-      <button
-        class="btn-base btn-damage"
+      <Button
+        class="btn-damage"
         disabled={isUpdating}
         onclick={() => updateHp("damage")}
       >
         − DAÑO
-      </button>
+      </Button>
 
       <!-- Stepper control for adjusting damage/healing amount -->
-      <div class="stepper-cluster">
-        <button
-          class="stepper"
-          onclick={() => (amount = Math.max(1, amount - 1))}
-          aria-label="Reducir"><span class="stepper-text">−</span></button
-        >
-        <input
-          class="amount-input"
-          type="number"
-          bind:value={amount}
-          min="1"
-          max="999"
-          aria-label="Cantidad"
-        />
-        <button
-          class="stepper"
-          onclick={() => (amount = Math.min(999, amount + 1))}
-          aria-label="Aumentar"><span class="stepper-text">+</span></button
-        >
-      </div>
+      <Stepper bind:value={amount} min={1} max={999} size="sm" />
 
-      <button
-        class="btn-base btn-heal"
+      <Button
+        class="btn-heal"
         disabled={isUpdating}
         onclick={() => updateHp("heal")}
       >
         + CURAR
-      </button>
+      </Button>
     </div>
   </div>
 </article>

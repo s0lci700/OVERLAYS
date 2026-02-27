@@ -92,6 +92,11 @@ socket.on("rest_taken", ({ charId, character }) => {
   );
 });
 
+// Remove the character from the list when the server confirms deletion.
+socket.on("character_deleted", ({ charId }) => {
+  characters.update((chars) => chars.filter((c) => c.id !== charId));
+});
+
 // ── Dice ─────────────────────────────────────────────────────
 
 // Keep the last-roll store current so the UI can highlight recent dice activity.

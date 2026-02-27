@@ -121,15 +121,16 @@
 }
 
 .manage-edit-toggle {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border: 2px solid var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-edit-toggle:hover {
-  border-color: var(--grey);
-  color: var(--white);
+  border-color: var(--grey) !important;
+  color: var(--white) !important;
 }
 
 .manage-form {
@@ -158,19 +159,21 @@
   gap: var(--space-1);
 }
 
-.manage-field input {
-  min-height: 44px;
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
-  padding: 0 var(--space-3);
-  background: var(--black-elevated);
-  color: var(--white);
-  font-family: var(--font-ui);
+.manage-field input,
+.manage-field :global([data-slot="input"]) {
+  min-height: 44px !important;
+  border: 1px solid var(--grey-dim) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 var(--space-3) !important;
+  background: var(--black-elevated) !important;
+  color: var(--white) !important;
+  font-family: var(--font-ui) !important;
 }
 
-.manage-field input:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 1px var(--cyan-dim);
+.manage-field input:focus,
+.manage-field :global([data-slot="input"]:focus) {
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 0 1px var(--cyan-dim) !important;
 }
 
 .manage-grid-fields {
@@ -208,34 +211,37 @@
 }
 
 .manage-save-btn {
-  border-color: var(--cyan);
-  background: var(--cyan-dim);
-  color: var(--cyan);
+  border: 2px solid var(--cyan) !important;
+  background: var(--cyan-dim) !important;
+  color: var(--cyan) !important;
   box-shadow: var(--shadow-cyan);
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--neutral {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border: 2px solid var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--neutral:hover {
-  border-color: var(--grey);
-  color: var(--white);
+  border-color: var(--grey) !important;
+  color: var(--white) !important;
 }
 
 .manage-save-btn--outline {
-  border-color: var(--cyan);
-  background: transparent;
-  color: var(--cyan);
+  border: 2px solid var(--cyan) !important;
+  background: transparent !important;
+  color: var(--cyan) !important;
   box-shadow: none;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-save-btn--outline:hover {
-  border-color: var(--cyan);
-  color: var(--white);
+  border-color: var(--cyan) !important;
+  color: var(--white) !important;
 }
 
 .manage-save-btn:disabled {
@@ -314,19 +320,20 @@
 
 /* Toggle button for showing/hiding read-only info */
 .manage-info-toggle {
-  border-color: var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+  border: 2px solid var(--grey-dim) !important;
+  background: transparent !important;
+  color: var(--grey) !important;
   box-shadow: none;
   font-size: 0.7rem;
   padding: 4px 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  border-radius: var(--radius-md) !important;
 }
 
 .manage-info-toggle:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
+  border-color: var(--cyan) !important;
+  color: var(--cyan) !important;
 }
 
 /* Container for read-only data block */
@@ -409,4 +416,46 @@
   font-size: 0.8rem;
   color: var(--white);
   line-height: 1.4;
+}
+
+/* ── Delete ─────────────────────────────────────────────── */
+
+.manage-delete-btn {
+  background: transparent !important;
+  border: 2px solid var(--red) !important;
+  color: var(--red) !important;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-md) !important;
+}
+
+.manage-delete-btn:hover:not(:disabled) {
+  background: var(--red-dim) !important;
+}
+
+/* AlertDialog confirmation panel */
+.delete-confirm-dialog {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.delete-confirm-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--red);
+  letter-spacing: 0.04em;
+}
+
+.delete-confirm-desc {
+  font-size: 0.85rem;
+  color: var(--grey);
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }

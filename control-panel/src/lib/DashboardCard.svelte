@@ -6,6 +6,8 @@
 <script>
   import "./DashboardCard.css";
   import { SERVER_URL } from "./socket";
+  import StatDisplay from "$lib/components/ui/stat-display/stat-display.svelte";
+  import ConditionPill from "$lib/components/ui/condition-pill/condition-pill.svelte";
 
   const FALLBACK_PHOTO_OPTIONS = [
     "/assets/img/barbarian.png",
@@ -122,30 +124,10 @@
       </div>
       <span class="dash-player">Jugador: {formatText(character?.player)}</span>
       <div class="dash-vitals">
-        <div class="dash-vital">
-          <span class="dash-vital-label">HP</span>
-          <span class="dash-vital-value mono-num">
-            {formatHp(character?.hp_current, character?.hp_max)}
-          </span>
-        </div>
-        <div class="dash-vital">
-          <span class="dash-vital-label">Temp</span>
-          <span class="dash-vital-value mono-num">
-            {formatNumber(character?.hp_temp)}
-          </span>
-        </div>
-        <div class="dash-vital">
-          <span class="dash-vital-label">AC</span>
-          <span class="dash-vital-value mono-num">
-            {formatNumber(character?.armor_class)}
-          </span>
-        </div>
-        <div class="dash-vital">
-          <span class="dash-vital-label">Vel</span>
-          <span class="dash-vital-value mono-num">
-            {formatNumber(character?.speed_walk)}
-          </span>
-        </div>
+        <StatDisplay label="HP" value={formatHp(character?.hp_current, character?.hp_max)} variant="inline" />
+        <StatDisplay label="Temp" value={formatNumber(character?.hp_temp)} variant="inline" />
+        <StatDisplay label="AC" value={formatNumber(character?.armor_class)} variant="inline" />
+        <StatDisplay label="Vel" value={formatNumber(character?.speed_walk)} variant="inline" />
       </div>
     </div>
   </header>
@@ -154,12 +136,7 @@
     <h3 class="dash-section-title">ATRIBUTOS</h3>
     <div class="dash-ability-grid">
       {#each abilityList as ability}
-        <div class="dash-ability">
-          <span class="dash-ability-label">{ability.label}</span>
-          <span class="dash-ability-value mono-num">
-            {formatNumber(character?.ability_scores?.[ability.key])}
-          </span>
-        </div>
+        <StatDisplay label={ability.label} value={formatNumber(character?.ability_scores?.[ability.key])} variant="cell" />
       {/each}
     </div>
   </section>
@@ -169,7 +146,7 @@
     {#if Array.isArray(character?.conditions) && character.conditions.length}
       <div class="dash-pill-row">
         {#each character.conditions as condition (condition.id)}
-          <span class="dash-pill">{formatCondition(condition)}</span>
+          <ConditionPill label={formatCondition(condition)} variant="condition" />
         {/each}
       </div>
     {:else}

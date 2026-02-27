@@ -11,9 +11,14 @@
 -->
 <script>
   import "./CharacterCreationForm.css";
+  import "$lib/components/ui/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
-  import Modal from "./Modal.svelte";
+  import * as Dialog from "./components/ui/dialog/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { SelectionPillList } from "$lib/components/ui/selection-pill-list/index.js";
   import { SERVER_URL } from "./socket";
   import characterOptions from "../../../docs/character-options.template.json";
 
@@ -65,6 +70,8 @@
     { label: "Barbarian", value: "/assets/img/barbarian.png" },
     { label: "Elf", value: "/assets/img/elf.png" },
     { label: "Wizard", value: "/assets/img/wizard.png" },
+    { label: "Thiefling", value: "/assets/img/thiefling.png" },
+    { label: "Dwarf", value: "/assets/img/dwarf.png" },
   ];
 
   /**
@@ -336,91 +343,101 @@
               <img src={getResolvedPhotoValue()} alt="Preview foto" />
             </div>
           {/if}
-          {#if showPhotoModal}
-            <Modal>
-              <div
-                class="photo-modal-overlay"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="photo-modal-title"
-              >
-                <div class="photo-modal-card card-base">
-                  <header class="photo-modal-head">
-                    <h3 id="photo-modal-title" class="photo-modal-title">
-                      Seleccionar foto
-                    </h3>
-                    <button
-                      class="photo-modal-close"
-                      type="button"
-                      aria-label="Cerrar"
-                      onclick={() => (showPhotoModal = false)}>✕</button
-                    >
-                  </header>
+          <Dialog.Root bind:open={showPhotoModal}>
+            <Dialog.Content
+              class="photo-modal-card card-base"
+              showCloseButton={false}
+              aria-labelledby="photo-modal-title-create"
+            >
+              <header class="photo-modal-head">
+                <h3 id="photo-modal-title-create" class="photo-modal-title">
+                  Seleccionar foto
+                </h3>
+                <button
+                  class="photo-modal-close"
+                  type="button"
+                  aria-label="Cerrar"
+                  onclick={() => (showPhotoModal = false)}>✕</button
+                >
+              </header>
 
-                  <PhotoSourcePicker
-                    options={AVAILABLE_PHOTOS}
-                    source={photoSource}
-                    presetValue={photo}
-                    urlValue={customPhotoUrl}
-                    localValue={localPhotoDataUrl}
-                    serverUrl={SERVER_URL}
-                    dense={true}
-                    onSourceChange={(value) => (photoSource = value)}
-                    onPresetChange={(value) => (photo = value)}
-                    onUrlChange={(value) => (customPhotoUrl = value)}
-                    onLocalChange={(value) => (localPhotoDataUrl = value)}
-                    onError={handlePhotoPickerError}
-                  />
-                </div>
-              </div>
-            </Modal>
-          {/if}
+              <PhotoSourcePicker
+                options={AVAILABLE_PHOTOS}
+                source={photoSource}
+                presetValue={photo}
+                urlValue={customPhotoUrl}
+                localValue={localPhotoDataUrl}
+                serverUrl={SERVER_URL}
+                dense={true}
+                onSourceChange={(value) => (photoSource = value)}
+                onPresetChange={(value) => (photo = value)}
+                onUrlChange={(value) => (customPhotoUrl = value)}
+                onLocalChange={(value) => (localPhotoDataUrl = value)}
+                onError={handlePhotoPickerError}
+              />
+            </Dialog.Content>
+          </Dialog.Root>
         </div>
         <!-- Required identity fields. Arrange 'Nombre' and 'Jugador' side-by-side -->
         <div class="create-grid create-grid--two identity-group">
-          <label class="create-field">
-            <span class="label-caps">Nombre</span>
-            <input
+          <div class="create-field">
+            <Label for="name-input" class="label-caps">Nombre</Label>
+            <Input
+              id="name-input"
               type="text"
               placeholder="Ej. Valeria"
               bind:value={name}
               maxlength="40"
               required
             />
-          </label>
+          </div>
 
-          <label class="create-field">
-            <span class="label-caps">Jugador</span>
-            <input
+          <div class="create-field">
+            <Label for="player-input" class="label-caps">Jugador</Label>
+            <Input
+              id="player-input"
               type="text"
               placeholder="Ej. Sol"
               bind:value={player}
               maxlength="40"
               required
             />
-          </label>
+          </div>
         </div>
 
         <!-- Core combat stats. -->
         <div class="create-grid stats-grid">
-          <label class="create-field">
-            <span class="label-caps">HP MAX</span>
-            <input
+          <div class="create-field">
+            <Label for="hp-max-input" class="label-caps">HP MAX</Label>
+            <Input
+              id="hp-max-input"
               type="number"
               min="1"
               max="999"
               bind:value={hpMax}
               required
             />
-          </label>
-          <label class="create-field">
-            <span class="label-caps">AC</span>
-            <input type="number" min="0" max="99" bind:value={armorClass} />
-          </label>
-          <label class="create-field">
-            <span class="label-caps">VEL</span>
-            <input type="number" min="0" max="200" bind:value={speedWalk} />
-          </label>
+          </div>
+          <div class="create-field">
+            <Label for="ac-input" class="label-caps">AC</Label>
+            <Input
+              id="ac-input"
+              type="number"
+              min="0"
+              max="99"
+              bind:value={armorClass}
+            />
+          </div>
+          <div class="create-field">
+            <Label for="speed-input" class="label-caps">VEL</Label>
+            <Input
+              id="speed-input"
+              type="number"
+              min="0"
+              max="200"
+              bind:value={speedWalk}
+            />
+          </div>
         </div>
 
         <!-- Section: Character Options (class, background, species, alignment) -->
@@ -455,7 +472,7 @@
             </label>
             <label class="create-field">
               <span class="label-caps">Nivel</span>
-              <input type="number" min="1" max="20" bind:value={classLevel} />
+              <Input type="number" min="1" max="20" bind:value={classLevel} />
             </label>
             <label class="create-field">
               <span class="label-caps">Background</span>
@@ -529,13 +546,7 @@
                 onchange={(v) => (selectedLanguages = v)}
                 size={Math.max(3, Math.min(6, languageOptions.length || 3))}
               />
-              {#if selectedLanguages.length > 0}
-                <div class="selection-pills">
-                  {#each selectedLanguages as key}<span class="selection-pill"
-                      >{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedLanguages} labelMap={labelOf} />
             </div>
             <div class="create-field">
               <span class="label-caps"
@@ -549,13 +560,7 @@
                 onchange={(v) => (selectedRareLanguages = v)}
                 size={Math.max(3, Math.min(6, rareLanguageOptions.length || 3))}
               />
-              {#if selectedRareLanguages.length > 0}
-                <div class="selection-pills">
-                  {#each selectedRareLanguages as key}<span
-                      class="selection-pill">{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedRareLanguages} labelMap={labelOf} />
             </div>
           </div>
           <div class="create-grid create-grid--two">
@@ -571,13 +576,7 @@
                 onchange={(v) => (selectedSkills = v)}
                 size={Math.max(4, Math.min(8, skillOptions.length || 4))}
               />
-              {#if selectedSkills.length > 0}
-                <div class="selection-pills">
-                  {#each selectedSkills as key}<span class="selection-pill"
-                      >{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedSkills} labelMap={labelOf} />
             </div>
             <div class="create-field">
               <span class="label-caps"
@@ -591,13 +590,7 @@
                 onchange={(v) => (selectedTools = v)}
                 size={Math.max(4, Math.min(8, toolOptions.length || 4))}
               />
-              {#if selectedTools.length > 0}
-                <div class="selection-pills">
-                  {#each selectedTools as key}<span class="selection-pill"
-                      >{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedTools} labelMap={labelOf} />
             </div>
           </div>
           <div class="create-grid create-grid--two">
@@ -614,13 +607,7 @@
                 onchange={(v) => (selectedArmorProficiencies = v)}
                 size={Math.max(3, Math.min(6, armorOptions.length || 3))}
               />
-              {#if selectedArmorProficiencies.length > 0}
-                <div class="selection-pills">
-                  {#each selectedArmorProficiencies as key}<span
-                      class="selection-pill">{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedArmorProficiencies} labelMap={labelOf} />
             </div>
             <div class="create-field">
               <span class="label-caps"
@@ -635,13 +622,7 @@
                 onchange={(v) => (selectedWeaponProficiencies = v)}
                 size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
               />
-              {#if selectedWeaponProficiencies.length > 0}
-                <div class="selection-pills">
-                  {#each selectedWeaponProficiencies as key}<span
-                      class="selection-pill">{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedWeaponProficiencies} labelMap={labelOf} />
             </div>
           </div>
         </div>
@@ -663,13 +644,7 @@
                 disabled={itemOptions.length === 0}
                 size={Math.max(3, Math.min(6, itemOptions.length || 3))}
               />
-              {#if selectedItems.length > 0}
-                <div class="selection-pills">
-                  {#each selectedItems as key}<span class="selection-pill"
-                      >{labelOf.get(key) || key}</span
-                    >{/each}
-                </div>
-              {/if}
+              <SelectionPillList items={selectedItems} labelMap={labelOf} />
             </div>
             <label class="create-field">
               <span class="label-caps">Trinket</span>
@@ -696,13 +671,13 @@
     </div>
 
     <!-- Submit button stays disabled until form is valid and not in-flight. -->
-    <button
-      class="create-submit btn-base"
+    <Button
+      class="create-submit"
       type="submit"
       disabled={!isFormValid || isSubmitting}
     >
       {isSubmitting ? "CREANDO..." : "CREAR PERSONAJE"}
-    </button>
+    </Button>
 
     <!-- Inline API feedback for operators during live sessions. -->
     {#if errorMessage}

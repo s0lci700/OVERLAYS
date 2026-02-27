@@ -58,5 +58,13 @@ export default defineConfig(({ mode }) => {
         allow: [path.resolve(__dirname, "..")],
       },
     },
+    // Vitest configuration required by Storybook's addon-vitest (manual setup)
+    test: {
+      globals: true,
+      environment: "jsdom",
+      // Use the existing vitest.setup.js located in .storybook (storybook generator created it)
+      setupFiles: [path.resolve(__dirname, ".storybook/vitest.setup.js")],
+      include: ["src/**/*.test.{js,ts}", "src/**/*.spec.{js,ts}"],
+    },
   };
 });

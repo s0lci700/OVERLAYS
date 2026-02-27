@@ -60,6 +60,10 @@ Phone / Tablet
 - **Closing Servers**: After running server instances remember to always close them properly (Ctrl+C in terminal) to free up ports and avoid conflicts on next run.
 - **Agent reminder**: If you start a server during a task, stop it before you finish the response. This is mandatory for all agents.
 
+# UI development
+
+Before doing any UI, frontend or React development, ALWAYS call the storybook MCP server to get further instructions.
+
 ## Additional references
 
 - The README and CLAUDE.md describe the demo priorities, OBS setup (1920×1080, transparent backgrounds, “refresh when scene becomes active”), and the project’s MVP checklist. Refer to them before updating the overlays or control panel UI.
