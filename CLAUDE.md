@@ -1,155 +1,508 @@
-# DADOS & RISAS - Overlay System
+# DADOS & RISAS — AI Assistant Context
 
-## Project Overview
+> Real-time D&D session management system with OBS overlays.
+> Stack: Node.js/Bun + Express + Socket.io backend · Svelte 5 + SvelteKit frontend · Vanilla JS overlays.
 
-Real-time D&D session management system with OBS overlays for a streaming/recording pitch to ESDH (Hector).
-
-**Pitch deadline:** Email Monday Feb 24 at 8am, Meeting Monday Feb 24
-
-## Goal
-
-Build a working MVP demo proving technical capability to build custom production solutions. Prioritize: working > reliable > fast > beautiful.
+---
 
 ## Architecture
 
 ```
-Server (Node.js + Express + Socket.io) :3000
-  ├── REST API (CRUD operations)
-  ├── WebSocket (real-time broadcasts)
-  └── SQLite (persistence) / in-memory for demo
+Server (Node.js/Bun + Express + Socket.io) :3000
+  ├── REST API (all CRUD operations)
+  ├── WebSocket (real-time broadcasts to all clients)
+  ├── Static file server (public/ → overlays + landing page)
+  └── In-memory state (resets on server restart — no DB)
 
-Control Panel (Svelte + Vite) :5173
+Control Panel (Svelte 5 + SvelteKit + Vite) :5173
   └── Mobile-first, connects to server via Socket.io
 
-OBS Overlays (vanilla HTML/CSS/JS)
-  ├── public/overlay-hp.html       — HP bars (always visible)
-  └── public/overlay-dice.html     — Dice result popup (working ✅)
+OBS Overlays (vanilla HTML/CSS/JS in public/)
+  ├── overlay-hp.html           — HP bars, class badge, AC, conditions
+  ├── overlay-dice.html         — Animated dice result popup (anime.js)
+  └── overlay-conditions.html   — Active conditions + depleted resources
+
+Theme Editor (vanilla HTML in public/)
+  └── theme-editor/index.html   — Live token editor served at /theme-editor/
 ```
 
-## Tech Stack
+All clients connect to the same Socket.io server. Control panel sends REST
+requests; server mutates in-memory state, responds to the caller, and broadcasts
+a Socket.io event to **all** connected clients. Overlays only listen — they
+never send requests.
 
-- **Backend:** Node.js 18+, Express 5.x, Socket.io 4.x, cors
-- **Frontend:** Svelte 5.x, SvelteKit, Vite 7.x, socket.io-client
-- **Overlays:** Vanilla JS/HTML/CSS, socket.io CDN, OBS Browser Source
+---
 
-## Socket.io Events
+## Running the Project
 
-| Event               | Direction     | Payload                                           |
-| ------------------- | ------------- | ------------------------------------------------- |
-| `initialData`       | server→client | `{ characters, rolls }`                           |
-| `hp_updated`        | server→all    | `{ character, hp_current }`                       |
-| `character_created` | server→all    | `{ character }`                                   |
-| `character_updated` | server→all    | `{ character }`                                   |
-| `condition_added`   | server→all    | `{ charId, condition }`                           |
-| `condition_removed` | server→all    | `{ charId, conditionId }`                         |
-| `resource_updated`  | server→all    | `{ charId, resource }`                            |
-| `rest_taken`        | server→all    | `{ charId, type, restored[], character }`         |
-| `dice_rolled`       | server→all    | `{ charId, result, modifier, rollResult, sides }` |
+**Bun is preferred everywhere. `node` also works for the server.**
 
-## API Endpoints
+```bash
+# First time — install deps
+bun install                             # root (server + playwright)
+cd control-panel && bun install         # frontend
 
-- `GET  /api/characters` — return all characters
-- `POST /api/characters` — create a new character, emit `character_created`
-- `PUT  /api/characters/:id` — update character fields, emit `character_updated`
-- `PUT  /api/characters/:id/hp` — update hp_current, emit `hp_updated`
-- `PUT  /api/characters/:id/photo` — update character photo, emit `character_updated`
-- `POST /api/characters/:id/conditions` — add condition, emit `condition_added`
-- `DELETE /api/characters/:id/conditions/:condId` — remove condition, emit `condition_removed`
-- `PUT  /api/characters/:id/resources/:rid` — update resource pool, emit `resource_updated`
-- `POST /api/characters/:id/rest` — apply short/long rest, emit `rest_taken`
-- `POST /api/rolls` — log roll, emit `dice_rolled`
+# Auto-configure LAN IPs (writes root .env + control-panel/.env)
+bun run setup-ip
 
-## In-Memory Demo Characters
+# Start server
+bun server.js                           # port 3000
+# or with IP setup in one command:
+bun run start
 
-```js
-let characters = [
-  { id: "CH101", name: "Kael", player: "Mara", hp_current: 12, hp_max: 12 },
-  { id: "CH102", name: "Lyra", player: "Nico", hp_current: 8, hp_max: 8 },
-  { id: "CH103", name: "Brum", player: "Iris", hp_current: 9, hp_max: 9 },
-];
+# Start control panel
+cd control-panel
+bun run dev -- --host                   # port 5173, exposed to LAN
+# or with IP setup:
+bun run dev:auto
+
+# Storybook (component dev + visual token docs)
+cd control-panel && bun run storybook  # port 6006
+
+# Regenerate CSS from design tokens (after editing design/tokens.json)
+bun run generate:tokens
+
+# E2E tests (server + control panel must already be running)
+bun run test:e2e
+
+# Stress / load tests (k6 must be installed separately)
+bun run stress:api
+bun run stress:cp
+bun run test:full                       # E2E + both stress tests
 ```
 
-## OBS Overlay Setup
+---
 
-- Add Source > Browser > Local File
-- Width: 1920, Height: 1080
-- Disable "Shutdown source when not visible"
-- Enable "Refresh browser when scene becomes active"
-- `body { background: transparent; }` — required for overlay transparency
+## Environment Variables
 
-## MVP Priorities (Demo Only)
+### Root `.env` (generated by `bun run setup-ip`)
 
-- No need for: perfect UI, all 3 overlays, full DB persistence, error handling, Chilean branding, mobile optimization
-- Must have: server running, HP updates from phone, ONE overlay live in OBS, real-time WebSocket sync
+| Key                    | Default                    | Purpose                             |
+| ---------------------- | -------------------------- | ----------------------------------- |
+| `PORT`                 | `3000`                     | Express server port                 |
+| `CONTROL_PANEL_ORIGIN` | `http://localhost:5173`    | CORS origin for the control panel   |
+| `CHARACTERS_TEMPLATE`  | `template-characters`      | Character seed template from `data/`|
 
-## Demo Script
+### `control-panel/.env`
 
-1. Show control panel on phone
-2. Update a character's HP
-3. Show OBS — bar updates in real-time
-4. Roll dice on phone, show result
-5. Close: "Este es solo el MVP, puedo agregar lo que necesiten"
+| Key              | Default                 | Purpose                             |
+| ---------------- | ----------------------- | ----------------------------------- |
+| `VITE_SERVER_URL` | `http://localhost:3000` | Backend URL for the Svelte frontend |
+| `VITE_PORT`      | `5173`                  | Vite dev server port                |
+
+### OBS Overlay URL Parameter
+
+Overlays default to `http://localhost:3000`. For LAN use, append `?server=`:
+
+```
+overlay-hp.html?server=http://192.168.1.83:3000
+```
+
+---
 
 ## Directory Structure
 
 ```
 OVERLAYS/
-├── CLAUDE.md
-├── server.js
-├── package.json
+├── server.js                  — Express app + Socket.io + all API routes
+├── package.json               — root deps (express, socket.io, cors, playwright)
+├── playwright.config.js       — E2E test config (Chromium, ports 3000/5173)
+├── app.test.js                — Playwright E2E tests
+├── jsdoc.json                 — JSDoc config
 ├── .env.example
+│
 ├── data/
-│   ├── characters.js
-│   ├── rolls.js
-│   ├── photos.js
-│   ├── id.js
-│   └── template-characters.json
-├── public/
-│   ├── overlay-hp.html
-│   ├── overlay-hp.css
-│   ├── overlay-dice.html
-│   └── overlay-dice.css
+│   ├── characters.js          — In-memory character state + all CRUD helpers
+│   ├── rolls.js               — Roll history log (getAll, logRoll)
+│   ├── photos.js              — Photo assignment util (random fallback from assets/img/)
+│   ├── id.js                  — 5-char short ID generator (createShortId)
+│   ├── resources.js           — UNUSED: standalone resource experiment
+│   ├── state.js               — UNUSED: snapshot aggregator
+│   ├── template-characters.json — Default character seed data
+│   └── test_characters.js     — Alternate template for testing
+│
+├── design/
+│   └── tokens.json            — CANONICAL design token source (edit this, then generate)
+│
 ├── scripts/
-│   └── setup-ip.js
+│   ├── setup-ip.js            — Auto-detect LAN IP and write .env files
+│   ├── generate-tokens.ts     — Token pipeline: tokens.json → CSS files
+│   └── build-dist.sh / .bat   — Distribution build scripts
+│
+├── public/                    — Served statically at http://localhost:3000/
+│   ├── index.html             — Landing page (dynamically renders OBS URLs)
+│   ├── tokens.css             — GENERATED overlay token subset (do not edit)
+│   ├── overlay-hp.html / .css
+│   ├── overlay-dice.html / .css
+│   ├── overlay-conditions.html
+│   └── theme-editor/
+│       └── index.html         — Live theme editor webtool
+│
+├── assets/
+│   └── img/                   — Fallback character portraits
+│       ├── barbarian.png, dwarf.png, elf.png, thiefling.png, wizard.png
+│
+├── stress/
+│   ├── api.js                 — k6 API load test
+│   └── control-panel.js       — k6 frontend load test
+│
+├── docs/                      — Extended reference docs
+│   ├── ARCHITECTURE.md        — Full file map + data flow diagrams
+│   ├── SOCKET-EVENTS.md       — Complete Socket.io event reference
+│   ├── DESIGN-SYSTEM.md       — CSS tokens, components, conventions
+│   ├── THEMING.md             — Token pipeline + live editor guide
+│   ├── ENVIRONMENT.md         — .env setup + IP config
+│   ├── testing.md             — Playwright + k6 test guide
+│   └── INDEX.md               — Quick doc lookup
+│
 └── control-panel/
+    ├── package.json           — Svelte 5, SvelteKit, Vite 7, Tailwind 4, bits-ui
+    ├── vite.config.js
+    ├── svelte.config.js
+    ├── vitest.config.ts
+    ├── eslint.config.js
+    ├── components.json        — shadcn-svelte config
+    │
+    ├── .storybook/
+    │   ├── main.js
+    │   ├── preview.js         — Imports app.css → all stories pick up tokens
+    │   └── vitest.setup.js
+    │
     └── src/
+        ├── app.css            — shadcn aliases, CSS reset, global utilities
+        ├── generated-tokens.css — GENERATED from design/tokens.json (do not edit)
+        │
         ├── routes/
-        │   ├── +layout.svelte      ← app shell, sidebar, header
-        │   ├── +page.svelte        ← redirects to /control/characters
-        │   ├── control/            ← /control/characters + /control/dice
-        │   ├── management/         ← /management/create + /management/manage
-        │   └── dashboard/          ← /dashboard
-        ├── lib/
-        │   ├── socket.js           ← Socket.io singleton + stores
-        │   ├── dashboardStore.js
-        │   ├── CharacterCard.svelte
-        │   ├── CharacterCreationForm.svelte
-        │   ├── CharacterManagement.svelte
-        │   ├── PhotoSourcePicker.svelte
-        │   ├── DashboardCard.svelte
-        │   └── DiceRoller.svelte
-        └── app.css
+        │   ├── +layout.svelte        — App shell: header, sidebar, bottom nav
+        │   ├── +page.svelte          — Redirects to /control/characters
+        │   ├── control/
+        │   │   ├── +layout.svelte    — Characters / Dice bottom nav
+        │   │   ├── characters/+page.svelte  — HP / conditions / resources
+        │   │   └── dice/+page.svelte        — Dice roller
+        │   ├── management/
+        │   │   ├── +layout.svelte    — Create / Manage bottom nav
+        │   │   ├── create/+page.svelte     — Character creation wizard
+        │   │   └── manage/+page.svelte     — Photo/data edit + bulk controls
+        │   └── dashboard/+page.svelte      — Read-only live dashboard
+        │
+        └── lib/
+            ├── socket.js               — Socket.io singleton + Svelte stores
+            ├── dashboardStore.js        — Activity history, pending queue
+            ├── router.js               — Hash router helpers (App.svelte fallback)
+            ├── CharacterCard.svelte/.css
+            ├── CharacterBulkControls.svelte/.css
+            ├── CharacterCreationForm.svelte/.css
+            ├── CharacterManagement.svelte/.css
+            ├── Dashboard.css
+            ├── DashboardCard.svelte/.css
+            ├── DiceRoller.svelte/.css
+            ├── Modal.svelte
+            ├── MultiSelect.svelte/.css
+            └── PhotoSourcePicker.svelte/.css
 ```
 
-## Common Debug Steps
+---
+
+## API Endpoints
+
+All routes are in `server.js`. State lives in `data/characters.js` and `data/rolls.js`.
+
+| Method   | Path                                     | Action                               | Emits               |
+| -------- | ---------------------------------------- | ------------------------------------ | ------------------- |
+| `GET`    | `/api/characters`                        | Return full character roster         | —                   |
+| `POST`   | `/api/characters`                        | Create character                     | `character_created` |
+| `PUT`    | `/api/characters/:id`                    | Update character fields              | `character_updated` |
+| `DELETE` | `/api/characters/:id`                    | Permanently remove character         | `character_deleted` |
+| `PUT`    | `/api/characters/:id/hp`                 | Update HP (clamped 0–hp_max)         | `hp_updated`        |
+| `PUT`    | `/api/characters/:id/photo`              | Update photo URL/data URI (≤2MB)     | `character_updated` |
+| `POST`   | `/api/characters/:id/conditions`         | Add condition                        | `condition_added`   |
+| `DELETE` | `/api/characters/:id/conditions/:condId` | Remove condition                     | `condition_removed` |
+| `PUT`    | `/api/characters/:id/resources/:rid`     | Update resource pool_current         | `resource_updated`  |
+| `POST`   | `/api/characters/:id/rest`               | Short/long rest (refills resources)  | `rest_taken`        |
+| `POST`   | `/api/rolls`                             | Log dice roll                        | `dice_rolled`       |
+| `GET`    | `/api/info`                              | LAN IP + port for landing page       | —                   |
+| `GET`    | `/api/tokens`                            | design/tokens.json (for theme editor)| —                   |
+
+---
+
+## Socket.io Events
+
+| Event               | Direction     | Key Payload Fields                                                                   |
+| ------------------- | ------------- | ------------------------------------------------------------------------------------ |
+| `initialData`       | server→client | `{ characters, rolls }`                                                              |
+| `hp_updated`        | server→all    | `{ character, hp_current }`                                                          |
+| `character_created` | server→all    | `{ character }`                                                                      |
+| `character_updated` | server→all    | `{ character }`                                                                      |
+| `character_deleted` | server→all    | `{ charId }`                                                                         |
+| `condition_added`   | server→all    | `{ charId, condition }`                                                              |
+| `condition_removed` | server→all    | `{ charId, conditionId }`                                                            |
+| `resource_updated`  | server→all    | `{ charId, resource }`                                                               |
+| `rest_taken`        | server→all    | `{ charId, type, restored[], character }`                                            |
+| `dice_rolled`       | server→all    | `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }`      |
+
+Full payload shapes and listener locations: `docs/SOCKET-EVENTS.md`.
+
+---
+
+## Data Model
+
+### Character
+
+```js
+{
+  id: string,           // 5-char short ID (e.g. "CH101")
+  name: string,
+  player: string,
+  hp_current: number,   // clamped 0–hp_max
+  hp_max: number,
+  hp_temp: number,      // temporary HP (default 0)
+  armor_class: number,
+  speed_walk: number,   // feet
+  class_primary: { name, level, subclass },
+  background: { name, feat, skill_proficiencies[], tool_proficiency },
+  species: { name, size, speed_walk, traits[] },
+  languages: string[],
+  alignment: string,
+  proficiencies: { skills[], saving_throws[], armor[], weapons[], tools[] },
+  equipment: { items[], coins: { gp, sp, cp }, trinket },
+  ability_scores: { str, dex, con, int, wis, cha },  // all default to 10
+  conditions: Condition[],
+  resources: Resource[],
+  photo: string,        // URL or base64 data URI; auto-assigned from assets/img/ if empty
+}
+```
+
+### Condition
+
+```js
+{ id, condition_name, intensity_level, applied_at }
+// id: 5-char alphanumeric; intensity_level defaults to 1
+```
+
+### Resource
+
+```js
+{ id, name, pool_max, pool_current, recharge }
+// recharge: "SHORT_REST" | "LONG_REST" | "TURN" | "DM"
+```
+
+### Roll Record
+
+```js
+{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }
+```
+
+---
+
+## Character Templates
+
+The server seeds characters from a template file at startup. Swap templates via `.env`:
+
+```
+CHARACTERS_TEMPLATE=test_characters      # loads data/test_characters.js
+CHARACTERS_TEMPLATE=template-characters  # default (data/template-characters.json)
+```
+
+Templates must export/be an array of character objects. Loaded by
+`data/characters.js:loadCharacterTemplate()`.
+
+---
+
+## Design Token Pipeline
+
+**Single source of truth: `design/tokens.json`**
+
+```
+design/tokens.json
+    ↓  bun run generate:tokens
+    ├── control-panel/src/generated-tokens.css   (full token set — Svelte + Storybook)
+    └── public/tokens.css                        (overlay subset — OBS HTML files)
+```
+
+- **Edit tokens:** modify `design/tokens.json`, then run `bun run generate:tokens`.
+- **Never edit** `generated-tokens.css` or `public/tokens.css` by hand — they are
+  overwritten and start with `/* GENERATED — do not edit by hand */`.
+- `app.css` imports `generated-tokens.css`; Storybook picks up changes automatically.
+- Token groups: `colors`, `hp`, `typography`, `spacing`, `radii`, `shadows`, `motion`,
+  `alpha`, `zIndex`, `overlayGradients`.
+
+### Live Theme Editor
+
+Served at `http://localhost:3000/theme-editor/` (source: `public/theme-editor/index.html`).
+Loads tokens from `/api/tokens`, supports real-time in-browser editing and export as
+JSON or CSS overrides.
+
+---
+
+## CSS Conventions
+
+- **State modifier prefix:** `is-` for all boolean state classes (e.g. `.is-critical`,
+  `.is-selected`, `.is-crit`, `.is-fail`). Known exception: `.char-card.collapsed`
+  (should be `.is-collapsed` — tracked issue).
+- **Shared base classes** in `app.css`: `.card-base`, `.btn-base`, `.label-caps`,
+  `.selector`, `.selection-pills`, `.characters-grid`, `.app-sidebar`.
+- **Separate CSS files per component** (e.g. `CharacterCard.css`) — avoids Svelte scoped
+  style limitations when applying dynamically toggled classes.
+- **Focus-visible:** `outline: 2px solid var(--cyan); outline-offset: 2px` on all
+  interactive elements.
+- **Token usage:** always reference `var(--token-name)` — never hardcode colors or
+  spacing values that have a token.
+
+### HP Health-State Thresholds
+
+| State      | Threshold    | Color token      |
+| ---------- | ------------ | ---------------- |
+| healthy    | > 50% HP     | `--hp-healthy`   |
+| injured    | 25–50% HP    | `--hp-injured`   |
+| `.is-critical` | < 25% HP | `--hp-critical` |
+
+---
+
+## Svelte Conventions
+
+- **Svelte 5 runes** throughout: `$state`, `$derived`, `$effect`. Do not use legacy
+  `$:` reactive declarations.
+- **Socket.io singleton** at `lib/socket.js`: exports `socket`, `characters` (writable
+  store), `lastRoll` (writable store), `SERVER_URL`. Import from here — never
+  instantiate a second socket connection.
+- **SvelteKit file-based routing** — all routes under `src/routes/`. Layouts nest via
+  `+layout.svelte`.
+- **shadcn-svelte** components (`bits-ui`, `formsnap`, `sveltekit-superforms`) provide
+  accessible UI primitives. Config in `components.json`.
+
+---
+
+## Testing
+
+### Playwright E2E
+
+```bash
+# Requires: server on :3000, control-panel on :5173
+bun run test:e2e
+```
+
+- Config: `playwright.config.js` (root)
+- Tests: `app.test.js` (root)
+- Covers: character list, HP update flow, dice rolling, socket connection, overlay HTML files
+- Screenshots on failure → `test-*.png`; traces → `test-results/`
+
+Override base URLs:
+```bash
+PLAYWRIGHT_BASE_URL=http://192.168.x.x:3000 PLAYWRIGHT_CP_URL=http://192.168.x.x:5173 bun run test:e2e
+```
+
+### k6 Stress Tests
+
+k6 must be installed separately. Results → `stress-results/*.json`.
+
+| Script              | Endpoints covered                                      | Max VUs |
+| ------------------- | ------------------------------------------------------ | ------- |
+| `stress/api.js`     | GET /api/characters, PUT hp, POST rolls                | 20      |
+| `stress/control-panel.js` | GET /, GET /control/characters                   | 10      |
+
+Thresholds: p95 < 500–600 ms (API), p95 < 1000 ms (control panel), error rate < 5%.
+
+### Vitest (Storybook component tests)
+
+```bash
+cd control-panel && bun run test
+```
+
+Config: `control-panel/vitest.config.ts`.
+
+### CI (GitHub Actions)
+
+Workflow: `.github/workflows/full-test-and-stress.yml`
+- Triggers: push to `main` or `copilot/**`, PRs to `main`, manual dispatch
+- Steps: Bun setup → install deps → Playwright browsers → k6 binary → start services →
+  E2E → k6 stress
+- Artifacts retained 7 days: `playwright-results`, `stress-results`
+
+---
+
+## OBS Overlay Setup
+
+1. Add Source > Browser > Local File (or network URL `http://IP:3000/overlay-*.html`)
+2. Width: 1920, Height: 1080
+3. Disable "Shutdown source when not visible"
+4. Enable "Refresh browser when scene becomes active"
+5. `body { background: transparent; }` is already in overlay CSS — required for transparency
+
+**Recommended for demos:** use network URLs so OBS connects over LAN without filesystem access.
+
+---
+
+## Data Flows
+
+### HP Update
+
+```
+CharacterCard → PUT /api/characters/:id/hp
+  → server clamps HP → io.emit("hp_updated")
+  → socket.js updates characters store → CharacterCard re-renders
+  → overlay-hp.html updateCharacterHP() → bar width + color transition
+  → dashboardStore logs to activity history
+```
+
+### Dice Roll
+
+```
+DiceRoller → Math.random() → POST /api/rolls
+  → server logRoll() → io.emit("dice_rolled")
+  → socket.js sets lastRoll store → DiceRoller shows result with animation
+  → overlay-dice.html showRoll() → anime.js card + bounce + 4s auto-hide
+  → dashboardStore logs to activity history
+```
+
+---
+
+## Key Reminders
+
+- **Bun is the runtime.** Use `bun` commands. The server also runs with `node`.
+- **All state is in-memory.** Restarting the server resets all characters and rolls.
+- **Socket.io CDN** in overlay HTML files:
+  `<script src="https://cdn.socket.io/4.x.x/socket.io.min.js">`
+- **`data-char-id` attributes** on HP bar elements for easy DOM targeting in overlays.
+- **`data/resources.js` and `data/state.js`** are unused — do not wire to them.
+- **`public/tokens.css`** and **`control-panel/src/generated-tokens.css`** are generated
+  files. Commit them alongside `design/tokens.json` after any token change.
+- **Photo limit:** `PUT /api/characters/:id/photo` enforces a 2MB payload cap.
+- **Condition ID format:** 5-char alphanumeric, validated with `/^[A-Z0-9]{5}$/i`.
+- **HP clamping:** `data/characters.js:updateHp()` clamps to `[0, hp_max]` automatically.
+
+---
+
+## Debug Checklist
 
 1. Check server terminal output
 2. Browser console F12
 3. Network tab > WS for WebSocket frames
 4. Test API directly: `curl http://localhost:3000/api/characters`
 5. OBS: right-click Browser Source > Interact > console errors
+6. Check `VITE_SERVER_URL` in `control-panel/.env` matches server IP/port
+7. Connection dot in header: green = connected, red/grey = disconnected
 
-## Key Reminders
+---
 
-- Socket.io client in overlays uses CDN: `<script src="https://cdn.socket.io/4.x.x/socket.io.min.js">`
-- Use `data-char-id` attributes on HP bar elements for easy DOM targeting
-- For phone testing: use `--host` flag with Vite, connect to server IP not localhost
-- PRAGMA foreign_keys=ON if using SQLite
+## Known Open Issues
 
-## Running the Project
+| Priority | Issue | Location |
+| -------- | ----- | -------- |
+| P1 | Modal has no focus trap — tab key escapes the dialog | `Modal.svelte` |
+| P2 | anime.js imported via two different paths | `CharacterCard.svelte` vs `DiceRoller.svelte` |
+| P2 | `.char-card.collapsed` should be `.is-collapsed` | `CharacterCard.css` |
 
-- Install deps (first time): `npm install` in root, then `npm install` in `control-panel/`
-- Server: `node server.js` (port 3000)
-- Control panel: `npm run dev -- --host` from `control-panel/` (port 5173)
-- Auto-configure IPs: `npm run setup-ip` (writes root `.env` and `control-panel/.env`)
-- Both overlays: `public/overlay-hp.html`, `public/overlay-dice.html`
+---
+
+## Extended Documentation
+
+| File | Contents |
+| ---- | -------- |
+| `docs/ARCHITECTURE.md` | Full file map + ASCII data flow diagrams |
+| `docs/SOCKET-EVENTS.md` | Complete Socket.io event reference with full payload types |
+| `docs/DESIGN-SYSTEM.md` | All CSS tokens, component inventory, animation catalogue |
+| `docs/THEMING.md` | Token pipeline, generator script, live theme editor guide |
+| `docs/ENVIRONMENT.md` | .env keys, IP setup, overlay URL parameters |
+| `docs/testing.md` | Playwright + k6 full guide with CI workflow details |
+| `docs/API-STRUCTURE.md` | API endpoint details |
+| `docs/INDEX.md` | Quick lookup index across all docs |
