@@ -318,9 +318,12 @@
   }
 
   // ── Build :root{} override block ─────────────────────────────────
+  // Sanitize values to prevent CSS injection (strip { and } breakout chars).
+  function sanitizeCSSValue(v) { return String(v).replace(/[{}]/g, ""); }
+
   function buildStyleBlock() {
     const rules = Object.entries({ ...canonicalTokens._flat, ...overrides })
-      .map(([k, v]) => `  ${k}: ${v};`)
+      .map(([k, v]) => `  ${k}: ${sanitizeCSSValue(v)};`)
       .join("\n");
     return `:root {\n${rules}\n}`;
   }
@@ -414,6 +417,7 @@
           colorPicker.type = "color";
           colorPicker.value = toHex(overrides[tokenName] ?? entry.value);
           colorPicker.title = tokenName;
+          colorPicker.dataset.token = tokenName;
           colorPicker.addEventListener("input", () => {
             input.value = colorPicker.value;
             overrides[tokenName] = colorPicker.value;
@@ -497,10 +501,10 @@
       const tok = input.dataset.token;
       input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
     });
-    // Refresh color pickers linked to the same tokens
-    document.querySelectorAll('input[type="color"][data-token]').forEach(input => {
-      const tok = input.dataset.token;
-      input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
+    // Refresh linked color pickers
+    document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
+      const tok = picker.dataset.token;
+      picker.value = toHex(overrides[tok] ?? canonicalTokens._flat[tok] ?? "");
     });
     applyToPreview();
   }
@@ -545,6 +549,10 @@
           const tok = input.dataset.token;
           if (overrides[tok] !== undefined) input.value = overrides[tok];
         });
+        document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
+          const tok = picker.dataset.token;
+          if (overrides[tok] !== undefined) picker.value = toHex(overrides[tok]);
+        });
         applyToPreview();
         setStatus("✓ Theme imported", "ok");
       } catch {
@@ -572,6 +580,10 @@
     document.querySelectorAll(".token-input").forEach(input => {
       const tok = input.dataset.token;
       input.value = canonicalTokens._flat[tok] ?? "";
+    });
+    document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
+      const tok = picker.dataset.token;
+      picker.value = toHex(canonicalTokens._flat[tok] ?? "");
     });
     applyToPreview();
     setStatus("Reset to defaults", "ok");

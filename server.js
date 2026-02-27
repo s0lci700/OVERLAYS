@@ -18,7 +18,7 @@ const CONTROL_PANEL_ORIGIN =
 const characterModule = require("./data/characters");
 const rollsModule = require("./data/rolls");
 
-// Cache design tokens at startup so /api/tokens never blocks the event loop.
+// Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
 const fs = require("fs");
 let cachedTokens = null;
 try {

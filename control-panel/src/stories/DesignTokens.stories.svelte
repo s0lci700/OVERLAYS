@@ -79,10 +79,24 @@
         {/each}
       </div>
     </section>
+    <section style="margin-bottom: 32px;">
+      <h3 style="font-size: 11px; letter-spacing: .1em; color: var(--grey, #888); text-transform: uppercase; margin-bottom: 12px;">Overlay Gradients</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        {#each [
+          ["--gradient-healthy",  "linear-gradient(90deg, #15803d, #22c55e)", "Healthy"],
+          ["--gradient-injured",  "linear-gradient(90deg, #b45309, #f59e0b)", "Injured"],
+          ["--gradient-critical", "linear-gradient(90deg, #991b1b, #ff4d6a)", "Critical"],
+        ] as [name, fallback, label]}
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 120px;">
+            <div style="width: 112px; height: 24px; border-radius: 4px; background: var({name}, {fallback}); border: 1px solid #333;"></div>
+            <span style="font-size: 10px; color: var(--grey, #888); text-align: center; word-break: break-all;">{name}</span>
+            <span style="font-size: 10px; color: #555;">{label}</span>
+          </div>
+        {/each}
+      </div>
+    </section>
   </div>
 </Story>
-
-<!-- ── Typography ────────────────────────────────────────────────── -->
 <Story name="Typography">
   <div style="font-family: var(--font-ui, system-ui); padding: 24px; background: var(--black, #000); color: var(--white, #fff); min-height: 100vh;">
     <h2 style="font-family: var(--font-display, sans-serif); color: var(--cyan, #00d4e8); letter-spacing: .06em; margin-bottom: 24px;">TYPOGRAPHY</h2>
@@ -217,6 +231,7 @@
       ["Motion",     [["--t-fast","150ms ease"],["--t-normal","250ms ease"],["--t-spring","280ms cubic-bezier(0.34,1.56,0.64,1)"]]],
       ["Alpha",      [["--alpha-subtle","0.04"],["--alpha-dim","0.12"],["--alpha-medium","0.35"],["--alpha-overlay","0.65"],["--alpha-solid","0.88"]]],
       ["Z-Index",    [["--z-sidebar-backdrop","30"],["--z-sidebar","40"],["--z-nav","50"],["--z-modal-backdrop","60"],["--z-modal","70"]]],
+      ["Overlay Gradients", [["--gradient-healthy","linear-gradient(90deg, #15803d, #22c55e)"],["--gradient-injured","linear-gradient(90deg, #b45309, #f59e0b)"],["--gradient-critical","linear-gradient(90deg, #991b1b, #ff4d6a)"]]],
     ] as [groupName, entries]}
       <div style="margin-bottom: 20px;">
         <div style="font-size: 10px; letter-spacing: .1em; color: var(--grey, #888); text-transform: uppercase; border-bottom: 1px solid #222; padding-bottom: 4px; margin-bottom: 8px;">{groupName}</div>
