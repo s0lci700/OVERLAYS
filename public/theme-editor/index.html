@@ -318,8 +318,8 @@
   }
 
   // ── Build :root{} override block ─────────────────────────────────
-  // Sanitize values to prevent CSS injection (strip { and } breakout chars).
-  function sanitizeCSSValue(v) { return String(v).replace(/[{}]/g, ""); }
+  // Sanitize values to prevent CSS injection (strip {}, ; and newlines that could break out of the property declaration).
+  function sanitizeCSSValue(v) { return String(v).replace(/[{};\n\r]/g, ""); }
 
   function buildStyleBlock() {
     const rules = Object.entries({ ...canonicalTokens._flat, ...overrides })
@@ -501,7 +501,7 @@
       const tok = input.dataset.token;
       input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
     });
-    // Refresh linked color pickers
+    // Refresh color pickers linked to the same tokens
     document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
       const tok = picker.dataset.token;
       picker.value = toHex(overrides[tok] ?? canonicalTokens._flat[tok] ?? "");
