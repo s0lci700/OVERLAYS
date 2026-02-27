@@ -33,14 +33,14 @@
   --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* Body text, form elements */
   --space-half: 2px; /* Half-step for tight layouts */
   --space-1: 4px; /* 4px base unit */
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
+  --space-2: 8px; /* 2x base spacing — tight gaps between related items */
+  --space-3: 12px; /* 3x base spacing — default inline spacing between controls */
+  --space-4: 16px; /* 4x base spacing — default block spacing between components */
+  --space-5: 20px; /* 5x base spacing — roomy gaps for section padding (compact) */
+  --space-6: 24px; /* 6x base spacing — roomy gaps for section padding (comfortable) */
+  --space-8: 32px; /* 8x base spacing — large layout separation */
+  --space-10: 40px; /* 10x base spacing — extra-large layout separation */
+  --space-12: 48px; /* 12x base spacing — maximum gutters and outer page padding */
   --radius-sm: 4px; /* Small — buttons, tags */
   --radius-md: 8px; /* Medium — cards, inputs */
   --radius-lg: 12px; /* Large — modals, panels */
