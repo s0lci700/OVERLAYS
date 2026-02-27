@@ -20,6 +20,58 @@
  *      → use as NOTION_PARENT_PAGE_ID
  */
 
+async function searchPagesByQuery(query) {
+  const res = await notionFetch("POST", "/search", {
+    query,
+    filter: { property: "object", value: "page" },
+    page_size: 100,
+  });
+  return res.results || [];
+}
+
+function getPageTitle(page) {
+  const props = page.properties || {};
+  // matches how createPage sets properties.title
+  const titleProp = Object.values(props).find((p) => Array.isArray(p.title));
+  if (!titleProp) return "";
+  const titleArr = titleProp.title || [];
+  return (titleArr[0] && (titleArr[0].plain_text || (titleArr[0].text && titleArr[0].text.content))) || "";
+}
+
+async function findPageUnderParentByTitle(parentId, title) {
+  const results = await searchPagesByQuery(title);
+  for (const p of results) {
+    const parent = p.parent || {};
+    if ((parent.type === "page_id" || parent.type === "page_id") && parent.page_id === parentId) {
+      const foundTitle = getPageTitle(p);
+      if (foundTitle.trim() === title.trim()) return p; // return whole page object
+    }
+  }
+  return null;
+}
+
+async function archiveAllChildrenOfPage(pageId) {
+  // list children (page through pagination if needed)
+  let cursor = undefined;
+  do {
+    const query = `/blocks/${pageId}/children?page_size=100${cursor ? `&start_cursor=${cursor}` : ""}`;
+    const res = await notionFetch("GET", query);
+    const children = res.results || [];
+    for (const c of children) {
+      // archive each child block — Notion supports "archived" on blocks/pages
+      try {
+        await notionFetch("PATCH", `/blocks/${c.id}`, { archived: true });
+      } catch (err) {
+        // safe-guard: if archiving blocks fails on some block types, ignore to avoid aborting whole export
+        console.warn(`Warning: failed to archive child ${c.id}: ${err.message}`);
+      }
+    }
+    cursor = res.has_more ? res.next_cursor : undefined;
+  } while (cursor);
+  // small wait to let Notion settle
+  await sleep(300);
+}
+
 "use strict";
 
 const fs = require("fs");
@@ -329,41 +381,38 @@ function parseMarkdown(md) {
 async function main() {
   console.log("🎲  DADOS & RISAS → Notion export\n");
 
-  // Create root page
+  // create or find root
+let rootPage = await findPageUnderParentByTitle(PARENT_ID, "DADOS & RISAS Docs");
+let rootId;
+if (rootPage) {
+  rootId = rootPage.id;
+  console.log(`✓  Reusing root (id: ${rootId})`);
+} else {
   process.stdout.write('Creating root page "DADOS & RISAS Docs"... ');
-  const rootId = await createPage(PARENT_ID, "DADOS & RISAS Docs", "🎲");
+  rootId = await createPage(PARENT_ID, "DADOS & RISAS Docs", "🎲");
   console.log(`✓  (id: ${rootId})\n`);
-  await sleep(400);
+}
+await sleep(400);
 
-  let exported = 0;
-  let skipped = 0;
-
-  for (const doc of DOCS) {
-    const filePath = path.join(ROOT, doc.file);
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ⚠  Skipping ${doc.file} — file not found`);
-      skipped++;
-      continue;
-    }
-
-    process.stdout.write(`  Exporting ${doc.file}... `);
-    const content = fs.readFileSync(filePath, "utf-8");
-    const blocks = parseMarkdown(content);
-
-    // Create sub-page under the root
-    const pageId = await createPage(rootId, doc.title, doc.emoji);
-    await sleep(400);
-
-    // Append all blocks (batched)
-    await appendBlocks(pageId, blocks);
-    console.log(`✓  ${blocks.length} blocks`);
-
-    exported++;
-    await sleep(400);
+for (const doc of DOCS) {
+  // find existing page under root
+  const existing = await findPageUnderParentByTitle(rootId, doc.title);
+  let pageId;
+  if (existing) {
+    pageId = existing.id;
+    process.stdout.write(`  Updating ${doc.file} (reusing page)... `);
+    // archive existing children so we don't append duplicates
+    await archiveAllChildrenOfPage(pageId);
+  } else {
+    process.stdout.write(`  Creating ${doc.file}... `);
+    pageId = await createPage(rootId, doc.title, doc.emoji);
   }
-
-  console.log(`\n✅  Done — ${exported} pages exported${skipped ? `, ${skipped} skipped` : ""}.`);
-  console.log('   Open Notion and look for "DADOS & RISAS Docs" under your parent page.\n');
+  await sleep(400);
+  const content = fs.readFileSync(path.join(ROOT, doc.file), "utf-8");
+  const blocks = parseMarkdown(content);
+  await appendBlocks(pageId, blocks);
+  console.log(`✓  ${blocks.length} blocks`);
+  await sleep(400);
 }
 
 main().catch((err) => {
