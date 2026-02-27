@@ -131,8 +131,13 @@ function richText(text) {
       // `code`
       result.push({ type: "text", text: { content: m[6] }, annotations: { code: true } });
     } else if (m[7]) {
-      // [link](url)
-      result.push({ type: "text", text: { content: m[7], link: { url: m[8] } } });
+      // [link](url) — Notion only accepts absolute http(s) URLs; skip relative/anchor links
+      const url = m[8];
+      const isAbsolute = /^https?:\/\//i.test(url);
+      result.push({
+        type: "text",
+        text: isAbsolute ? { content: m[7], link: { url } } : { content: m[7] },
+      });
     }
     last = m.index + m[0].length;
   }
