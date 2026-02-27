@@ -1,0 +1,26 @@
+name: Export Docs to Notion
+
+on:
+  workflow_dispatch:   # manual trigger — one tap from GitHub mobile
+
+jobs:
+  export:
+    name: Export to Notion
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run export script
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PARENT_PAGE_ID: ${{ secrets.NOTION_PARENT_PAGE_ID }}
+        run: bun run export:notion
