@@ -284,7 +284,7 @@
 
   const SERVER = (() => {
     const params = new URLSearchParams(location.search);
-    return params.get("server") || `${location.protocol}//${location.hostname}:3000`;
+    return params.get("server") || location.origin;
   })();
 
   // ── Helpers ──────────────────────────────────────────────────────
