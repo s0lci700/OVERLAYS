@@ -131,8 +131,14 @@ function richText(text) {
       // `code`
       result.push({ type: "text", text: { content: m[6] }, annotations: { code: true } });
     } else if (m[7]) {
-      // [link](url)
-      result.push({ type: "text", text: { content: m[7], link: { url: m[8] } } });
+      // [link](url) — only attach a link when the URL is absolute; otherwise render as plain text
+      const url = m[8];
+      const isAbsolute = /^https?:\/\//i.test(url);
+      if (isAbsolute) {
+        result.push({ type: "text", text: { content: m[7], link: { url } } });
+      } else {
+        result.push({ type: "text", text: { content: m[7] } });
+      }
     }
     last = m.index + m[0].length;
   }
