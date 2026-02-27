@@ -492,8 +492,13 @@
     document.querySelectorAll(".theme-chip").forEach(c => c.classList.remove("active"));
     chipEl?.classList.add("active");
     overrides = { ...(savedThemes[name] || {}) };
-    // Refresh inputs
+    // Refresh text inputs
     document.querySelectorAll(".token-input").forEach(input => {
+      const tok = input.dataset.token;
+      input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
+    });
+    // Refresh color pickers linked to the same tokens
+    document.querySelectorAll('input[type="color"][data-token]').forEach(input => {
       const tok = input.dataset.token;
       input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
     });
