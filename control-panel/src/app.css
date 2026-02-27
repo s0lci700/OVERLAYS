@@ -5,7 +5,7 @@
  * bases, and the app shell layout for the Svelte control panel.
  *
  * Sections:
- *   1. DESIGN TOKENS     — Color palette, fonts, spacing, radii, transitions
+ *   1. DESIGN TOKENS     — imported from generated-tokens.css (source: design/tokens.json)
  *   2. CSS RESET          — Box-model normalization, body defaults, scrollbars
  *   3. TYPOGRAPHY UTILS   — .font-display, .label-caps, .mono-num, .sr-only
  *   4. SHARED BASES       — .card-base, .btn-base (reused by CharacterCard, DiceRoller)
@@ -31,81 +31,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Generated design tokens — source of truth is design/tokens.json */
+@import "./generated-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS (shadcn-svelte semantic aliases only)
+   Raw brand tokens are in generated-tokens.css above.
    ═══════════════════════════════════════════════════ */
 :root {
-  /* Core neutrals: base canvas and elevated surfaces. */
-  --black: #000000;
-  --black-card: #0d0d0d;
-  --black-elevated: #1a1a1a;
-  --white: #ffffff;
-  --grey: #888888;
-  --grey-dim: #333333;
-  /* Brand accents: match overlay/control-panel semantics. */
-  --red: #ff4d6a;
-  --red-dim: rgba(255, 77, 106, 0.12);
-  --cyan: #00d4e8;
-  --cyan-dim: rgba(0, 212, 232, 0.12);
-  --purple: #500df5;
-  --purple-dim: rgba(80, 13, 245, 0.12);
-  /* HP thresholds (used in CharacterCard + overlays). */
-  --hp-healthy: #22c55e;
-  --hp-injured: #f59e0b;
-  --hp-critical: #ff4d6a;
-  /* Dim / start colors for HP gradients (used as gradient start stop) */
-  --hp-healthy-dim: #15803d;
-  --hp-injured-dim: #b45309;
-  --hp-critical-dim: #991b1b;
-  /* Mid-opacity purple for borders */
-  --purple-mid: rgba(80, 13, 245, 0.5);
-  /* Half-step spacing for tight layouts */
-  --space-half: 2px;
-  /* Drop shadows preserve the pixel/retro accent style. */
-  --shadow-card: 4px 4px 0px rgba(255, 255, 255, 0.05);
-  --shadow-red: 3px 3px 0px #ff4d6a;
-  --shadow-cyan: 3px 3px 0px #00d4e8;
-  --shadow-purple: 4px 4px 0px #500df5;
-  /* Font families align with the control panel brand. */
-  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif;
-  --font-script: "Dancing Script", cursive;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
-  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Spacing scale: 4px base for consistent rhythm. */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  /* Radii for cards, controls, and pill badges. */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-pill: 999px;
-  /* Z-index scale: documented layer order. */
-  --z-sidebar-backdrop: 30;
-  --z-sidebar: 40;
-  --z-nav: 50;
-  --z-modal-backdrop: 60;
-  --z-modal: 70;
-  /* Opacity tokens for consistent translucency across UI. */
-  --alpha-subtle: 0.04;
-  --alpha-dim: 0.12;
-  --alpha-medium: 0.35;
-  --alpha-overlay: 0.65;
-  --alpha-solid: 0.88;
-  /* Motion presets to keep animations consistent. */
-  --t-fast: 150ms ease;
-  --t-normal: 250ms ease;
-  --t-spring: 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
   /* shadcn-svelte semantic aliases — point back to existing tokens */
   --background: var(--black);
   --foreground: var(--white);

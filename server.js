@@ -18,6 +18,17 @@ const CONTROL_PANEL_ORIGIN =
 const characterModule = require("./data/characters");
 const rollsModule = require("./data/rolls");
 
+// Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
+const fs = require("fs");
+let cachedTokens = null;
+try {
+  cachedTokens = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "design", "tokens.json"), "utf-8"),
+  );
+} catch (err) {
+  console.warn("⚠️  Could not preload design/tokens.json:", err.message);
+}
+
 function getMainIP() {
   const interfaces = os.networkInterfaces();
   for (const [, addresses] of Object.entries(interfaces)) {
@@ -94,6 +105,23 @@ app.use(express.static(path.join(__dirname, "public")));
 // can dynamically render correct URLs for OBS setup and the control panel.
 app.get("/api/info", (req, res) => {
   res.json({ ip: getMainIP(), port: PORT });
+});
+
+// Returns the canonical design tokens JSON from design/tokens.json.
+// Consumed by the live theme editor webtool at /theme-editor/index.html.
+app.get("/api/tokens", (req, res) => {
+  if (cachedTokens) return res.json(cachedTokens);
+  // Fallback: try a fresh read if startup load failed.
+  try {
+    cachedTokens = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "design", "tokens.json"), "utf-8"),
+    );
+    res.json(cachedTokens);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Could not read design tokens.", details: err.message });
+  }
 });
 
 // ── Characters ──────────────────────────────────────────────

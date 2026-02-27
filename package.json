@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "setup-ip": "bun scripts/setup-ip.js",
+    "generate:tokens": "bun scripts/generate-tokens.ts",
     "start": "bun scripts/setup-ip.js && bun server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "bunx playwright test",
