@@ -1,0 +1,87 @@
+/*
+  Shared modal styles (consolidated)
+  - Used for PhotoSourcePicker and other custom modals where Tailwind
+    utility classes aren't used inline. Keeps overlay/card visuals together
+    under `components/ui/modal`.
+*/
+.photo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  width: 100%;
+  padding: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: calc(var(--space-4) + 8px);
+  -webkit-overflow-scrolling: touch;
+}
+
+.photo-modal-card {
+  background: var(--black-elevated);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-cyan);
+  max-width: min(720px, 90vw);
+  width: auto;
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  position: relative;
+  border: 1px solid rgba(0, 212, 232, 0.06);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 0 2px rgba(0, 212, 232, 0.03) inset;
+  inset: 0;
+}
+.photo-modal-head {
+  grid-column: 1 / -1;
+  display: block;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  position: relative;
+}
+.photo-modal-title {
+  font-family: var(--font-display);
+  color: var(--cyan);
+  font-size: 1.1rem;
+}
+.photo-modal-close {
+  position: absolute;
+  right: 0%;
+  top: -25%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--grey);
+  font-size: 1rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.photo-preview-inline {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+.photo-preview-inline img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--grey-dim);
+}
+
+/* Ensure dialog content is centered in case other styles override positioning */
+/* Avoid forcing positioning on dialog primitive; the Dialog.Content
+   component already centers itself. Removing the global override prevents
+   layout conflicts that made the modal appear offset in some viewports. */

@@ -14,11 +14,7 @@
 </script>
 
 <script>
-  let {
-    items = [],
-    labelMap = undefined,
-    class: className,
-  } = $props();
+  let { items = [], labelMap = undefined, class: className } = $props();
 
   function resolveLabel(key) {
     if (labelMap instanceof Map) return labelMap.get(key) ?? key;
@@ -30,7 +26,11 @@
 {#if items.length > 0}
   <div class={cn("flex flex-wrap gap-1 mt-1", className)}>
     {#each items as key (key)}
-      <ConditionPill label={resolveLabel(key)} variant="tag" />
+      <ConditionPill
+        label={resolveLabel(key)}
+        variant="tag"
+        class="selection-pill"
+      />
     {/each}
   </div>
 {/if}

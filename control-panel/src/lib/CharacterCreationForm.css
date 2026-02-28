@@ -225,7 +225,6 @@
 /* Input baseline styles aligned with panel dark theme. */
 .create-field input,
 .create-field :global([data-slot="input"]) {
-  /* max-width: 1fr; */
   min-height: 44px !important;
   border: 1px solid var(--grey-dim) !important;
   border-radius: var(--radius-md) !important;
@@ -233,6 +232,7 @@
   background: var(--black-elevated) !important;
   color: var(--white) !important;
   font-family: var(--font-ui) !important;
+  border-color: var(--grey-dim) !important;
 }
 
 /* Focus visibility for keyboard/touch-edit interactions. */
@@ -240,6 +240,40 @@
 .create-field :global([data-slot="input"]:focus) {
   border-color: var(--cyan) !important;
   box-shadow: 0 0 0 1px var(--cyan-dim) !important;
+}
+
+/* Form-scoped class to reliably override global resets or utility classes
+   when the component-level selector isn't winning due to cascade/order. */
+.character-create .form-input,
+.character-create .form-input[data-slot="input"] {
+  min-height: 44px !important;
+  border: 1px solid var(--grey-dim) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 0 var(--space-3) !important;
+  background: var(--black-elevated) !important;
+  color: var(--white) !important;
+  font-family: var(--font-ui) !important;
+  border-color: var(--grey-dim) !important;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 1px var(--cyan-dim);
+  }
+  50% {
+    box-shadow: 0 0 0 1px var(--color-cyan-800);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--cyan-dim);
+  }
+}
+
+.character-create .form-input:focus,
+.character-create .form-input[data-slot="input"]:focus {
+  /* border-color: var(--cyan) !important; */
+  /* box-shadow: 0 0 0 1px var(--cyan-dim) !important; */
+  /* visible pulse on focus */
+  animation: pulse 1500ms ease-in-out infinite reverse !important;
 }
 
 /* Primary submit action inherits .btn-base and overrides accent colors. */

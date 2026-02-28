@@ -4,10 +4,10 @@
 <script>
   import "$lib/CharacterBulkControls.css";
   import CharacterCard from "$lib/CharacterCard.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
+  // import { Button } from "$lib/components/ui/button/index.js";
   import { characters, SERVER_URL } from "$lib/socket.js";
   import { createDraggable } from "animejs";
-  import { onMount } from "svelte";
+  // import { onMount } from "svelte";
   import CharacterBulkControls from "$lib/CharacterBulkControls.svelte";
 
   const DEFAULT_BULK_AMOUNT = 5;
@@ -29,8 +29,10 @@
   $effect(() => {
     if (!sortOrder) return;
     const ids = $characters.map((c) => c.id);
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const current = new Set(ids);
     const filtered = sortOrder.filter((id) => current.has(id));
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const existing = new Set(filtered);
     const added = ids.filter((id) => !existing.has(id));
     if (filtered.length !== sortOrder.length || added.length > 0) {
@@ -117,6 +119,7 @@
   }
 
   // ── Bulk controls ────────────────────────────────────────────────────────
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
   let selectedIds = $state(new Set());
   let bulkAmount = $state(DEFAULT_BULK_AMOUNT);
   let selectionMode = $state(false);
@@ -141,6 +144,7 @@
   }
 
   function toggleSelection(charId) {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const next = new Set(selectedIds);
     if (next.has(charId)) {
       next.delete(charId);
@@ -151,11 +155,13 @@
   }
 
   function clearSelection() {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     selectedIds = new Set();
   }
 
   function selectAll() {
     if (!selectionMode) return;
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     selectedIds = new Set($characters.map((character) => character.id));
   }
 

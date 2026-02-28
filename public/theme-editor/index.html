@@ -1,624 +1,784 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Theme Editor — Dados & Risas</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    /* ── Editor chrome ───────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #000;
-      --surface:  #0d0d0d;
-      --elevated: #1a1a1a;
-      --border:   #333;
-      --text:     #fff;
-      --muted:    #888;
-      --accent:   #00d4e8;
-      --red:      #ff4d6a;
-      --purple:   #500df5;
-      --font-display: "Bebas Neue", sans-serif;
-      --font-mono: "JetBrains Mono", monospace;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      min-height: 100dvh;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      grid-template-columns: 340px 1fr;
-      grid-template-areas: "header header" "sidebar preview";
-    }
-
-    /* ── Header ──────────────────────────────────────────────────── */
-    header {
-      grid-area: header;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    header h1 {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      letter-spacing: 0.05em;
-      color: var(--accent);
-    }
-    header h1 span { color: var(--muted); font-size: 0.9rem; font-family: var(--font-mono); margin-left: 8px; }
-    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    /* ── Buttons ─────────────────────────────────────────────────── */
-    button {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: var(--elevated);
-      color: var(--text);
-      padding: 6px 14px;
-      cursor: pointer;
-      transition: background 150ms, border-color 150ms;
-      white-space: nowrap;
-    }
-    button:hover { background: #222; border-color: var(--muted); }
-    button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
-    button.primary:hover { background: #00bcd4; }
-    button.danger { background: var(--red); color: #fff; border-color: var(--red); }
-    button.danger:hover { background: #e03050; }
-
-    /* ── Sidebar ─────────────────────────────────────────────────── */
-    aside {
-      grid-area: sidebar;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--surface);
-      z-index: 10;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 10px 4px;
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      letter-spacing: 0.06em;
-      text-align: center;
-      border: none;
-      border-bottom: 2px solid transparent;
-      border-radius: 0;
-      background: transparent;
-      color: var(--muted);
-    }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: transparent; }
-    .tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.04); }
-    .tab-panel { display: none; padding: 12px; flex-direction: column; gap: 4px; }
-    .tab-panel.active { display: flex; }
-
-    /* ── Token rows ──────────────────────────────────────────────── */
-    .token-group-label {
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      padding: 10px 0 4px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 4px;
-    }
-    .token-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 0;
-    }
-    .token-label {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .token-value-wrap {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .token-input {
-      background: var(--elevated);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      width: 140px;
-    }
-    .token-input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
-    input[type="color"] {
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: transparent;
-      cursor: pointer;
-    }
-    input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
-    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
-
-    /* ── Preview pane ────────────────────────────────────────────── */
-    main {
-      grid-area: preview;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .preview-toolbar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 16px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .preview-toolbar label { color: var(--muted); font-size: 11px; }
-    .overlay-select {
-      background: var(--elevated);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
-    #preview-frame {
-      flex: 1;
-      border: none;
-      background: transparent;
-    }
-
-    /* ── Themes bar ──────────────────────────────────────────────── */
-    .themes-bar {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .themes-bar-label { color: var(--muted); font-size: 10px; letter-spacing: 0.05em; margin-right: 4px; }
-    .theme-chip {
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--elevated);
-      color: var(--muted);
-      font-size: 11px;
-      cursor: pointer;
-    }
-    .theme-chip.active { border-color: var(--accent); color: var(--accent); }
-    .theme-chip:hover:not(.active) { color: var(--text); border-color: var(--muted); }
-
-    /* ── Status bar ──────────────────────────────────────────────── */
-    #status {
-      padding: 6px 12px;
-      font-size: 11px;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      min-height: 28px;
-    }
-    #status.ok { color: #22c55e; }
-    #status.err { color: var(--red); }
-  </style>
-</head>
-<body>
-
-<!-- ── Header ─────────────────────────────────────────────────────── -->
-<header>
-  <h1>THEME EDITOR <span>dados & risas</span></h1>
-  <div class="header-actions">
-    <button id="btn-reset">Reset to defaults</button>
-    <button id="btn-import">Import JSON</button>
-    <button id="btn-export-json">Export JSON</button>
-    <button id="btn-export-css">Export CSS</button>
-    <button class="primary" id="btn-apply">▶ Apply to preview</button>
-  </div>
-</header>
-
-<!-- ── Sidebar ────────────────────────────────────────────────────── -->
-<aside>
-  <div class="themes-bar">
-    <span class="themes-bar-label">SAVED</span>
-    <div id="saved-themes"></div>
-    <button id="btn-save-theme" style="font-size:11px;padding:3px 10px;">+ Save theme</button>
-  </div>
-
-  <div class="sidebar-tabs" id="sidebar-tabs"></div>
-
-  <div id="tab-panels"></div>
-
-  <div id="status">Loading tokens…</div>
-</aside>
-
-<!-- ── Preview ────────────────────────────────────────────────────── -->
-<main>
-  <div class="preview-toolbar">
-    <label>Overlay:</label>
-    <select class="overlay-select" id="overlay-select">
-      <option value="/overlay-hp.html">HP Bars</option>
-      <option value="/overlay-dice.html">Dice Result</option>
-      <option value="/overlay-conditions.html">Conditions</option>
-    </select>
-    <button id="btn-reload-frame" style="font-size:11px;padding:4px 10px;">↻ Reload</button>
-  </div>
-  <iframe id="preview-frame" src="/overlay-hp.html" title="Overlay preview"></iframe>
-</main>
-
-<!-- ── Hidden inputs ──────────────────────────────────────────────── -->
-<input type="file" id="file-import" accept=".json" style="display:none" />
-
-<script>
-(function () {
-  // ── State ────────────────────────────────────────────────────────
-  let canonicalTokens = null;   // full tokens.json structure
-  let overrides = {};           // { "--token-name": "value" }
-  let savedThemes = {};         // { name: { "--token": "value" } }
-
-  const SERVER = (() => {
-    const params = new URLSearchParams(location.search);
-    return params.get("server") || location.origin;
-  })();
-
-  // ── Helpers ──────────────────────────────────────────────────────
-  function setStatus(msg, type = "") {
-    const el = document.getElementById("status");
-    el.textContent = msg;
-    el.className = type;
-  }
-
-  function isColorValue(val) {
-    return /^#[0-9a-f]{3,8}$/i.test(val.trim()) ||
-           /^rgb/.test(val.trim()) ||
-           /^hsl/.test(val.trim());
-  }
-
-  function getCurrentValue(tokenName) {
-    return overrides[tokenName] ?? canonicalTokens?._flat?.[tokenName] ?? "";
-  }
-
-  // ── Flatten all token values into a name→value map ───────────────
-  function flattenTokens(tokens) {
-    const flat = {};
-    const skip = ["meta", "_flat"];
-    for (const [groupKey, group] of Object.entries(tokens)) {
-      if (skip.includes(groupKey) || typeof group !== "object") continue;
-      for (const [tokenName, entry] of Object.entries(group)) {
-        flat[tokenName] = entry.value;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theme Editor — Dados & Risas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Editor chrome ───────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    }
-    return flat;
-  }
 
-  // ── Build :root{} override block ─────────────────────────────────
-  // Sanitize values to prevent CSS injection (strip {}, ; and newlines that could break out of the property declaration).
-  function sanitizeCSSValue(v) { return String(v).replace(/[{};\n\r]/g, ""); }
+      :root {
+        --bg: #000;
+        --surface: #0d0d0d;
+        --elevated: #1a1a1a;
+        --border: #333;
+        --text: #fff;
+        --muted: #888;
+        --accent: #00d4e8;
+        --red: #ff4d6a;
+        --purple: #500df5;
+        --font-display: "Bebas Neue", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
 
-  function buildStyleBlock() {
-    const rules = Object.entries({ ...canonicalTokens._flat, ...overrides })
-      .map(([k, v]) => `  ${k}: ${sanitizeCSSValue(v)};`)
-      .join("\n");
-    return `:root {\n${rules}\n}`;
-  }
-
-  // ── Inject overrides into the iframe ─────────────────────────────
-  function applyToPreview() {
-    const frame = document.getElementById("preview-frame");
-    try {
-      const doc = frame.contentDocument || frame.contentWindow?.document;
-      if (!doc) return;
-      let styleEl = doc.getElementById("__theme-editor__");
-      if (!styleEl) {
-        styleEl = doc.createElement("style");
-        styleEl.id = "__theme-editor__";
-        doc.head.appendChild(styleEl);
+        scrollbar-color: var(--border) transparent;
+        scrollbar-width: thin;
       }
-      styleEl.textContent = buildStyleBlock();
-      setStatus("✓ Applied to preview", "ok");
-    } catch (e) {
-      setStatus("⚠ Could not inject into iframe (cross-origin?)", "err");
-    }
-  }
 
-  // ── Build sidebar UI ──────────────────────────────────────────────
-  const GROUP_LABELS = {
-    colors:           "Colors",
-    hp:               "HP Thresholds",
-    typography:       "Typography",
-    spacing:          "Spacing",
-    radii:            "Radii",
-    shadows:          "Shadows",
-    motion:           "Motion",
-    alpha:            "Opacity / Alpha",
-    zIndex:           "Z-Index",
-    overlayGradients: "Overlay Gradients",
-  };
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        grid-template-columns: 340px 1fr;
+        grid-template-areas: "header header" "sidebar preview";
+      }
 
-  function buildSidebar(tokens) {
-    const tabsEl = document.getElementById("sidebar-tabs");
-    const panelsEl = document.getElementById("tab-panels");
-    tabsEl.innerHTML = "";
-    panelsEl.innerHTML = "";
+      /* ── Header ──────────────────────────────────────────────────── */
+      header {
+        grid-area: header;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      header h1 {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+      }
+      header h1 span {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-family: var(--font-mono);
+        margin-left: 8px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
 
-    const groups = Object.keys(GROUP_LABELS).filter(k => tokens[k]);
-    groups.forEach((group, i) => {
-      // Tab button
-      const btn = document.createElement("button");
-      btn.className = "tab-btn" + (i === 0 ? " active" : "");
-      btn.textContent = GROUP_LABELS[group].split(" ")[0];
-      btn.dataset.tab = group;
-      btn.addEventListener("click", () => switchTab(group));
-      tabsEl.appendChild(btn);
+      /* ── Buttons ─────────────────────────────────────────────────── */
+      button {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: var(--elevated);
+        color: var(--text);
+        padding: 6px 14px;
+        cursor: pointer;
+        transition:
+          background 150ms,
+          border-color 150ms;
+        white-space: nowrap;
+      }
+      button:hover {
+        background: #222;
+        border-color: var(--muted);
+      }
+      button.primary {
+        background: var(--accent);
+        color: #000;
+        border-color: var(--accent);
+        font-weight: 700;
+      }
+      button.primary:hover {
+        background: #00bcd4;
+      }
+      button.danger {
+        background: var(--red);
+        color: #fff;
+        border-color: var(--red);
+      }
+      button.danger:hover {
+        background: #e03050;
+      }
 
-      // Panel
-      const panel = document.createElement("div");
-      panel.className = "tab-panel" + (i === 0 ? " active" : "");
-      panel.id = `panel-${group}`;
+      /* ── Sidebar ─────────────────────────────────────────────────── */
+      aside {
+        grid-area: sidebar;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: var(--surface);
+        overflow: scroll;
+      }
 
-      for (const [tokenName, entry] of Object.entries(tokens[group])) {
-        const row = document.createElement("div");
-        row.className = "token-row";
+      .tab-btn {
+        flex: 1;
+        padding: 10px 4px;
+        font-family: var(--font-display);
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-align: center;
+        border: none;
+        border-top: 2px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted);
+      }
+      .tab-btn.active {
+        color: var(--accent);
+        border-top-color: var(--accent);
+        background: transparent;
+      }
+      .tab-btn:hover:not(.active) {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .tab-panel {
+        display: none;
+        padding: 12px;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .tab-panel.active {
+        display: flex;
+      }
 
-        const label = document.createElement("div");
-        label.className = "token-label";
-        label.title = entry.description || tokenName;
-        label.textContent = tokenName;
+      /* ── Token rows ──────────────────────────────────────────────── */
+      .token-group-label {
+        font-family: var(--font-display);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        padding: 10px 0 4px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 4px;
+      }
+      .token-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+      }
+      .token-label {
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .token-value-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .token-input {
+        background: var(--elevated);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        width: 140px;
+      }
+      .token-input:focus {
+        outline: 1px solid var(--accent);
+        border-color: var(--accent);
+      }
+      input[type="color"] {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: transparent;
+        cursor: pointer;
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 2px;
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 2px;
+      }
 
-        const wrap = document.createElement("div");
-        wrap.className = "token-value-wrap";
+      /* ── Preview pane ────────────────────────────────────────────── */
+      main {
+        grid-area: preview;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .preview-toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .preview-toolbar label {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .overlay-select {
+        background: var(--elevated);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 4px;
+      }
+      #preview-frame {
+        flex: 1;
+        border: none;
+        background: transparent;
+      }
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.className = "token-input";
-        input.value = overrides[tokenName] ?? entry.value;
-        input.dataset.token = tokenName;
+      /* ── Themes bar ──────────────────────────────────────────────── */
+      .themes-bar {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .themes-bar-label {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        margin-right: 4px;
+      }
+      .theme-chip {
+        padding: 3px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--elevated);
+        color: var(--muted);
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .theme-chip.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .theme-chip:hover:not(.active) {
+        color: var(--text);
+        border-color: var(--muted);
+      }
 
-        // Declare colorPicker before the text-input listener so the closure
-        // can safely reference it even for non-color tokens (where it stays null).
-        let colorPicker = null;
+      /* ── Status bar ──────────────────────────────────────────────── */
+      #status {
+        padding: 6px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+        min-height: 28px;
+      }
+      #status.ok {
+        color: #22c55e;
+      }
+      #status.err {
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <header>
+      <h1>THEME EDITOR <span>dados & risas</span></h1>
+      <div class="header-actions">
+        <button id="btn-reset">Reset to defaults</button>
+        <button id="btn-import">Import JSON</button>
+        <button id="btn-export-json">Export JSON</button>
+        <button id="btn-export-css">Export CSS</button>
+        <button class="primary" id="btn-apply">▶ Apply to preview</button>
+      </div>
+    </header>
 
-        input.addEventListener("input", () => {
-          overrides[tokenName] = input.value;
-          if (colorPicker) colorPicker.value = toHex(input.value);
-        });
-        input.addEventListener("change", applyToPreview);
+    <!-- ── Sidebar ────────────────────────────────────────────────────── -->
+    <aside>
+      <div class="themes-bar">
+        <span class="themes-bar-label">SAVED</span>
+        <div id="saved-themes"></div>
+        <button id="btn-save-theme" style="font-size: 11px; padding: 3px 10px">
+          + Save theme
+        </button>
+      </div>
 
-        wrap.appendChild(input);
+      <div class="sidebar-tabs" id="sidebar-tabs"></div>
 
-        if (isColorValue(entry.value)) {
-          colorPicker = document.createElement("input");
-          colorPicker.type = "color";
-          colorPicker.value = toHex(overrides[tokenName] ?? entry.value);
-          colorPicker.title = tokenName;
-          colorPicker.dataset.token = tokenName;
-          colorPicker.addEventListener("input", () => {
-            input.value = colorPicker.value;
-            overrides[tokenName] = colorPicker.value;
-          });
-          colorPicker.addEventListener("change", applyToPreview);
-          wrap.appendChild(colorPicker);
+      <div id="tab-panels"></div>
+
+      <div id="status">Loading tokens…</div>
+    </aside>
+
+    <!-- ── Preview ────────────────────────────────────────────────────── -->
+    <main>
+      <div class="preview-toolbar">
+        <label>Overlay:</label>
+        <select class="overlay-select" id="overlay-select">
+          <option value="/overlay-hp.html">HP Bars</option>
+          <option value="/overlay-dice.html">Dice Result</option>
+          <option value="/overlay-conditions.html">Conditions</option>
+        </select>
+        <button
+          id="btn-reload-frame"
+          style="font-size: 11px; padding: 4px 10px"
+        >
+          ↻ Reload
+        </button>
+      </div>
+      <iframe
+        id="preview-frame"
+        src="/overlay-hp.html"
+        title="Overlay preview"
+      ></iframe>
+    </main>
+
+    <!-- ── Hidden inputs ──────────────────────────────────────────────── -->
+    <input type="file" id="file-import" accept=".json" style="display: none" />
+
+    <script>
+      (function () {
+        // ── State ────────────────────────────────────────────────────────
+        let canonicalTokens = null; // full tokens.json structure
+        let overrides = {}; // { "--token-name": "value" }
+        let savedThemes = {}; // { name: { "--token": "value" } }
+
+        const SERVER = (() => {
+          const params = new URLSearchParams(location.search);
+          return params.get("server") || location.origin;
+        })();
+
+        // ── Helpers ──────────────────────────────────────────────────────
+        function setStatus(msg, type = "") {
+          const el = document.getElementById("status");
+          el.textContent = msg;
+          el.className = type;
         }
 
-        row.appendChild(label);
-        row.appendChild(wrap);
-        panel.appendChild(row);
-      }
-
-      panelsEl.appendChild(panel);
-    });
-  }
-
-  function switchTab(group) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === group));
-    document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === `panel-${group}`));
-  }
-
-  // ── Color helpers ─────────────────────────────────────────────────
-  function toHex(val) {
-    if (!val) return "#000000";
-    val = val.trim();
-    if (/^#[0-9a-f]{6}$/i.test(val)) return val;
-    if (/^#[0-9a-f]{3}$/i.test(val)) {
-      const [, r, g, b] = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
-      return `#${r}${r}${g}${g}${b}${b}`;
-    }
-    const m = val.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (m) return `#${Number(m[1]).toString(16).padStart(2,"0")}${Number(m[2]).toString(16).padStart(2,"0")}${Number(m[3]).toString(16).padStart(2,"0")}`;
-    return "#000000";
-  }
-
-  // ── Saved themes ──────────────────────────────────────────────────
-  // Theme names must be non-empty, ≤50 chars, and contain only word chars, spaces, or hyphens.
-  const SAFE_THEME_NAME_RE = /^[\w\s\-]{1,50}$/;
-
-  function loadSavedThemes() {
-    try {
-      const raw = localStorage.getItem("__dr_themes__") || "{}";
-      const parsed = JSON.parse(raw);
-      // Strip any keys that don't match the safe-name pattern before use.
-      savedThemes = {};
-      for (const [k, v] of Object.entries(parsed)) {
-        if (SAFE_THEME_NAME_RE.test(k) && typeof v === "object" && v !== null) {
-          savedThemes[k] = v;
+        function isColorValue(val) {
+          return (
+            /^#[0-9a-f]{3,8}$/i.test(val.trim()) ||
+            /^rgb/.test(val.trim()) ||
+            /^hsl/.test(val.trim())
+          );
         }
-      }
-    } catch (e) {
-      console.warn("Failed to load saved themes from localStorage:", e);
-      savedThemes = {};
-    }
-    renderSavedThemes();
-  }
 
-  function persistThemes() {
-    localStorage.setItem("__dr_themes__", JSON.stringify(savedThemes));
-  }
+        function getCurrentValue(tokenName) {
+          return (
+            overrides[tokenName] ?? canonicalTokens?._flat?.[tokenName] ?? ""
+          );
+        }
 
-  function renderSavedThemes() {
-    const el = document.getElementById("saved-themes");
-    el.innerHTML = "";
-    for (const name of Object.keys(savedThemes)) {
-      const chip = document.createElement("button");
-      chip.className = "theme-chip";
-      chip.textContent = name;
-      chip.addEventListener("click", () => applyTheme(name, chip));
-      el.appendChild(chip);
-    }
-  }
+        // ── Flatten all token values into a name→value map ───────────────
+        function flattenTokens(tokens) {
+          const flat = {};
+          const skip = ["meta", "_flat"];
+          for (const [groupKey, group] of Object.entries(tokens)) {
+            if (skip.includes(groupKey) || typeof group !== "object") continue;
+            for (const [tokenName, entry] of Object.entries(group)) {
+              flat[tokenName] = entry.value;
+            }
+          }
+          return flat;
+        }
 
-  function applyTheme(name, chipEl) {
-    document.querySelectorAll(".theme-chip").forEach(c => c.classList.remove("active"));
-    chipEl?.classList.add("active");
-    overrides = { ...(savedThemes[name] || {}) };
-    // Refresh text inputs
-    document.querySelectorAll(".token-input").forEach(input => {
-      const tok = input.dataset.token;
-      input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
-    });
-    // Refresh color pickers linked to the same tokens
-    document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
-      const tok = picker.dataset.token;
-      picker.value = toHex(overrides[tok] ?? canonicalTokens._flat[tok] ?? "");
-    });
-    applyToPreview();
-  }
+        // ── Build :root{} override block ─────────────────────────────────
+        // Sanitize values to prevent CSS injection (strip {}, ; and newlines that could break out of the property declaration).
+        function sanitizeCSSValue(v) {
+          return String(v).replace(/[{};\n\r]/g, "");
+        }
 
-  // ── Export ────────────────────────────────────────────────────────
-  function exportJSON() {
-    const out = { meta: { ...canonicalTokens.meta, exportedAt: new Date().toISOString() }, overrides };
-    download("theme-overrides.json", JSON.stringify(out, null, 2), "application/json");
-  }
+        function buildStyleBlock() {
+          const rules = Object.entries({
+            ...canonicalTokens._flat,
+            ...overrides,
+          })
+            .map(([k, v]) => `  ${k}: ${sanitizeCSSValue(v)};`)
+            .join("\n");
+          return `:root {\n${rules}\n}`;
+        }
 
-  function exportCSS() {
-    download("theme-overrides.css", buildStyleBlock(), "text/css");
-  }
-
-  function download(filename, content, mime) {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  // ── Import ────────────────────────────────────────────────────────
-  document.getElementById("file-import").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    file.text().then(txt => {
-      try {
-        const parsed = JSON.parse(txt);
-        const raw = parsed.overrides || parsed;
-        // Only accept keys that exist in the canonical token set to prevent
-        // arbitrary CSS variable injection from a malicious theme file.
-        const knownTokens = canonicalTokens._flat || {};
-        const sanitized = {};
-        for (const [k, v] of Object.entries(raw)) {
-          if (Object.prototype.hasOwnProperty.call(knownTokens, k)) {
-            sanitized[k] = String(v);
+        // ── Inject overrides into the iframe ─────────────────────────────
+        function applyToPreview() {
+          const frame = document.getElementById("preview-frame");
+          try {
+            const doc = frame.contentDocument || frame.contentWindow?.document;
+            if (!doc) return;
+            let styleEl = doc.getElementById("__theme-editor__");
+            if (!styleEl) {
+              styleEl = doc.createElement("style");
+              styleEl.id = "__theme-editor__";
+              doc.head.appendChild(styleEl);
+            }
+            styleEl.textContent = buildStyleBlock();
+            setStatus("✓ Applied to preview", "ok");
+          } catch (e) {
+            setStatus("⚠ Could not inject into iframe (cross-origin?)", "err");
           }
         }
-        overrides = sanitized;
-        document.querySelectorAll(".token-input").forEach(input => {
-          const tok = input.dataset.token;
-          if (overrides[tok] !== undefined) input.value = overrides[tok];
+
+        // ── Build sidebar UI ──────────────────────────────────────────────
+        const GROUP_LABELS = {
+          colors: "Colors",
+          hp: "HP Thresholds",
+          typography: "Typography",
+          spacing: "Spacing",
+          radii: "Radii",
+          shadows: "Shadows",
+          motion: "Motion",
+          alpha: "Opacity / Alpha",
+          zIndex: "Z-Index",
+          overlayGradients: "Overlay Gradients",
+        };
+
+        function buildSidebar(tokens) {
+          const tabsEl = document.getElementById("sidebar-tabs");
+          const panelsEl = document.getElementById("tab-panels");
+          tabsEl.innerHTML = "";
+          panelsEl.innerHTML = "";
+
+          const groups = Object.keys(GROUP_LABELS).filter((k) => tokens[k]);
+          groups.forEach((group, i) => {
+            // Tab button
+            const btn = document.createElement("button");
+            btn.className = "tab-btn" + (i === 0 ? " active" : "");
+            btn.textContent = GROUP_LABELS[group].split(" ")[0];
+            btn.dataset.tab = group;
+            btn.addEventListener("click", () => switchTab(group));
+            tabsEl.appendChild(btn);
+
+            // Panel
+            const panel = document.createElement("div");
+            panel.className = "tab-panel" + (i === 0 ? " active" : "");
+            panel.id = `panel-${group}`;
+
+            for (const [tokenName, entry] of Object.entries(tokens[group])) {
+              const row = document.createElement("div");
+              row.className = "token-row";
+
+              const label = document.createElement("div");
+              label.className = "token-label";
+              label.title = entry.description || tokenName;
+              label.textContent = tokenName;
+
+              const wrap = document.createElement("div");
+              wrap.className = "token-value-wrap";
+
+              const input = document.createElement("input");
+              input.type = "text";
+              input.className = "token-input";
+              input.value = overrides[tokenName] ?? entry.value;
+              input.dataset.token = tokenName;
+
+              // Declare colorPicker before the text-input listener so the closure
+              // can safely reference it even for non-color tokens (where it stays null).
+              let colorPicker = null;
+
+              input.addEventListener("input", () => {
+                overrides[tokenName] = input.value;
+                if (colorPicker) colorPicker.value = toHex(input.value);
+              });
+              input.addEventListener("change", applyToPreview);
+
+              wrap.appendChild(input);
+
+              if (isColorValue(entry.value)) {
+                colorPicker = document.createElement("input");
+                colorPicker.type = "color";
+                colorPicker.value = toHex(overrides[tokenName] ?? entry.value);
+                colorPicker.title = tokenName;
+                colorPicker.dataset.token = tokenName;
+                colorPicker.addEventListener("input", () => {
+                  input.value = colorPicker.value;
+                  overrides[tokenName] = colorPicker.value;
+                });
+                colorPicker.addEventListener("change", applyToPreview);
+                wrap.appendChild(colorPicker);
+              }
+
+              row.appendChild(label);
+              row.appendChild(wrap);
+              panel.appendChild(row);
+            }
+
+            panelsEl.appendChild(panel);
+          });
+        }
+
+        function switchTab(group) {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) =>
+              b.classList.toggle("active", b.dataset.tab === group),
+            );
+          document
+            .querySelectorAll(".tab-panel")
+            .forEach((p) =>
+              p.classList.toggle("active", p.id === `panel-${group}`),
+            );
+        }
+
+        // ── Color helpers ─────────────────────────────────────────────────
+        function toHex(val) {
+          if (!val) return "#000000";
+          val = val.trim();
+          if (/^#[0-9a-f]{6}$/i.test(val)) return val;
+          if (/^#[0-9a-f]{3}$/i.test(val)) {
+            const [, r, g, b] = val.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+            return `#${r}${r}${g}${g}${b}${b}`;
+          }
+          const m = val.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if (m)
+            return `#${Number(m[1]).toString(16).padStart(2, "0")}${Number(m[2]).toString(16).padStart(2, "0")}${Number(m[3]).toString(16).padStart(2, "0")}`;
+          return "#000000";
+        }
+
+        // ── Saved themes ──────────────────────────────────────────────────
+        // Theme names must be non-empty, ≤50 chars, and contain only word chars, spaces, or hyphens.
+        const SAFE_THEME_NAME_RE = /^[\w\s\-]{1,50}$/;
+
+        function loadSavedThemes() {
+          try {
+            const raw = localStorage.getItem("__dr_themes__") || "{}";
+            const parsed = JSON.parse(raw);
+            // Strip any keys that don't match the safe-name pattern before use.
+            savedThemes = {};
+            for (const [k, v] of Object.entries(parsed)) {
+              if (
+                SAFE_THEME_NAME_RE.test(k) &&
+                typeof v === "object" &&
+                v !== null
+              ) {
+                savedThemes[k] = v;
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to load saved themes from localStorage:", e);
+            savedThemes = {};
+          }
+          renderSavedThemes();
+        }
+
+        function persistThemes() {
+          localStorage.setItem("__dr_themes__", JSON.stringify(savedThemes));
+        }
+
+        function renderSavedThemes() {
+          const el = document.getElementById("saved-themes");
+          el.innerHTML = "";
+          for (const name of Object.keys(savedThemes)) {
+            const chip = document.createElement("button");
+            chip.className = "theme-chip";
+            chip.textContent = name;
+            chip.addEventListener("click", () => applyTheme(name, chip));
+            el.appendChild(chip);
+          }
+        }
+
+        function applyTheme(name, chipEl) {
+          document
+            .querySelectorAll(".theme-chip")
+            .forEach((c) => c.classList.remove("active"));
+          chipEl?.classList.add("active");
+          overrides = { ...(savedThemes[name] || {}) };
+          // Refresh text inputs
+          document.querySelectorAll(".token-input").forEach((input) => {
+            const tok = input.dataset.token;
+            input.value = overrides[tok] ?? canonicalTokens._flat[tok] ?? "";
+          });
+          // Refresh color pickers linked to the same tokens
+          document
+            .querySelectorAll('input[type="color"][data-token]')
+            .forEach((picker) => {
+              const tok = picker.dataset.token;
+              picker.value = toHex(
+                overrides[tok] ?? canonicalTokens._flat[tok] ?? "",
+              );
+            });
+          applyToPreview();
+        }
+
+        // ── Export ────────────────────────────────────────────────────────
+        function exportJSON() {
+          const out = {
+            meta: {
+              ...canonicalTokens.meta,
+              exportedAt: new Date().toISOString(),
+            },
+            overrides,
+          };
+          download(
+            "theme-overrides.json",
+            JSON.stringify(out, null, 2),
+            "application/json",
+          );
+        }
+
+        function exportCSS() {
+          download("theme-overrides.css", buildStyleBlock(), "text/css");
+        }
+
+        function download(filename, content, mime) {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+          a.download = filename;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }
+
+        // ── Import ────────────────────────────────────────────────────────
+        document
+          .getElementById("file-import")
+          .addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            file.text().then((txt) => {
+              try {
+                const parsed = JSON.parse(txt);
+                const raw = parsed.overrides || parsed;
+                // Only accept keys that exist in the canonical token set to prevent
+                // arbitrary CSS variable injection from a malicious theme file.
+                const knownTokens = canonicalTokens._flat || {};
+                const sanitized = {};
+                for (const [k, v] of Object.entries(raw)) {
+                  if (Object.prototype.hasOwnProperty.call(knownTokens, k)) {
+                    sanitized[k] = String(v);
+                  }
+                }
+                overrides = sanitized;
+                document.querySelectorAll(".token-input").forEach((input) => {
+                  const tok = input.dataset.token;
+                  if (overrides[tok] !== undefined)
+                    input.value = overrides[tok];
+                });
+                document
+                  .querySelectorAll('input[type="color"][data-token]')
+                  .forEach((picker) => {
+                    const tok = picker.dataset.token;
+                    if (overrides[tok] !== undefined)
+                      picker.value = toHex(overrides[tok]);
+                  });
+                applyToPreview();
+                setStatus("✓ Theme imported", "ok");
+              } catch {
+                setStatus("✗ Invalid JSON", "err");
+              }
+            });
+            e.target.value = "";
+          });
+
+        // ── Wire up buttons ───────────────────────────────────────────────
+        document
+          .getElementById("btn-apply")
+          .addEventListener("click", applyToPreview);
+        document
+          .getElementById("btn-export-json")
+          .addEventListener("click", exportJSON);
+        document
+          .getElementById("btn-export-css")
+          .addEventListener("click", exportCSS);
+        document
+          .getElementById("btn-import")
+          .addEventListener("click", () =>
+            document.getElementById("file-import").click(),
+          );
+        document
+          .getElementById("btn-reload-frame")
+          .addEventListener("click", () => {
+            const frame = document.getElementById("preview-frame");
+            frame.src = frame.src;
+          });
+        document
+          .getElementById("overlay-select")
+          .addEventListener("change", (e) => {
+            const frame = document.getElementById("preview-frame");
+            frame.src = e.target.value;
+          });
+        document.getElementById("btn-reset").addEventListener("click", () => {
+          overrides = {};
+          document.querySelectorAll(".token-input").forEach((input) => {
+            const tok = input.dataset.token;
+            input.value = canonicalTokens._flat[tok] ?? "";
+          });
+          document
+            .querySelectorAll('input[type="color"][data-token]')
+            .forEach((picker) => {
+              const tok = picker.dataset.token;
+              picker.value = toHex(canonicalTokens._flat[tok] ?? "");
+            });
+          applyToPreview();
+          setStatus("Reset to defaults", "ok");
         });
-        document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
-          const tok = picker.dataset.token;
-          if (overrides[tok] !== undefined) picker.value = toHex(overrides[tok]);
-        });
-        applyToPreview();
-        setStatus("✓ Theme imported", "ok");
-      } catch {
-        setStatus("✗ Invalid JSON", "err");
-      }
-    });
-    e.target.value = "";
-  });
+        document
+          .getElementById("btn-save-theme")
+          .addEventListener("click", () => {
+            const name = prompt("Theme name:");
+            if (!name) return;
+            if (!SAFE_THEME_NAME_RE.test(name)) {
+              setStatus(
+                "✗ Theme name must be 1–50 alphanumeric/space/hyphen characters",
+                "err",
+              );
+              return;
+            }
+            savedThemes[name] = { ...overrides };
+            persistThemes();
+            renderSavedThemes();
+            setStatus(`✓ Saved theme "${name}"`, "ok");
+          });
 
-  // ── Wire up buttons ───────────────────────────────────────────────
-  document.getElementById("btn-apply").addEventListener("click", applyToPreview);
-  document.getElementById("btn-export-json").addEventListener("click", exportJSON);
-  document.getElementById("btn-export-css").addEventListener("click", exportCSS);
-  document.getElementById("btn-import").addEventListener("click", () => document.getElementById("file-import").click());
-  document.getElementById("btn-reload-frame").addEventListener("click", () => {
-    const frame = document.getElementById("preview-frame");
-    frame.src = frame.src;
-  });
-  document.getElementById("overlay-select").addEventListener("change", e => {
-    const frame = document.getElementById("preview-frame");
-    frame.src = e.target.value;
-  });
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    overrides = {};
-    document.querySelectorAll(".token-input").forEach(input => {
-      const tok = input.dataset.token;
-      input.value = canonicalTokens._flat[tok] ?? "";
-    });
-    document.querySelectorAll('input[type="color"][data-token]').forEach(picker => {
-      const tok = picker.dataset.token;
-      picker.value = toHex(canonicalTokens._flat[tok] ?? "");
-    });
-    applyToPreview();
-    setStatus("Reset to defaults", "ok");
-  });
-  document.getElementById("btn-save-theme").addEventListener("click", () => {
-    const name = prompt("Theme name:");
-    if (!name) return;
-    if (!SAFE_THEME_NAME_RE.test(name)) {
-      setStatus("✗ Theme name must be 1–50 alphanumeric/space/hyphen characters", "err");
-      return;
-    }
-    savedThemes[name] = { ...overrides };
-    persistThemes();
-    renderSavedThemes();
-    setStatus(`✓ Saved theme "${name}"`, "ok");
-  });
+        // Apply tokens after iframe loads
+        document
+          .getElementById("preview-frame")
+          .addEventListener("load", applyToPreview);
 
-  // Apply tokens after iframe loads
-  document.getElementById("preview-frame").addEventListener("load", applyToPreview);
-
-  // ── Bootstrap ─────────────────────────────────────────────────────
-  fetch(`${SERVER}/api/tokens`)
-    .then(r => r.json())
-    .then(tokens => {
-      tokens._flat = flattenTokens(tokens);
-      canonicalTokens = tokens;
-      loadSavedThemes();
-      buildSidebar(tokens);
-      applyToPreview();
-      setStatus("Tokens loaded — edit values and click Apply", "ok");
-    })
-    .catch(() => {
-      setStatus("✗ Could not fetch tokens from server. Is it running?", "err");
-    });
-})();
-</script>
-</body>
+        // ── Bootstrap ─────────────────────────────────────────────────────
+        fetch(`${SERVER}/api/tokens`)
+          .then((r) => r.json())
+          .then((tokens) => {
+            tokens._flat = flattenTokens(tokens);
+            canonicalTokens = tokens;
+            loadSavedThemes();
+            buildSidebar(tokens);
+            applyToPreview();
+            setStatus("Tokens loaded — edit values and click Apply", "ok");
+          })
+          .catch(() => {
+            setStatus(
+              "✗ Could not fetch tokens from server. Is it running?",
+              "err",
+            );
+          });
+      })();
+    </script>
+  </body>
 </html>

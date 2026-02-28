@@ -6,6 +6,7 @@
 -->
 <script>
   import "./PhotoSourcePicker.css";
+  import "$lib/components/ui/modal/modal.css";
   import { Button } from "$lib/components/ui/button/index.js";
 
   let {
@@ -163,6 +164,7 @@
       >
         <Button
           type="button"
+          disabled={false}
           class="photo-segment-btn {dense ? 'dense' : ''} {source === 'preset'
             ? 'active'
             : ''}"
@@ -174,6 +176,7 @@
         </Button>
         <Button
           type="button"
+          disabled={false}
           class="photo-segment-btn {dense ? 'dense' : ''} {source === 'url'
             ? 'active'
             : ''}"
@@ -185,6 +188,7 @@
         </Button>
         <Button
           type="button"
+          disabled={false}
           class="photo-segment-btn {dense ? 'dense' : ''} {source === 'local'
             ? 'active'
             : ''}"
@@ -202,6 +206,7 @@
           {#each options as option (option.value)}
             <Button
               type="button"
+              disabled={false}
               class="photo-thumb {option.value === presetValue ? 'active' : ''}"
               aria-pressed={option.value === presetValue}
               onclick={() => onPresetChange(option.value)}

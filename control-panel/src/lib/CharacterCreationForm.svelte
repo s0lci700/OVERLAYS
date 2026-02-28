@@ -15,6 +15,7 @@
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import * as Dialog from "./components/ui/dialog/index.js";
+  import Modal from "$lib/components/ui/modal/Modal.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
@@ -115,17 +116,29 @@
   // Label lookup maps for pill previews. This Map is used to translate selected
   // option keys into human-readable labels for the selection pills rendered
   // under the MultiSelect components in the template.
-  const labelOf = new Map(
-    [
-      ...languageOptions.map((o) => [o.key, o.label]),
-      ...rareLanguageOptions.map((o) => [o.key, o.label]),
-      ...skillOptions.map((o) => [o.key, o.label]),
-      ...toolOptions.map((o) => [o.key, o.label]),
-      ...armorOptions.map((o) => [o.key, o.label]),
-      ...weaponOptions.map((o) => [o.key, o.label]),
-      ...itemOptions.map((o) => [o.key, o.label]),
-    ].filter(([k, v]) => typeof k !== "undefined" && typeof v !== "undefined"),
-  );
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
+  const labelOf = new Map();
+
+  // Aggregate all option objects and populate the lookup map. Guard against
+  // missing or empty keys/labels so `SelectionPillList` receives only valid
+  // string labels for rendering.
+  const _allOptions = [
+    ...languageOptions,
+    ...rareLanguageOptions,
+    ...skillOptions,
+    ...toolOptions,
+    ...armorOptions,
+    ...weaponOptions,
+    ...itemOptions,
+  ];
+
+  _allOptions.forEach((opt) => {
+    if (!opt) return;
+    const k = opt.key == null ? "" : String(opt.key).trim();
+    const v = opt.label == null ? "" : String(opt.label).trim();
+    if (k.length === 0 || v.length === 0) return;
+    labelOf.set(k, v);
+  });
 
   // Modal trigger state for photo picker overlay. Toggled by the "Agregar foto"
   // button in the template and observed to render the `Modal` portal.
@@ -343,46 +356,29 @@
               <img src={getResolvedPhotoValue()} alt="Preview foto" />
             </div>
           {/if}
-          <Dialog.Root bind:open={showPhotoModal}>
-            <Dialog.Content
-              class="photo-modal-card card-base"
-              showCloseButton={false}
-              aria-labelledby="photo-modal-title-create"
-            >
-              <header class="photo-modal-head">
-                <h3 id="photo-modal-title-create" class="photo-modal-title">
-                  Seleccionar foto
-                </h3>
-                <button
-                  class="photo-modal-close"
-                  type="button"
-                  aria-label="Cerrar"
-                  onclick={() => (showPhotoModal = false)}>✕</button
-                >
-              </header>
-
-              <PhotoSourcePicker
-                options={AVAILABLE_PHOTOS}
-                source={photoSource}
-                presetValue={photo}
-                urlValue={customPhotoUrl}
-                localValue={localPhotoDataUrl}
-                serverUrl={SERVER_URL}
-                dense={true}
-                onSourceChange={(value) => (photoSource = value)}
-                onPresetChange={(value) => (photo = value)}
-                onUrlChange={(value) => (customPhotoUrl = value)}
-                onLocalChange={(value) => (localPhotoDataUrl = value)}
-                onError={handlePhotoPickerError}
-              />
-            </Dialog.Content>
-          </Dialog.Root>
+          <Modal bind:open={showPhotoModal} title="Seleccionar foto" showCloseButton={false}>
+            <PhotoSourcePicker
+              options={AVAILABLE_PHOTOS}
+              source={photoSource}
+              presetValue={photo}
+              urlValue={customPhotoUrl}
+              localValue={localPhotoDataUrl}
+              serverUrl={SERVER_URL}
+              dense={true}
+              onSourceChange={(value) => (photoSource = value)}
+              onPresetChange={(value) => (photo = value)}
+              onUrlChange={(value) => (customPhotoUrl = value)}
+              onLocalChange={(value) => (localPhotoDataUrl = value)}
+              onError={handlePhotoPickerError}
+            />
+          </Modal>
         </div>
         <!-- Required identity fields. Arrange 'Nombre' and 'Jugador' side-by-side -->
         <div class="create-grid create-grid--two identity-group">
           <div class="create-field">
             <Label for="name-input" class="label-caps">Nombre</Label>
             <Input
+              class="name-input form-input"
               id="name-input"
               type="text"
               placeholder="Ej. Valeria"
@@ -395,6 +391,7 @@
           <div class="create-field">
             <Label for="player-input" class="label-caps">Jugador</Label>
             <Input
+              class="form-input"
               id="player-input"
               type="text"
               placeholder="Ej. Sol"
@@ -410,6 +407,7 @@
           <div class="create-field">
             <Label for="hp-max-input" class="label-caps">HP MAX</Label>
             <Input
+              class="form-input"
               id="hp-max-input"
               type="number"
               min="1"
@@ -421,6 +419,7 @@
           <div class="create-field">
             <Label for="ac-input" class="label-caps">AC</Label>
             <Input
+              class="form-input"
               id="ac-input"
               type="number"
               min="0"
@@ -431,6 +430,7 @@
           <div class="create-field">
             <Label for="speed-input" class="label-caps">VEL</Label>
             <Input
+              class="form-input"
               id="speed-input"
               type="number"
               min="0"
@@ -448,7 +448,7 @@
               <span class="label-caps">Clase</span>
               <select class="selector" bind:value={classPrimary}>
                 <option value="">Sin definir</option>
-                {#each classOptions as option}
+                {#each classOptions as option (option.key)}
                   <option value={option.key}>{option.label}</option>
                 {/each}
               </select>
@@ -464,7 +464,7 @@
                   <option value="">Sin opciones</option>
                 {:else}
                   <option value="">Sin definir</option>
-                  {#each subclassOptions as option}
+                  {#each subclassOptions as option (option.key)}
                     <option value={option.key}>{option.label}</option>
                   {/each}
                 {/if}
@@ -472,13 +472,19 @@
             </label>
             <label class="create-field">
               <span class="label-caps">Nivel</span>
-              <Input type="number" min="1" max="20" bind:value={classLevel} />
+              <Input
+                class="form-input"
+                type="number"
+                min="1"
+                max="20"
+                bind:value={classLevel}
+              />
             </label>
             <label class="create-field">
               <span class="label-caps">Background</span>
               <select class="selector" bind:value={backgroundName}>
                 <option value="">Sin definir</option>
-                {#each backgroundOptions as option}
+                {#each backgroundOptions as option (option.key)}
                   <option value={option.key}>{option.label}</option>
                 {/each}
               </select>
@@ -494,7 +500,7 @@
                   <option value="">Sin opciones</option>
                 {:else}
                   <option value="">Sin definir</option>
-                  {#each featOptions as option}
+                  {#each featOptions as option (option.key)}
                     <option value={option.key}>{option.label}</option>
                   {/each}
                 {/if}
@@ -504,7 +510,7 @@
               <span class="label-caps">Especie</span>
               <select class="selector" bind:value={speciesName}>
                 <option value="">Sin definir</option>
-                {#each speciesOptions as option}
+                {#each speciesOptions as option (option.key)}
                   <option value={option.key}>{option.label}</option>
                 {/each}
               </select>
@@ -513,7 +519,7 @@
               <span class="label-caps">Tamaño</span>
               <select class="selector" bind:value={speciesSize}>
                 <option value="">Sin definir</option>
-                {#each sizeOptions as option}
+                {#each sizeOptions as option (option.key)}
                   <option value={option.key}>{option.label}</option>
                 {/each}
               </select>
@@ -522,7 +528,7 @@
               <span class="label-caps">Alineamiento</span>
               <select class="selector" bind:value={alignment}>
                 <option value="">Sin definir</option>
-                {#each alignmentOptions as option}
+                {#each alignmentOptions as option (option.key)}
                   <option value={option.key}>{option.label}</option>
                 {/each}
               </select>
@@ -560,7 +566,10 @@
                 onchange={(v) => (selectedRareLanguages = v)}
                 size={Math.max(3, Math.min(6, rareLanguageOptions.length || 3))}
               />
-              <SelectionPillList items={selectedRareLanguages} labelMap={labelOf} />
+              <SelectionPillList
+                items={selectedRareLanguages}
+                labelMap={labelOf}
+              />
             </div>
           </div>
           <div class="create-grid create-grid--two">
@@ -607,7 +616,10 @@
                 onchange={(v) => (selectedArmorProficiencies = v)}
                 size={Math.max(3, Math.min(6, armorOptions.length || 3))}
               />
-              <SelectionPillList items={selectedArmorProficiencies} labelMap={labelOf} />
+              <SelectionPillList
+                items={selectedArmorProficiencies}
+                labelMap={labelOf}
+              />
             </div>
             <div class="create-field">
               <span class="label-caps"
@@ -622,7 +634,10 @@
                 onchange={(v) => (selectedWeaponProficiencies = v)}
                 size={Math.max(3, Math.min(6, weaponOptions.length || 3))}
               />
-              <SelectionPillList items={selectedWeaponProficiencies} labelMap={labelOf} />
+              <SelectionPillList
+                items={selectedWeaponProficiencies}
+                labelMap={labelOf}
+              />
             </div>
           </div>
         </div>
@@ -657,7 +672,7 @@
                   <option value="">Sin opciones</option>
                 {:else}
                   <option value="">Sin definir</option>
-                  {#each trinketOptions as option}
+                  {#each trinketOptions as option (option.key)}
                     <option value={option.key}>{option.label}</option>
                   {/each}
                 {/if}

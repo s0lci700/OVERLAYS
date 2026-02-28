@@ -44,20 +44,43 @@ Used in:
   ]);
 </script>
 
-<Story name="With Label Map" args={{ items: ["common", "elvish", "dwarvish"], labelMap: languageMap }} />
+<Story
+  name="With Label Map"
+  args={{ items: ["common", "elvish", "dwarvish"], labelMap: languageMap }}
+/>
 
-<Story name="Without Label Map (shows keys)" args={{ items: ["athletics", "perception", "stealth"] }} />
+<Story
+  name="Without Label Map (shows keys)"
+  args={{ items: ["athletics", "perception", "stealth"] }}
+/>
 
 <Story name="Empty (renders nothing)" args={{ items: [] }} />
 
-<Story name="Many Items" args={{ items: ["common", "elvish", "dwarvish", "draconic", "gnomish", "orc"], labelMap: languageMap }} />
+<Story
+  name="Many Items"
+  args={{
+    items: ["common", "elvish", "dwarvish", "draconic", "gnomish", "orc"],
+    labelMap: languageMap,
+  }}
+/>
 
 <Story name="CharacterCreationForm — Languages section">
-  <div style="padding:16px; max-width:380px; display:flex; flex-direction:column; gap:8px;">
-    <span style="font-family:var(--font-display,monospace); font-size:0.7rem; color:var(--grey,#666); letter-spacing:0.1em;">IDIOMAS</span>
-    <div style="border:1px solid #333; border-radius:6px; padding:8px; font-family:sans-serif; color:#aaa; font-size:0.85rem;">
+  <div
+    style="padding:16px; max-width:380px; display:flex; flex-direction:column; gap:8px;"
+  >
+    <span
+      style="font-family:var(--font-display,monospace); font-size:0.7rem; color:var(--grey,#666); letter-spacing:0.1em;"
+      >IDIOMAS</span
+    >
+    <div
+      style="border:1px solid #333; border-radius:6px; padding:8px; font-family:sans-serif; color:#aaa; font-size:0.85rem;"
+    >
       [MultiSelect goes here]
     </div>
-    <SelectionPillList items={["common", "elvish", "dwarvish"]} labelMap={languageMap} />
+    <SelectionPillList
+      items={["common", "elvish", "dwarvish"]}
+      labelMap={languageMap}
+      class=""
+    />
   </div>
 </Story>

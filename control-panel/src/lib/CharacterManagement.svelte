@@ -106,9 +106,11 @@
   const weaponOptions = optionSets.weapon_proficiencies || [];
   const itemOptions = optionSets.items || [];
   const trinketOptions = optionSets.trinkets || [];
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
   const rareLanguageKeys = new Set(
     rareLanguageOptions.map((option) => option.key),
   );
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
   const labelMaps = {
     class: new Map(classOptions.map((option) => [option.key, option.label])),
     species: new Map(
@@ -120,6 +122,7 @@
   };
 
   // Unified label lookup for pill previews.
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
   const labelOf = new Map([
     ...languageOptions.map((o) => [o.key, o.label]),
     ...rareLanguageOptions.map((o) => [o.key, o.label]),
@@ -864,7 +867,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                    {#each classOptions as option}
+                    {#each classOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>
@@ -886,7 +889,7 @@
                       <option value="">Sin opciones</option>
                     {:else}
                       <option value="">Sin definir</option>
-                      {#each subclassOptions as option}
+                      {#each subclassOptions as option (option.key)}
                         <option value={option.key}>{option.label}</option>
                       {/each}
                     {/if}
@@ -923,7 +926,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                    {#each backgroundOptions as option}
+                      {#each backgroundOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>
@@ -945,7 +948,7 @@
                       <option value="">Sin opciones</option>
                     {:else}
                       <option value="">Sin definir</option>
-                      {#each featOptions as option}
+                      {#each featOptions as option (option.key)}
                         <option value={option.key}>{option.label}</option>
                       {/each}
                     {/if}
@@ -964,7 +967,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                    {#each speciesOptions as option}
+                    {#each speciesOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>
@@ -982,7 +985,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                    {#each sizeOptions as option}
+                    {#each sizeOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>
@@ -1000,7 +1003,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                    {#each alignmentOptions as option}
+                    {#each alignmentOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>
@@ -1193,7 +1196,7 @@
                       <option value="">Sin opciones</option>
                     {:else}
                       <option value="">Sin definir</option>
-                      {#each trinketOptions as option}
+                      {#each trinketOptions as option (option.key)}
                         <option value={option.key}>{option.label}</option>
                       {/each}
                     {/if}

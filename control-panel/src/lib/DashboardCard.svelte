@@ -135,7 +135,7 @@
   <section class="dash-section">
     <h3 class="dash-section-title">ATRIBUTOS</h3>
     <div class="dash-ability-grid">
-      {#each abilityList as ability}
+      {#each abilityList as ability (ability.key)}
         <StatDisplay label={ability.label} value={formatNumber(character?.ability_scores?.[ability.key])} variant="cell" />
       {/each}
     </div>
