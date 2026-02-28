@@ -479,13 +479,14 @@
     </div>
 
     <script>
-      // Fetch the server's LAN IP and dynamically populate all URLs on the page.
-      // This makes the page work correctly whether opened at localhost or a LAN IP.
+      // Use window.location.origin as the server base so URLs are correct
+      // whether running on localhost, LAN, or a cloud host like Railway.
       fetch('/api/info')
         .then(r => r.json())
-        .then(({ ip, port }) => {
-          const base = `http://${ip}:${port}`;
-          const cpBase = `http://${ip}:5173`;
+        .then(({ ip, port, controlPanelUrl }) => {
+          // Always use the current page origin — works on any host/port/domain.
+          const base = window.location.origin;
+          const cpBase = controlPanelUrl || `http://${ip}:5173`;
           const serverParam = `?server=${base}`;
 
           // Status bar
@@ -512,7 +513,7 @@
           document.getElementById('obs-url-cond').textContent = base + '/overlay-conditions.html' + serverParam;
         })
         .catch(() => {
-          document.getElementById('server-address').textContent = 'localhost:3000';
+          document.getElementById('server-address').textContent = window.location.origin;
         });
     </script>
   </body>

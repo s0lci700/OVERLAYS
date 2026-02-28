@@ -104,7 +104,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Returns the server's LAN IP and port so the landing page (public/index.html)
 // can dynamically render correct URLs for OBS setup and the control panel.
 app.get("/api/info", (req, res) => {
-  res.json({ ip: getMainIP(), port: PORT });
+  res.json({ ip: getMainIP(), port: PORT, controlPanelUrl: CONTROL_PANEL_ORIGIN });
 });
 
 // Returns the canonical design tokens JSON from design/tokens.json.
