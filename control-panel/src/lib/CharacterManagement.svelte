@@ -19,7 +19,7 @@
   import { resolvePhotoSrc } from "./utils.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
-  import characterOptions from "../../../docs/character-options.template.json";
+  import characterOptions from "./character-options.template.json";
   import { fade } from "svelte/transition";
 
   const PHOTO_OPTIONS = [
