@@ -12,7 +12,8 @@
     "stress:api": "k6 run stress/api.js",
     "stress:cp": "k6 run stress/control-panel.js",
     "stress": "bun run stress:api && bun run stress:cp",
-    "test:full": "bun run test:e2e && bun run stress"
+    "test:full": "bun run test:e2e && bun run stress",
+    "export:notion": "bun scripts/export-to-notion.js"
   },
   "repository": {
     "type": "git",
