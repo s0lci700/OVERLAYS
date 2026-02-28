@@ -356,7 +356,11 @@
               <img src={getResolvedPhotoValue()} alt="Preview foto" />
             </div>
           {/if}
-          <Modal bind:open={showPhotoModal} title="Seleccionar foto" showCloseButton={false}>
+          <Modal
+            bind:open={showPhotoModal}
+            title="Seleccionar foto"
+            showCloseButton={false}
+          >
             <PhotoSourcePicker
               options={AVAILABLE_PHOTOS}
               source={photoSource}

@@ -674,10 +674,30 @@
                 class="manage-readonly-grid"
                 transition:fade={{ duration: 140 }}
               >
-                <ReadOnlyField label="Clase / Nivel" value={buildReadOnlyClass(character.id)} class="manage-readonly-item" />
-                <ReadOnlyField label="Background / Especie" value={buildProfileSummary(character.id)} class="manage-readonly-item" />
-                <ReadOnlyField label="Alineamiento" value={resolveLabel(labelMaps.alignment, alignmentById[character.id], "No definido")} class="manage-readonly-item" />
-                <ReadOnlyField label="Idiomas" value={buildLanguagesSummary(character.id)} class="manage-readonly-item" />
+                <ReadOnlyField
+                  label="Clase / Nivel"
+                  value={buildReadOnlyClass(character.id)}
+                  class="manage-readonly-item"
+                />
+                <ReadOnlyField
+                  label="Background / Especie"
+                  value={buildProfileSummary(character.id)}
+                  class="manage-readonly-item"
+                />
+                <ReadOnlyField
+                  label="Alineamiento"
+                  value={resolveLabel(
+                    labelMaps.alignment,
+                    alignmentById[character.id],
+                    "No definido",
+                  )}
+                  class="manage-readonly-item"
+                />
+                <ReadOnlyField
+                  label="Idiomas"
+                  value={buildLanguagesSummary(character.id)}
+                  class="manage-readonly-item"
+                />
                 <div class="manage-readonly-item">
                   <span class="manage-readonly-label manage-readonly-expand">
                     Competencias y equipo
@@ -926,7 +946,7 @@
                       ))}
                   >
                     <option value="">Sin definir</option>
-                      {#each backgroundOptions as option (option.key)}
+                    {#each backgroundOptions as option (option.key)}
                       <option value={option.key}>{option.label}</option>
                     {/each}
                   </select>

@@ -124,10 +124,26 @@
       </div>
       <span class="dash-player">Jugador: {formatText(character?.player)}</span>
       <div class="dash-vitals">
-        <StatDisplay label="HP" value={formatHp(character?.hp_current, character?.hp_max)} variant="inline" />
-        <StatDisplay label="Temp" value={formatNumber(character?.hp_temp)} variant="inline" />
-        <StatDisplay label="AC" value={formatNumber(character?.armor_class)} variant="inline" />
-        <StatDisplay label="Vel" value={formatNumber(character?.speed_walk)} variant="inline" />
+        <StatDisplay
+          label="HP"
+          value={formatHp(character?.hp_current, character?.hp_max)}
+          variant="inline"
+        />
+        <StatDisplay
+          label="Temp"
+          value={formatNumber(character?.hp_temp)}
+          variant="inline"
+        />
+        <StatDisplay
+          label="AC"
+          value={formatNumber(character?.armor_class)}
+          variant="inline"
+        />
+        <StatDisplay
+          label="Vel"
+          value={formatNumber(character?.speed_walk)}
+          variant="inline"
+        />
       </div>
     </div>
   </header>
@@ -136,7 +152,11 @@
     <h3 class="dash-section-title">ATRIBUTOS</h3>
     <div class="dash-ability-grid">
       {#each abilityList as ability (ability.key)}
-        <StatDisplay label={ability.label} value={formatNumber(character?.ability_scores?.[ability.key])} variant="cell" />
+        <StatDisplay
+          label={ability.label}
+          value={formatNumber(character?.ability_scores?.[ability.key])}
+          variant="cell"
+        />
       {/each}
     </div>
   </section>
@@ -146,7 +166,10 @@
     {#if Array.isArray(character?.conditions) && character.conditions.length}
       <div class="dash-pill-row">
         {#each character.conditions as condition (condition.id)}
-          <ConditionPill label={formatCondition(condition)} variant="condition" />
+          <ConditionPill
+            label={formatCondition(condition)}
+            variant="condition"
+          />
         {/each}
       </div>
     {:else}
