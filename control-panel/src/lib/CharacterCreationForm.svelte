@@ -21,7 +21,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { SelectionPillList } from "$lib/components/ui/selection-pill-list/index.js";
   import { SERVER_URL } from "./socket";
-  import characterOptions from "../../../docs/character-options.template.json";
+  import characterOptions from "./character-options.template.json";
 
   // Controlled form fields for the character payload.
   // Each field is a reactive local state item bound to inputs in the template.
