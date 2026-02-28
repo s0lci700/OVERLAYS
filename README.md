@@ -1,5 +1,7 @@
 # DADOS & RISAS 🎲
 
+🌞
+
 **Sistema de producción en tiempo real para campañas de D&D en streaming.**
 
 Controlá personajes, puntos de vida y tiradas de dado desde el celular. Los overlays en OBS se actualizan al instante — sin recargar, sin delay, sin plugins.
