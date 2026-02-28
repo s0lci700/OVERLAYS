@@ -1,0 +1,6 @@
+[build]
+buildCommand = "bun install"
+
+[deploy]
+startCommand = "bun server.js"
+healthcheckPath = "/api/info"
