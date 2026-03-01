@@ -8,6 +8,7 @@
     "generate:tokens": "bun scripts/generate-tokens.ts",
     "start": "bun scripts/setup-ip.js && bun server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:unit": "bun test data/",
     "test:e2e": "bunx playwright test",
     "stress:api": "k6 run stress/api.js",
     "stress:cp": "k6 run stress/control-panel.js",
