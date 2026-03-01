@@ -1,0 +1,57 @@
+<script module>
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import * as Dialog from "$lib/components/ui/dialog";
+  import DialogRoot from "$lib/components/ui/dialog/dialog.svelte";
+  import { Button } from "$lib/components/ui/button/index.js";
+
+  const { Story } = defineMeta({
+    title: "Components/Dialog",
+    component: DialogRoot,
+    tags: ["autodocs"],
+    parameters: {
+      docs: {
+        description: {
+          component:
+            "Branded dialog using the project's Dialog wrapper. The story demonstrates how to apply existing `.modal-panel` and `card-base` classes to preserve visual styling while gaining focus-trap and ARIA behavior from the primitive.",
+        },
+      },
+    },
+  });
+</script>
+
+<Story name="Default">
+  <div style="padding:24px;">
+    <Dialog.Root>
+      <Dialog.Trigger asChild>
+        <Button class="btn-base">Open dialog</Button>
+      </Dialog.Trigger>
+
+      <Dialog.Content
+        class="modal-panel card-base"
+        aria-labelledby="sb-dialog-title"
+      >
+        <header
+          style="display:flex;justify-content:space-between;align-items:center;"
+        >
+          <h3 id="sb-dialog-title" style="margin:0;">Dialog title</h3>
+          <Dialog.Close asChild>
+            <button class="btn-base" aria-label="Close">✕</button>
+          </Dialog.Close>
+        </header>
+        <div style="margin-top:12px;">
+          <p>
+            This is a Storybook demo of the Dialog component. Tab navigation is
+            trapped inside the dialog and Escape closes it.
+          </p>
+        </div>
+        <footer
+          style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;"
+        >
+          <Dialog.Close asChild>
+            <Button class="btn-base">Close</Button>
+          </Dialog.Close>
+        </footer>
+      </Dialog.Content>
+    </Dialog.Root>
+  </div>
+</Story>

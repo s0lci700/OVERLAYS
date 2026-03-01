@@ -1,0 +1,85 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: ESDH
+      - generic [ref=e8]: TTRPG
+    - generic [ref=e9]: GESTIÓN DE PERSONAJES
+    - generic [ref=e10]:
+      - generic [ref=e12]: "3"
+      - button "Abrir navegación" [ref=e13] [cursor=pointer]: ☰
+  - main [ref=e14]:
+    - region "GESTION DE PERSONAJES" [ref=e16]:
+      - heading "GESTION DE PERSONAJES" [level=2] [ref=e18]
+      - generic [ref=e19]:
+        - article [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - button "Editar foto de Kael" [ref=e23] [cursor=pointer]:
+                - img "Kael" [ref=e24]
+                - generic [ref=e25]: Editar foto
+              - generic [ref=e26]:
+                - heading "Kael" [level=3] [ref=e27]
+                - generic [ref=e28]: Mara
+                - generic [ref=e29]: NIVEL 1
+            - button "EDITAR PERSONAJE" [ref=e30] [cursor=pointer]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Rogue 1
+            - generic [ref=e33]: •
+            - generic [ref=e34]: Human
+            - generic [ref=e35]: •
+            - generic [ref=e36]: Lawful Good
+        - article [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - button "Editar foto de Lyra" [ref=e40] [cursor=pointer]:
+                - img "Lyra" [ref=e41]
+                - generic [ref=e42]: Editar foto
+              - generic [ref=e43]:
+                - heading "Lyra" [level=3] [ref=e44]
+                - generic [ref=e45]: Nico
+                - generic [ref=e46]: NIVEL 1
+            - button "EDITAR PERSONAJE" [ref=e47] [cursor=pointer]
+          - generic [ref=e48]:
+            - generic [ref=e49]: Bard 1
+            - generic [ref=e50]: •
+            - generic [ref=e51]: Elf
+            - generic [ref=e52]: •
+            - generic [ref=e53]: Neutral Good
+        - article [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - button "Editar foto de Brum" [ref=e57] [cursor=pointer]:
+                - img "Brum" [ref=e58]
+                - generic [ref=e59]: Editar foto
+              - generic [ref=e60]:
+                - heading "Brum" [level=3] [ref=e61]
+                - generic [ref=e62]: Iris
+                - generic [ref=e63]: NIVEL 1
+            - button "EDITAR PERSONAJE" [ref=e64] [cursor=pointer]
+          - generic [ref=e65]:
+            - generic [ref=e66]: Cleric 1
+            - generic [ref=e67]: •
+            - generic [ref=e68]: Dwarf
+            - generic [ref=e69]: •
+            - generic [ref=e70]: Lawful Neutral
+    - navigation [ref=e71]:
+      - link "＋ CREAR" [ref=e72] [cursor=pointer]:
+        - /url: /management/create
+        - generic [ref=e73]: ＋
+        - generic [ref=e74]: CREAR
+      - link "⛭ GESTIONAR" [ref=e75] [cursor=pointer]:
+        - /url: /management/manage
+        - generic [ref=e76]: ⛭
+        - generic [ref=e77]: GESTIONAR
+  - complementary [ref=e78]:
+    - generic [ref=e79]:
+      - heading "NAVEGACIÓN" [level=2] [ref=e80]
+      - button "Cerrar navegación" [ref=e81] [cursor=pointer]: ✕
+    - link "PANEL DE CONTROL" [ref=e82] [cursor=pointer]:
+      - /url: /control/characters
+    - link "DASHBOARD" [ref=e83] [cursor=pointer]:
+      - /url: /dashboard
+    - link "GESTIÓN DE PERSONAJES" [ref=e84] [cursor=pointer]:
+      - /url: /management/create

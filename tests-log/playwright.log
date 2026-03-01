@@ -1,0 +1,70 @@
+
+Running 12 tests using 1 worker
+
+[1A[2K[1/12] [chromium] › app.test.js:28:3 › D&D Overlay System - Full Stack Test › Server API responds with characters
+[1A[2K[chromium] › app.test.js:28:3 › D&D Overlay System - Full Stack Test › Server API responds with characters
+✓ Server API responding correctly
+
+[1A[2K  Found 2 characters
+
+[1A[2K[2/12] [chromium] › app.test.js:47:3 › D&D Overlay System - Full Stack Test › Control Panel loads successfully
+[1A[2K[chromium] › app.test.js:47:3 › D&D Overlay System - Full Stack Test › Control Panel loads successfully
+✓ Control Panel loaded with visible elements
+
+[1A[2K  Screenshot saved: test-control-panel.png
+
+[1A[2K[3/12] [chromium] › app.test.js:64:3 › D&D Overlay System - Full Stack Test › Socket.io connection establishes
+[1A[2K[chromium] › app.test.js:64:3 › D&D Overlay System - Full Stack Test › Socket.io connection establishes
+✓ Socket.io client check: checking...
+
+[1A[2K[4/12] [chromium] › app.test.js:96:3 › D&D Overlay System - Full Stack Test › HP Update flow works end-to-end
+[1A[2K[chromium] › app.test.js:96:3 › D&D Overlay System - Full Stack Test › HP Update flow works end-to-end
+  Initial HP for El verdadero: 28/35
+
+[1A[2K✓ HP update successful: 28 → 23
+
+[1A[2K  HP update persisted in server state
+
+[1A[2K[5/12] [chromium] › app.test.js:131:3 › D&D Overlay System - Full Stack Test › Dice rolling works
+[1A[2K[chromium] › app.test.js:131:3 › D&D Overlay System - Full Stack Test › Dice rolling works
+✓ Dice roll: d20 rolled 12, +5 = 17
+
+[1A[2K[6/12] [chromium] › app.test.js:160:3 › D&D Overlay System - Full Stack Test › Character creation supports local photo upload
+[1A[2K[7/12] [chromium] › app.test.js:205:3 › D&D Overlay System - Full Stack Test › Character photo update accepts URL
+[1A[2K[chromium] › app.test.js:205:3 › D&D Overlay System - Full Stack Test › Character photo update accepts URL
+Photo update response: status() {
+    return this._initializer.status;
+  } {"id":"CH001","name":"El verdadero","player":"Lucas","hp_current":23,"hp_max":35,"hp_temp":0,"armor_class":17,"speed_walk":30,"ability_scores":{"str":16,"dex":14,"con":14,"int":12,"wis":13,"cha":16},"conditions":[],"resources":[{"id":"RS001","name":"RAGE","pool_max":3,"pool_current":3,"recharge":"LONG_REST"},{"id":"RS002","name":"INSPIRACIÓN","pool_max":1,"pool_current":0,"recharge":"DM"}],"photo":"https://example.com/portrait.png"}
+
+[1A[2K[8/12] [chromium] › app.test.js:246:3 › D&D Overlay System - Full Stack Test › Character profile update persists
+[1A[2K[9/12] [chromium] › app.test.js:292:3 › D&D Overlay System - Full Stack Test › Overlay HP page loads
+[1A[2K[chromium] › app.test.js:292:3 › D&D Overlay System - Full Stack Test › Overlay HP page loads
+✓ HP Overlay loads Socket.io
+
+[1A[2K  Screenshot saved: test-overlay-hp.png
+
+[1A[2K[10/12] [chromium] › app.test.js:315:3 › D&D Overlay System - Full Stack Test › Overlay Dice page loads
+[1A[2K[chromium] › app.test.js:315:3 › D&D Overlay System - Full Stack Test › Overlay Dice page loads
+✓ Dice Overlay loads Socket.io
+
+[1A[2K  Screenshot saved: test-overlay-dice.png
+
+[1A[2K[11/12] [chromium] › app.test.js:333:3 › D&D Overlay System - Full Stack Test › Full integration: HP update triggers overlay update
+[1A[2K[chromium] › app.test.js:333:3 › D&D Overlay System - Full Stack Test › Full integration: HP update triggers overlay update
+✓ Integration test: HP updated from 23 to 20
+
+[1A[2K  Overlay update detected: Yes
+
+[1A[2K[12/12] [chromium] › app.test.js:380:3 › Quick Health Check › All components are accessible
+[1A[2K[chromium] › app.test.js:380:3 › Quick Health Check › All components are accessible
+
+=== Quick Health Check ===
+
+[1A[2K✓ Server API: OK
+
+[1A[2K✓ Control Panel: OK
+
+[1A[2K===========================
+
+
+[1A[2K  12 passed (17.4s)

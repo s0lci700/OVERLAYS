@@ -1,0 +1,5 @@
+Total messages: 4 (Errors: 0, Warnings: 0)
+Returning 2 messages for level "info"
+
+[LOG] Connected to server @ http://localhost:5174/src/lib/socket.js:15
+[LOG] Received initial data: {characters: Array(3), rolls: Array(0)} @ http://localhost:5174/src/lib/socket.js:20

@@ -1,0 +1,8 @@
+[    1539ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/vite.svg:0
+[    3745ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g17pcjez:0
+[    6374ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g19qq5po:0
+[   10197ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g1coq6be:0
+[   16942ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g1hvxcik:0
+[   23978ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g1nbq8f8:0
+[   31034ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g1sr76sd:0
+[   38085ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://192.168.1.83:3000/socket.io/?EIO=4&transport=polling&t=g1y771y7:0

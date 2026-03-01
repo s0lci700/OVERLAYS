@@ -1,0 +1,371 @@
+- generic [ref=e3]:
+  - link "Saltar al contenido" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: ESDH
+      - generic [ref=e8]: TTRPG
+    - generic [ref=e9]: GESTIÓN DE PERSONAJES
+    - generic [ref=e10]:
+      - generic [ref=e12]: "3"
+      - button "Abrir navegación" [ref=e13] [cursor=pointer]: ☰
+  - main [ref=e14]:
+    - region "GESTION DE PERSONAJES" [ref=e16]:
+      - heading "GESTION DE PERSONAJES" [level=2] [ref=e18]
+      - generic [ref=e19]:
+        - article [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - button "Editar foto de Kael" [ref=e23] [cursor=pointer]:
+                - img "Kael" [ref=e24]
+                - generic [ref=e25]: Editar foto
+              - generic [ref=e26]:
+                - heading "Kael" [level=3] [ref=e27]
+                - generic [ref=e28]: Mara
+                - generic [ref=e29]: NIVEL 1
+            - button "CERRAR EDICION" [expanded] [active] [ref=e86] [cursor=pointer]
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - generic [ref=e89]: Nombre
+              - textbox "Nombre" [ref=e90]: Kael
+            - generic [ref=e91]:
+              - generic [ref=e92]: Jugador
+              - textbox "Jugador" [ref=e93]: Mara
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: HP MAX
+                - spinbutton "HP MAX" [ref=e97]: "12"
+              - generic [ref=e98]:
+                - generic [ref=e99]: AC
+                - spinbutton "AC" [ref=e100]: "18"
+              - generic [ref=e101]:
+                - generic [ref=e102]: VEL
+                - spinbutton "VEL" [ref=e103]: "30"
+            - generic [ref=e104]:
+              - heading "Opciones de personaje" [level=4] [ref=e105]
+              - generic [ref=e106]:
+                - generic [ref=e107]:
+                  - generic [ref=e108]: Clase
+                  - combobox "Clase" [ref=e109] [cursor=pointer]:
+                    - option "Sin definir"
+                    - option "Barbarian"
+                    - option "Bard"
+                    - option "Cleric"
+                    - option "Druid"
+                    - option "Fighter"
+                    - option "Monk"
+                    - option "Paladin"
+                    - option "Ranger"
+                    - option "Rogue" [selected]
+                    - option "Sorcerer"
+                    - option "Warlock"
+                    - option "Wizard"
+                - generic [ref=e110]:
+                  - generic [ref=e111]: Subclase
+                  - combobox "Subclase" [disabled] [ref=e112] [cursor=pointer]:
+                    - option "Sin opciones" [selected]
+                - generic [ref=e113]:
+                  - generic [ref=e114]: Nivel
+                  - spinbutton "Nivel" [ref=e115]: "1"
+                - generic [ref=e116]:
+                  - generic [ref=e117]: Background
+                  - combobox "Background" [ref=e118] [cursor=pointer]:
+                    - option "Sin definir"
+                    - option "Acolyte"
+                    - option "Criminal"
+                    - option "Sage"
+                    - option "Soldier" [selected]
+                - generic [ref=e119]:
+                  - generic [ref=e120]: Feat
+                  - combobox "Feat" [disabled] [ref=e121] [cursor=pointer]:
+                    - option "Sin opciones" [selected]
+                - generic [ref=e122]:
+                  - generic [ref=e123]: Especie
+                  - combobox "Especie" [ref=e124] [cursor=pointer]:
+                    - option "Sin definir"
+                    - option "Dragonborn"
+                    - option "Dwarf"
+                    - option "Elf"
+                    - option "Gnome"
+                    - option "Goliath"
+                    - option "Halfling"
+                    - option "Human" [selected]
+                    - option "Orc"
+                    - option "Tiefling"
+                - generic [ref=e125]:
+                  - generic [ref=e126]: Tamaño
+                  - combobox "Tamaño" [ref=e127] [cursor=pointer]:
+                    - option "Sin definir"
+                    - option "Small"
+                    - option "Medium" [selected]
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Alineamiento
+                  - combobox "Alineamiento" [ref=e130] [cursor=pointer]:
+                    - option "Sin definir"
+                    - option "Lawful Good" [selected]
+                    - option "Neutral Good"
+                    - option "Chaotic Good"
+                    - option "Lawful Neutral"
+                    - option "Neutral"
+                    - option "Chaotic Neutral"
+                    - option "Lawful Evil"
+                    - option "Neutral Evil"
+                    - option "Chaotic Evil"
+            - generic [ref=e131]:
+              - heading "Idiomas y proficiencias" [level=4] [ref=e132]
+              - generic [ref=e133]:
+                - generic [ref=e134]:
+                  - generic [ref=e135]: Idiomas 3
+                  - listbox [ref=e136]:
+                    - option "Common" [selected] [ref=e137] [cursor=pointer]:
+                      - generic [ref=e138]: Common
+                      - generic [ref=e139]: ✓
+                    - option "Common Sign Language" [ref=e140] [cursor=pointer]:
+                      - generic [ref=e141]: Common Sign Language
+                    - option "Draconic" [ref=e142] [cursor=pointer]:
+                      - generic [ref=e143]: Draconic
+                    - option "Dwarvish" [selected] [ref=e144] [cursor=pointer]:
+                      - generic [ref=e145]: Dwarvish
+                      - generic [ref=e146]: ✓
+                    - option "Elvish" [ref=e147] [cursor=pointer]:
+                      - generic [ref=e148]: Elvish
+                    - option "Giant" [ref=e149] [cursor=pointer]:
+                      - generic [ref=e150]: Giant
+                    - option "Gnomish" [ref=e151] [cursor=pointer]:
+                      - generic [ref=e152]: Gnomish
+                    - option "Goblin" [ref=e153] [cursor=pointer]:
+                      - generic [ref=e154]: Goblin
+                    - option "Halfling" [ref=e155] [cursor=pointer]:
+                      - generic [ref=e156]: Halfling
+                    - option "Orc" [selected] [ref=e157] [cursor=pointer]:
+                      - generic [ref=e158]: Orc
+                      - generic [ref=e159]: ✓
+                  - generic [ref=e160]:
+                    - generic [ref=e161]: Common
+                    - generic [ref=e162]: Dwarvish
+                    - generic [ref=e163]: Orc
+                - generic [ref=e164]:
+                  - generic [ref=e165]: Idiomas raros
+                  - listbox [ref=e166]:
+                    - option "Abyssal" [ref=e167] [cursor=pointer]:
+                      - generic [ref=e168]: Abyssal
+                    - option "Celestial" [ref=e169] [cursor=pointer]:
+                      - generic [ref=e170]: Celestial
+                    - option "Deep Speech" [ref=e171] [cursor=pointer]:
+                      - generic [ref=e172]: Deep Speech
+                    - option "Druidic" [ref=e173] [cursor=pointer]:
+                      - generic [ref=e174]: Druidic
+                    - option "Infernal" [ref=e175] [cursor=pointer]:
+                      - generic [ref=e176]: Infernal
+                    - option "Primordial" [ref=e177] [cursor=pointer]:
+                      - generic [ref=e178]: Primordial
+                    - option "Sylvan" [ref=e179] [cursor=pointer]:
+                      - generic [ref=e180]: Sylvan
+                    - option "Thieves' Cant" [ref=e181] [cursor=pointer]:
+                      - generic [ref=e182]: Thieves' Cant
+                    - option "Undercommon" [ref=e183] [cursor=pointer]:
+                      - generic [ref=e184]: Undercommon
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - generic [ref=e187]: Skills 2
+                  - listbox [ref=e188]:
+                    - option "Athletics" [selected] [ref=e189] [cursor=pointer]:
+                      - generic [ref=e190]: Athletics
+                      - generic [ref=e191]: ✓
+                    - option "Acrobatics" [ref=e192] [cursor=pointer]:
+                      - generic [ref=e193]: Acrobatics
+                    - option "Sleight of Hand" [ref=e194] [cursor=pointer]:
+                      - generic [ref=e195]: Sleight of Hand
+                    - option "Stealth" [ref=e196] [cursor=pointer]:
+                      - generic [ref=e197]: Stealth
+                    - option "Arcana" [ref=e198] [cursor=pointer]:
+                      - generic [ref=e199]: Arcana
+                    - option "History" [ref=e200] [cursor=pointer]:
+                      - generic [ref=e201]: History
+                    - option "Investigation" [ref=e202] [cursor=pointer]:
+                      - generic [ref=e203]: Investigation
+                    - option "Nature" [ref=e204] [cursor=pointer]:
+                      - generic [ref=e205]: Nature
+                    - option "Religion" [ref=e206] [cursor=pointer]:
+                      - generic [ref=e207]: Religion
+                    - option "Animal Handling" [ref=e208] [cursor=pointer]:
+                      - generic [ref=e209]: Animal Handling
+                    - option "Insight" [ref=e210] [cursor=pointer]:
+                      - generic [ref=e211]: Insight
+                    - option "Medicine" [ref=e212] [cursor=pointer]:
+                      - generic [ref=e213]: Medicine
+                    - option "Perception" [ref=e214] [cursor=pointer]:
+                      - generic [ref=e215]: Perception
+                    - option "Survival" [ref=e216] [cursor=pointer]:
+                      - generic [ref=e217]: Survival
+                    - option "Deception" [ref=e218] [cursor=pointer]:
+                      - generic [ref=e219]: Deception
+                    - option "Intimidation" [selected] [ref=e220] [cursor=pointer]:
+                      - generic [ref=e221]: Intimidation
+                      - generic [ref=e222]: ✓
+                    - option "Performance" [ref=e223] [cursor=pointer]:
+                      - generic [ref=e224]: Performance
+                    - option "Persuasion" [ref=e225] [cursor=pointer]:
+                      - generic [ref=e226]: Persuasion
+                  - generic [ref=e227]:
+                    - generic [ref=e228]: Athletics
+                    - generic [ref=e229]: Intimidation
+                - generic [ref=e230]:
+                  - generic [ref=e231]: Herramientas 1
+                  - listbox [ref=e232]:
+                    - option "Alchemist's Supplies" [ref=e233] [cursor=pointer]:
+                      - generic [ref=e234]: Alchemist's Supplies
+                    - option "Brewer's Supplies" [ref=e235] [cursor=pointer]:
+                      - generic [ref=e236]: Brewer's Supplies
+                    - option "Calligrapher's Supplies" [ref=e237] [cursor=pointer]:
+                      - generic [ref=e238]: Calligrapher's Supplies
+                    - option "Carpenter's Tools" [ref=e239] [cursor=pointer]:
+                      - generic [ref=e240]: Carpenter's Tools
+                    - option "Cobbler's Tools" [ref=e241] [cursor=pointer]:
+                      - generic [ref=e242]: Cobbler's Tools
+                    - option "Cook's Utensils" [ref=e243] [cursor=pointer]:
+                      - generic [ref=e244]: Cook's Utensils
+                    - option "Glassblower's Tools" [ref=e245] [cursor=pointer]:
+                      - generic [ref=e246]: Glassblower's Tools
+                    - option "Jeweler's Tools" [ref=e247] [cursor=pointer]:
+                      - generic [ref=e248]: Jeweler's Tools
+                    - option "Leatherworker's Tools" [ref=e249] [cursor=pointer]:
+                      - generic [ref=e250]: Leatherworker's Tools
+                    - option "Mason's Tools" [ref=e251] [cursor=pointer]:
+                      - generic [ref=e252]: Mason's Tools
+                    - option "Painter's Supplies" [ref=e253] [cursor=pointer]:
+                      - generic [ref=e254]: Painter's Supplies
+                    - option "Potter's Tools" [ref=e255] [cursor=pointer]:
+                      - generic [ref=e256]: Potter's Tools
+                    - option "Smith's Tools" [ref=e257] [cursor=pointer]:
+                      - generic [ref=e258]: Smith's Tools
+                    - option "Tinker's Tools" [ref=e259] [cursor=pointer]:
+                      - generic [ref=e260]: Tinker's Tools
+                    - option "Weaver's Tools" [ref=e261] [cursor=pointer]:
+                      - generic [ref=e262]: Weaver's Tools
+                    - option "Woodcarver's Tools" [ref=e263] [cursor=pointer]:
+                      - generic [ref=e264]: Woodcarver's Tools
+                    - option "Disguise Kit" [ref=e265] [cursor=pointer]:
+                      - generic [ref=e266]: Disguise Kit
+                    - option "Forgery Kit" [ref=e267] [cursor=pointer]:
+                      - generic [ref=e268]: Forgery Kit
+                    - option "Gaming Set" [selected] [ref=e269] [cursor=pointer]:
+                      - generic [ref=e270]: Gaming Set
+                      - generic [ref=e271]: ✓
+                    - option "Herbalism Kit" [ref=e272] [cursor=pointer]:
+                      - generic [ref=e273]: Herbalism Kit
+                    - option "Musical Instrument" [ref=e274] [cursor=pointer]:
+                      - generic [ref=e275]: Musical Instrument
+                    - option "Navigator's Tools" [ref=e276] [cursor=pointer]:
+                      - generic [ref=e277]: Navigator's Tools
+                    - option "Poisoner's Kit" [ref=e278] [cursor=pointer]:
+                      - generic [ref=e279]: Poisoner's Kit
+                    - option "Thieves' Tools" [ref=e280] [cursor=pointer]:
+                      - generic [ref=e281]: Thieves' Tools
+                  - generic [ref=e283]: Gaming Set
+              - generic [ref=e284]:
+                - generic [ref=e285]:
+                  - generic [ref=e286]: Armadura 4/4
+                  - listbox [ref=e287]:
+                    - option "Light" [selected] [ref=e288] [cursor=pointer]:
+                      - generic [ref=e289]: Light
+                      - generic [ref=e290]: ✓
+                    - option "Medium" [selected] [ref=e291] [cursor=pointer]:
+                      - generic [ref=e292]: Medium
+                      - generic [ref=e293]: ✓
+                    - option "Heavy" [selected] [ref=e294] [cursor=pointer]:
+                      - generic [ref=e295]: Heavy
+                      - generic [ref=e296]: ✓
+                    - option "Shields" [selected] [ref=e297] [cursor=pointer]:
+                      - generic [ref=e298]: Shields
+                      - generic [ref=e299]: ✓
+                  - generic [ref=e300]:
+                    - generic [ref=e301]: Light
+                    - generic [ref=e302]: Medium
+                    - generic [ref=e303]: Heavy
+                    - generic [ref=e304]: Shields
+                - generic [ref=e305]:
+                  - generic [ref=e306]: Armas 2/2
+                  - listbox [ref=e307]:
+                    - option "Simple" [selected] [ref=e308] [cursor=pointer]:
+                      - generic [ref=e309]: Simple
+                      - generic [ref=e310]: ✓
+                    - option "Martial" [selected] [ref=e311] [cursor=pointer]:
+                      - generic [ref=e312]: Martial
+                      - generic [ref=e313]: ✓
+                  - generic [ref=e314]:
+                    - generic [ref=e315]: Simple
+                    - generic [ref=e316]: Martial
+            - generic [ref=e317]:
+              - heading "Equipo" [level=4] [ref=e318]
+              - generic [ref=e319]:
+                - generic [ref=e320]:
+                  - generic [ref=e321]: Items 4
+                  - listbox [disabled] [ref=e322]:
+                    - generic [ref=e323]: Sin opciones
+                  - generic [ref=e324]:
+                    - generic [ref=e325]: chain_mail
+                    - generic [ref=e326]: shield
+                    - generic [ref=e327]: longsword
+                    - generic [ref=e328]: pack_soldier
+                - generic [ref=e329]:
+                  - generic [ref=e330]: Trinket
+                  - combobox "Trinket" [disabled] [ref=e331] [cursor=pointer]:
+                    - option "Sin opciones" [selected]
+            - generic [ref=e332]:
+              - button "SUBIR NIVEL" [ref=e333] [cursor=pointer]
+              - button "GUARDAR DATOS" [ref=e334] [cursor=pointer]
+              - generic [ref=e335]: Subir nivel solo ajusta el nivel por ahora.
+        - article [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - button "Editar foto de Lyra" [ref=e40] [cursor=pointer]:
+                - img "Lyra" [ref=e41]
+                - generic [ref=e42]: Editar foto
+              - generic [ref=e43]:
+                - heading "Lyra" [level=3] [ref=e44]
+                - generic [ref=e45]: Nico
+                - generic [ref=e46]: NIVEL 1
+            - button "EDITAR PERSONAJE" [ref=e47] [cursor=pointer]
+          - generic [ref=e48]:
+            - generic [ref=e49]: Bard 1
+            - generic [ref=e50]: •
+            - generic [ref=e51]: Elf
+            - generic [ref=e52]: •
+            - generic [ref=e53]: Neutral Good
+        - article [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - button "Editar foto de Brum" [ref=e57] [cursor=pointer]:
+                - img "Brum" [ref=e58]
+                - generic [ref=e59]: Editar foto
+              - generic [ref=e60]:
+                - heading "Brum" [level=3] [ref=e61]
+                - generic [ref=e62]: Iris
+                - generic [ref=e63]: NIVEL 1
+            - button "EDITAR PERSONAJE" [ref=e64] [cursor=pointer]
+          - generic [ref=e65]:
+            - generic [ref=e66]: Cleric 1
+            - generic [ref=e67]: •
+            - generic [ref=e68]: Dwarf
+            - generic [ref=e69]: •
+            - generic [ref=e70]: Lawful Neutral
+    - navigation [ref=e71]:
+      - link "＋ CREAR" [ref=e72] [cursor=pointer]:
+        - /url: /management/create
+        - generic [ref=e73]: ＋
+        - generic [ref=e74]: CREAR
+      - link "⛭ GESTIONAR" [ref=e75] [cursor=pointer]:
+        - /url: /management/manage
+        - generic [ref=e76]: ⛭
+        - generic [ref=e77]: GESTIONAR
+  - complementary [ref=e78]:
+    - generic [ref=e79]:
+      - heading "NAVEGACIÓN" [level=2] [ref=e80]
+      - button "Cerrar navegación" [ref=e81] [cursor=pointer]: ✕
+    - link "PANEL DE CONTROL" [ref=e82] [cursor=pointer]:
+      - /url: /control/characters
+    - link "DASHBOARD" [ref=e83] [cursor=pointer]:
+      - /url: /dashboard
+    - link "GESTIÓN DE PERSONAJES" [ref=e84] [cursor=pointer]:
+      - /url: /management/create
