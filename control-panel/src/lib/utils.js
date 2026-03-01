@@ -29,7 +29,10 @@ export const PHOTO_ASSETS = [
  */
 export function resolvePhotoSrc(photoPath = "", serverUrl = "") {
   if (!photoPath) {
-    return `${serverUrl}/assets/img/placeholder.png`;
+    const portraits = PHOTO_ASSETS.filter((a) => a.value !== "");
+    if (!portraits.length) return "";
+    const fallback = portraits[Math.floor(Math.random() * portraits.length)];
+    return `${serverUrl}${fallback.value}`;
   }
 
   if (
