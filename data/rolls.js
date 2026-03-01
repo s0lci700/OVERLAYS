@@ -1,8 +1,12 @@
+/**
+ * @module rolls
+ * @group Data
+ * @description In-memory dice roll log. All entries are broadcast via Socket.io
+ * and replayed to new clients on connection via `initialData`.
+ */
 const { createShortId } = require("./id");
 
-/**
- * Simple roll log for dice results that can be replayed on the overlays.
- */
+/** @type {Object[]} In-memory array of all roll records for this session. */
 const rolls = [];
 
 /**

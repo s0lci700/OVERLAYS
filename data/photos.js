@@ -1,8 +1,11 @@
 /**
- * Photo utility for assigning 1:1 character photos.
- * If a character doesn't have a photo, a random one from assets/img/ is assigned.
+ * @module photos
+ * @group Utilities
+ * @description Photo assignment utilities. If a character has no photo, a random
+ * fallback portrait from `assets/img/` is assigned automatically.
  */
 
+/** Filenames available as fallback portraits under `assets/img/`. */
 const AVAILABLE_PHOTOS = ["barbarian.png", "elf.png", "wizard.png"];
 
 function normalizePhotoValue(photo) {

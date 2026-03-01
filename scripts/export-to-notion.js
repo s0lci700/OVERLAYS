@@ -1,33 +1,49 @@
 #!/usr/bin/env node
 "use strict";
 /**
- * scripts/export-to-notion.js
+ * @module export-to-notion
+ * @group Scripts
+ * @description Exports core DADOS & RISAS documentation and the live OpenAPI spec to Notion.
  *
- * Exports core DADOS & RISAS documentation to Notion.
  * Creates (or reuses) a root "DADOS & RISAS Docs" page under your chosen parent,
  * then creates or updates a sub-page for each doc file with all content converted
- * to Notion blocks.  Existing pages are reused and their content is replaced rather
+ * to Notion blocks. Existing pages are reused and their content is replaced rather
  * than duplicated.
  *
- * Usage:
- *   NOTION_TOKEN=secret_xxx NOTION_PARENT_PAGE_ID=<page-id> bun scripts/export-to-notion.js
+ * If the server is running, it also exports the full OpenAPI spec (from `/api-docs.json`)
+ * as an "API Reference (OpenAPI)" page in Notion.
  *
- * Setup (one-time):
- *   1. Go to https://www.notion.so/my-integrations → New integration
- *   2. Copy the "Internal Integration Secret" → use as NOTION_TOKEN
- *   3. Open the Notion page where docs should live
- *   4. Click ··· (top-right) → Connections → add your integration
- *   5. Copy the page ID from the URL:
- *      https://www.notion.so/My-Page-<PAGE_ID_HERE>
- *      (the 32-char hex string, with or without dashes)
- *      → use as NOTION_PARENT_PAGE_ID
+ * ## Usage
+ * ```bash
+ * NOTION_TOKEN=secret_xxx NOTION_PARENT_PAGE_ID=<page-id> bun scripts/export-to-notion.js
+ * ```
+ *
+ * ## Setup (one-time)
+ * 1. Go to https://www.notion.so/my-integrations → New integration
+ * 2. Copy the "Internal Integration Secret" → use as `NOTION_TOKEN`
+ * 3. Open the Notion page where docs should live
+ * 4. Click `···` (top-right) → Connections → add your integration
+ * 5. Copy the page ID from the URL:
+ *    `https://www.notion.so/My-Page-<PAGE_ID_HERE>`
+ *    (the 32-char hex string, with or without dashes)
+ *    → use as `NOTION_PARENT_PAGE_ID`
+ *
+ * ## Environment variables
+ * | Variable | Description |
+ * |----------|-------------|
+ * | `NOTION_TOKEN` | Notion integration secret |
+ * | `NOTION_PARENT_PAGE_ID` | Target Notion page ID |
+ * | `SERVER_URL` | API server URL (default: `http://localhost:3000`) |
  */
 
 const fs = require("fs");
+const http = require("http");
+const https = require("https");
 const path = require("path");
 
 const TOKEN = process.env.NOTION_TOKEN;
 const PARENT_ID = (process.env.NOTION_PARENT_PAGE_ID || "").replace(/-/g, "");
+const SERVER_URL = process.env.SERVER_URL || "http://localhost:3000";
 
 if (!TOKEN || !PARENT_ID) {
   console.error("Error: both NOTION_TOKEN and NOTION_PARENT_PAGE_ID are required.");
@@ -43,7 +59,7 @@ const API_BASE = "https://api.notion.com/v1";
 
 // Core docs to export, in display order.
 const DOCS = [
-  { file: "CLAUDE.md",              title: "AI Assistant Context",    emoji: "🤖" },
+  { file: "docs/index.md",          title: "Getting Started",         emoji: "🚀" },
   { file: "README.md",              title: "Project Overview",        emoji: "📖" },
   { file: "docs/INDEX.md",          title: "Quick Reference",         emoji: "📑" },
   { file: "docs/ARCHITECTURE.md",   title: "Architecture",            emoji: "🏗️" },
@@ -395,6 +411,93 @@ function parseMarkdown(md) {
   return blocks;
 }
 
+// ── OpenAPI spec export ───────────────────────────────────────
+
+/**
+ * Fetch the OpenAPI JSON spec from the running server.
+ * Returns null (without throwing) if the server is not reachable.
+ * @returns {Promise<Object|null>}
+ */
+async function fetchOpenApiSpec() {
+  const url = `${SERVER_URL}/api-docs.json`;
+  return new Promise((resolve) => {
+    const client = url.startsWith("https") ? https : http;
+    const req = client.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+    req.on("error", () => resolve(null));
+    req.setTimeout(3000, () => { req.destroy(); resolve(null); });
+  });
+}
+
+/**
+ * Convert an OpenAPI spec object into Notion blocks grouped by tag.
+ * @param {Object} spec - Parsed OpenAPI 3.0 spec
+ * @returns {Object[]} Notion blocks
+ */
+function openApiToBlocks(spec) {
+  const blocks = [];
+
+  blocks.push({
+    type: "callout",
+    callout: {
+      icon: { type: "emoji", emoji: "💡" },
+      rich_text: richText(
+        `Interactive Swagger UI: ${SERVER_URL}/api-docs | Raw spec: ${SERVER_URL}/api-docs.json`
+      ),
+    },
+  });
+
+  // Group paths by their first tag
+  const groups = new Map();
+  for (const [routePath, pathItem] of Object.entries(spec.paths || {})) {
+    for (const [method, op] of Object.entries(pathItem)) {
+      if (typeof op !== "object" || !op.tags?.length) continue;
+      const tag = op.tags[0];
+      if (!groups.has(tag)) groups.set(tag, []);
+      groups.get(tag).push({ routePath, method, op });
+    }
+  }
+
+  for (const [tag, operations] of groups) {
+    blocks.push({ type: "heading_2", heading_2: { rich_text: richText(tag) } });
+    for (const { routePath, method, op } of operations) {
+      const title = `${method.toUpperCase()} ${routePath}`;
+      blocks.push({ type: "heading_3", heading_3: { rich_text: richText(title) } });
+      if (op.summary) {
+        blocks.push({ type: "paragraph", paragraph: { rich_text: richText(`📌 ${op.summary}`) } });
+      }
+      if (op.description) {
+        const desc = op.description.replace(/[*_`#]/g, "").slice(0, 1500);
+        blocks.push({ type: "paragraph", paragraph: { rich_text: richText(desc) } });
+      }
+      // Request body schema
+      const schema = op.requestBody?.content?.["application/json"]?.schema;
+      if (schema) {
+        const schemaStr = JSON.stringify(schema, null, 2).slice(0, 1990);
+        blocks.push({ type: "code", code: { rich_text: [{ type: "text", text: { content: schemaStr } }], language: "json" } });
+      }
+      // Response codes
+      const responses = Object.entries(op.responses || {})
+        .map(([code, r]) => `${code}: ${r.description || ""}`)
+        .join("  |  ");
+      if (responses) {
+        blocks.push({ type: "paragraph", paragraph: { rich_text: richText(`↩ ${responses}`) } });
+      }
+    }
+  }
+
+  return blocks;
+}
+
 // ── Main ──────────────────────────────────────────────────────
 
 async function main() {
@@ -430,6 +533,30 @@ async function main() {
     await appendBlocks(pageId, blocks);
     console.log(`✓  ${blocks.length} blocks appended`);
     await sleep(400);
+  }
+
+  // ── Optional: export live OpenAPI spec ──
+  console.log("\n  Checking for live OpenAPI spec at", `${SERVER_URL}/api-docs.json...`);
+  const spec = await fetchOpenApiSpec();
+  if (spec) {
+    const specTitle = "API Reference (OpenAPI)";
+    const existingSpec = await findPageUnderParentByTitle(rootId, specTitle);
+    let specPageId;
+    if (existingSpec) {
+      specPageId = existingSpec.id;
+      process.stdout.write(`  Updating "${specTitle}"... `);
+      await archiveAllChildrenOfPage(specPageId);
+    } else {
+      process.stdout.write(`  Creating "${specTitle}"... `);
+      specPageId = await createPage(rootId, specTitle, "🔗");
+    }
+    await sleep(400);
+    const specBlocks = openApiToBlocks(spec);
+    await appendBlocks(specPageId, specBlocks);
+    console.log(`✓  ${specBlocks.length} blocks appended`);
+  } else {
+    console.log("  ⚠️  Server not reachable — skipping OpenAPI spec export.");
+    console.log("     Start the server with `bun server.js` and re-run to include it.");
   }
 
   console.log("\n✅  Export complete.");

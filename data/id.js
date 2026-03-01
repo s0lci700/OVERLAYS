@@ -1,3 +1,8 @@
+/**
+ * @module id
+ * @group Utilities
+ * @description Short ID generator used for characters, conditions, resources, and roll records.
+ */
 const { randomBytes } = require("crypto");
 
 const SHORT_ID_LENGTH = 5;
@@ -6,8 +11,15 @@ const ALPHABET_LENGTH = SHORT_ID_ALPHABET.length;
 
 /**
  * Generate a short, human-readable ID (default length: 5).
- * Uses a collision-resistant random alphabet without ambiguous characters.
- * @returns {string}
+ *
+ * Uses a collision-resistant random byte alphabet (`crypto.randomBytes`) and
+ * omits visually ambiguous characters (`I`, `O`, `0`, `1`) to make IDs safe
+ * for display and URL use.
+ *
+ * @example
+ * createShortId() // → "AB12C"
+ *
+ * @returns {string} 5-character uppercase alphanumeric ID
  */
 function createShortId() {
   let id = "";

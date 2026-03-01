@@ -1,3 +1,10 @@
+/**
+ * @module characters
+ * @group Data
+ * @description In-memory character store. Seeded from a template file at startup
+ * (controlled by `CHARACTERS_TEMPLATE` env var). All mutations are pure functions
+ * that return the updated entity so the API layer can broadcast it immediately.
+ */
 const { createShortId } = require("./id");
 const { ensureCharactersPhotos } = require("./photos");
 
@@ -405,6 +412,11 @@ function restoreResources(charId, restType) {
  * @param {{name: string, player: string, hp_max: number, hp_current?: number, armor_class?: number, speed_walk?: number, photo?: string, class_primary?: {name?: string, level?: number, subclass?: string}, background?: {name?: string, feat?: string, skill_proficiencies?: string[], tool_proficiency?: string}, species?: {name?: string, size?: string, speed_walk?: number, traits?: string[]}, languages?: string[], alignment?: string, proficiencies?: {skills?: string[], saving_throws?: string[], armor?: string[], weapons?: string[], tools?: string[]}, equipment?: {items?: string[], trinket?: string}}} input
  * @returns {Character}
  */
+/**
+ * Trim and filter an array of strings, removing blanks.
+ * @param {unknown[]} values
+ * @returns {string[]}
+ */
 function normalizeKeyList(values) {
   if (!Array.isArray(values)) return [];
   return values
@@ -412,10 +424,20 @@ function normalizeKeyList(values) {
     .filter((value) => value.length > 0);
 }
 
+/**
+ * Trim a string value, returning `""` for non-string input.
+ * @param {unknown} value
+ * @returns {string}
+ */
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/**
+ * Create and append a new character with sensible defaults.
+ * @param {{name: string, player: string, hp_max: number, hp_current?: number, armor_class?: number, speed_walk?: number, photo?: string, class_primary?: object, background?: object, species?: object, languages?: string[], alignment?: string, proficiencies?: object, equipment?: object}} input
+ * @returns {Character}
+ */
 function createCharacter(input) {
   const classInput =
     input.class_primary && typeof input.class_primary === "object"

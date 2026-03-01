@@ -13,7 +13,10 @@
     "stress:cp": "k6 run stress/control-panel.js",
     "stress": "bun run stress:api && bun run stress:cp",
     "test:full": "bun run test:e2e && bun run stress",
-    "export:notion": "bun scripts/export-to-notion.js"
+    "export:notion": "bun scripts/export-to-notion.js",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "repository": {
     "type": "git",
@@ -32,7 +35,9 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -42,6 +47,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0",
     "svelte": "^5.53.5",
-    "svelte-check": "^4.4.3"
+    "svelte-check": "^4.4.3",
+    "vitepress": "^1.6.4"
   }
 }
