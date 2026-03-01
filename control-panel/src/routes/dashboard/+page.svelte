@@ -7,24 +7,7 @@
   import "$lib/Dashboard.css";
   import DashboardCard from "$lib/DashboardCard.svelte";
   import { characters } from "$lib/socket.js";
-  import { history } from "$lib/dashboardStore.js";
-
-  const MAX_ACTION_LOG = 10;
-  const MAX_ROLL_LOG = 10;
-
-  let actionHistory = $derived(
-    $history
-      .filter((entry) => entry.type !== "roll")
-      .slice(-MAX_ACTION_LOG)
-      .reverse(),
-  );
-
-  let rollHistory = $derived(
-    $history
-      .filter((entry) => entry.type === "roll")
-      .slice(-MAX_ROLL_LOG)
-      .reverse(),
-  );
+  import { actionHistory, rollHistory } from "$lib/dashboardStore.js";
 
   function formatTime(timestamp) {
     try {
@@ -68,7 +51,7 @@
         <h2 class="dashboard-log-title">Últimas acciones</h2>
       </div>
       <ul class="dashboard-log-list">
-        {#each actionHistory as entry (entry.timestamp)}
+        {#each $actionHistory as entry (entry.timestamp)}
           <li class="dashboard-log-item">
             <span class="dashboard-log-time">
               {formatTime(entry.timestamp)}
@@ -90,7 +73,7 @@
         <h2 class="dashboard-log-title">Últimos dados</h2>
       </div>
       <ul class="dashboard-log-list">
-        {#each rollHistory as entry (entry.timestamp)}
+        {#each $rollHistory as entry (entry.timestamp)}
           <li class="dashboard-log-item">
             <span class="dashboard-log-time">
               {formatTime(entry.timestamp)}

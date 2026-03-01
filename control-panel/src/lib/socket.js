@@ -8,7 +8,15 @@ import { writable } from "svelte/store";
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 const socket = io(SERVER_URL);
 
-const characters = writable([]);
+// Internal writable — only this module mutates character state.
+// Components receive a read-only view via the exported `characters` store.
+const _characters = writable([]);
+
+/**
+ * Read-only characters store. Subscribe to this; never call .set() or .update() directly.
+ * All mutations flow through Socket.io events handled below.
+ */
+const characters = { subscribe: _characters.subscribe };
 // Re-exported for use in DiceRoller.svelte to display the most recent dice result.
 export const lastRoll = writable(null);
 
@@ -19,32 +27,32 @@ socket.on("connect", () => {
 // Initial snapshot from the server that boots the characters store.
 socket.on("initialData", (data) => {
   console.log("Received initial data:", data);
-  characters.set(data.characters);
+  _characters.set(data.characters);
 });
 
 // ── Character state updates ──────────────────────────────────
 
 // Keep the character list up to date when HP changes arrive from the server.
 socket.on("hp_updated", ({ character }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) => (c.id === character.id ? character : c)),
   );
 });
 
 // Append newly created characters so every connected panel updates in real time.
 socket.on("character_created", ({ character }) => {
-  characters.update((chars) => [...chars, character]);
+  _characters.update((chars) => [...chars, character]);
 });
 
 socket.on("character_updated", ({ character }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) => (c.id === character.id ? character : c)),
   );
 });
 
 // Append condition payloads so the UI can render updated status badges.
 socket.on("condition_added", ({ charId, condition }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) =>
       c.id === charId
         ? { ...c, conditions: [...(c.conditions || []), condition] }
@@ -55,7 +63,7 @@ socket.on("condition_added", ({ charId, condition }) => {
 
 // Remove a condition entry when the server signals it has expired.
 socket.on("condition_removed", ({ charId, conditionId }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) =>
       c.id === charId
         ? {
@@ -71,7 +79,7 @@ socket.on("condition_removed", ({ charId, conditionId }) => {
 
 // Update a single resource pool so the UI can immediately reflect the remaining uses.
 socket.on("resource_updated", ({ charId, resource }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) =>
       c.id === charId
         ? {
@@ -87,14 +95,14 @@ socket.on("resource_updated", ({ charId, resource }) => {
 
 // Replace the entire character after a rest to atomically refresh all resource pools.
 socket.on("rest_taken", ({ charId, character }) => {
-  characters.update((chars) =>
+  _characters.update((chars) =>
     chars.map((c) => (c.id === charId ? character : c)),
   );
 });
 
 // Remove the character from the list when the server confirms deletion.
 socket.on("character_deleted", ({ charId }) => {
-  characters.update((chars) => chars.filter((c) => c.id !== charId));
+  _characters.update((chars) => chars.filter((c) => c.id !== charId));
 });
 
 // ── Dice ─────────────────────────────────────────────────────

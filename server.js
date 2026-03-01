@@ -48,6 +48,28 @@ const io = new Server(httpServer, {
   },
 });
 
+// ── Broadcast helpers ────────────────────────────────────────
+// Centralises all Socket.io event names and payload shapes in one place.
+// Route handlers call these instead of calling io.emit() directly, keeping the
+// API layer decoupled from the real-time layer.
+
+const broadcast = {
+  characterCreated: (character) => io.emit("character_created", { character }),
+  characterUpdated: (character) => io.emit("character_updated", { character }),
+  characterDeleted: (charId) => io.emit("character_deleted", { charId }),
+  hpUpdated: (character) =>
+    io.emit("hp_updated", { character, hp_current: character.hp_current }),
+  conditionAdded: (charId, condition) =>
+    io.emit("condition_added", { charId, condition }),
+  conditionRemoved: (charId, conditionId) =>
+    io.emit("condition_removed", { charId, conditionId }),
+  resourceUpdated: (charId, resource) =>
+    io.emit("resource_updated", { charId, resource }),
+  restTaken: (charId, type, restored, character) =>
+    io.emit("rest_taken", { charId, type, restored, character }),
+  diceRolled: (rollRecord) => io.emit("dice_rolled", { ...rollRecord }),
+};
+
 // Emit the latest characters and rolls snapshot to every client that connects.
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
@@ -124,6 +146,33 @@ app.get("/api/tokens", (req, res) => {
   }
 });
 
+// ── Validation helpers ───────────────────────────────────────
+// Each helper returns null on success or an error-message string on failure.
+// Usage: const err = requireNonEmptyString(val, "name"); if (err) return res.status(400).json({ error: err });
+
+function requireNonEmptyString(val, field) {
+  if (typeof val !== "string" || val.trim() === "")
+    return `${field} must be a non-empty string`;
+  return null;
+}
+
+function requirePositiveFiniteNumber(val, field) {
+  if (typeof val !== "number" || !Number.isFinite(val) || val <= 0)
+    return `${field} must be a positive finite number`;
+  return null;
+}
+
+function requireNonNegativeFiniteNumber(val, field) {
+  if (typeof val !== "number" || !Number.isFinite(val) || val < 0)
+    return `${field} must be a finite number greater than or equal to 0`;
+  return null;
+}
+
+function optionalNonNegativeFiniteNumber(val, field) {
+  if (val === undefined) return null;
+  return requireNonNegativeFiniteNumber(val, field);
+}
+
 // ── Characters ──────────────────────────────────────────────
 
 // Return the full character roster, including HP, resources, and conditions.
@@ -150,53 +199,13 @@ app.post("/api/characters", (req, res) => {
     equipment,
   } = req.body;
 
-  if (typeof name !== "string" || name.trim() === "") {
-    return res.status(400).json({ error: "name must be a non-empty string" });
-  }
-
-  if (typeof player !== "string" || player.trim() === "") {
-    return res.status(400).json({ error: "player must be a non-empty string" });
-  }
-
-  if (typeof hp_max !== "number" || !Number.isFinite(hp_max) || hp_max <= 0) {
-    return res
-      .status(400)
-      .json({ error: "hp_max must be a positive finite number" });
-  }
-
-  if (
-    hp_current !== undefined &&
-    (typeof hp_current !== "number" ||
-      !Number.isFinite(hp_current) ||
-      hp_current < 0)
-  ) {
-    return res.status(400).json({
-      error: "hp_current must be a finite number greater than or equal to 0",
-    });
-  }
-
-  if (
-    armor_class !== undefined &&
-    (typeof armor_class !== "number" ||
-      !Number.isFinite(armor_class) ||
-      armor_class < 0)
-  ) {
-    return res.status(400).json({
-      error: "armor_class must be a finite number greater than or equal to 0",
-    });
-  }
-
-  if (
-    speed_walk !== undefined &&
-    (typeof speed_walk !== "number" ||
-      !Number.isFinite(speed_walk) ||
-      speed_walk < 0)
-  ) {
-    return res.status(400).json({
-      error: "speed_walk must be a finite number greater than or equal to 0",
-    });
-  }
-
+  let err;
+  if ((err = requireNonEmptyString(name, "name"))) return res.status(400).json({ error: err });
+  if ((err = requireNonEmptyString(player, "player"))) return res.status(400).json({ error: err });
+  if ((err = requirePositiveFiniteNumber(hp_max, "hp_max"))) return res.status(400).json({ error: err });
+  if ((err = optionalNonNegativeFiniteNumber(hp_current, "hp_current"))) return res.status(400).json({ error: err });
+  if ((err = optionalNonNegativeFiniteNumber(armor_class, "armor_class"))) return res.status(400).json({ error: err });
+  if ((err = optionalNonNegativeFiniteNumber(speed_walk, "speed_walk"))) return res.status(400).json({ error: err });
   if (photo !== undefined && typeof photo !== "string") {
     return res.status(400).json({ error: "photo must be a string" });
   }
@@ -218,7 +227,7 @@ app.post("/api/characters", (req, res) => {
     equipment,
   });
 
-  io.emit("character_created", { character });
+  broadcast.characterCreated(character);
   return res.status(201).json(character);
 });
 
@@ -237,7 +246,7 @@ app.put("/api/characters/:id/hp", (req, res) => {
   }
   const character = characterModule.updateHp(charId, hp_current);
   if (!character) return res.status(404).json({ error: "Character not found" });
-  io.emit("hp_updated", { character, hp_current: character.hp_current });
+  broadcast.hpUpdated(character);
   return res.status(200).json(character);
 });
 
@@ -256,7 +265,7 @@ app.put("/api/characters/:id/photo", (req, res) => {
   const character = characterModule.updatePhoto(req.params.id, photo);
   if (!character) return res.status(404).json({ error: "Character not found" });
 
-  io.emit("character_updated", { character });
+  broadcast.characterUpdated(character);
   return res.status(200).json(character);
 });
 
@@ -266,71 +275,29 @@ app.put("/api/characters/:id", (req, res) => {
   const isPlainObject = (value) =>
     value !== null && typeof value === "object" && !Array.isArray(value);
 
+  let err;
   if (req.body.name !== undefined) {
-    if (typeof req.body.name !== "string" || req.body.name.trim() === "") {
-      return res.status(400).json({ error: "name must be a non-empty string" });
-    }
+    if ((err = requireNonEmptyString(req.body.name, "name"))) return res.status(400).json({ error: err });
     updates.name = req.body.name;
   }
-
   if (req.body.player !== undefined) {
-    if (typeof req.body.player !== "string" || req.body.player.trim() === "") {
-      return res
-        .status(400)
-        .json({ error: "player must be a non-empty string" });
-    }
+    if ((err = requireNonEmptyString(req.body.player, "player"))) return res.status(400).json({ error: err });
     updates.player = req.body.player;
   }
-
   if (req.body.hp_max !== undefined) {
-    if (
-      typeof req.body.hp_max !== "number" ||
-      !Number.isFinite(req.body.hp_max) ||
-      req.body.hp_max <= 0
-    ) {
-      return res
-        .status(400)
-        .json({ error: "hp_max must be a positive finite number" });
-    }
+    if ((err = requirePositiveFiniteNumber(req.body.hp_max, "hp_max"))) return res.status(400).json({ error: err });
     updates.hp_max = req.body.hp_max;
   }
-
   if (req.body.hp_current !== undefined) {
-    if (
-      typeof req.body.hp_current !== "number" ||
-      !Number.isFinite(req.body.hp_current) ||
-      req.body.hp_current < 0
-    ) {
-      return res.status(400).json({
-        error: "hp_current must be a finite number greater than or equal to 0",
-      });
-    }
+    if ((err = requireNonNegativeFiniteNumber(req.body.hp_current, "hp_current"))) return res.status(400).json({ error: err });
     updates.hp_current = req.body.hp_current;
   }
-
   if (req.body.armor_class !== undefined) {
-    if (
-      typeof req.body.armor_class !== "number" ||
-      !Number.isFinite(req.body.armor_class) ||
-      req.body.armor_class < 0
-    ) {
-      return res.status(400).json({
-        error: "armor_class must be a finite number greater than or equal to 0",
-      });
-    }
+    if ((err = requireNonNegativeFiniteNumber(req.body.armor_class, "armor_class"))) return res.status(400).json({ error: err });
     updates.armor_class = req.body.armor_class;
   }
-
   if (req.body.speed_walk !== undefined) {
-    if (
-      typeof req.body.speed_walk !== "number" ||
-      !Number.isFinite(req.body.speed_walk) ||
-      req.body.speed_walk < 0
-    ) {
-      return res.status(400).json({
-        error: "speed_walk must be a finite number greater than or equal to 0",
-      });
-    }
+    if ((err = requireNonNegativeFiniteNumber(req.body.speed_walk, "speed_walk"))) return res.status(400).json({ error: err });
     updates.speed_walk = req.body.speed_walk;
   }
 
@@ -386,7 +353,7 @@ app.put("/api/characters/:id", (req, res) => {
   const character = characterModule.updateCharacterData(req.params.id, updates);
   if (!character) return res.status(404).json({ error: "Character not found" });
 
-  io.emit("character_updated", { character });
+  broadcast.characterUpdated(character);
   return res.status(200).json(character);
 });
 
@@ -397,10 +364,9 @@ const SHORT_ID_RE = /^[A-Z0-9]{5}$/i;
 
 app.post("/api/characters/:id/conditions", (req, res) => {
   const { condition_name, intensity_level } = req.body;
-  if (typeof condition_name !== "string" || condition_name.trim() === "")
-    return res
-      .status(400)
-      .json({ error: "condition_name must be a non-empty string" });
+  let condErr;
+  if ((condErr = requireNonEmptyString(condition_name, "condition_name")))
+    return res.status(400).json({ error: condErr });
   if (
     intensity_level !== undefined &&
     (typeof intensity_level !== "number" || intensity_level <= 0)
@@ -414,7 +380,7 @@ app.post("/api/characters/:id/conditions", (req, res) => {
   });
   if (!character) return res.status(404).json({ error: "Character not found" });
   const condition = character.conditions[character.conditions.length - 1];
-  io.emit("condition_added", { charId: req.params.id, condition });
+  broadcast.conditionAdded(req.params.id, condition);
   console.log(`Condition added: ${condition_name} → ${req.params.id}`);
   return res.status(201).json(condition);
 });
@@ -428,10 +394,7 @@ app.delete("/api/characters/:id/conditions/:condId", (req, res) => {
   );
   if (!character)
     return res.status(404).json({ error: "Character or condition not found" });
-  io.emit("condition_removed", {
-    charId: req.params.id,
-    conditionId: req.params.condId,
-  });
+  broadcast.conditionRemoved(req.params.id, req.params.condId);
   console.log(`Condition removed: ${req.params.condId} from ${req.params.id}`);
   return res.status(200).json({ ok: true });
 });
@@ -441,7 +404,7 @@ app.delete("/api/characters/:id", (req, res) => {
   const removed = characterModule.removeCharacter(req.params.id);
   if (!removed)
     return res.status(404).json({ error: "Character not found" });
-  io.emit("character_deleted", { charId: req.params.id });
+  broadcast.characterDeleted(req.params.id);
   console.log(`Character deleted: ${req.params.id}`);
   return res.status(200).json({ ok: true });
 });
@@ -464,7 +427,7 @@ app.put("/api/characters/:id/resources/:rid", (req, res) => {
   );
   if (!resource)
     return res.status(404).json({ error: "Character or resource not found" });
-  io.emit("resource_updated", { charId: req.params.id, resource });
+  broadcast.resourceUpdated(req.params.id, resource);
   return res.status(200).json(resource);
 });
 
@@ -478,12 +441,7 @@ app.post("/api/characters/:id/rest", (req, res) => {
   }
   const result = characterModule.restoreResources(req.params.id, type);
   if (!result) return res.status(404).json({ error: "Character not found" });
-  io.emit("rest_taken", {
-    charId: req.params.id,
-    type,
-    restored: result.restored,
-    character: result.character,
-  });
+  broadcast.restTaken(req.params.id, type, result.restored, result.character);
   console.log(
     `Rest taken: ${type} → ${req.params.id}, restored: ${result.restored.join(", ")}`,
   );
@@ -513,9 +471,7 @@ app.post("/api/rolls", (req, res) => {
     modifier,
     sides,
   });
-  io.emit("dice_rolled", {
-    ...rollRecord,
-  });
+  broadcast.diceRolled(rollRecord);
   console.log("Roll received:", characterName, req.body);
   return res.status(201).json(rollRecord);
 });

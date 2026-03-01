@@ -12,22 +12,18 @@
   import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "./socket";
+  import * as api from "./api.js";
   import * as Dialog from "$lib/components/ui/dialog";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
-  import { resolvePhotoSrc } from "./utils.js";
+  import { resolvePhotoSrc, PHOTO_ASSETS } from "./utils.js";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
   import characterOptions from "./character-options.template.json";
   import { fade } from "svelte/transition";
 
-  const PHOTO_OPTIONS = [
-    { label: "Aleatorio", value: "" },
-    { label: "Barbarian", value: "/assets/img/barbarian.png" },
-    { label: "Elf", value: "/assets/img/elf.png" },
-    { label: "Wizard", value: "/assets/img/wizard.png" },
-  ];
+  const PHOTO_OPTIONS = PHOTO_ASSETS;
 
   let photoSourceById = $state({});
   let presetPhotoById = $state({});
@@ -294,14 +290,7 @@
     feedbackById = { ...feedbackById, [charId]: { type: "", text: "" } };
 
     try {
-      const response = await fetch(
-        `${SERVER_URL}/api/characters/${charId}/photo`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ photo: getResolvedPhotoValue(charId) }),
-        },
-      );
+      const response = await api.updatePhoto(charId, getResolvedPhotoValue(charId));
 
       if (!response.ok) {
         feedbackById = {
@@ -328,9 +317,7 @@
 
   async function deleteCharacter(charId) {
     try {
-      const response = await fetch(`${SERVER_URL}/api/characters/${charId}`, {
-        method: "DELETE",
-      });
+      const response = await api.deleteCharacter(charId);
       if (!response.ok)
         console.error("Failed to delete character", response.status);
     } catch (error) {
@@ -527,47 +514,43 @@
     };
 
     try {
-      const response = await fetch(`${SERVER_URL}/api/characters/${charId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          player,
-          hp_max: hpMax,
-          armor_class: Number.isFinite(armorClass) ? armorClass : 0,
+      const response = await api.updateCharacter(charId, {
+        name,
+        player,
+        hp_max: hpMax,
+        armor_class: Number.isFinite(armorClass) ? armorClass : 0,
+        speed_walk: Number.isFinite(speedWalk) ? speedWalk : 0,
+        class_primary: {
+          name: classPrimary,
+          level: Number.isFinite(classLevel) ? classLevel : 1,
+          subclass: classSubclass,
+        },
+        background: {
+          name: backgroundName,
+          feat: backgroundFeat,
+          skill_proficiencies: skills,
+          tool_proficiency: tools[0] || "",
+        },
+        species: {
+          name: speciesName,
+          size: speciesSize,
           speed_walk: Number.isFinite(speedWalk) ? speedWalk : 0,
-          class_primary: {
-            name: classPrimary,
-            level: Number.isFinite(classLevel) ? classLevel : 1,
-            subclass: classSubclass,
-          },
-          background: {
-            name: backgroundName,
-            feat: backgroundFeat,
-            skill_proficiencies: skills,
-            tool_proficiency: tools[0] || "",
-          },
-          species: {
-            name: speciesName,
-            size: speciesSize,
-            speed_walk: Number.isFinite(speedWalk) ? speedWalk : 0,
-            traits: [],
-          },
-          languages: [...languages, ...rareLanguages],
-          alignment,
-          proficiencies: {
-            skills,
-            saving_throws: [],
-            armor,
-            weapons,
-            tools,
-          },
-          equipment: {
-            items,
-            coins: { gp: 0, sp: 0, cp: 0 },
-            trinket,
-          },
-        }),
+          traits: [],
+        },
+        languages: [...languages, ...rareLanguages],
+        alignment,
+        proficiencies: {
+          skills,
+          saving_throws: [],
+          armor,
+          weapons,
+          tools,
+        },
+        equipment: {
+          items,
+          coins: { gp: 0, sp: 0, cp: 0 },
+          trinket,
+        },
       });
 
       if (!response.ok) {

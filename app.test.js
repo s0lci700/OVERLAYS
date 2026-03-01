@@ -452,6 +452,342 @@ test.describe("D&D Overlay System - Full Stack Test", () => {
   });
 });
 
+test.describe("API Error Paths", () => {
+  // ── POST /api/characters ─────────────────────────────────
+
+  test("POST /api/characters — 400 when name is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { player: "Tester", hp_max: 10 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/name/i);
+  });
+
+  test("POST /api/characters — 400 when name is empty string", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "   ", player: "Tester", hp_max: 10 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/name/i);
+  });
+
+  test("POST /api/characters — 400 when player is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", hp_max: 10 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/player/i);
+  });
+
+  test("POST /api/characters — 400 when hp_max is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester" },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_max/i);
+  });
+
+  test("POST /api/characters — 400 when hp_max is zero", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester", hp_max: 0 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_max/i);
+  });
+
+  test("POST /api/characters — 400 when hp_max is a string", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester", hp_max: "ten" },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_max/i);
+  });
+
+  test("POST /api/characters — 400 when hp_current is negative", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester", hp_max: 10, hp_current: -1 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_current/i);
+  });
+
+  test("POST /api/characters — 400 when armor_class is negative", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester", hp_max: 10, armor_class: -5 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/armor_class/i);
+  });
+
+  test("POST /api/characters — 400 when photo is not a string", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters`, {
+      data: { name: "Hero", player: "Tester", hp_max: 10, photo: 123 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/photo/i);
+  });
+
+  // ── PUT /api/characters/:id/hp ───────────────────────────
+
+  test("PUT /api/characters/:id/hp — 400 when hp_current is missing", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101/hp`, {
+      data: {},
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_current/i);
+  });
+
+  test("PUT /api/characters/:id/hp — 400 when hp_current is a string", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101/hp`, {
+      data: { hp_current: "full" },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_current/i);
+  });
+
+  test("PUT /api/characters/:id/hp — 404 for unknown character", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/ZZZZZ/hp`, {
+      data: { hp_current: 10 },
+    });
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── PUT /api/characters/:id/photo ────────────────────────
+
+  test("PUT /api/characters/:id/photo — 400 when photo is not a string", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101/photo`, {
+      data: { photo: 42 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/photo/i);
+  });
+
+  test("PUT /api/characters/:id/photo — 413 when photo payload exceeds body limit", async ({ request }) => {
+    // Express body limit is 1 MB; a 1.5 M-char string will be rejected with 413
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101/photo`, {
+      data: { photo: "x".repeat(1_500_000) },
+    });
+    expect(res.status()).toBe(413);
+  });
+
+  test("PUT /api/characters/:id/photo — 404 for unknown character", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/ZZZZZ/photo`, {
+      data: { photo: "https://example.com/img.png" },
+    });
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── PUT /api/characters/:id ──────────────────────────────
+
+  test("PUT /api/characters/:id — 400 when name is an empty string", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101`, {
+      data: { name: "" },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/name/i);
+  });
+
+  test("PUT /api/characters/:id — 400 when hp_max is non-positive", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/CH101`, {
+      data: { hp_max: 0 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/hp_max/i);
+  });
+
+  test("PUT /api/characters/:id — 404 for unknown character", async ({ request }) => {
+    const res = await request.put(`${SERVER_URL}/api/characters/ZZZZZ`, {
+      data: { name: "Ghost" },
+    });
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── DELETE /api/characters/:id ───────────────────────────
+
+  test("DELETE /api/characters/:id — 404 for unknown character", async ({ request }) => {
+    const res = await request.delete(`${SERVER_URL}/api/characters/ZZZZZ`);
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── POST /api/characters/:id/conditions ─────────────────
+
+  test("POST conditions — 400 when condition_name is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/conditions`, {
+      data: {},
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/condition_name/i);
+  });
+
+  test("POST conditions — 400 when condition_name is empty", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/conditions`, {
+      data: { condition_name: "  " },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/condition_name/i);
+  });
+
+  test("POST conditions — 400 when intensity_level is zero", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/conditions`, {
+      data: { condition_name: "Poisoned", intensity_level: 0 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/intensity_level/i);
+  });
+
+  test("POST conditions — 400 when intensity_level is negative", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/conditions`, {
+      data: { condition_name: "Poisoned", intensity_level: -1 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/intensity_level/i);
+  });
+
+  test("POST conditions — 404 for unknown character", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/ZZZZZ/conditions`, {
+      data: { condition_name: "Blinded" },
+    });
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── DELETE /api/characters/:id/conditions/:condId ────────
+
+  test("DELETE condition — 400 when condId is shorter than 5 chars", async ({ request }) => {
+    const res = await request.delete(
+      `${SERVER_URL}/api/characters/CH101/conditions/AB`,
+    );
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/condId/i);
+  });
+
+  test("DELETE condition — 400 when condId is longer than 5 chars", async ({ request }) => {
+    const res = await request.delete(
+      `${SERVER_URL}/api/characters/CH101/conditions/TOOLONG`,
+    );
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/condId/i);
+  });
+
+  test("DELETE condition — 404 for unknown character id", async ({ request }) => {
+    const res = await request.delete(
+      `${SERVER_URL}/api/characters/ZZZZZ/conditions/ABC12`,
+    );
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── PUT /api/characters/:id/resources/:rid ───────────────
+
+  test("PUT resource — 400 when pool_current is missing", async ({ request }) => {
+    const res = await request.put(
+      `${SERVER_URL}/api/characters/CH101/resources/RS001`,
+      { data: {} },
+    );
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/pool_current/i);
+  });
+
+  test("PUT resource — 400 when pool_current is negative", async ({ request }) => {
+    const res = await request.put(
+      `${SERVER_URL}/api/characters/CH101/resources/RS001`,
+      { data: { pool_current: -1 } },
+    );
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/pool_current/i);
+  });
+
+  test("PUT resource — 400 when pool_current is a string", async ({ request }) => {
+    const res = await request.put(
+      `${SERVER_URL}/api/characters/CH101/resources/RS001`,
+      { data: { pool_current: "full" } },
+    );
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/pool_current/i);
+  });
+
+  test("PUT resource — 404 for unknown character or resource", async ({ request }) => {
+    const res = await request.put(
+      `${SERVER_URL}/api/characters/ZZZZZ/resources/RS001`,
+      { data: { pool_current: 1 } },
+    );
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── POST /api/characters/:id/rest ────────────────────────
+
+  test("POST rest — 400 for invalid rest type", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/rest`, {
+      data: { type: "medium" },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/type/i);
+  });
+
+  test("POST rest — 400 when type is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/CH101/rest`, {
+      data: {},
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/type/i);
+  });
+
+  test("POST rest — 404 for unknown character", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/characters/ZZZZZ/rest`, {
+      data: { type: "short" },
+    });
+    expect(res.status()).toBe(404);
+    expect((await res.json()).error).toMatch(/not found/i);
+  });
+
+  // ── POST /api/rolls ──────────────────────────────────────
+
+  test("POST rolls — 400 when charId is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/rolls`, {
+      data: { result: 15, sides: 20 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/charId/i);
+  });
+
+  test("POST rolls — 400 when charId is empty string", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/rolls`, {
+      data: { charId: "", result: 15, sides: 20 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/charId/i);
+  });
+
+  test("POST rolls — 400 when result is a string", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/rolls`, {
+      data: { charId: "CH101", result: "high", sides: 20 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/result/i);
+  });
+
+  test("POST rolls — 400 when sides is zero", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/rolls`, {
+      data: { charId: "CH101", result: 1, sides: 0 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/sides/i);
+  });
+
+  test("POST rolls — 400 when sides is missing", async ({ request }) => {
+    const res = await request.post(`${SERVER_URL}/api/rolls`, {
+      data: { charId: "CH101", result: 1 },
+    });
+    expect(res.status()).toBe(400);
+    expect((await res.json()).error).toMatch(/sides/i);
+  });
+});
+
 test.describe("Quick Health Check", () => {
   test("All components are accessible", async ({ request }) => {
     const tests = [

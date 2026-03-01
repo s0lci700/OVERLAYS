@@ -55,6 +55,25 @@ const isSyncing = derived(pendingActions, ($pending) => $pending.length > 0);
 
 /** Maximum number of history entries to retain. Oldest entries are dropped. */
 const MAX_HISTORY = 40;
+/** Maximum action log entries shown on the dashboard. */
+const MAX_ACTION_LOG = 10;
+/** Maximum roll log entries shown on the dashboard. */
+const MAX_ROLL_LOG = 10;
+
+/**
+ * Derived store: last N non-roll events, newest first.
+ * Consuming components should import this instead of filtering `history` inline.
+ */
+export const actionHistory = derived(history, ($h) =>
+  $h.filter((e) => e.type !== "roll").slice(-MAX_ACTION_LOG).reverse(),
+);
+
+/**
+ * Derived store: last N roll events, newest first.
+ */
+export const rollHistory = derived(history, ($h) =>
+  $h.filter((e) => e.type === "roll").slice(-MAX_ROLL_LOG).reverse(),
+);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Action Queue Utilities
@@ -209,6 +228,7 @@ export {
   isSyncing, // Derived<boolean> - True if any actions are pending
   history, // Writable<Array> - Activity history log (max 40 entries)
   currentRole, // Writable<string> - Current user role
+  // actionHistory and rollHistory are exported above as named exports
 
   // Utilities
   enqueuePending, // Function - Add action to pending queue
