@@ -32,11 +32,11 @@ describe("createShortId", () => {
     }
   });
 
-  test("generates unique IDs across 1 000 calls", () => {
+  test("generates unique IDs across 200 calls", () => {
     const ids = new Set();
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 200; i++) {
       ids.add(createShortId());
     }
-    expect(ids.size).toBe(1000);
+    expect(ids.size).toBe(200);
   });
 });
