@@ -64,7 +64,7 @@ cp -r "$ROOT_DIR/control-panel/build" "$DIST/panel-build"
 
 # Crear .env con defaults para el ejecutable
 cat > "$DIST/.env" << 'EOF'
-PORT=3000
+PORT=3001
 CONTROL_PANEL_ORIGIN=http://localhost:5173
 EOF
 
@@ -92,15 +92,15 @@ fi
 chmod +x "$SERVIDOR"
 "$SERVIDOR" &
 SRV_PID=$!
-echo "  ✓  Servidor en http://localhost:3000  (PID $SRV_PID)"
+echo "  ✓  Servidor en http://localhost:3001  (PID $SRV_PID)"
 sleep 2
 bun panel-build/index.js &
 PANEL_PID=$!
 echo "  ✓  Panel en http://localhost:5173  (PID $PANEL_PID)"
 sleep 3
-open "http://localhost:3000"
+open "http://localhost:3001"
 echo ""
-echo "  Abrí http://localhost:3000 en el celular (misma Wi-Fi)"
+echo "  Abrí http://localhost:3001 en el celular (misma Wi-Fi)"
 echo "  Para cerrar: kill $SRV_PID $PANEL_PID"
 echo ""
 wait
@@ -118,11 +118,11 @@ start "Servidor" cmd /k "servidor-win.exe"
 timeout /t 3 /nobreak >nul
 start "Panel" cmd /k "bun panel-build\index.js"
 timeout /t 5 /nobreak >nul
-start "" "http://localhost:3000"
-echo   ✓  Servidor:  http://localhost:3000
+start "" "http://localhost:3001"
+echo   ✓  Servidor:  http://localhost:3001
 echo   ✓  Panel:     http://localhost:5173
 echo.
-echo   Abri http://localhost:3000 en el celular (misma Wi-Fi)
+echo   Abri http://localhost:3001 en el celular (misma Wi-Fi)
 echo.
 pause
 LAUNCHER
