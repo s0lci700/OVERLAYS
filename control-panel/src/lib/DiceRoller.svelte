@@ -17,7 +17,8 @@
 -->
 <script>
   import "./DiceRoller.css";
-  import { characters, SERVER_URL, lastRoll } from "./socket";
+  import { characters, lastRoll } from "./socket";
+  import * as api from "./api.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import Stepper from "$lib/components/ui/stepper/stepper.svelte";
   import { get } from "svelte/store";
@@ -35,6 +36,9 @@
 
   /** Modifier to apply to all rolls (range: -20 to +20). */
   let modifier = $state(0);
+
+  /** Prevents double-submission while a roll is being sent. */
+  let isRolling = $state(false);
 
   const MIN_MODIFIER = -20;
   const MAX_MODIFIER = 20;
@@ -62,29 +66,22 @@
    * @param {number} diceType - Number of sides on the die
    */
   async function rollDice(diceType) {
+    if (isRolling) return;
+    isRolling = true;
     if (navigator.vibrate) navigator.vibrate(50);
-    let rollValue = roll(diceType);
-
-    const payload = {
-      charId: selectedCharId,
-      result: rollValue,
-      modifier: modifier,
-      sides: diceType,
-    };
-    console.log("Sending payload:", payload);
-
-    const response = await fetch(`${SERVER_URL}/api/rolls`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const rollValue = roll(diceType);
+    try {
+      const response = await api.logRoll({
         charId: selectedCharId,
         result: rollValue,
-        modifier: modifier,
+        modifier,
         sides: diceType,
-      }),
-    });
-    if (!response.ok) {
-      console.error("Failed to log roll", response.status);
+      });
+      if (!response.ok) {
+        console.error("Failed to log roll", response.status);
+      }
+    } finally {
+      isRolling = false;
     }
   }
 
@@ -196,13 +193,13 @@
   <!-- Dice Button Grid -->
   <div class="dice-grid">
     {#each [4, 6, 8, 10, 12] as diceType (diceType)}
-      <Button class="dice-btn" onclick={() => rollDice(diceType)}>
+      <Button class="dice-btn" disabled={isRolling} onclick={() => rollDice(diceType)}>
         <span class={`dice-icon dice-icon--d${diceType}`} aria-hidden="true"
         ></span>
         <span class="dice-label">d{diceType}</span>
       </Button>
     {/each}
-    <Button class="dice-btn d20-btn" onclick={() => rollDice(20)}>
+    <Button class="dice-btn d20-btn" disabled={isRolling} onclick={() => rollDice(20)}>
       <span class="dice-icon dice-icon--d20" aria-hidden="true"></span>
       <span class="dice-label">d20</span>
     </Button>

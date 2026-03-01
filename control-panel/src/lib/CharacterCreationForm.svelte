@@ -21,6 +21,8 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { SelectionPillList } from "$lib/components/ui/selection-pill-list/index.js";
   import { SERVER_URL } from "./socket";
+  import { resolvePhotoSrc, PHOTO_ASSETS } from "./utils.js";
+  import * as api from "./api.js";
   import characterOptions from "./character-options.template.json";
 
   // Controlled form fields for the character payload.
@@ -65,15 +67,8 @@
   let errorMessage = $state("");
   let successMessage = $state("");
 
-  // Preset image options rendered by PhotoSourcePicker. Keep this list small for demo.
-  const AVAILABLE_PHOTOS = [
-    { label: "Aleatorio", value: "" },
-    { label: "Barbarian", value: "/assets/img/barbarian.png" },
-    { label: "Elf", value: "/assets/img/elf.png" },
-    { label: "Wizard", value: "/assets/img/wizard.png" },
-    { label: "Thiefling", value: "/assets/img/thiefling.png" },
-    { label: "Dwarf", value: "/assets/img/dwarf.png" },
-  ];
+  // Preset image options rendered by PhotoSourcePicker — sourced from shared PHOTO_ASSETS.
+  const AVAILABLE_PHOTOS = PHOTO_ASSETS;
 
   /**
    * @typedef {{key: string, label: string}} OptionEntry
@@ -170,30 +165,11 @@
    * Resolve the selected photo source into the value sent to the API.
    * @returns {string}
    */
-  // Resolve the selected photo value according to the active `photoSource`.
-  // Returned value is either a preset URL, a user-provided URL, or a local
-  // data-URL generated from an uploaded image.
   function getResolvedPhotoValue() {
     if (photoSource === "local") return localPhotoDataUrl;
     if (photoSource === "url") return customPhotoUrl.trim();
-
-    // Preset values are stored as project-relative paths (e.g. "/assets/img/elf.png").
-    // When rendering in the control panel (Vite dev server) we need to prefix
-    // those with the backend `SERVER_URL` so requests go to the running server
-    // that serves the `assets/` directory.
-    if (!photo) return "";
-    const p = String(photo);
-    if (
-      p.startsWith("http://") ||
-      p.startsWith("https://") ||
-      p.startsWith("data:") ||
-      p.startsWith("blob:")
-    ) {
-      return p;
-    }
-
-    if (p.startsWith("/")) return `${SERVER_URL}${p}`;
-    return `${SERVER_URL}/${p.replace(/^\/+/, "")}`;
+    // Preset: resolve server-relative path to a full URL via shared utility.
+    return photo ? resolvePhotoSrc(photo, SERVER_URL) : "";
   }
 
   /**
@@ -281,11 +257,7 @@
         payload.photo = resolvedPhoto;
       }
 
-      const response = await fetch(`${SERVER_URL}/api/characters`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.createCharacter(payload);
 
       if (!response.ok) {
         const payloadError = await response.json().catch(() => null);

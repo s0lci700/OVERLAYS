@@ -6,19 +6,32 @@ export function cn(...inputs) {
 }
 
 /**
- * Resolve a photo path to a full URL or data URL
- * @param {string} photoPath - The photo path from character data
- * @param {string} serverUrl - Base server URL for relative paths
- * @param {string} charId - Character ID for fallback generation
- * @returns {string} Full URL or data URL for the photo
+ * Canonical list of bundled portrait assets.
+ * Used by PhotoSourcePicker (preset options) and DashboardCard (random fallback).
+ * Add new portraits here and they will appear everywhere automatically.
+ * @type {Array<{label: string, value: string}>}
  */
-export function resolvePhotoSrc(photoPath = "", serverUrl = "", charId = "") {
-  // If no photo path, return a data URL placeholder or server placeholder
+export const PHOTO_ASSETS = [
+  { label: "Aleatorio", value: "" },
+  { label: "Barbarian", value: "/assets/img/barbarian.png" },
+  { label: "Elf", value: "/assets/img/elf.png" },
+  { label: "Wizard", value: "/assets/img/wizard.png" },
+  { label: "Thiefling", value: "/assets/img/thiefling.png" },
+  { label: "Dwarf", value: "/assets/img/dwarf.png" },
+];
+
+/**
+ * Resolve a character photo path to a usable URL.
+ * Handles empty paths, absolute URLs, data URIs, blob URLs, and server-relative paths.
+ * @param {string} photoPath - The photo value stored on the character
+ * @param {string} serverUrl - Base server URL (e.g. "http://localhost:3000")
+ * @returns {string} Full URL or data URI ready for use in an <img src>
+ */
+export function resolvePhotoSrc(photoPath = "", serverUrl = "") {
   if (!photoPath) {
     return `${serverUrl}/assets/img/placeholder.png`;
   }
 
-  // Already a full URL or data URL
   if (
     photoPath.startsWith("http://") ||
     photoPath.startsWith("https://") ||
@@ -28,7 +41,6 @@ export function resolvePhotoSrc(photoPath = "", serverUrl = "", charId = "") {
     return photoPath;
   }
 
-  // Relative path — combine with server URL
   if (photoPath.startsWith("/")) {
     return `${serverUrl}${photoPath}`;
   }

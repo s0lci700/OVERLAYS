@@ -6,14 +6,9 @@
 <script>
   import "./DashboardCard.css";
   import { SERVER_URL } from "./socket";
+  import { resolvePhotoSrc } from "./utils.js";
   import StatDisplay from "$lib/components/ui/stat-display/stat-display.svelte";
   import ConditionPill from "$lib/components/ui/condition-pill/condition-pill.svelte";
-
-  const FALLBACK_PHOTO_OPTIONS = [
-    "/assets/img/barbarian.png",
-    "/assets/img/elf.png",
-    "/assets/img/wizard.png",
-  ];
 
   const abilityList = [
     { key: "str", label: "STR" },
@@ -32,31 +27,6 @@
   };
 
   let { character } = $props();
-
-  function resolvePhotoSrc(photoPath) {
-    if (!photoPath) {
-      const randomOption =
-        FALLBACK_PHOTO_OPTIONS[
-          Math.floor(Math.random() * FALLBACK_PHOTO_OPTIONS.length)
-        ];
-      return `${SERVER_URL}${randomOption}`;
-    }
-
-    if (
-      photoPath.startsWith("http://") ||
-      photoPath.startsWith("https://") ||
-      photoPath.startsWith("data:") ||
-      photoPath.startsWith("blob:")
-    ) {
-      return photoPath;
-    }
-
-    if (photoPath.startsWith("/")) {
-      return `${SERVER_URL}${photoPath}`;
-    }
-
-    return `${SERVER_URL}/${photoPath.replace(/^\/+/, "")}`;
-  }
 
   function formatText(value) {
     if (typeof value === "string") {
@@ -113,7 +83,7 @@
   <header class="dash-card-header">
     <img
       class="dash-photo"
-      src={resolvePhotoSrc(character?.photo || "")}
+      src={resolvePhotoSrc(character?.photo || "", SERVER_URL)}
       alt={`Foto de ${getSafeName()}`}
       loading="lazy"
     />

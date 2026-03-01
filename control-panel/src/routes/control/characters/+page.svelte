@@ -5,7 +5,8 @@
   import "$lib/CharacterBulkControls.css";
   import CharacterCard from "$lib/CharacterCard.svelte";
   // import { Button } from "$lib/components/ui/button/index.js";
-  import { characters, SERVER_URL } from "$lib/socket.js";
+  import { characters } from "$lib/socket.js";
+  import * as api from "$lib/api.js";
   import { createDraggable } from "animejs";
   // import { onMount } from "svelte";
   import CharacterBulkControls from "$lib/CharacterBulkControls.svelte";
@@ -192,11 +193,7 @@
               ? character.hp_current - amount
               : character.hp_current + amount;
           newHp = Math.max(0, Math.min(newHp, character.hp_max));
-          return fetch(`${SERVER_URL}/api/characters/${character.id}/hp`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hp_current: newHp }),
-          });
+          return api.updateHp(character.id, newHp);
         }),
       );
     } catch (error) {
@@ -215,11 +212,7 @@
     try {
       await Promise.all(
         targets.map((character) =>
-          fetch(`${SERVER_URL}/api/characters/${character.id}/rest`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type }),
-          }),
+          api.takeRest(character.id, type),
         ),
       );
     } catch (error) {

@@ -32,6 +32,7 @@
   const spring = (_opts = {}) => "spring(1, 80, 10, 0)";
   import { onMount } from "svelte";
   import { SERVER_URL } from "./socket";
+  import * as api from "./api.js";
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props
@@ -190,14 +191,7 @@
         : character.hp_current + amount;
     newHp = Math.max(0, Math.min(newHp, character.hp_max));
     try {
-      const response = await fetch(
-        `${SERVER_URL}/api/characters/${character.id}/hp`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hp_current: newHp }),
-        },
-      );
+      const response = await api.updateHp(character.id, newHp);
       if (!response.ok) {
         console.error("Failed to update HP", response.status);
         showCardError("Error al actualizar HP. Intenta de nuevo.");
@@ -221,12 +215,7 @@
    * @param {string} conditionId - ID of the condition to remove
    */
   async function removeCondition(conditionId) {
-    const response = await fetch(
-      `${SERVER_URL}/api/characters/${character.id}/conditions/${conditionId}`,
-      {
-        method: "DELETE",
-      },
-    );
+    const response = await api.removeCondition(character.id, conditionId);
     if (!response.ok)
       console.error("Failed to remove condition", response.status);
   }
@@ -247,14 +236,7 @@
     const newCurrent = isFilled
       ? resource.pool_current - 1
       : resource.pool_current + 1;
-    const response = await fetch(
-      `${SERVER_URL}/api/characters/${character.id}/resources/${resource.id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pool_current: newCurrent }),
-      },
-    );
+    const response = await api.updateResource(character.id, resource.id, newCurrent);
     if (!response.ok)
       console.error("Failed to update resource", response.status);
   }
@@ -269,14 +251,7 @@
     if (isUpdating) return;
     isUpdating = true;
     try {
-      const response = await fetch(
-        `${SERVER_URL}/api/characters/${character.id}/rest`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type }),
-        },
-      );
+      const response = await api.takeRest(character.id, type);
       if (!response.ok) console.error("Failed to take rest", response.status);
     } finally {
       isUpdating = false;
@@ -287,7 +262,7 @@
     const imgEl = event.currentTarget;
     if (imgEl.dataset.fallbackApplied === "true") return;
     imgEl.dataset.fallbackApplied = "true";
-    imgEl.src = resolvePhotoSrc("", SERVER_URL, character.id);
+    imgEl.src = resolvePhotoSrc("", SERVER_URL);
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -306,9 +281,7 @@
         : "hp--critical",
   );
 
-  const photoSrc = $derived(
-    resolvePhotoSrc(character.photo, SERVER_URL, character.id),
-  );
+  const photoSrc = $derived(resolvePhotoSrc(character.photo, SERVER_URL));
 </script>
 
 <!-- ────────────────────────────────────────────────────────────────────────
