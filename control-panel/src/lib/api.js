@@ -9,8 +9,7 @@
  *   - retries or auth tokens can be added without touching components
  */
 
-const SERVER_URL =
-  import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+import { SERVER_URL } from "$lib/socket.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
