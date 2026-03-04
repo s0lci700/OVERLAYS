@@ -29,9 +29,11 @@ async function connectToPocketBase() {
 
   while (retries < maxRetries) {
     try {
-      await pb
+      const authData = await pb
         .collection("_superusers")
         .authWithPassword(process.env.PB_MAIL, process.env.PB_PASS);
+      // Explicitly save token to authStore for Node.js environments
+      pb.authStore.save(authData.token, authData.record);
       console.log("✅ Connected to PocketBase");
       return true;
     } catch (err) {
