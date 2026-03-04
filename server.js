@@ -21,6 +21,7 @@ const PocketBase = require("pocketbase/cjs");
 const pb = new PocketBase(
   process.env.POCKETBASE_URL || "http://127.0.0.1:8090",
 );
+const PB_SUPERUSERS = "_superusers";
 
 async function connectToPocketBase() {
   if (!pb) {
@@ -39,7 +40,7 @@ async function connectToPocketBase() {
 
   while (retries < maxRetries) {
     try {
-      const authData = await pb.collection("_superusers").authWithPassword(PB_MAIL, PB_PASS);
+      const authData = await pb.collection(PB_SUPERUSERS).authWithPassword(PB_MAIL, PB_PASS);
 
       if (!authData || !authData.token || !authData.record) {
         throw new Error("Invalid auth response from PocketBase");
@@ -82,6 +83,25 @@ async function connectToPocketBase() {
     lastError?.message || lastError
   );
   return false;
+}
+
+/**
+ * Ensures the PocketBase auth store is valid. Tries a lightweight token
+ * refresh first; if that fails (e.g. token already expired) it falls back
+ * to a full re-authentication.  Safe to call at any time.
+ * @returns {Promise<boolean>}
+ */
+async function ensureAuth() {
+  if (pb.authStore.isValid) {
+    try {
+      await pb.collection(PB_SUPERUSERS).authRefresh();
+      return true;
+    } catch {
+      // Token may have already expired — fall through to full re-auth below
+    }
+  }
+  console.warn("[server] Auth store invalid or refresh failed — re-authenticating with PocketBase...");
+  return connectToPocketBase();
 }
 
 async function seedIfEmpty() {
@@ -238,6 +258,18 @@ async function main() {
   await connectToPocketBase();
   await seedIfEmpty();
 
+  // Proactively refresh the PocketBase auth token every 23 hours.
+  // Superuser JWTs have a finite TTL; without this the auth store silently
+  // expires and every socket connection returns empty data.
+  const REAUTH_INTERVAL_MS = 23 * 60 * 60 * 1000;
+  setInterval(async () => {
+    console.log("[server] Proactive PocketBase token refresh...");
+    const ok = await ensureAuth();
+    if (!ok) {
+      console.error("[server] ❌ Proactive token refresh failed. PocketBase operations will fail until the next retry.");
+    }
+  }, REAUTH_INTERVAL_MS).unref(); // .unref() so the interval doesn't prevent clean process exit
+
   // Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
   const fs = require("fs");
 
@@ -309,9 +341,12 @@ async function main() {
     console.log("A user connected: " + socket.id);
     try {
       if (!pb.authStore.isValid) {
-        console.warn("[server] PocketBase connection not valid. Auth store invalid.");
-        socket.emit("initialData", { characters: [], rolls: [], encounter: encounterState, scene: sceneState, focusedChar });
-        return;
+        const ok = await ensureAuth();
+        if (!ok) {
+          console.warn("[server] PocketBase connection not valid. Auth store invalid.");
+          socket.emit("initialData", { characters: [], rolls: [], encounter: encounterState, scene: sceneState, focusedChar });
+          return;
+        }
       }
       const characters = await characterModule.getAll(pb);
       const rolls = await rollsModule.getAll(pb);
