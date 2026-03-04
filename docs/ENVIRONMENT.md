@@ -39,6 +39,31 @@ overlay-hp.html?server=http://192.168.1.83:3000
 overlay-dice.html?server=http://192.168.1.83:3000
 ```
 
+## Railway deployment
+
+The server auto-seeds PocketBase on first boot. After a successful PocketBase
+authentication, `server.js` calls `seedIfEmpty()` which checks whether any
+characters exist and, if not, creates them from `data/template-characters.json`.
+
+This means **no separate seed step is required** in the Railway start command.
+The start command stays:
+
+```
+bun server.js
+```
+
+Required Railway environment variables:
+
+| Key                  | Purpose                                    |
+| -------------------- | ------------------------------------------ |
+| POCKETBASE_URL       | Full URL of your PocketBase instance       |
+| PB_MAIL              | PocketBase superuser email                 |
+| PB_PASS              | PocketBase superuser password              |
+| PORT                 | Port Railway assigns (set automatically)   |
+| CONTROL_PANEL_ORIGIN | CORS origin for the deployed control panel |
+
+> `seedIfEmpty()` is idempotent — safe to run on every redeploy.
+
 ## Manual IP lookup
 
 ```bash

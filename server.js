@@ -33,8 +33,28 @@ async function connectToPocketBase() {
       console.warn("⚠️  PocketBase unavailable — running with in-memory state only.");
     });
 }
+
+async function seedIfEmpty() {
+  if (!pb.authStore.isValid) return;
+  try {
+    const existing = await pb.collection("characters").getList(1, 1);
+    if (existing.totalItems > 0) {
+      console.log("Characters already seeded, skipping.");
+      return;
+    }
+    const templates = require("./data/template-characters.json");
+    for (const char of templates) {
+      await pb.collection("characters").create(char);
+    }
+    console.log(`Seeded ${templates.length} characters.`);
+  } catch (err) {
+    console.warn("⚠️  Seeding failed:", err.message);
+  }
+}
+
 async function main() {
   await connectToPocketBase();
+  await seedIfEmpty();
 
   // Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
   const fs = require("fs");
