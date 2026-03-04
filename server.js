@@ -23,15 +23,37 @@ const pb = new PocketBase(
 );
 
 async function connectToPocketBase() {
-  return await pb
-    .collection("_superusers")
-    .authWithPassword(process.env.PB_MAIL, process.env.PB_PASS)
-    .then(() => {
-      console.log("Connected to PocketBase");
-    })
-    .catch((err) => {
-      console.warn("⚠️  PocketBase unavailable — running with in-memory state only.");
-    });
+  const maxRetries = 5;
+  let retries = 0;
+  let lastError = null;
+
+  while (retries < maxRetries) {
+    try {
+      await pb
+        .collection("_superusers")
+        .authWithPassword(process.env.PB_MAIL, process.env.PB_PASS);
+      console.log("✅ Connected to PocketBase");
+      return true;
+    } catch (err) {
+      retries++;
+      lastError = err;
+      if (retries < maxRetries) {
+        const delay = Math.pow(2, retries - 1) * 1000; // 1s, 2s, 4s, 8s, 16s
+        console.warn(
+          `⚠️  PocketBase connection failed (attempt ${retries}/${maxRetries}). Retrying in ${delay}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  console.error(
+    "❌ Failed to connect to PocketBase after",
+    maxRetries,
+    "attempts:",
+    lastError?.message || lastError
+  );
+  return false;
 }
 
 async function seedIfEmpty() {
@@ -126,16 +148,21 @@ async function main() {
   io.on("connection", async (socket) => {
     console.log("A user connected: " + socket.id);
     try {
+      if (!pb.authStore.isValid) {
+        console.warn("[server] PocketBase connection not valid. Auth store invalid.");
+        socket.emit("initialData", { characters: [], rolls: [], encounter: encounterState, scene: sceneState, focusedChar });
+        return;
+      }
       const characters = await characterModule.getAll(pb);
       const rolls = await rollsModule.getAll(pb);
       socket.emit("initialData", { characters, rolls, encounter: encounterState, scene: sceneState, focusedChar });
     } catch (err) {
       console.error(
         "[server] Failed to load initial data from PocketBase:",
-        err.message || err,
+        err.status || err.message || err,
       );
       // Emit a safe fallback so clients don't hang — overlays/control panel can handle empty lists.
-      socket.emit("initialData", { characters: [], rolls: [] });
+      socket.emit("initialData", { characters: [], rolls: [], encounter: encounterState, scene: sceneState, focusedChar });
     }
   });
 
