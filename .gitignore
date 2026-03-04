@@ -69,8 +69,11 @@ temp/
 
 ## PocketBase
 pb_data/
-pb_migrations/
-pocketbase
-pocketbase.exe.env\n.mcp.json
-\n# Deprecated route backups\ncontrol-panel/src/routes/_deprecated/
+/pb_migrations/
+pocketbase.exe
+pocketbase.exe.env
+.mcp.json
+
+# Deprecated route backups
+control-panel/src/routes/_deprecated/
 /_deprecated/
