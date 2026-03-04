@@ -23,22 +23,50 @@ const pb = new PocketBase(
 );
 
 async function connectToPocketBase() {
+  if (!pb) {
+    console.error("❌ PocketBase client (pb) is not initialized.");
+    return false;
+  }
+  const { PB_MAIL, PB_PASS } = process.env;
+  if (!PB_MAIL || !PB_PASS) {
+    console.error("❌ Missing PB_MAIL or PB_PASS environment variables.");
+    return false;
+  }
+
   const maxRetries = 5;
   let retries = 0;
   let lastError = null;
 
   while (retries < maxRetries) {
     try {
-      await pb
-        .collection("_superusers")
-        .authWithPassword(process.env.PB_MAIL, process.env.PB_PASS);
+      const authData = await pb.collection("_superusers").authWithPassword(PB_MAIL, PB_PASS);
+
+      if (!authData || !authData.token || !authData.record) {
+        throw new Error("Invalid auth response from PocketBase");
+      }
+
+      // PocketBase SDK auto-persist only works in browser environments;
+      // in Node.js/CJS the token must be saved explicitly.
+      pb.authStore.save(authData.token, authData.record);
+
       console.log("✅ Connected to PocketBase");
       return true;
     } catch (err) {
-      retries++;
       lastError = err;
+      retries++;
+
+      // Non-retriable: wrong credentials
+      const status = err?.response?.status ?? err?.status;
+      if (status === 401 || status === 403) {
+        console.error("❌ PocketBase authentication failed (non-retriable):", err.message || err);
+        break;
+      }
+
       if (retries < maxRetries) {
-        const delay = Math.pow(2, retries - 1) * 1000; // 1s, 2s, 4s, 8s, 16s
+        // Exponential backoff capped at 16s: 1s, 2s, 4s, 8s, 16s (plus 0–1s jitter)
+        const base = Math.min(16000, Math.pow(2, retries - 1) * 1000);
+        const jitter = Math.floor(Math.random() * 1000);
+        const delay = base + jitter;
         console.warn(
           `⚠️  PocketBase connection failed (attempt ${retries}/${maxRetries}). Retrying in ${delay}ms...`
         );
