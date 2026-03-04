@@ -1,0 +1,80 @@
+
+.is-poisoned {
+    filter: hue-rotate(85deg) saturate(1.8) brightness(0.85) !important;
+    animation: cond-nauseate 3s ease-in-out infinite;
+}
+@keyframes cond-nauseate {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-3px); }
+    40%     { transform: translateX(3px); }
+}
+
+.is-burning {
+    filter: hue-rotate(-30deg) saturate(2.5) brightness(1.1) !important;
+    animation: cond-flicker 0.15s ease-in-out infinite alternate;
+}
+@keyframes cond-flicker {
+    0%   { opacity: 1; }
+    100% { opacity: 0.82; }
+}
+
+.is-frozen, .is-paralyzed, .is-petrified {
+    filter: hue-rotate(180deg) saturate(0.6) brightness(1.2) !important;
+    animation: none !important; /* totally still */
+}
+
+.is-stunned {
+    filter: brightness(1.4) saturate(0.5) !important;
+    animation: cond-dizzy 0.8s ease-in-out infinite;
+}
+@keyframes cond-dizzy { 0%,100% { opacity:1; } 50% { opacity:0.65; } }
+
+.is-cursed {
+    filter: hue-rotate(270deg) saturate(1.5) brightness(0.75) !important;
+    animation: cond-breathe 2.5s ease-in-out infinite;
+}
+@keyframes cond-breathe { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+.is-charmed {
+    filter: hue-rotate(320deg) saturate(1.8) brightness(1.05) !important;
+    animation: cond-heartbeat 1.2s ease-in-out infinite;
+}
+@keyframes cond-heartbeat {
+    0%,100% { transform:scaleY(1); }
+    10%     { transform:scaleY(1.06); }
+    30%     { transform:scaleY(1.04); }
+}
+
+.is-frightened {
+    filter: saturate(0.3) brightness(0.9) !important;
+    animation: cond-tremor 0.12s linear infinite;
+}
+@keyframes cond-tremor {
+    0%,100% { transform:translateX(0); }
+    25%     { transform:translateX(-2px); }
+    75%     { transform:translateX(2px); }
+}
+
+.is-blinded {
+    filter: grayscale(1) brightness(0.6) !important;
+}
+
+.is-invisible {
+    opacity: 0.2 !important;
+    border-style: dashed !important;
+}
+
+.is-unconscious {
+    filter: grayscale(1) brightness(0.35) !important;
+    animation: none !important;
+}
+
+/* One-shot heal flash — add class via JS, remove after 800ms */
+.heal-flash {
+    animation: cond-heal 0.7s ease-out forwards;
+}
+@keyframes cond-heal {
+    0%   { filter: brightness(1) saturate(1); }
+    30%  { filter: brightness(1.6) saturate(2) hue-rotate(85deg); }
+    100% { filter: brightness(1) saturate(1); }
+}

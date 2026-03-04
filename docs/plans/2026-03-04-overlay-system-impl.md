@@ -1498,6 +1498,210 @@ git commit -m "docs: update audience layer docs and CLAUDE.md with new overlay s
 
 ---
 
+---
+
+## Phase 9 — Storybook Stories
+
+> Run Storybook with `cd control-panel && bun run storybook` — opens on http://localhost:6006. Socket.io is already mocked via webpack alias, so overlays won't try to make real connections.
+
+---
+
+### Task 16: Add `preview` / `mockCharacters` props to overlay components
+
+**Files:**
+- Modify: `src/lib/components/overlays/OverlayHP.svelte`
+- Modify: `src/lib/components/overlays/OverlayDice.svelte`
+- Modify: `src/lib/components/overlays/OverlayConditions.svelte`
+- Modify: `src/lib/components/overlays/OverlayTurnOrder.svelte`
+- Modify: `src/lib/components/overlays/OverlaySceneTitle.svelte`
+- Modify: `src/lib/components/overlays/OverlayCharacterFocus.svelte`
+- And all new overlays as they are built
+
+Since the socket is mocked in Storybook, overlays receive no events. Persistent overlays show empty state; triggered overlays stay invisible. Two prop patterns fix this without touching production behavior.
+
+**Pattern A — persistent overlays (`mockCharacters`)**
+
+```svelte
+<!-- OverlayHP.svelte -->
+let { serverUrl = 'http://localhost:3000', mockCharacters = null } = $props();
+
+let characters = $state(mockCharacters ?? []);
+
+// Guard socket setup — skip entirely if mockCharacters is provided
+if (!mockCharacters) {
+  const socket = io(serverUrl);
+  socket.on('initialData', ({ characters: chars }) => { characters = chars; });
+  socket.on('hp_updated', ({ character }) => { ... });
+  // ...rest of socket setup
+}
+```
+
+Apply to: `OverlayHP`, `OverlayConditions`, `OverlayTurnOrder` (also add `mockEncounter` for the active encounter state).
+
+**Pattern B — triggered overlays (`preview`)**
+
+```svelte
+<!-- OverlayDice.svelte -->
+let { serverUrl = 'http://localhost:3000', preview = null } = $props();
+
+$effect(() => {
+  if (preview) {
+    setTimeout(() => showRoll(preview), 100); // small delay for DOM
+  }
+});
+```
+
+Apply to: `OverlayDice` (`preview` = roll data), `OverlaySceneTitle` (`preview` = scene data), `OverlayCharacterFocus` (`preview` = character data), and all new moment/announcement overlays as built.
+
+**Step 1: Commit**
+
+```bash
+git add -A
+git commit -m "feat(overlays): add preview/mockCharacters props for Storybook isolation"
+```
+
+---
+
+### Task 17: Write stories for persistent overlays
+
+**Files to create:**
+- `src/lib/components/overlays/OverlayHP.stories.svelte`
+- `src/lib/components/overlays/OverlayConditions.stories.svelte`
+- `src/lib/components/overlays/OverlayTurnOrder.stories.svelte`
+- `src/lib/components/overlays/OverlaySceneTitle.stories.svelte`
+- `src/lib/components/overlays/OverlayCharacterFocus.stories.svelte`
+
+Follow the project's existing Svelte CSF pattern (see `DiceRoller.stories.svelte` as reference). Use `defineMeta()` + `{#snippet}` + `<Story>`.
+
+**Story file template**
+
+```svelte
+<script module>
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import OverlayHP from "./OverlayHP.svelte";
+
+  const { Story } = defineMeta({
+    title: "Overlays/HP",
+    component: OverlayHP,
+    tags: ["autodocs"],
+    parameters: {
+      docs: {
+        description: {
+          component: "Real-time HP bars. Top-right column. Persistent OBS source.",
+        },
+      },
+    },
+  });
+</script>
+
+<script>
+  const healthy = {
+    id: 'CH101', name: 'Kaminaw', player: 'Kumi',
+    hp_current: 45, hp_max: 52, hp_temp: 0, armor_class: 16,
+    class_primary: { name: 'Bárbaro', level: 5 }, conditions: [], photo: null
+  };
+  const injured = {
+    id: 'CH102', name: 'Panqueque', player: 'Pank',
+    hp_current: 12, hp_max: 38, hp_temp: 0, armor_class: 14,
+    class_primary: { name: 'Clérigo', level: 5 },
+    conditions: [{ id: 'c1', condition_name: 'Poisoned' }], photo: null
+  };
+  const critical = {
+    id: 'CH103', name: 'Thordin', player: 'Thor',
+    hp_current: 3, hp_max: 44, hp_temp: 0, armor_class: 18,
+    class_primary: { name: 'Guerrero', level: 5 },
+    conditions: [{ id: 'c2', condition_name: 'Unconscious' }], photo: null
+  };
+</script>
+
+{#snippet FullParty()}
+  <OverlayHP mockCharacters={[healthy, injured, critical]} />
+{/snippet}
+<Story name="Full Party" children={FullParty} />
+
+{#snippet EmptyState()}
+  <OverlayHP mockCharacters={[]} />
+{/snippet}
+<Story name="Empty (no characters)" children={EmptyState} />
+```
+
+**Stories to write per component**
+
+| Component | Story names |
+|---|---|
+| `OverlayHP` | Full Party, Single Healthy, Injured + Poisoned, Critical + Unconscious, Empty |
+| `OverlayConditions` | No conditions, One condition, Multiple conditions |
+| `OverlayTurnOrder` | Mid-encounter (ordered list), Between encounters (empty) |
+| `OverlaySceneTitle` | Scene reveal, Scene with subtitle |
+| `OverlayCharacterFocus` | Character highlighted, No focus |
+
+**Step 1: Commit**
+
+```bash
+git add -A
+git commit -m "feat(stories): add persistent overlay stories"
+```
+
+---
+
+### Task 18: Write stories for triggered overlays
+
+**Files to create:**
+- `src/lib/components/overlays/OverlayDice.stories.svelte`
+- `src/lib/components/overlays/moments/OverlayPlayerDown.stories.svelte`
+- `src/lib/components/overlays/moments/OverlayLevelUp.stories.svelte`
+- `src/lib/components/overlays/announcements/OverlayAnnounce.stories.svelte`
+- `src/lib/components/overlays/show/OverlayLowerThird.stories.svelte`
+
+Use the `preview` prop to force the triggered state on mount. The animation fires once when Storybook loads the story — to replay, navigate away and back.
+
+**OverlayDice.stories.svelte example**
+
+```svelte
+{#snippet CriticalHit()}
+  <OverlayDice preview={{
+    characterName: 'Kaminaw', result: 20, sides: 20,
+    modifier: 3, rollResult: 23, charId: 'CH101'
+  }} />
+{/snippet}
+<Story name="¡CRÍTICO!" children={CriticalHit} />
+
+{#snippet Pifia()}
+  <OverlayDice preview={{
+    characterName: 'Panqueque', result: 1, sides: 20,
+    modifier: 0, rollResult: 1, charId: 'CH102'
+  }} />
+{/snippet}
+<Story name="¡PIFIA!" children={Pifia} />
+
+{#snippet NormalRoll()}
+  <OverlayDice preview={{
+    characterName: 'Thordin', result: 14, sides: 20,
+    modifier: 5, rollResult: 19, charId: 'CH103'
+  }} />
+{/snippet}
+<Story name="Normal Roll" children={NormalRoll} />
+```
+
+**Stories to write per component**
+
+| Component | Story names |
+|---|---|
+| `OverlayDice` | ¡Crítico! (d20), ¡Pifia! (d20), Normal d20, d8 roll |
+| `OverlayPlayerDown` | Unconscious, Dead |
+| `OverlayLevelUp` | Level up (show level number + class) |
+| `OverlayAnnounce` | Location reveal, Knowledge unlock, NPC intro, Custom message |
+| `OverlayLowerThird` | Character nameplate, Custom lower third |
+
+**Step 1: Commit**
+
+```bash
+git add -A
+git commit -m "feat(stories): add triggered overlay stories"
+```
+
+---
+
 ## OBS URL Reference (final)
 
 ```
