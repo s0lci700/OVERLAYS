@@ -17,505 +17,831 @@ const CONTROL_PANEL_ORIGIN =
   process.env.CONTROL_PANEL_ORIGIN || "http://localhost:5173";
 const characterModule = require("./data/characters");
 const rollsModule = require("./data/rolls");
+const PocketBase = require("pocketbase/cjs");
+const pb = new PocketBase(
+  process.env.POCKETBASE_URL || "http://127.0.0.1:8090",
+);
 
-// Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
-const fs = require("fs");
-let cachedTokens = null;
-try {
-  cachedTokens = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "design", "tokens.json"), "utf-8"),
-  );
-} catch (err) {
-  console.warn("⚠️  Could not preload design/tokens.json:", err.message);
+async function connectToPocketBase() {
+  return await pb
+    .collection("_superusers")
+    .authWithPassword(process.env.PB_MAIL, process.env.PB_PASS)
+    .then(() => {
+      console.log("Connected to PocketBase");
+    })
+    .catch((err) => {
+      console.warn("⚠️  PocketBase unavailable — running with in-memory state only.");
+    });
 }
+async function main() {
+  await connectToPocketBase();
 
-function getMainIP() {
-  const interfaces = os.networkInterfaces();
-  for (const [, addresses] of Object.entries(interfaces)) {
-    for (const addressInfo of addresses) {
-      if (addressInfo.family === "IPv4" && !addressInfo.internal) {
-        return addressInfo.address;
-      }
-    }
-  }
-  return "127.0.0.1";
-}
+  // Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
+  const fs = require("fs");
 
-// Allow the Svelte control panel and OBS overlay browser sources to connect from different ports.
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
-
-// Emit the latest characters and rolls snapshot to every client that connects.
-io.on("connection", (socket) => {
-  console.log("A user connected: " + socket.id);
-  socket.emit("initialData", {
-    characters: characterModule.getAll(),
-    rolls: rollsModule.getAll(),
-  });
-});
-
-httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  const mainIP = getMainIP();
-  console.log(`[server] Local URL: http://localhost:${PORT}`);
-  console.log(`[server] Network URL: http://${mainIP}:${PORT}`);
-  console.log(`[server] Control panel origin: ${CONTROL_PANEL_ORIGIN}`);
-});
-
-httpServer.on("error", (error) => {
-  if (!error || !error.code) {
-    console.error("[server] Failed to start due to an unknown error.");
-    process.exit(1);
-  }
-
-  if (error.code === "EADDRINUSE") {
-    console.error(`[server] Port ${PORT} is already in use.`);
-    console.error(
-      "[server] Stop the other process using this port, or run with a different PORT (e.g. PORT=3001).",
-    );
-    process.exit(1);
-  }
-
-  if (error.code === "EACCES") {
-    console.error(
-      `[server] Permission denied while trying to use port ${PORT}.`,
-    );
-    console.error("[server] Try a non-privileged port such as 3000 or 3001.");
-    process.exit(1);
-  }
-
-  console.error(`[server] Startup error (${error.code}): ${error.message}`);
-  process.exit(1);
-});
-
-// Parse JSON payloads from the control panel and allow requests from any origin.
-app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: "1mb" }));
-app.use("/assets", express.static(path.join(__dirname, "assets")));
-
-// Serve the OBS overlays and landing page over the network.
-// OBS Browser Sources can now use http://IP:3000/overlay-hp.html instead of a local file path,
-// making the demo work on any machine on the LAN without file system access.
-app.use(express.static(path.join(__dirname, "public")));
-
-// Returns the server's LAN IP and port so the landing page (public/index.html)
-// can dynamically render correct URLs for OBS setup and the control panel.
-app.get("/api/info", (req, res) => {
-  res.json({ ip: getMainIP(), port: PORT, controlPanelUrl: CONTROL_PANEL_ORIGIN });
-});
-
-// Returns the canonical design tokens JSON from design/tokens.json.
-// Consumed by the live theme editor webtool at /theme-editor/index.html.
-app.get("/api/tokens", (req, res) => {
-  if (cachedTokens) return res.json(cachedTokens);
-  // Fallback: try a fresh read if startup load failed.
+  let cachedTokens = null;
   try {
     cachedTokens = JSON.parse(
       fs.readFileSync(path.join(__dirname, "design", "tokens.json"), "utf-8"),
     );
-    res.json(cachedTokens);
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Could not read design tokens.", details: err.message });
-  }
-});
-
-// ── Characters ──────────────────────────────────────────────
-
-// Return the full character roster, including HP, resources, and conditions.
-app.get("/api/characters", (req, res) => {
-  res.status(200).json(characterModule.getAll());
-});
-
-// Create a new character and broadcast so all connected clients can append it.
-app.post("/api/characters", (req, res) => {
-  const {
-    name,
-    player,
-    hp_max,
-    hp_current,
-    armor_class,
-    speed_walk,
-    photo,
-    class_primary,
-    background,
-    species,
-    languages,
-    alignment,
-    proficiencies,
-    equipment,
-  } = req.body;
-
-  if (typeof name !== "string" || name.trim() === "") {
-    return res.status(400).json({ error: "name must be a non-empty string" });
+    console.warn("⚠️  Could not preload design/tokens.json:", err.message);
   }
 
-  if (typeof player !== "string" || player.trim() === "") {
-    return res.status(400).json({ error: "player must be a non-empty string" });
+  function getMainIP() {
+    const interfaces = os.networkInterfaces();
+    for (const [, addresses] of Object.entries(interfaces)) {
+      for (const addressInfo of addresses) {
+        if (addressInfo.family === "IPv4" && !addressInfo.internal) {
+          return addressInfo.address;
+        }
+      }
+    }
+    return "127.0.0.1";
   }
 
-  if (typeof hp_max !== "number" || !Number.isFinite(hp_max) || hp_max <= 0) {
-    return res
-      .status(400)
-      .json({ error: "hp_max must be a positive finite number" });
-  }
-
-  if (
-    hp_current !== undefined &&
-    (typeof hp_current !== "number" ||
-      !Number.isFinite(hp_current) ||
-      hp_current < 0)
-  ) {
-    return res.status(400).json({
-      error: "hp_current must be a finite number greater than or equal to 0",
-    });
-  }
-
-  if (
-    armor_class !== undefined &&
-    (typeof armor_class !== "number" ||
-      !Number.isFinite(armor_class) ||
-      armor_class < 0)
-  ) {
-    return res.status(400).json({
-      error: "armor_class must be a finite number greater than or equal to 0",
-    });
-  }
-
-  if (
-    speed_walk !== undefined &&
-    (typeof speed_walk !== "number" ||
-      !Number.isFinite(speed_walk) ||
-      speed_walk < 0)
-  ) {
-    return res.status(400).json({
-      error: "speed_walk must be a finite number greater than or equal to 0",
-    });
-  }
-
-  if (photo !== undefined && typeof photo !== "string") {
-    return res.status(400).json({ error: "photo must be a string" });
-  }
-
-  const character = characterModule.createCharacter({
-    name: name.trim(),
-    player: player.trim(),
-    hp_max,
-    hp_current,
-    armor_class,
-    speed_walk,
-    photo,
-    class_primary,
-    background,
-    species,
-    languages,
-    alignment,
-    proficiencies,
-    equipment,
+  // Allow the Svelte control panel and OBS overlay browser sources to connect from different ports.
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+    },
   });
 
-  io.emit("character_created", { character });
-  return res.status(201).json(character);
-});
+  // ── JSONL Sidecar Logger ───────────────────────────────────────────────────
+  let syncStartTime = null;
+  const SIDECAR_PATH = path.join(__dirname, "logs", "sidecar.jsonl");
+  fs.mkdirSync(path.join(__dirname, "logs"), { recursive: true });
 
-// Clamp HP changes within bounds and broadcast the update so overlays can redraw.
-app.put("/api/characters/:id/hp", (req, res) => {
-  const charId = req.params.id;
-  const { hp_current } = req.body;
-  if (
-    hp_current === undefined ||
-    typeof hp_current !== "number" ||
-    !Number.isFinite(hp_current)
-  ) {
-    return res
-      .status(400)
-      .json({ error: "hp_current must be a finite number" });
-  }
-  const character = characterModule.updateHp(charId, hp_current);
-  if (!character) return res.status(404).json({ error: "Character not found" });
-  io.emit("hp_updated", { character, hp_current: character.hp_current });
-  return res.status(200).json(character);
-});
-
-// Update a character photo and broadcast changes to all clients.
-app.put("/api/characters/:id/photo", (req, res) => {
-  const { photo } = req.body;
-
-  if (photo !== undefined && typeof photo !== "string") {
-    return res.status(400).json({ error: "photo must be a string" });
+  function logEvent(event, summary = {}) {
+    const ts_abs = Date.now();
+    const entry = JSON.stringify({
+      event,
+      ts_abs,
+      ts_rel: syncStartTime != null ? ts_abs - syncStartTime : null,
+      ...summary,
+    });
+    fs.appendFile(SIDECAR_PATH, entry + "\n", () => {});
   }
 
-  if (typeof photo === "string" && photo.length > 2000000) {
-    return res.status(413).json({ error: "photo payload is too large" });
+  function broadcast(event, data) {
+    io.emit(event, data);
+    const { character, characters: _c, rolls: _r, ...rest } = data || {};
+    logEvent(event, {
+      ...(character ? { charId: character.id, charName: character.name } : {}),
+      ...rest,
+    });
   }
 
-  const character = characterModule.updatePhoto(req.params.id, photo);
-  if (!character) return res.status(404).json({ error: "Character not found" });
+  // ── In-memory encounter / scene / focus state ───────────────────────────────
+  let encounterState = {
+    active: false,
+    round: 0,
+    currentTurnIndex: 0,
+    participants: [],
+  };
+  let sceneState = { title: "", subtitle: "", visible: false };
+  let focusedChar = null;
 
-  io.emit("character_updated", { character });
-  return res.status(200).json(character);
-});
+  // Emit the latest characters and rolls snapshot to every client that connects.
+  io.on("connection", async (socket) => {
+    console.log("A user connected: " + socket.id);
+    try {
+      const characters = await characterModule.getAll(pb);
+      const rolls = await rollsModule.getAll(pb);
+      socket.emit("initialData", { characters, rolls, encounter: encounterState, scene: sceneState, focusedChar });
+    } catch (err) {
+      console.error(
+        "[server] Failed to load initial data from PocketBase:",
+        err.message || err,
+      );
+      // Emit a safe fallback so clients don't hang — overlays/control panel can handle empty lists.
+      socket.emit("initialData", { characters: [], rolls: [] });
+    }
+  });
 
-// Update editable character fields and broadcast changes to all clients.
-app.put("/api/characters/:id", (req, res) => {
-  const updates = {};
-  const isPlainObject = (value) =>
-    value !== null && typeof value === "object" && !Array.isArray(value);
+  httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    const mainIP = getMainIP();
+    console.log(`[server] Local URL: http://localhost:${PORT}`);
+    console.log(`[server] Network URL: http://${mainIP}:${PORT}`);
+    console.log(`[server] Control panel origin: ${CONTROL_PANEL_ORIGIN}`);
+  });
 
-  if (req.body.name !== undefined) {
-    if (typeof req.body.name !== "string" || req.body.name.trim() === "") {
+  httpServer.on("error", (error) => {
+    if (!error || !error.code) {
+      console.error("[server] Failed to start due to an unknown error.");
+      process.exit(1);
+    }
+
+    if (error.code === "EADDRINUSE") {
+      console.error(`[server] Port ${PORT} is already in use.`);
+      console.error(
+        "[server] Stop the other process using this port, or run with a different PORT (e.g. PORT=3001).",
+      );
+      process.exit(1);
+    }
+
+    if (error.code === "EACCES") {
+      console.error(
+        `[server] Permission denied while trying to use port ${PORT}.`,
+      );
+      console.error("[server] Try a non-privileged port such as 3000 or 3001.");
+      process.exit(1);
+    }
+
+    console.error(`[server] Startup error (${error.code}): ${error.message}`);
+    process.exit(1);
+  });
+
+  // Parse JSON payloads from the control panel and allow requests from any origin.
+  app.use(cors({ origin: "*" }));
+  app.use(express.json({ limit: "1mb" }));
+  app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+  // Serve the OBS overlays and landing page over the network.
+  // OBS Browser Sources can now use http://IP:3000/overlay-hp.html instead of a local file path,
+  // making the demo work on any machine on the LAN without file system access.
+  app.use(express.static(path.join(__dirname, "public")));
+
+  // Returns the server's LAN IP and port so the landing page (public/index.html)
+  // can dynamically render correct URLs for OBS setup and the control panel.
+  app.get("/api/info", (req, res) => {
+    res.json({
+      ip: getMainIP(),
+      port: PORT,
+      controlPanelUrl: CONTROL_PANEL_ORIGIN,
+    });
+  });
+
+  // Returns the canonical design tokens JSON from design/tokens.json.
+  // Consumed by the live theme editor webtool at /theme-editor/index.html.
+  app.get("/api/tokens", (req, res) => {
+    if (cachedTokens) return res.json(cachedTokens);
+    // Fallback: try a fresh read if startup load failed.
+    try {
+      cachedTokens = JSON.parse(
+        fs.readFileSync(path.join(__dirname, "design", "tokens.json"), "utf-8"),
+      );
+      res.json(cachedTokens);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "Could not read design tokens.", details: err.message });
+    }
+  });
+
+  // ── Characters ──────────────────────────────────────────────
+
+  // Return the full character roster, including HP, resources, and conditions.
+  app.get("/api/characters", async (req, res) => {
+    try {
+      const chars = await characterModule.getAll(pb);
+      res.status(200).json(chars);
+    } catch (err) {
+      console.error(
+        "[server] /api/characters failed to read from PocketBase:",
+        err.message || err,
+      );
+      res
+        .status(500)
+        .json({ error: "Could not read characters from PocketBase." });
+    }
+  });
+
+  // Create a new character and broadcast so all connected clients can append it.
+  app.post("/api/characters", async (req, res) => {
+    const {
+      campaign_id,
+      name,
+      player,
+      hp_current,
+      hp_max,
+      hp_temp,
+      ability_scores,
+      turn_state,
+      death_state,
+      armor_class,
+      speed_walk,
+      entity_type,
+      visible_to_players,
+      class_primary,
+      conditions,
+      resources,
+      photo,
+      background,
+      species,
+      languages,
+      alignment,
+      proficiencies,
+      equipment,
+    } = req.body;
+
+    if (typeof name !== "string" || name.trim() === "") {
       return res.status(400).json({ error: "name must be a non-empty string" });
     }
-    updates.name = req.body.name;
-  }
 
-  if (req.body.player !== undefined) {
-    if (typeof req.body.player !== "string" || req.body.player.trim() === "") {
+    if (typeof player !== "string" || player.trim() === "") {
       return res
         .status(400)
         .json({ error: "player must be a non-empty string" });
     }
-    updates.player = req.body.player;
-  }
 
-  if (req.body.hp_max !== undefined) {
-    if (
-      typeof req.body.hp_max !== "number" ||
-      !Number.isFinite(req.body.hp_max) ||
-      req.body.hp_max <= 0
-    ) {
+    if (typeof hp_max !== "number" || !Number.isFinite(hp_max) || hp_max <= 0) {
       return res
         .status(400)
         .json({ error: "hp_max must be a positive finite number" });
     }
-    updates.hp_max = req.body.hp_max;
-  }
 
-  if (req.body.hp_current !== undefined) {
     if (
-      typeof req.body.hp_current !== "number" ||
-      !Number.isFinite(req.body.hp_current) ||
-      req.body.hp_current < 0
+      hp_current !== undefined &&
+      (typeof hp_current !== "number" ||
+        !Number.isFinite(hp_current) ||
+        hp_current < 0)
     ) {
       return res.status(400).json({
         error: "hp_current must be a finite number greater than or equal to 0",
       });
     }
-    updates.hp_current = req.body.hp_current;
-  }
 
-  if (req.body.armor_class !== undefined) {
     if (
-      typeof req.body.armor_class !== "number" ||
-      !Number.isFinite(req.body.armor_class) ||
-      req.body.armor_class < 0
+      armor_class !== undefined &&
+      (typeof armor_class !== "number" ||
+        !Number.isFinite(armor_class) ||
+        armor_class < 0)
     ) {
       return res.status(400).json({
         error: "armor_class must be a finite number greater than or equal to 0",
       });
     }
-    updates.armor_class = req.body.armor_class;
-  }
 
-  if (req.body.speed_walk !== undefined) {
     if (
-      typeof req.body.speed_walk !== "number" ||
-      !Number.isFinite(req.body.speed_walk) ||
-      req.body.speed_walk < 0
+      speed_walk !== undefined &&
+      (typeof speed_walk !== "number" ||
+        !Number.isFinite(speed_walk) ||
+        speed_walk < 0)
     ) {
       return res.status(400).json({
         error: "speed_walk must be a finite number greater than or equal to 0",
       });
     }
-    updates.speed_walk = req.body.speed_walk;
-  }
 
-  if (req.body.class_primary !== undefined) {
-    if (!isPlainObject(req.body.class_primary)) {
-      return res.status(400).json({ error: "class_primary must be an object" });
+    if (photo !== undefined && typeof photo !== "string") {
+      return res.status(400).json({ error: "photo must be a string" });
     }
-    updates.class_primary = req.body.class_primary;
-  }
 
-  if (req.body.background !== undefined) {
-    if (!isPlainObject(req.body.background)) {
-      return res.status(400).json({ error: "background must be an object" });
-    }
-    updates.background = req.body.background;
-  }
+    const character = await characterModule.createCharacter(pb, {
+      campaign_id,
+      name,
+      player,
+      hp_current,
+      hp_max,
+      hp_temp,
+      ability_scores,
+      turn_state,
+      death_state,
+      armor_class,
+      speed_walk,
+      entity_type,
+      visible_to_players,
+      class_primary,
+      conditions,
+      resources,
+      photo,
+      background,
+      species,
+      languages,
+      alignment,
+      proficiencies,
+      equipment,
+    });
 
-  if (req.body.species !== undefined) {
-    if (!isPlainObject(req.body.species)) {
-      return res.status(400).json({ error: "species must be an object" });
-    }
-    updates.species = req.body.species;
-  }
-
-  if (req.body.languages !== undefined) {
-    if (!Array.isArray(req.body.languages)) {
-      return res.status(400).json({ error: "languages must be an array" });
-    }
-    updates.languages = req.body.languages;
-  }
-
-  if (req.body.alignment !== undefined) {
-    if (typeof req.body.alignment !== "string") {
-      return res.status(400).json({ error: "alignment must be a string" });
-    }
-    updates.alignment = req.body.alignment;
-  }
-
-  if (req.body.proficiencies !== undefined) {
-    if (!isPlainObject(req.body.proficiencies)) {
-      return res.status(400).json({ error: "proficiencies must be an object" });
-    }
-    updates.proficiencies = req.body.proficiencies;
-  }
-
-  if (req.body.equipment !== undefined) {
-    if (!isPlainObject(req.body.equipment)) {
-      return res.status(400).json({ error: "equipment must be an object" });
-    }
-    updates.equipment = req.body.equipment;
-  }
-
-  const character = characterModule.updateCharacterData(req.params.id, updates);
-  if (!character) return res.status(404).json({ error: "Character not found" });
-
-  io.emit("character_updated", { character });
-  return res.status(200).json(character);
-});
-
-// ── Conditions ───────────────────────────────────────────────
-
-// Manage status conditions and keep every client aware of additions and removals.
-const SHORT_ID_RE = /^[A-Z0-9]{5}$/i;
-
-app.post("/api/characters/:id/conditions", (req, res) => {
-  const { condition_name, intensity_level } = req.body;
-  if (typeof condition_name !== "string" || condition_name.trim() === "")
-    return res
-      .status(400)
-      .json({ error: "condition_name must be a non-empty string" });
-  if (
-    intensity_level !== undefined &&
-    (typeof intensity_level !== "number" || intensity_level <= 0)
-  )
-    return res
-      .status(400)
-      .json({ error: "intensity_level must be a positive number" });
-  const character = characterModule.addCondition(req.params.id, {
-    condition_name,
-    intensity_level,
+    broadcast("character_created", { character });
+    return res.status(201).json(character);
   });
-  if (!character) return res.status(404).json({ error: "Character not found" });
-  const condition = character.conditions[character.conditions.length - 1];
-  io.emit("condition_added", { charId: req.params.id, condition });
-  console.log(`Condition added: ${condition_name} → ${req.params.id}`);
-  return res.status(201).json(condition);
-});
 
-app.delete("/api/characters/:id/conditions/:condId", (req, res) => {
-  if (!SHORT_ID_RE.test(req.params.condId))
-    return res.status(400).json({ error: "condId must be 5 chars" });
-  const character = characterModule.removeCondition(
-    req.params.id,
-    req.params.condId,
-  );
-  if (!character)
-    return res.status(404).json({ error: "Character or condition not found" });
-  io.emit("condition_removed", {
-    charId: req.params.id,
-    conditionId: req.params.condId,
+  // Clamp HP changes within bounds and broadcast the update so overlays can redraw.
+  app.put("/api/characters/:id/hp", async (req, res) => {
+    const charId = req.params.id;
+    const { hp_current } = req.body;
+    if (
+      hp_current === undefined ||
+      typeof hp_current !== "number" ||
+      !Number.isFinite(hp_current)
+    ) {
+      return res
+        .status(400)
+        .json({ error: "hp_current must be a finite number" });
+    }
+    let character;
+    try {
+      character = await characterModule.updateHp(pb, charId, hp_current);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
+    if (!character) return res.status(404).json({ error: "Character not found" });
+    broadcast("hp_updated", { character, hp_current: character.hp_current });
+    return res.status(200).json(character);
   });
-  console.log(`Condition removed: ${req.params.condId} from ${req.params.id}`);
-  return res.status(200).json({ ok: true });
-});
 
-// Delete a character permanently and broadcast the removal to all clients.
-app.delete("/api/characters/:id", (req, res) => {
-  const removed = characterModule.removeCharacter(req.params.id);
-  if (!removed)
-    return res.status(404).json({ error: "Character not found" });
-  io.emit("character_deleted", { charId: req.params.id });
-  console.log(`Character deleted: ${req.params.id}`);
-  return res.status(200).json({ ok: true });
-});
+  // Update a character photo and broadcast changes to all clients.
+  app.put("/api/characters/:id/photo", async (req, res) => {
+    const { photo } = req.body;
 
-// ── Resources ────────────────────────────────────────────────
+    if (photo !== undefined && typeof photo !== "string") {
+      return res.status(400).json({ error: "photo must be a string" });
+    }
 
-// Update limited resources (rage, ki, etc.) and broadcast the refreshed pool.
-app.put("/api/characters/:id/resources/:rid", (req, res) => {
-  const { pool_current } = req.body;
-  if (pool_current === undefined || pool_current === null)
-    return res.status(400).json({ error: "pool_current required" });
-  if (typeof pool_current !== "number" || !Number.isFinite(pool_current))
-    return res.status(400).json({ error: "pool_current must be a number" });
-  if (pool_current < 0)
-    return res.status(400).json({ error: "pool_current must be >= 0" });
-  const resource = characterModule.updateResource(
-    req.params.id,
-    req.params.rid,
-    pool_current,
-  );
-  if (!resource)
-    return res.status(404).json({ error: "Character or resource not found" });
-  io.emit("resource_updated", { charId: req.params.id, resource });
-  return res.status(200).json(resource);
-});
+    if (typeof photo === "string" && photo.length > 2000000) {
+      return res.status(413).json({ error: "photo payload is too large" });
+    }
 
-// ── Rest ────────────────────────────────────────────────────
+    let character;
+    try {
+      character = await characterModule.updatePhoto(pb, req.params.id, photo);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
 
-// Handle short/long rests to refill resource pools and broadcast atomic updates.
-app.post("/api/characters/:id/rest", (req, res) => {
-  const { type } = req.body;
-  if (!["short", "long"].includes(type)) {
-    return res.status(400).json({ error: 'type must be "short" or "long"' });
-  }
-  const result = characterModule.restoreResources(req.params.id, type);
-  if (!result) return res.status(404).json({ error: "Character not found" });
-  io.emit("rest_taken", {
-    charId: req.params.id,
-    type,
-    restored: result.restored,
-    character: result.character,
+    broadcast("character_updated", { character });
+    return res.status(200).json(character);
   });
-  console.log(
-    `Rest taken: ${type} → ${req.params.id}, restored: ${result.restored.join(", ")}`,
-  );
-  return res.status(200).json({ restored: result.restored });
-});
 
-// ── Rolls ────────────────────────────────────────────────────
+  // Update editable character fieldsand broadcast changes to all clients.
+  app.put("/api/characters/:id", async (req, res) => {
+    const updates = {};
+    const isPlainObject = (value) =>
+      value !== null && typeof value === "object" && !Array.isArray(value);
 
-// Record dice rolls and emit the results so the overlays can animate them.
-const isFiniteNumber = (v) => typeof v === "number" && Number.isFinite(v);
-app.post("/api/rolls", (req, res) => {
-  const { charId, result, sides } = req.body;
-  if (charId == null || charId === "")
-    return res.status(400).json({ error: "charId required" });
-  if (!isFiniteNumber(result))
-    return res.status(400).json({ error: "result must be a finite number" });
-  if (!isFiniteNumber(sides) || sides < 1)
-    return res.status(400).json({ error: "sides must be a positive number" });
-  const modifier = req.body.modifier ?? 0;
-  const characterName =
-    characterModule.getCharacterName(req.body.charId) || "Unknown";
+    if (req.body.name !== undefined) {
+      if (typeof req.body.name !== "string" || req.body.name.trim() === "") {
+        return res
+          .status(400)
+          .json({ error: "name must be a non-empty string" });
+      }
+      updates.name = req.body.name;
+    }
 
-  const rollRecord = rollsModule.logRoll({
-    charId,
-    characterName,
-    result,
-    modifier,
-    sides,
+    if (req.body.player !== undefined) {
+      if (
+        typeof req.body.player !== "string" ||
+        req.body.player.trim() === ""
+      ) {
+        return res
+          .status(400)
+          .json({ error: "player must be a non-empty string" });
+      }
+      updates.player = req.body.player;
+    }
+
+    if (req.body.hp_max !== undefined) {
+      if (
+        typeof req.body.hp_max !== "number" ||
+        !Number.isFinite(req.body.hp_max) ||
+        req.body.hp_max <= 0
+      ) {
+        return res
+          .status(400)
+          .json({ error: "hp_max must be a positive finite number" });
+      }
+      updates.hp_max = req.body.hp_max;
+    }
+
+    if (req.body.hp_current !== undefined) {
+      if (
+        typeof req.body.hp_current !== "number" ||
+        !Number.isFinite(req.body.hp_current) ||
+        req.body.hp_current < 0
+      ) {
+        return res.status(400).json({
+          error:
+            "hp_current must be a finite number greater than or equal to 0",
+        });
+      }
+      updates.hp_current = req.body.hp_current;
+    }
+
+    if (req.body.armor_class !== undefined) {
+      if (
+        typeof req.body.armor_class !== "number" ||
+        !Number.isFinite(req.body.armor_class) ||
+        req.body.armor_class < 0
+      ) {
+        return res.status(400).json({
+          error:
+            "armor_class must be a finite number greater than or equal to 0",
+        });
+      }
+      updates.armor_class = req.body.armor_class;
+    }
+
+    if (req.body.speed_walk !== undefined) {
+      if (
+        typeof req.body.speed_walk !== "number" ||
+        !Number.isFinite(req.body.speed_walk) ||
+        req.body.speed_walk < 0
+      ) {
+        return res.status(400).json({
+          error:
+            "speed_walk must be a finite number greater than or equal to 0",
+        });
+      }
+      updates.speed_walk = req.body.speed_walk;
+    }
+
+    if (req.body.class_primary !== undefined) {
+      if (!isPlainObject(req.body.class_primary)) {
+        return res
+          .status(400)
+          .json({ error: "class_primary must be an object" });
+      }
+      updates.class_primary = req.body.class_primary;
+    }
+
+    if (req.body.background !== undefined) {
+      if (!isPlainObject(req.body.background)) {
+        return res.status(400).json({ error: "background must be an object" });
+      }
+      updates.background = req.body.background;
+    }
+
+    if (req.body.species !== undefined) {
+      if (!isPlainObject(req.body.species)) {
+        return res.status(400).json({ error: "species must be an object" });
+      }
+      updates.species = req.body.species;
+    }
+
+    if (req.body.languages !== undefined) {
+      if (!Array.isArray(req.body.languages)) {
+        return res.status(400).json({ error: "languages must be an array" });
+      }
+      updates.languages = req.body.languages;
+    }
+
+    if (req.body.alignment !== undefined) {
+      if (typeof req.body.alignment !== "string") {
+        return res.status(400).json({ error: "alignment must be a string" });
+      }
+      updates.alignment = req.body.alignment;
+    }
+
+    if (req.body.proficiencies !== undefined) {
+      if (!isPlainObject(req.body.proficiencies)) {
+        return res
+          .status(400)
+          .json({ error: "proficiencies must be an object" });
+      }
+      updates.proficiencies = req.body.proficiencies;
+    }
+
+    if (req.body.equipment !== undefined) {
+      if (!isPlainObject(req.body.equipment)) {
+        return res.status(400).json({ error: "equipment must be an object" });
+      }
+      updates.equipment = req.body.equipment;
+    }
+
+    let character;
+    try {
+      character = await characterModule.updateCharacterData(pb, req.params.id, updates);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
+
+    broadcast("character_updated", { character });
+    return res.status(200).json(character);
   });
-  io.emit("dice_rolled", {
-    ...rollRecord,
+
+  // ── Conditions ───────────────────────────────────────────────
+
+  // Manage status conditions and keep every client aware of additions and removals.
+  const SHORT_ID_RE = /^[A-Z0-9]{5}$/i;
+
+  app.post("/api/characters/:id/conditions", async (req, res) => {
+    const { condition_name, intensity_level } = req.body;
+    if (typeof condition_name !== "string" || condition_name.trim() === "")
+      return res
+        .status(400)
+        .json({ error: "condition_name must be a non-empty string" });
+    if (
+      intensity_level !== undefined &&
+      (typeof intensity_level !== "number" || intensity_level <= 0)
+    )
+      return res
+        .status(400)
+        .json({ error: "intensity_level must be a positive number" });
+    let character;
+    try {
+      character = await characterModule.addCondition(pb, req.params.id, {
+        condition_name,
+        intensity_level,
+      });
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
+    const condition = character.conditions[character.conditions.length - 1];
+    broadcast("condition_added", { charId: req.params.id, condition });
+    console.log(`Condition added: ${condition_name} → ${req.params.id}`);
+    return res.status(201).json(condition);
   });
-  console.log("Roll received:", characterName, req.body);
-  return res.status(201).json(rollRecord);
+
+  app.delete("/api/characters/:id/conditions/:condId", async (req, res) => {
+    if (!SHORT_ID_RE.test(req.params.condId))
+      return res.status(400).json({ error: "condId must be 5 chars" });
+    try {
+      await characterModule.removeCondition(pb, req.params.id, req.params.condId);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character or condition not found" });
+      throw err;
+    }
+    broadcast("condition_removed", {
+      charId: req.params.id,
+      conditionId: req.params.condId,
+    });
+    console.log(
+      `Condition removed: ${req.params.condId} from ${req.params.id}`,
+    );
+    return res.status(200).json({ ok: true });
+  });
+
+  // Delete a character permanently and broadcast the removal to all clients.
+  app.delete("/api/characters/:id", async (req, res) => {
+    try {
+      await characterModule.removeCharacter(pb, req.params.id);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
+    broadcast("character_deleted", { charId: req.params.id });
+    console.log(`Character deleted: ${req.params.id}`);
+    return res.status(200).json({ ok: true });
+  });
+
+  // ── Resources ────────────────────────────────────────────────
+
+  // Update limited resources (rage, ki, etc.) and broadcast the refreshed pool.
+  app.put("/api/characters/:id/resources/:rid", async (req, res) => {
+    const { pool_current } = req.body;
+    if (pool_current === undefined || pool_current === null)
+      return res.status(400).json({ error: "pool_current required" });
+    if (typeof pool_current !== "number" || !Number.isFinite(pool_current))
+      return res.status(400).json({ error: "pool_current must be a number" });
+    if (pool_current < 0)
+      return res.status(400).json({ error: "pool_current must be >= 0" });
+    let resource;
+    try {
+      resource = await characterModule.updateResource(
+        pb,
+        req.params.id,
+        req.params.rid,
+        pool_current,
+      );
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character or resource not found" });
+      throw err;
+    }
+    broadcast("resource_updated", { charId: req.params.id, resource });
+    return res.status(200).json(resource);
+  });
+
+  // ── Rest ────────────────────────────────────────────────────
+
+  // Handle short/long rests to refill resource pools and broadcast atomic updates.
+  app.post("/api/characters/:id/rest", async (req, res) => {
+    const { type } = req.body;
+    if (!["short", "long"].includes(type)) {
+      return res.status(400).json({ error: 'type must be "short" or "long"' });
+    }
+    let result;
+    try {
+      result = await characterModule.restoreResources(pb, req.params.id, type);
+    } catch (err) {
+      if (err?.status === 404) return res.status(404).json({ error: "Character not found" });
+      throw err;
+    }
+    broadcast("rest_taken", {
+      charId: req.params.id,
+      type,
+      restored: result.restored,
+      character: result.character,
+    });
+    console.log(
+      `Rest taken: ${type} → ${req.params.id}, restored: ${result.restored.join(", ")}`,
+    );
+    return res.status(200).json({ restored: result.restored });
+  });
+
+  // ── Transaction ─────────────────────────────────────────────────────────────
+
+  // Atomic bulk HP update (e.g. AOE damage to the whole party).
+  // Body: { updates: [{ charId, hp_current }] }
+  app.post("/api/characters/batch/hp", async (req, res) => {
+    const { updates } = req.body;
+    if (!Array.isArray(updates) || updates.length === 0)
+      return res.status(400).json({ error: "updates must be a non-empty array" });
+
+    const results = [];
+    const errors = [];
+
+    await Promise.all(
+      updates.map(async ({ charId, hp_current }) => {
+        if (charId == null || charId === "") {
+          errors.push({ charId, error: "charId required" });
+          return;
+        }
+        if (typeof hp_current !== "number" || !Number.isFinite(hp_current)) {
+          errors.push({ charId, error: "hp_current must be a finite number" });
+          return;
+        }
+        try {
+          const character = await characterModule.updateHp(pb, charId, hp_current);
+          if (character) {
+            results.push(character);
+            broadcast("hp_updated", { character, hp_current: character.hp_current });
+          } else {
+            errors.push({ charId, error: "Character not found" });
+          }
+        } catch (err) {
+          errors.push({ charId, error: err?.message || "Unknown error" });
+        }
+      })
+    );
+
+    return res.status(errors.length && !results.length ? 400 : 200).json({ results, errors });
+  });
+
+  // ── Encounter ──────────────────────────────────────────────────────────────
+
+  app.get("/api/encounter", (req, res) => res.json(encounterState));
+
+  // Start a new encounter. Body: { participants: [{ charId, initiative }] }
+  app.post("/api/encounter/start", async (req, res) => {
+    const { participants } = req.body;
+    if (!Array.isArray(participants) || participants.length === 0)
+      return res.status(400).json({ error: "participants must be a non-empty array" });
+
+    const chars = await characterModule.getAll(pb);
+    const charMap = Object.fromEntries(chars.map((c) => [c.id, c]));
+    const sorted = participants
+      .filter((p) => charMap[p.charId])
+      .map((p) => ({
+        charId: p.charId,
+        name: charMap[p.charId].name,
+        photo: charMap[p.charId].photo || null,
+        class_primary: charMap[p.charId].class_primary || null,
+        hp_current: charMap[p.charId].hp_current,
+        hp_max: charMap[p.charId].hp_max,
+        initiative: Number(p.initiative) || 0,
+      }))
+      .sort((a, b) => b.initiative - a.initiative);
+
+    if (sorted.length === 0)
+      return res.status(400).json({ error: "No valid participants found" });
+
+    encounterState = { active: true, round: 1, currentTurnIndex: 0, participants: sorted };
+    broadcast("encounter_started", encounterState);
+    return res.status(200).json(encounterState);
+  });
+
+  // Advance to the next turn (wraps round on overflow).
+  app.post("/api/encounter/next-turn", (req, res) => {
+    if (!encounterState.active)
+      return res.status(400).json({ error: "No active encounter" });
+
+    let next = encounterState.currentTurnIndex + 1;
+    let round = encounterState.round;
+    if (next >= encounterState.participants.length) {
+      next = 0;
+      round += 1;
+    }
+    encounterState = { ...encounterState, currentTurnIndex: next, round };
+    broadcast("turn_advanced", {
+      currentTurnIndex: encounterState.currentTurnIndex,
+      currentParticipant: encounterState.participants[encounterState.currentTurnIndex],
+      round: encounterState.round,
+    });
+    return res.status(200).json(encounterState);
+  });
+
+  // End the current encounter.
+  app.post("/api/encounter/end", (req, res) => {
+    encounterState = { active: false, round: 0, currentTurnIndex: 0, participants: [] };
+    broadcast("encounter_ended", {});
+    return res.status(200).json({ ok: true });
+  });
+
+  // ── Scene ───────────────────────────────────────────────────────────────────
+
+  app.get("/api/scene", (req, res) => res.json(sceneState));
+
+  // Body: { title, subtitle?, visible? }
+  app.post("/api/scene/change", (req, res) => {
+    const { title, subtitle = "", visible = true } = req.body;
+    if (typeof title !== "string" || title.trim() === "")
+      return res.status(400).json({ error: "title must be a non-empty string" });
+    sceneState = { title, subtitle, visible };
+    broadcast("scene_changed", sceneState);
+    return res.status(200).json(sceneState);
+  });
+
+  // ── Character Focus ─────────────────────────────────────────────────────────
+
+  // Body: { charId } — pass null/empty string to unfocus.
+  app.post("/api/character-focus", async (req, res) => {
+    const { charId } = req.body;
+    if (charId == null) return res.status(400).json({ error: "charId required" });
+
+    if (charId === "") {
+      focusedChar = null;
+      broadcast("character_unfocused", {});
+      return res.status(200).json({ focused: null });
+    }
+
+    const char = await characterModule.findById(pb, charId);
+    if (!char) return res.status(404).json({ error: "Character not found" });
+
+    focusedChar = char;
+    broadcast("character_focused", { character: char });
+    return res.status(200).json({ focused: char });
+  });
+
+  // ── Sync Start ──────────────────────────────────────────────────────────────
+
+  // Mark the recording start point — sets SYNC_START timestamp anchor for sidecar log.
+  app.post("/api/sync-start", (req, res) => {
+    syncStartTime = Date.now();
+    logEvent("SYNC_START", { ts_abs: syncStartTime });
+    io.emit("sync_start", { ts_abs: syncStartTime });
+    return res.status(200).json({ ts_abs: syncStartTime });
+  });
+
+  // ── Overlay Broadcast Events ─────────────────────────────────
+
+  app.post("/api/announce", (req, res) => {
+    const { type, title, body, image, duration } = req.body;
+    if (!type || !title) return res.status(400).json({ error: "type and title are required" });
+    broadcast("announce", { type, title, body: body ?? null, image: image ?? null, duration: duration ?? null });
+    return res.status(200).json({ ok: true });
+  });
+
+  app.post("/api/level-up", async (req, res) => {
+    const { charId, newLevel, className } = req.body;
+    if (!charId || !newLevel) return res.status(400).json({ error: "charId and newLevel required" });
+    broadcast("level_up", { charId, newLevel, className: className ?? "" });
+    return res.status(200).json({ ok: true });
+  });
+
+  app.post("/api/player-down", (req, res) => {
+    const { charId, isDead } = req.body;
+    if (!charId) return res.status(400).json({ error: "charId required" });
+    broadcast("player_down", { charId, isDead: isDead === true });
+    return res.status(200).json({ ok: true });
+  });
+
+  app.post("/api/lower-third", (req, res) => {
+    const { characterName, playerName, duration } = req.body;
+    if (!characterName) return res.status(400).json({ error: "characterName required" });
+    broadcast("lower_third", { characterName, playerName: playerName ?? "", duration: duration ?? 5000 });
+    return res.status(200).json({ ok: true });
+  });
+
+  // ── Rolls ────────────────────────────────────────────────────
+
+  // Record dice rolls and emit the results so the overlays can animate them.
+  const isFiniteNumber = (v) => typeof v === "number" && Number.isFinite(v);
+  app.post("/api/rolls", async (req, res) => {
+    const { charId, result, sides } = req.body;
+    if (charId == null || charId === "")
+      return res.status(400).json({ error: "charId required" });
+    if (!isFiniteNumber(result))
+      return res.status(400).json({ error: "result must be a finite number" });
+    if (!isFiniteNumber(sides) || sides < 1)
+      return res.status(400).json({ error: "sides must be a positive number" });
+    const modifier = req.body.modifier ?? 0;
+    const characterName =
+      (await characterModule.getCharacterName(pb, req.body.charId)) ||
+      "Unknown";
+
+    const rollRecord = await rollsModule.logRoll(pb, {
+      charId,
+      characterName,
+      result,
+      modifier,
+      sides,
+    });
+    broadcast("dice_rolled", {
+      ...rollRecord,
+    });
+    console.log("Roll received:", characterName, req.body);
+    return res.status(201).json(rollRecord);
+  });
+}
+
+main().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
