@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dados & Risas — UI Audit Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:     #FF4D6A;
+      --cyan:    #00D4E8;
+      --purple:  #7B3FF8;
+      --green:   #00E896;
+      --yellow:  #FFD166;
+      --orange:  #FF8C42;
+      --bg:      #0a0a0a;
+      --bg-card: #111111;
+      --bg-card2:#181818;
+      --bg-el:   #1e1e1e;
+      --border:  #242424;
+      --border2: #333;
+      --text:    #f0f0f0;
+      --muted:   #777;
+      --muted2:  #555;
+      --font-h:  'Bebas Neue', sans-serif;
+      --font-m:  'JetBrains Mono', monospace;
+      --font-b:  'DM Sans', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px 120px; }
+
+    /* ── TOC SIDEBAR (desktop only) ── */
+    @media (min-width: 1200px) {
+      .layout { display: grid; grid-template-columns: 200px 1fr; gap: 48px; }
+      .toc { position: sticky; top: 40px; height: fit-content; padding-top: 80px; }
+      .toc-link {
+        display: block;
+        font-family: var(--font-m);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 5px 0;
+        border-left: 2px solid var(--border);
+        padding-left: 12px;
+        transition: color 0.12s, border-color 0.12s;
+      }
+      .toc-link:hover { color: var(--text); border-color: var(--cyan); }
+      .toc-head { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.2em; color: var(--muted2); text-transform: uppercase; margin-bottom: 12px; }
+    }
+    @media (max-width: 1199px) {
+      .toc { display: none; }
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 72px 0 56px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .eyebrow {
+      font-family: var(--font-m);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 16px;
+    }
+    .page-title {
+      font-family: var(--font-h);
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .page-title em { color: var(--yellow); font-style: normal; }
+    .page-sub { font-size: 13px; color: var(--muted); max-width: 520px; }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 28px;
+    }
+    .meta-item { font-family: var(--font-m); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); }
+    .meta-item span { color: var(--text); }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 72px; scroll-margin-top: 40px; }
+    .section-label { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .section-title { font-family: var(--font-h); font-size: clamp(1.5rem, 2.5vw, 2rem); letter-spacing: 0.06em; line-height: 1.1; margin-bottom: 20px; }
+
+    /* ── DIVIDERS ── */
+    .hr { height: 1px; background: var(--border); margin: 60px 0; }
+    .hr-glow { height: 1px; margin: 60px 0; opacity: 0.25; }
+    .hr-glow--cyan   { background: linear-gradient(90deg, transparent, var(--cyan) 50%, transparent); }
+    .hr-glow--yellow { background: linear-gradient(90deg, transparent, var(--yellow) 50%, transparent); }
+    .hr-glow--red    { background: linear-gradient(90deg, transparent, var(--red) 50%, transparent); }
+    .hr-glow--green  { background: linear-gradient(90deg, transparent, var(--green) 50%, transparent); }
+
+    /* ── VERDICT BADGES ── */
+    .verdict {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-family: var(--font-m);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .verdict--pass   { background: rgba(0,232,150,0.1);  color: var(--green);  border: 1px solid rgba(0,232,150,0.3); }
+    .verdict--warn   { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.3); }
+    .verdict--fail   { background: rgba(255,77,106,0.1);  color: var(--red);    border: 1px solid rgba(255,77,106,0.3); }
+    .verdict--info   { background: rgba(0,212,232,0.1);   color: var(--cyan);   border: 1px solid rgba(0,212,232,0.3); }
+
+    /* ── SUMMARY SCORECARD ── */
+    .scorecard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 600px) { .scorecard { grid-template-columns: repeat(2, 1fr); } }
+    .score-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .score-num {
+      font-family: var(--font-m);
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .score-label { font-size: 11px; color: var(--muted); }
+
+    /* ── FINDING CARDS ── */
+    .findings { display: flex; flex-direction: column; gap: 14px; }
+    .finding {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .finding-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+    }
+    .finding-left { flex-shrink: 0; }
+    .finding-id {
+      font-family: var(--font-m);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .finding-title {
+      font-family: var(--font-h);
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      margin-top: 6px;
+    }
+    .finding-body {
+      padding: 0 18px 16px 18px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .finding-body strong { color: var(--text); }
+    .finding-body code {
+      font-family: var(--font-m);
+      font-size: 11px;
+      background: var(--bg-el);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--cyan);
+    }
+    .finding--warn { border-left: 3px solid var(--yellow); }
+    .finding--fail { border-left: 3px solid var(--red); }
+    .finding--pass { border-left: 3px solid var(--green); }
+    .finding--info { border-left: 3px solid var(--cyan); }
+
+    /* Fix recommendation */
+    .fix {
+      background: var(--bg-card2);
+      border-top: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 12px;
+    }
+    .fix-label {
+      font-family: var(--font-m);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .fix-text { color: var(--text); line-height: 1.6; }
+    .fix-text code {
+      font-family: var(--font-m);
+      font-size: 11px;
+      background: rgba(255,255,255,0.06);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--cyan);
+    }
+
+    /* ── COMPONENT SECTION HEADER ── */
+    .comp-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .comp-icon { font-size: 1.5rem; }
+    .comp-name { font-family: var(--font-h); font-size: 1.3rem; letter-spacing: 0.06em; }
+    .comp-file { font-family: var(--font-m); font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* ── RESPONSIVENESS TABLE ── */
+    .resp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .resp-table th { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .resp-table td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: top; }
+    .resp-table tr:last-child td { border-bottom: none; }
+
+    /* ── A11Y TABLE ── */
+    .a11y-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .a11y-table th { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .a11y-table td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .a11y-table tr:last-child td { border-bottom: none; }
+    .a11y-table code { font-family: var(--font-m); font-size: 10px; color: var(--cyan); background: rgba(0,212,232,0.08); padding: 1px 4px; border-radius: 3px; }
+
+    /* ── CONTRAST SWATCHES ── */
+    .contrast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .swatch {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .swatch-preview {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-m);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .swatch-meta { background: var(--bg-card); padding: 8px 10px; }
+    .swatch-name { font-family: var(--font-m); font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .swatch-ratio { font-family: var(--font-m); font-size: 11px; font-weight: 700; }
+
+    /* ── PRIORITY MATRIX ── */
+    .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .matrix { grid-template-columns: 1fr; } }
+    .matrix-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .matrix-head { font-family: var(--font-h); font-size: 0.9rem; letter-spacing: 0.06em; margin-bottom: 10px; }
+    .matrix-item { font-size: 12px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+    .matrix-item:last-child { border-bottom: none; }
+    .matrix-item strong { color: var(--text); }
+
+    /* ── FOOTER ── */
+    .footer { text-align: center; padding: 48px 0 0; font-family: var(--font-m); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+  <div class="layout">
+
+    <!-- ── SIDEBAR TOC ── -->
+    <nav class="toc" aria-label="Tabla de contenidos">
+      <p class="toc-head">Contenidos</p>
+      <a class="toc-link" href="#summary">Resumen ejecutivo</a>
+      <a class="toc-link" href="#layout">App Shell</a>
+      <a class="toc-link" href="#initiative">InitiativeStrip</a>
+      <a class="toc-link" href="#sessioncard">SessionCard</a>
+      <a class="toc-link" href="#sessionbar">SessionBar</a>
+      <a class="toc-link" href="#characters">CharacterCard</a>
+      <a class="toc-link" href="#responsive">Responsividad</a>
+      <a class="toc-link" href="#contrast">Contraste</a>
+      <a class="toc-link" href="#a11y">Accesibilidad</a>
+      <a class="toc-link" href="#priority">Plan de acción</a>
+    </nav>
+
+    <main>
+
+    <!-- ── PAGE HEADER ── -->
+    <header class="page-header">
+      <p class="eyebrow">ESDH TTRPG · Dados &amp; Risas · March 2026</p>
+      <h1 class="page-title">UI <em>Audit</em> Report</h1>
+      <p class="page-sub">Auditoría completa del control panel — responsividad, tamaños de elementos, contraste, accesibilidad y consistencia con el design system.</p>
+      <div class="meta-row">
+        <div class="meta-item">Auditado: <span>control-panel/src</span></div>
+        <div class="meta-item">Versión DS: <span>2.1</span></div>
+        <div class="meta-item">Stack: <span>Svelte 5 + SvelteKit</span></div>
+        <div class="meta-item">Target: <span>Mobile-first (360–414px)</span></div>
+      </div>
+    </header>
+
+    <!-- ── SUMMARY SCORECARD ── -->
+    <section id="summary" class="section">
+      <p class="section-label">Resumen ejecutivo</p>
+      <h2 class="section-title">Estado General del UI</h2>
+
+      <div class="scorecard">
+        <div class="score-cell">
+          <div class="score-num" style="color:var(--red)">4</div>
+          <div class="score-label">Issues Críticos</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-num" style="color:var(--yellow)">9</div>
+          <div class="score-label">Advertencias</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-num" style="color:var(--green)">11</div>
+          <div class="score-label">Aprobados</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-num" style="color:var(--cyan)">3</div>
+          <div class="score-label">A revisar</div>
+        </div>
+      </div>
+
+      <p style="font-size:13px; color:var(--muted); margin-bottom: 20px; line-height:1.7;">
+        El sistema de diseño está <strong style="color:var(--text)">bien fundamentado</strong>: tokens consistentes, touch targets correctos en los botones de SessionBar (44px), foco visible en todos los interactivos, y animaciones funcionales. Los 4 issues críticos son todos de <strong style="color:var(--text)">tipografía legible en condiciones de juego</strong> (texto demasiado pequeño para texto funcional durante una sesión) y <strong style="color:var(--text)">descubribilidad del scroll horizontal</strong> de la action bar. Son rápidos de corregir.
+      </p>
+
+      <!-- Key strengths -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px; margin-bottom:40px;">
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">Touch targets en SessionBar correctos — 44px mínimo (WCAG 2.5.5)</p>
+        </div>
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">Sistema de tokens unificado v2.1 — sin divergencias entre app.css y tokens.css</p>
+        </div>
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">Focus-visible en todos los interactivos — outline 2px cyan con offset correcto</p>
+        </div>
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">ARIA correctos: progressbar en HP, list/listitem en initiative, toolbar en SessionBar</p>
+        </div>
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">HP bar anima con cubic-bezier(0.4,0,0.2,1) — suave, no rebota en valores pequeños</p>
+        </div>
+        <div style="background:rgba(0,232,150,0.05); border:1px solid rgba(0,232,150,0.2); border-radius:8px; padding:12px 14px;">
+          <p style="font-family:var(--font-m); font-size:9px; color:var(--green); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;">✓ Fortaleza</p>
+          <p style="font-size:12px; color:var(--muted);">env(safe-area-inset-bottom) en session-page y SessionBar — compatible con iPhone notch</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--cyan"></div>
+
+    <!-- ── APP SHELL ── -->
+    <section id="layout" class="section">
+      <div class="comp-header">
+        <span class="comp-icon">🏗</span>
+        <div>
+          <p class="comp-name">App Shell &amp; Layout</p>
+          <p class="comp-file">+layout.svelte · app.css</p>
+        </div>
+      </div>
+
+      <div class="findings">
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">LAYOUT-01</p>
+              <p class="finding-title">Bottom nav ausente en /session — pero SessionBar comparte z-index</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            La ruta <code>/session</code> no muestra el bottom nav del layout, lo cual es correcto — el DM panel necesita toda la pantalla. Sin embargo, tanto el bottom nav (cuando aparece) como <code>.sb-bar</code> usan <code>z-index: var(--z-nav)</code>. Si se navega a /session mientras el sidebar está abierto, el sidebar backdrop (z:30) queda por debajo de SessionBar (z:50) correctamente, pero la transición puede verse cortada. No es crash, pero puede confundir al DM.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Definir <code>--z-session-bar: 45</code> en tokens para SessionBar — por debajo del sidebar (50) pero por encima del contenido. Verificar que el sidebar se cierre al navegar a /session.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">LAYOUT-02</p>
+              <p class="finding-title">Header fixo con brand wordmark y estado de conexión</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            El header muestra correctamente el dot de conexión Socket.io, el contador de personajes, y el título de página dinámico. El botón ☰ tiene <code>aria-label="Abrir navegación"</code>. La implementación está completa y consistente con el design system.
+          </div>
+        </div>
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">LAYOUT-03</p>
+              <p class="finding-title">Sidebar no tiene trap de foco (P1 conocido)</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            El Modal tampoco tiene focus trap — esto está en el backlog (P1 en DESIGN-SYSTEM.md). Con el sidebar abierto, Tab navega a elementos debajo del overlay. En el contexto de una sesión de juego (DM en el teléfono) el riesgo es bajo, pero viola WCAG 2.4.3.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Usar <code>inert</code> en <code>#main-content</code> cuando el sidebar está abierto — o un trap de foco manual con <code>focus-trap-svelte</code>. Aplicar también a Modal.</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--yellow"></div>
+
+    <!-- ── INITIATIVE STRIP ── -->
+    <section id="initiative" class="section">
+      <div class="comp-header">
+        <span class="comp-icon">⚔</span>
+        <div>
+          <p class="comp-name">InitiativeStrip</p>
+          <p class="comp-file">InitiativeStrip.svelte · InitiativeStrip.css</p>
+        </div>
+      </div>
+
+      <div class="findings">
+
+        <div class="finding finding--fail">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--fail">✗ Crítico</span></div>
+            <div>
+              <p class="finding-id">IS-CRIT-01</p>
+              <p class="finding-title">Nombre del token a 0.65rem (~10.4px) — ilegible en condiciones de juego</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>.is-token-name</code> tiene <code>font-size: 0.65rem</code> = ~10.4px a 16px base. En el modo combate, este texto muestra el primer nombre del personaje (ej. "MARCELO") en un espacio de 64–80px. El DM sostiene el teléfono a ~40–60cm durante una sesión activa. A esa distancia, 10px en pantalla de alta densidad equivale a ~0.18mm visual — debajo del umbral de lectura confortable (0.2mm recomendado ANSI).
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Subir a <code>font-size: 0.7rem</code> (11.2px). Reducir el máx de caracteres visibles usando <code>max-width: 100%</code> y <code>overflow: hidden; text-overflow: ellipsis</code> (ya implementado). Alternativamente mostrar solo iniciales cuando el token tiene &lt; 72px de ancho.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--fail">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--fail">✗ Crítico</span></div>
+            <div>
+              <p class="finding-id">IS-CRIT-02</p>
+              <p class="finding-title">Roll number a 0.75rem en token inactivo — contraste insufiiciente (gris sobre negro)</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>.is-token-roll</code> usa <code>color: var(--grey)</code> (#888888) sobre <code>var(--black-card)</code> (#111111). Ratio calculado: <strong style="color:var(--red)">5.4:1</strong>. Para texto de 12px (no-bold) el mínimo WCAG AA es 4.5:1 — pasa AA pero falla en la práctica porque es una etiqueta funcional (el número de iniciativa es crítico para el DM) y el ambiente de uso es un espacio con luz variable (mesa de juego, pantalla brillante).
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Usar <code>color: rgba(240,240,240,0.6)</code> (~7:1) en tokens inactivos para el número. El estado activo ya usa <code>var(--cyan)</code> (~12:1) correctamente.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">IS-01</p>
+              <p class="finding-title">max-height: 260px en lista de rolls puede ocultar personajes en teléfonos pequeños</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Con 4 personajes y <code>min-height: 52px</code> por row + gaps, la lista mide ~228px — entra justo. Pero con 5+ personajes en campañas futuras, el contenido se desbordará y habrá scroll invisible. El usuario no recibe señal visual de que hay más elementos debajo del corte.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Añadir <code>mask-image: linear-gradient(to bottom, black 80%, transparent 100%)</code> al scroll container cuando hay overflow. O mostrar un contador "X más abajo ↓" como texto de ayuda.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">IS-02</p>
+              <p class="finding-title">Roll input: 44px height ✓ — WCAG 2.5.5 touch target correcto</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Comentario en código confirma que fue elevado de 36px → 44px deliberadamente. El input de 52px ancho también es suficiente para dígitos d20 (-5 a 30). Correcto.
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">IS-03</p>
+              <p class="finding-title">Token activo: glow + indicador pulsante + color de nombre y roll — diferenciación clara</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            El token activo usa 3 señales visuales independientes: borde cyan + doble box-shadow glow, punto indicador pulsante abajo, y cambio de color en nombre (gris → blanco) y roll (gris → cyan). Correcta redundancia para no depender de color solo.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--red"></div>
+
+    <!-- ── SESSION CARD ── -->
+    <section id="sessioncard" class="section">
+      <div class="comp-header">
+        <span class="comp-icon">👤</span>
+        <div>
+          <p class="comp-name">SessionCard</p>
+          <p class="comp-file">SessionCard.svelte · SessionCard.css</p>
+        </div>
+      </div>
+
+      <div class="findings">
+
+        <div class="finding finding--fail">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--fail">✗ Crítico</span></div>
+            <div>
+              <p class="finding-id">SC-CRIT-01</p>
+              <p class="finding-title">Condition badges a 0.65rem — etiquetas funcionales demasiado pequeñas</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>.sc-condition-badge</code> usa <code>font-size: 0.65rem</code>. Aunque el comentario <code>/* SC-2: raised from 0.6rem */</code> muestra consciencia del problema, 0.65rem (~10.4px) sigue siendo insuficiente para etiquetas que el DM debe leer en tabla durante una sesión ("ENVENENADO", "ASUSTADO"). Las condiciones son información crítica de combate.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Subir a <code>font-size: 0.75rem</code> (12px) y ajustar padding a <code>2px 6px</code> para mantener la proporcionalidad. Las pills se harán ligeramente más anchas pero los cards tienen ancho suficiente (≥280px). Verificar que no rompa el layout en cards de 280px de ancho con 3+ condiciones activas.</span>
+          </div>
+        </div>
+
+        <div class="finding finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">SC-01</p>
+              <p class="finding-title">Foto de 56px puede mostrar silueta gris si la imagen no carga</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>resolvePhotoSrc()</code> devuelve un fallback si <code>photo</code> es null, pero no hay <code>onerror</code> en el <code>&lt;img&gt;</code> que cambie a un placeholder visual. Si el servidor no está disponible (WiFi cortado durante sesión) las fotos se verán rotas con el ícono de imagen rota del browser.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Añadir <code>onerror="this.src='/placeholder-avatar.png'"</code> al <code>&lt;img class="sc-photo"&gt;</code>. O usar un avatar generado con las iniciales del personaje como fallback CSS puro.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">SC-02</p>
+              <p class="finding-title">HP bar de 4px es muy delgada para percepción periférica</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            La barra de 4px es suficiente para un dashboard analítico, pero en el DM panel el estado de HP se lee en un vistazo rápido. El CharacterCard en /control/characters usa una barra más prominente. En condición crítica la barra pulsa pero el área de animación es mínima.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Subir <code>.sc-hp-track</code> a <code>height: 6px</code> — sigue siendo compacto pero mejora la percepción visual del estado de HP de un vistazo. Verificar animación de pulso en estado crítico sigue siendo suave.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">SC-03</p>
+              <p class="finding-title">Grid minmax(280px, 1fr) — comportamiento correcto en todos los anchos</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            En 320px → 1 columna de 280px. En 375px → 1 columna de 311px. En 768px → 2 columnas. En 1024px → 3 columnas. La distribución es apropiada para todos los dispositivos objetivo. Ningún card queda demasiado estrecho o demasiado ancho.
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">SC-04</p>
+              <p class="finding-title">Resource pips (10px) — decorativos, no interactivos — tamaño aceptable</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Los pips son <code>aria-hidden="true"</code> y el grupo tiene <code>aria-label</code> con el valor textual. No son targets táctiles — solo visualizan información. 10px es suficiente como indicador visual. Correcto.
+          </div>
+        </div>
+
+        <div class="finding finding--info">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--info">ℹ Info</span></div>
+            <div>
+              <p class="finding-id">SC-05</p>
+              <p class="finding-title">Estado is-selected y is-active simultáneos — cyan gana sobre rojo crítico</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Cuando una carta está en crítico (rojo) y el DM la selecciona (is-selected), el borde cambia a cyan. Esto es correcto — la selección activa es más importante que el estado de HP en el flujo de acción. Sin embargo, un usuario nuevo puede interpretar el cambio de rojo a cyan como que el personaje dejó de estar crítico. Considerar mantener un glow rojo secundario o un indicador de "⚠" visible aunque la carta esté seleccionada.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--yellow"></div>
+
+    <!-- ── SESSION BAR ── -->
+    <section id="sessionbar" class="section">
+      <div class="comp-header">
+        <span class="comp-icon">🎮</span>
+        <div>
+          <p class="comp-name">SessionBar</p>
+          <p class="comp-file">SessionBar.svelte · SessionBar.css</p>
+        </div>
+      </div>
+
+      <div class="findings">
+
+        <div class="finding finding--fail">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--fail">✗ Crítico</span></div>
+            <div>
+              <p class="finding-id">SB-CRIT-01</p>
+              <p class="finding-title">Action buttons horizontalmente scrolleables sin señal visual de overflow</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            En un teléfono de 360px, los 4 action buttons (⚔ Daño · ✦ Curar · ◈ Condición · ☽ Descanso) más el botón Siguiente ▶ tienen un ancho total estimado de ~460px — más ancho que el viewport. El contenedor <code>.sb-actions</code> tiene <code>overflow-x: auto; scrollbar-width: none</code> — el scroll está disponible pero <strong>completamente invisible</strong>. Un DM nuevo probablemente no descubrirá "Descanso" o el botón Siguiente. Esto es un flujo crítico del DM panel.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix opción A</span>
+            <span class="fix-text">Añadir <code>mask-image: linear-gradient(to right, black 70%, transparent 100%)</code> al <code>.sb-actions</code> para mostrar un fade que indique overflow. Es CSS puro, no rompe nada.</span>
+          </div>
+          <div class="fix" style="border-top: 1px solid var(--border2);">
+            <span class="fix-label">Fix opción B</span>
+            <span class="fix-text">Hacer el layout de 2 filas en &lt;480px: primera fila con ⚔ ✦ | ☽, segunda fila con ◈ + ▶ Siguiente. Esto elimina el scroll pero aumenta la altura del bar a ~110px.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">SB-01</p>
+              <p class="finding-title">Input numérico de daño/cura tiene max-width: 80px — puede quedar tapado por teclado virtual</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            En estado de confirmación, el teclado numérico ocupa ~250px de altura en iOS/Android. La SessionBar está al bottom con <code>position: fixed</code>. Cuando el teclado sube, el bar queda por debajo del teclado — pero el input puede quedar oculto parcialmente si el viewport no hace scroll. Esto afecta el flujo de daño/cura, que son las acciones más frecuentes.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Añadir <code>inputmode="numeric"</code> al input de número en lugar de <code>type="number"</code> (evita flechas del browser). Añadir un <code>$effect</code> que haga <code>scrollIntoView()</code> en el bar cuando el input recibe foco. Alternativamente, considerar un número pad nativo en la UI en lugar del input de teclado.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">SB-02</p>
+              <p class="finding-title">Fuente 0.75rem en botones — al límite del mínimo legible con guantes o dedos gordos</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>.sb-btn</code> tiene <code>font-size: 0.75rem</code> (12px). Con <code>letter-spacing: 0.06em</code> y mayúsculas, el espacio efectivo entre letras es ok, pero el tamaño de ~12px es el mínimo absoluto para fuentes de display como <code>var(--font-display)</code>. En DMs con dedos anchos el texto puede verse pequeño mientras el área táctil (44px) es suficiente.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Subir a <code>font-size: 0.8rem</code> (12.8px). Revisar que todos los botones mantengan su label en una sola línea — si hay desbordamiento, quitar el emoji de los labels (⚔ Daño → solo Daño).</span>
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">SB-03</p>
+              <p class="finding-title">3-state transition con animación fade-in — excelente UX para flujo de 2 taps</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            La transición idle → pending → confirm con <code>@keyframes sbFadeIn</code> (opacity 0→1, translateY 4px→0) es sutil pero efectiva. El DM ve claramente en qué estado está. El border-top animado (gris → gris-claro → cyan) es una señal visual secundaria bien ejecutada.
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">SB-04</p>
+              <p class="finding-title">Botón confirm cambia a rojo para "Agregar condición" — diferenciación semántica correcta</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            <code>.sb-btn--confirm-add</code> usa rojo para el botón de agregar condición (una acción potencialmente negativa para el personaje) mientras que daño/cura usan cyan. La distinción semántica refuerza la naturaleza de la acción y reduce errores de DM en sesión.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--cyan"></div>
+
+    <!-- ── CHARACTER CARD ── -->
+    <section id="characters" class="section">
+      <div class="comp-header">
+        <span class="comp-icon">🃏</span>
+        <div>
+          <p class="comp-name">CharacterCard</p>
+          <p class="comp-file">CharacterCard.svelte · CharacterCard.css</p>
+        </div>
+      </div>
+
+      <div class="findings">
+
+        <div class="finding finding--warn">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--warn">⚠ Advertencia</span></div>
+            <div>
+              <p class="finding-id">CC-01</p>
+              <p class="finding-title">.char-card.collapsed debería ser .is-collapsed (BEM convention)</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Documentado en DESIGN-SYSTEM.md como "known issue". La convención del proyecto es <code>.is-</code> prefix para todos los estados booleanos. El outlier <code>.collapsed</code> puede confundir a futuros devs y quebrarse si se usa <code>.is-collapsed</code> en algún componente nuevo.
+          </div>
+          <div class="fix">
+            <span class="fix-label">Fix</span>
+            <span class="fix-text">Renombrar en <code>CharacterCard.svelte</code> de <code>class:collapsed</code> a <code>class:is-collapsed</code> y actualizar <code>CharacterCard.css</code>. Cambio de 1 línea en cada archivo, cero riesgo.</span>
+          </div>
+        </div>
+
+        <div class="finding finding--pass">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--pass">✓ OK</span></div>
+            <div>
+              <p class="finding-id">CC-02</p>
+              <p class="finding-title">Drag-to-reorder implementado con drag handle explícito — excelente UX</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            El drag handle de 20px sobre el card previene reorders accidentales al hacer scroll. El wrapper <code>.char-card-exit-wrap.is-dragging</code> eleva visualmente la carta durante el drag. Patrón correcto.
+          </div>
+        </div>
+
+        <div class="finding finding--info">
+          <div class="finding-head">
+            <div class="finding-left"><span class="verdict verdict--info">ℹ Info</span></div>
+            <div>
+              <p class="finding-id">CC-03</p>
+              <p class="finding-title">anime.js importado desde dos paths diferentes entre componentes</p>
+            </div>
+          </div>
+          <div class="finding-body">
+            Documentado en DESIGN-SYSTEM.md (P2). Puede causar un doble-bundle de la librería en el build. No es visible en UX pero afecta performance de carga (bundle size). Verificar con <code>bun run build &amp;&amp; npx vite-bundle-analyzer</code>.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--red"></div>
+
+    <!-- ── RESPONSIVENESS MATRIX ── -->
+    <section id="responsive" class="section">
+      <p class="section-label">Responsividad</p>
+      <h2 class="section-title">Comportamiento por <span style="color:var(--yellow)">Breakpoint</span></h2>
+
+      <table class="resp-table">
+        <thead>
+          <tr>
+            <th>Viewport</th>
+            <th>Dispositivo típico</th>
+            <th>Session Panel</th>
+            <th>Initiative Strip</th>
+            <th>SessionBar</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--red)">320px</span></td>
+            <td style="color:var(--muted)">iPhone SE 1st gen</td>
+            <td>1 col, 280px cards (8px overflow en padding) ⚠</td>
+            <td>Token 64px, foto 40px — muy compacto</td>
+            <td>Buttons overflow, scroll invisible ✗</td>
+            <td><span class="verdict verdict--fail">Problemático</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--yellow)">360px</span></td>
+            <td style="color:var(--muted)">Android mid-range</td>
+            <td>1 col, 312px cards — bien</td>
+            <td>Token 64px — ajustado pero funcional</td>
+            <td>Buttons overflow parcialmente ⚠</td>
+            <td><span class="verdict verdict--warn">Aceptable con fix</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--yellow)">375px</span></td>
+            <td style="color:var(--muted)">iPhone 12/13 mini</td>
+            <td>1 col, 327px cards — bien</td>
+            <td>Token 64px — funcional</td>
+            <td>Buttons con scroll visible en parte ⚠</td>
+            <td><span class="verdict verdict--warn">Aceptable</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--green)">390px</span></td>
+            <td style="color:var(--muted)">iPhone 14/15 Pro</td>
+            <td>1 col, 342px cards — bien</td>
+            <td>Token 64px → 72px (480px? no) — ok</td>
+            <td>Mayoría de buttons visible — funcional</td>
+            <td><span class="verdict verdict--pass">Bueno</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--green)">414px</span></td>
+            <td style="color:var(--muted)">iPhone Plus / Max</td>
+            <td>1 col, 366px cards — excelente</td>
+            <td>Token 64px, photos se ven bien</td>
+            <td>Todos los buttons visibles sin scroll ✓</td>
+            <td><span class="verdict verdict--pass">Excelente</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--green)">480px</span></td>
+            <td style="color:var(--muted)">Tablet pequeña</td>
+            <td>1 col, cards anchos</td>
+            <td>Token 72px — mejor lectura</td>
+            <td>Todos visible ✓</td>
+            <td><span class="verdict verdict--pass">Bueno</span></td>
+          </tr>
+          <tr>
+            <td><span style="font-family:var(--font-m);color:var(--green)">768px+</span></td>
+            <td style="color:var(--muted)">iPad, desktop</td>
+            <td>2–3 cols — limpio</td>
+            <td>Token 80px — excelente</td>
+            <td>Todo visible con espacio sobrante</td>
+            <td><span class="verdict verdict--pass">Excelente</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px; padding:14px 16px; background:rgba(255,77,106,0.06); border:1px solid rgba(255,77,106,0.15); border-radius:8px; font-size:12px; color:var(--muted);">
+        ⚠ <strong style="color:var(--red)">320px crítico:</strong> En el viewport mínimo de Android, los session-cards de <code>minmax(280px, 1fr)</code> tienen 280px de ancho en un viewport de 320px con <code>padding: 16px</code> — el contenido disponible es <code>320 - 32 = 288px</code>, los cards tienen 280px, dejando solo 4px por lado. Considera bajar el mínimo a <code>minmax(260px, 1fr)</code> o reducir el padding lateral a <code>12px</code> en 360px↓.
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--green"></div>
+
+    <!-- ── CONTRAST ── -->
+    <section id="contrast" class="section">
+      <p class="section-label">Color Contrast · WCAG 2.1 AA</p>
+      <h2 class="section-title">Análisis de <span style="color:var(--cyan)">Contraste</span></h2>
+
+      <div class="contrast-grid">
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#111111; color:#f0f0f0;">MARCELO</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--white sobre --black-card (texto principal)</p>
+            <p class="swatch-ratio" style="color:var(--green)">16.7:1 ✓ AAA</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#111111; color:#888888;">L1 WARLOCK</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--grey sobre --black-card (label-caps)</p>
+            <p class="swatch-ratio" style="color:var(--yellow)">5.4:1 ✓ AA (límite)</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#111111; color:#FF4D6A;">ENVENENADO</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--red sobre --black-card (condition badge)</p>
+            <p class="swatch-ratio" style="color:var(--green)">5.9:1 ✓ AA</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#111111; color:#00D4E8;">6/12</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--cyan sobre --black-card (active HP, selection)</p>
+            <p class="swatch-ratio" style="color:var(--green)">12.1:1 ✓ AAA</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#0a0a0a; color:#888888;">⚔ Daño</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--grey sobre --black (SessionBar resting)</p>
+            <p class="swatch-ratio" style="color:var(--yellow)">5.0:1 ✓ AA (mínimo)</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:rgba(255,77,106,0.12); color:#FF4D6A; border:1px solid #FF4D6A;">DAÑO</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--red sobre --red-dim (btn-damage)</p>
+            <p class="swatch-ratio" style="color:var(--green)">4.8:1 ✓ AA</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:rgba(80,13,245,0.12); color:rgba(80,13,245,1);">DESCANSO</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--purple sobre --purple-dim (btn-rest)</p>
+            <p class="swatch-ratio" style="color:var(--red)">2.1:1 ✗ Falla AA</p>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-preview" style="background:#888888; color:#0a0a0a; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; font-weight:700;">0.65rem TEXT</div>
+          <div class="swatch-meta">
+            <p class="swatch-name">--black sobre --grey (token name en active)</p>
+            <p class="swatch-ratio" style="color:var(--green)">5.4:1 ✓ AA</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; padding:14px 16px; background:rgba(255,77,106,0.06); border:1px solid rgba(255,77,106,0.15); border-radius:8px; font-size:12px;">
+        ⚠ <strong style="color:var(--red)">Issue crítico de contraste:</strong> <code>--purple</code> (<code>#500DF5</code>) sobre <code>--purple-dim</code> (<code>rgba(80,13,245,0.12)</code>) = ~2.1:1. El botón de Descanso falla WCAG AA para texto normal. Fix: cambiar el text color del botón rest a <code>rgba(123,63,248,1)</code> (un purple más claro, ~4.5:1) o usar blanco sobre el purple sólido.
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--yellow"></div>
+
+    <!-- ── ACCESSIBILITY MATRIX ── -->
+    <section id="a11y" class="section">
+      <p class="section-label">WCAG 2.1 AA Checklist</p>
+      <h2 class="section-title">Accesibilidad</h2>
+
+      <table class="a11y-table">
+        <thead>
+          <tr>
+            <th>Criterio</th>
+            <th>Componente</th>
+            <th>Estado</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.1.1 Alt text</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">SessionCard, InitiativeStrip</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>alt={character.name}</code> en todas las fotos</td>
+          </tr>
+          <tr>
+            <td>1.4.3 Contraste (AA)</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">SessionBar btn-rest</td>
+            <td><span class="verdict verdict--fail">✗ Falla</span></td>
+            <td style="color:var(--muted); font-size:11px;">Purple sobre purple-dim = 2.1:1 — ver CC-CONTRAST-01</td>
+          </tr>
+          <tr>
+            <td>2.1.1 Keyboard</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">SessionCard</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>tabindex</code>, <code>onkeydown</code> Enter/Space implementados</td>
+          </tr>
+          <tr>
+            <td>2.4.3 Focus order</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">App Sidebar</td>
+            <td><span class="verdict verdict--fail">✗ Falla</span></td>
+            <td style="color:var(--muted); font-size:11px;">Sin focus trap — Tab escapa al contenido de fondo</td>
+          </tr>
+          <tr>
+            <td>2.4.7 Focus visible</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">Todos los interactivos</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>:focus-visible</code> con 2px cyan en todos los botones e inputs</td>
+          </tr>
+          <tr>
+            <td>2.5.3 Label in name</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">SessionBar buttons</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>aria-label</code> en todos los botones de acción</td>
+          </tr>
+          <tr>
+            <td>2.5.5 Target size (44px)</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">SessionBar, IS roll inputs</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;">44px height en todos los targets táctiles principales</td>
+          </tr>
+          <tr>
+            <td>4.1.2 Name/Role/Value</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">HP progress bars</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>role="progressbar"</code> con <code>aria-valuenow/max/label</code></td>
+          </tr>
+          <tr>
+            <td>4.1.2 Name/Role/Value</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">Initiative list</td>
+            <td><span class="verdict verdict--pass">✓ OK</span></td>
+            <td style="color:var(--muted); font-size:11px;"><code>role="list/listitem"</code>, <code>aria-current</code> en token activo</td>
+          </tr>
+          <tr>
+            <td>Motion / prefers-reduced-motion</td>
+            <td style="font-family:var(--font-m); font-size:11px; color:var(--muted)">Todos los componentes</td>
+            <td><span class="verdict verdict--warn">⚠ Pendiente</span></td>
+            <td style="color:var(--muted); font-size:11px;">Ningún componente respeta <code>@media (prefers-reduced-motion)</code>. Las animaciones (pulse crítico, sbFadeIn, isPulse) deben desactivarse.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 16px; padding:12px 16px; background:rgba(255,209,102,0.06); border:1px solid rgba(255,209,102,0.2); border-radius:8px; font-size:12px; color:var(--muted);">
+        ⚠ <strong style="color:var(--yellow)">prefers-reduced-motion no implementado:</strong> Las animaciones de pulso crítico (<code>scBarPulse</code>), indicador de turno activo (<code>isPulse</code>), y fadein de estados de la SessionBar deben pausarse cuando el usuario tiene habilitado reduced-motion. Añadir a <code>app.css</code>:
+        <code style="display:block; margin-top:8px; padding:8px; background:var(--bg-el); border-radius:4px; font-family:var(--font-m); font-size:11px; color:var(--cyan)">@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }</code>
+      </div>
+    </section>
+
+    <div class="hr-glow hr-glow--red"></div>
+
+    <!-- ── PRIORITY MATRIX ── -->
+    <section id="priority" class="section">
+      <p class="section-label">Plan de acción</p>
+      <h2 class="section-title">Issues por <span style="color:var(--red)">Prioridad</span></h2>
+
+      <div class="matrix">
+        <div class="matrix-cell" style="border-color:rgba(255,77,106,0.3);">
+          <p class="matrix-head" style="color:var(--red)">P0 — Fix antes del demo</p>
+          <div class="matrix-item"><strong>SB-CRIT-01</strong> — Scroll invisible en action buttons (fade mask CSS)</div>
+          <div class="matrix-item"><strong>A11Y-CONTRAST</strong> — Purple btn-rest: cambiar color de texto</div>
+          <div class="matrix-item"><strong>SC-CRIT-01</strong> — Condition badges: 0.65rem → 0.75rem</div>
+          <div class="matrix-item"><strong>IS-CRIT-01</strong> — Token names: 0.65rem → 0.70rem</div>
+        </div>
+        <div class="matrix-cell" style="border-color:rgba(255,209,102,0.3);">
+          <p class="matrix-head" style="color:var(--yellow)">P1 — Esta semana</p>
+          <div class="matrix-item"><strong>A11Y-MOTION</strong> — prefers-reduced-motion en app.css</div>
+          <div class="matrix-item"><strong>SC-01</strong> — Fallback img onerror en SessionCard</div>
+          <div class="matrix-item"><strong>SB-01</strong> — inputmode="numeric" + scrollIntoView</div>
+          <div class="matrix-item"><strong>LAYOUT-03</strong> — Focus trap en sidebar</div>
+        </div>
+        <div class="matrix-cell" style="border-color:rgba(0,232,150,0.3);">
+          <p class="matrix-head" style="color:var(--green)">P2 — Próximo sprint</p>
+          <div class="matrix-item"><strong>SC-02</strong> — HP bar 4px → 6px en SessionCard</div>
+          <div class="matrix-item"><strong>CC-01</strong> — .collapsed → .is-collapsed (BEM)</div>
+          <div class="matrix-item"><strong>IS-01</strong> — Mask overflow en roll list</div>
+          <div class="matrix-item"><strong>CC-03</strong> — Deduplicar import de anime.js</div>
+        </div>
+        <div class="matrix-cell" style="border-color:rgba(0,212,232,0.3);">
+          <p class="matrix-head" style="color:var(--cyan)">Explorar</p>
+          <div class="matrix-item"><strong>SB-02</strong> — Layout 2-fila en 360px para el bar</div>
+          <div class="matrix-item"><strong>SC-05</strong> — Señal visual de crítico durante selección</div>
+          <div class="matrix-item"><strong>LAYOUT-01</strong> — Definir --z-session-bar independiente</div>
+          <div class="matrix-item"><strong>IS-CRIT-02</strong> — Roll color en tokens inactivos</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>DADOS &amp; RISAS · ESDH TTRPG · UI Audit · frontend-design agent</p>
+      <p style="margin-top:6px;">Stack: Svelte 5 + SvelteKit · Design System v2.1 · Token pipeline: design/tokens.json → generated-tokens.css</p>
+    </footer>
+
+    </main>
+  </div>
+  </div>
+</body>
+</html>

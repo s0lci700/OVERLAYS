@@ -1,0 +1,300 @@
+/**
+ * SessionCard Component Styles
+ * ============================
+ * Compact read-only character card for the DM session panel.
+ * Extends token system from app.css/generated-tokens.css.
+ *
+ *
+ * State classes:
+ *   .is-active    → cyan border/glow — current active turn
+ *   .is-selected  → cyan tint + border — user has selected this card
+ *   .is-critical  → red border — HP ≤ 30%
+ *   .is-selectable → cursor pointer, hover lift
+ *
+ * Svelte ↔ CSS map:
+ *   <article class="session-card" class:is-active class:is-selected class:is-critical>
+ *   <img class="sc-photo">
+ *   <div class="sc-body">
+ *     <div class="sc-header"> .sc-name + .sc-class (.label-caps) </div>
+ *     <div class="sc-hp-track"> <div class="hp-fill {hpClass}"> </div>
+ *     <div class="sc-hp-nums"> .sc-hp-cur (.is-critical) + .sc-hp-sep + .sc-hp-max
+ *     <div class="sc-conditions"> .sc-condition-badge × N
+ *     <div class="sc-resources"> .sc-resource-row × N
+ *       each row: .label-caps + .sc-pips > .sc-pip.sc-pip--{recharge}(.sc-pip--filled)
+ */
+
+/* ═══════════════════════════════════════════════
+   CARD SHELL
+   ═══════════════════════════════════════════════ */
+
+.session-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast),
+    background var(--t-fast);
+}
+
+.session-card.is-selectable {
+  cursor: pointer;
+}
+
+.session-card.is-selectable:hover {
+  border-color: var(--grey);
+  background: var(--black-elevated);
+}
+
+.session-card.is-selectable:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* Active turn — cyan glow */
+.session-card.is-active {
+  border-color: var(--cyan);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 232, 0.35),
+    var(--shadow-card);
+}
+
+/* User-selected — cyan tint */
+.session-card.is-selected {
+  border-color: var(--cyan);
+  background: rgba(0, 212, 232, 0.05);
+  box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.35);
+}
+
+/* Critical HP — red border */
+.session-card.is-critical {
+  border-color: var(--red);
+}
+
+/* Active/selected states override critical border */
+.session-card.is-active.is-critical,
+.session-card.is-selected.is-critical {
+  border-color: var(--cyan);
+}
+
+/* ═══════════════════════════════════════════════
+   PHOTO
+   ═══════════════════════════════════════════════ */
+
+.sc-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  object-position: center;
+  border: 2px solid var(--grey-dim);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   BODY
+   ═══════════════════════════════════════════════ */
+
+.sc-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   HEADER — name + class label
+   ═══════════════════════════════════════════════ */
+
+.sc-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.sc-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* .sc-class uses .label-caps utility from app.css */
+
+/* ═══════════════════════════════════════════════
+   HP TRACK + FILL
+   Styles defined here directly — cannot rely on CharacterCard.css
+   since that file only loads when /control/characters is visited.
+   ═══════════════════════════════════════════════ */
+
+.sc-hp-track {
+  height: 4px;
+  background: var(--black-elevated);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: var(--space-1);
+}
+
+.hp-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition:
+    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    background var(--t-normal);
+}
+
+.hp-fill.hp--healthy {
+  background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy));
+}
+
+.hp-fill.hp--injured {
+  background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured));
+}
+
+.hp-fill.hp--critical {
+  background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
+  animation: scBarPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes scBarPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* ═══════════════════════════════════════════════
+   HP NUMBERS
+   ═══════════════════════════════════════════════ */
+
+.sc-hp-nums {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-half);
+}
+
+.sc-hp-cur {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  transition: color var(--t-fast);
+}
+
+.sc-hp-cur.is-critical {
+  color: var(--red);
+}
+
+.sc-hp-sep {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--grey);
+  line-height: 1;
+}
+
+.sc-hp-max {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--grey);
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════
+   CONDITIONS — read-only badges
+   ═══════════════════════════════════════════════ */
+
+.sc-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.sc-condition-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-pill);
+  color: var(--red);
+  font-family: var(--font-display);
+  font-size: 0.75rem; /* SC-CRIT-01: raised from 0.65rem — conditions are critical game info */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   RESOURCES — read-only pips
+   ═══════════════════════════════════════════════ */
+
+.sc-resources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.sc-resource-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* resource name uses .label-caps utility from app.css */
+
+.sc-pips {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sc-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  flex-shrink: 0;
+}
+
+/* Long rest resources — red */
+.sc-pip--long_rest {
+  border-color: var(--red);
+}
+.sc-pip--long_rest.sc-pip--filled {
+  background: var(--red);
+  box-shadow: 0 0 4px rgba(255, 77, 106, 0.5);
+}
+
+/* Short rest resources — cyan */
+.sc-pip--short_rest {
+  border-color: var(--cyan);
+}
+.sc-pip--short_rest.sc-pip--filled {
+  background: var(--cyan);
+  box-shadow: 0 0 4px rgba(0, 212, 232, 0.5);
+}
+
+/* Per-turn / DM-controlled resources — grey */
+.sc-pip--turn,
+.sc-pip--dm {
+  border-color: var(--grey);
+}
+.sc-pip--turn.sc-pip--filled,
+.sc-pip--dm.sc-pip--filled {
+  background: var(--grey);
+}

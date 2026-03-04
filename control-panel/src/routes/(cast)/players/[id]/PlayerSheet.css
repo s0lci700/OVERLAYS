@@ -1,0 +1,478 @@
+/**
+ * PlayerSheet.css
+ * ===============
+ * Mobile-first character sheet for Cast › Players.
+ * Designed for one-handed phone use — player holds dice with the other hand.
+ * Minimal chrome, large touch targets, fast to scan.
+ */
+
+/* ── SHEET SHELL ── */
+.player-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  padding-bottom: calc(var(--space-4) + 40px); /* extra bottom breathing room */
+  max-width: 480px;
+  margin: 0 auto;
+  animation: fadeUp var(--t-fast) ease;
+}
+
+/* ── HEADER: Photo + Identity ── */
+.ps-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ps-photo-frame {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--grey-dim);
+  overflow: hidden;
+  background: var(--black-card);
+}
+
+.ps-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ps-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.ps-name {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--white);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+
+.ps-meta {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.ps-alignment {
+  font-size: 0.75rem;
+  color: var(--grey);
+  margin-top: 1px;
+}
+
+/* ── HP SECTION ── */
+.ps-hp-section {
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.ps-hp-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.ps-hp-label {
+  color: var(--grey);
+}
+
+.ps-hp-numbers {
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+.ps-hp-sep {
+  color: var(--grey-dim);
+  margin: 0 1px;
+}
+
+.ps-hp-temp {
+  font-size: 0.8rem;
+  color: var(--cyan);
+}
+
+.ps-hp-track {
+  height: 6px;
+  background: var(--black-elevated);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.ps-hp-fill {
+  height: 100%;
+  background: var(--cyan);
+  border-radius: var(--radius-pill);
+  transition: width var(--t-normal) ease;
+}
+
+/* HP state variants */
+.ps-hp-section.is-wounded .ps-hp-fill {
+  background: #f5a623;
+}
+
+.ps-hp-section.is-critical .ps-hp-fill {
+  background: var(--red);
+}
+
+.ps-hp-section.is-critical {
+  border-color: var(--red);
+}
+
+.ps-hp-section.is-down .ps-hp-fill {
+  background: var(--grey-dim);
+  width: 0% !important;
+}
+
+.ps-hp-section.is-down .ps-hp-numbers {
+  color: var(--red);
+}
+
+/* ── COMBAT STATS ROW ── */
+.ps-combat-row {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--space-2);
+}
+
+.ps-combat-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  padding: var(--space-2) 0;
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+}
+
+.ps-combat-value {
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.ps-combat-label {
+  font-size: 0.6rem;
+  color: var(--grey);
+}
+
+/* ── ABILITY SCORES GRID ── */
+.ps-abilities {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+/* Tooltip trigger — the ability cell itself */
+.ps-abilities :global(.ps-ability-cell) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) var(--space-1);
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  position: relative;
+  cursor: help;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ps-abilities :global(.ps-ability-cell[data-save="true"]) {
+  border-color: var(--cyan);
+  border-width: 1px;
+  box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.15);
+}
+
+.ps-ability-label {
+  font-size: 0.65rem;
+  color: var(--grey);
+}
+
+.ps-ability-mod {
+  font-size: 1.3rem;
+  color: var(--white);
+}
+
+.ps-ability-score {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--grey);
+}
+
+.ps-save-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+
+/* ── GENERIC SECTION ── */
+.ps-section {
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.ps-section-title {
+  margin-bottom: var(--space-2);
+  color: var(--grey);
+}
+
+/* ── CONDITIONS ── */
+.ps-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* ── SAVING THROWS ── */
+.ps-save-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-1) var(--space-3);
+}
+
+.ps-save-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 0;
+}
+
+.ps-prof-marker {
+  font-size: 0.6rem;
+  color: var(--grey-dim);
+  width: 12px;
+  text-align: center;
+}
+
+.ps-save-row.is-proficient .ps-prof-marker {
+  color: var(--cyan);
+}
+
+.ps-save-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey);
+  flex: 1;
+}
+
+.ps-save-row.is-proficient .ps-save-label {
+  color: var(--white);
+}
+
+.ps-save-value {
+  font-size: 0.85rem;
+  color: var(--white);
+}
+
+/* ── SKILLS ── */
+.ps-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.ps-skill-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 212, 232, 0.08);
+  border: 1px solid rgba(0, 212, 232, 0.25);
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── RESOURCES ── */
+.ps-resources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ps-resource-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ps-resource-name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  flex: 1;
+  min-width: 0;
+}
+
+.ps-resource-pips {
+  display: flex;
+  gap: 4px;
+}
+
+.ps-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: 1px solid var(--purple);
+  transition: background var(--t-fast);
+}
+
+.ps-pip.is-spent {
+  background: transparent;
+  border-color: var(--grey-dim);
+}
+
+.ps-resource-count {
+  font-size: 0.75rem;
+  color: var(--grey);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── EQUIPMENT ── */
+.ps-equipment {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ps-equip-item {
+  font-size: 0.85rem;
+  color: var(--white);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ps-equip-item:last-child {
+  border-bottom: none;
+}
+
+.ps-coins {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+}
+
+.ps-coin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ps-coin.gold { color: #f5d56e; }
+.ps-coin.silver { color: #c0c0c0; }
+.ps-coin.copper { color: #d4845e; }
+
+/* ── PROFICIENCIES ── */
+.ps-prof-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ps-prof-line {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.ps-prof-type {
+  flex-shrink: 0;
+  min-width: 70px;
+  font-size: 0.6rem;
+}
+
+.ps-prof-list {
+  font-size: 0.85rem;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+/* ── NOTES ── */
+.ps-notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ps-note-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ps-note-label {
+  font-size: 0.6rem;
+}
+
+.ps-note-text {
+  font-size: 0.85rem;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+/* ── NOT FOUND STATE ── */
+.ps-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.ps-not-found-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--grey);
+  letter-spacing: 0.05em;
+}
+
+.ps-not-found-id {
+  font-size: 0.85rem;
+  color: var(--grey-dim);
+}
+
+/* ── Tooltip overrides for dark theme ── */
+.ps-abilities :global([data-slot="tooltip-content"]) {
+  max-width: 240px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  background: var(--black-elevated);
+  color: var(--white);
+  border: 1px solid var(--grey-dim);
+  padding: var(--space-2) var(--space-3);
+}
+
+.ps-abilities :global([data-slot="tooltip-content"] strong) {
+  color: var(--cyan);
+}

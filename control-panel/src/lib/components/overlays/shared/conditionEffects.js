@@ -1,3 +1,25 @@
+/**
+* conditionEffects
+*
+* Purpose:
+* Provide a single source of truth for mapping condition names to visual effects
+* (CSS classes), and a helper for turning a character's active conditions into a
+* space-separated class string suitable for an element's `class=""` attribute.
+*/
+
+/**
+ * Map of condition name (lowercase) -> visual effect metadata.
+ *
+ * @typedef {object} ConditionEffect
+ * @property {string} cssClass - CSS class to apply for this condition (e.g. "is-poisoned").
+ * @property {number} priority - Higher means "stronger" visual precedence when multiple apply.
+ */
+
+/**
+ * Condition effect lookup table keyed by lowercase condition name.
+ *
+ * @type {Record<string, ConditionEffect>}
+ */
 export const CONDITION_EFFECTS = {
     unconscious: { cssClass: 'is-unconscious', priority: 10 },
     paralyzed:   { cssClass: 'is-paralyzed',   priority: 9  },
@@ -16,6 +38,17 @@ export const CONDITION_EFFECTS = {
 
 // Takes the character.conditions array, returns CSS class string.
 // e.g. [{ condition_name: "Poisoned" }] → "is-poisoned"
+/**
+ * Convert an array of condition objects into a space-separated list of CSS classes.
+ *
+ * Behavior:
+ * - Case-insensitive lookup (condition names are normalized to lowercase).
+ * - Unknown conditions are ignored (no output, no crash).
+ * - Returns `""` when `conditions` are missing or empty.
+ *
+ * @param {Array<{ condition_name: string }>|null|undefined} conditions
+ * @returns {string}
+ */
 export function getConditionClasses(conditions) {
     if (!conditions?.length) return '';
     return conditions

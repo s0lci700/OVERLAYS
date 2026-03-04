@@ -6,15 +6,18 @@ entry points, and how the system hangs together.
 ## Primary entry points
 
 - Backend server: server.js
+- PocketBase: `.\pocketbase.exe serve` (must start before server.js)
 - OBS overlays: public/overlay-hp.html, public/overlay-dice.html
 - Control panel app: control-panel/src/main.js
 
 ## Key directories
 
-- data/ In-memory state modules (characters, rolls, helpers)
+- data/ PocketBase async CRUD modules (characters, rolls)
+- pb_data/ PocketBase database files (gitignored)
+- pb_migrations/ PocketBase migration files (gitignored)
 - public/ OBS overlay HTML/CSS assets
 - control-panel/ Svelte control panel source and build output
-- scripts/ Local tooling (setup-ip.js)
+- scripts/ Local tooling (setup-ip.js, seed.js)
 - docs/ Architecture, events, design system, environment guide
 
 ## Configuration
@@ -52,7 +55,9 @@ entry points, and how the system hangs together.
 ## Common tasks
 
 - Auto-configure IPs: bun run setup-ip
-- Run backend: bun server.js
+- **Start PocketBase first**: `.\pocketbase.exe serve`
+- Run backend: `node -r dotenv/config server.js`
+- Seed database (first time only): `node -r dotenv/config scripts/seed.js`
 - Run control panel: cd control-panel && bun run dev -- --host
 - Control panel auto IP: cd control-panel && bun run dev:auto
 

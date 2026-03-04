@@ -19,13 +19,13 @@
 -->
 <script>
   import "./app.css";
-  import DiceRoller from "./lib/DiceRoller.svelte";
-  import CharacterCard from "./lib/CharacterCard.svelte";
-  import CharacterCreationForm from "./lib/CharacterCreationForm.svelte";
-  import CharacterManagement from "./lib/CharacterManagement.svelte";
+  import DiceRoller from "./lib/components/stage/DiceRoller.svelte";
+  import CharacterCard from "./lib/components/stage/CharacterCard.svelte";
+  import CharacterCreationForm from "./lib/components/stage/CharacterCreationForm.svelte";
+  import CharacterManagement from "./lib/components/stage/CharacterManagement.svelte";
   // import Dashboard from "./lib/dashboard/Dashboard.svelte";
-  import { characters, socket } from "./lib/socket.js";
-  import { parseHash, updateHash, onHashChange } from "./lib/router.js";
+  import { characters, socket } from "./lib/stores/socket.js";
+  import { parseHash, updateHash, onHashChange } from "./lib/utils/router.js";
 
   // ───────────────────────────────────────────────────────────────────────────
   // State Management

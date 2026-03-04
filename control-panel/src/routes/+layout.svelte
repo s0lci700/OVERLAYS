@@ -4,7 +4,7 @@
 <script>
   import "../app.css";
   import { page } from "$app/stores";
-  import { characters, socket } from "$lib/socket.js";
+  import { characters, socket } from "$lib/stores/socket.js";
 
   let connected = $state(false);
   let isSidebarOpen = $state(false);
@@ -17,8 +17,10 @@
     isSidebarOpen = !isSidebarOpen;
   }
 
-  let isDashboard = $derived($page.url.pathname.startsWith("/dashboard"));
-  let isManagement = $derived($page.url.pathname.includes("/management"));
+  let isOverview  = $derived($page.url.pathname.startsWith("/overview"));
+  let isSetup     = $derived($page.url.pathname.startsWith("/setup"));
+  let isDM        = $derived($page.url.pathname.startsWith("/dm"));
+  let isPlayers   = $derived($page.url.pathname.startsWith("/players"));
 </script>
 
 <div class="app-shell">
@@ -29,11 +31,15 @@
       <span class="brand-script">TTRPG</span>
     </div>
     <span class="page-title">
-      {isDashboard
+      {isOverview
         ? "DASHBOARD EN VIVO"
-        : isManagement
+        : isSetup
           ? "GESTIÓN DE PERSONAJES"
-          : "PANEL DE CONTROL"}
+          : isDM
+            ? "PANEL DM"
+            : isPlayers
+              ? "FICHA DE PERSONAJE"
+              : "PANEL DE CONTROL"}
     </span>
     <div class="header-meta">
       <div class="conn-dot" class:connected></div>
@@ -76,24 +82,38 @@
     </div>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/control")}
-      href="/control/characters"
+      class:active={$page.url.pathname.startsWith("/live")}
+      href="/live/characters"
     >
-      PANEL DE CONTROL
+      STAGE — EN VIVO
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/dashboard")}
-      href="/dashboard"
+      class:active={$page.url.pathname.startsWith("/setup")}
+      href="/setup/create"
     >
-      DASHBOARD
+      STAGE — PREPARACIÓN
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/management")}
-      href="/management/create"
+      class:active={$page.url.pathname.startsWith("/overview")}
+      href="/overview"
     >
-      GESTIÓN DE PERSONAJES
+      OVERVIEW
+    </a>
+    <a
+      class="app-sidebar-link"
+      class:active={$page.url.pathname.startsWith("/dm")}
+      href="/dm"
+    >
+      CAST — DM 🛡
+    </a>
+    <a
+      class="app-sidebar-link"
+      class:active={$page.url.pathname.startsWith("/players")}
+      href="/players"
+    >
+      CAST — JUGADORES 🎲
     </a>
   </aside>
 </div>

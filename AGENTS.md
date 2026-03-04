@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus MCP
 
-This project is indexed by GitNexus as **OVERLAYS** (2708 symbols, 10397 relationships, 222 execution flows).
+This project is indexed by GitNexus as **OVERLAYS** (2700 symbols, 10383 relationships, 221 execution flows).
 
 ## Always Start Here
 
@@ -23,3 +23,12 @@ This project is indexed by GitNexus as **OVERLAYS** (2708 symbols, 10397 relatio
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Svelte MCP
+
+You have access to the Svelte MCP server with comprehensive Svelte 5 and SvelteKit documentation. Use the available tools effectively:
+
+- **`list-sections`** — Use FIRST to discover all available documentation sections. When asked about Svelte or SvelteKit topics, ALWAYS call this at the start to find relevant sections.
+- **`get-documentation`** — Retrieves full documentation for specific sections. After `list-sections`, fetch ALL sections relevant to the task.
+- **`svelte-autofixer`** — Analyzes Svelte code and returns issues/suggestions. MUST be used whenever writing Svelte code before sending it to the user. Keep calling until no issues are returned.
+- **`playground-link`** — Generates a Svelte Playground link. Only call after user confirmation, and NEVER if code was written to project files.

@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DADOS & RISAS — DM Session Panel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0d0d14;
+    --surface:    #13131f;
+    --surface2:   #1a1a2e;
+    --border:     rgba(255,255,255,0.07);
+    --border2:    rgba(255,255,255,0.13);
+    --text:       #e8e8f0;
+    --muted:      #6b6b85;
+    --accent-r:   #e94560;
+    --accent-g:   #2ecc71;
+    --accent-b:   #4a9eff;
+    --accent-p:   #a855f7;
+    --accent-o:   #f59e0b;
+    --font-head:  'Bebas Neue', sans-serif;
+    --font-body:  'DM Sans', sans-serif;
+    --font-mono:  'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 120px;
+    gap: 32px;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  .app-header {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+  .app-title {
+    font-family: var(--font-head);
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent-r);
+  }
+  .session-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .session-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .session-round {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-b);
+  }
+  .conn-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-g);
+    box-shadow: 0 0 8px var(--accent-g);
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.4 } }
+
+  /* ── INITIATIVE STRIP ───────────────────────────────── */
+  .initiative-strip {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .init-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+  .init-token {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .init-token:hover { transform: translateY(-2px); }
+  .init-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: var(--surface2);
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .init-token.active .init-avatar {
+    border-color: var(--accent-o);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.25);
+  }
+  .init-token.dead .init-avatar { opacity: 0.35; }
+  .init-name {
+    font-size: 9px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .init-token.active .init-name { color: var(--accent-o); }
+  .init-num {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--accent-o);
+    color: #000;
+    font-size: 8px;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 14px; height: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .init-separator {
+    width: 1px; height: 30px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 4px;
+  }
+
+  /* ── ACTION CONTEXT BANNER ──────────────────────────── */
+  .action-banner {
+    width: 100%;
+    max-width: 480px;
+    display: none;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px 18px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .action-banner.visible { display: flex; }
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .banner-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .banner-icon.dmg { background: rgba(233,69,96,0.15); border: 1px solid rgba(233,69,96,0.3); }
+  .banner-icon.heal { background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3); }
+  .banner-icon.cond { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); }
+  .banner-icon.rest { background: rgba(74,158,255,0.15); border: 1px solid rgba(74,158,255,0.3); }
+  .banner-text { display: flex; flex-direction: column; gap: 2px; }
+  .banner-action {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .banner-action.dmg { color: var(--accent-r); }
+  .banner-action.heal { color: var(--accent-g); }
+  .banner-action.cond { color: var(--accent-p); }
+  .banner-action.rest { color: var(--accent-b); }
+  .banner-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .banner-counter {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .banner-counter span {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  /* ── QUICK SELECTS ──────────────────────────────────── */
+  .quick-selects {
+    width: 100%;
+    max-width: 480px;
+    display: none;
+    gap: 8px;
+  }
+  .quick-selects.visible { display: flex; }
+  .qs-btn {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .qs-btn:hover { border-color: var(--text); color: var(--text); }
+  .qs-btn.party:hover { border-color: var(--accent-g); color: var(--accent-g); background: rgba(46,204,113,0.08); }
+  .qs-btn.enemies:hover { border-color: var(--accent-r); color: var(--accent-r); background: rgba(233,69,96,0.08); }
+  .qs-btn.cancel:hover { border-color: var(--muted); }
+
+  /* ── CHARACTER CARDS ────────────────────────────────── */
+  .cards-grid {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .char-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+    position: relative;
+  }
+  .char-card.selectable { cursor: pointer; }
+  .char-card.selected-dmg {
+    border-color: var(--accent-r);
+    box-shadow: 0 0 0 2px rgba(233,69,96,0.25), inset 0 0 20px rgba(233,69,96,0.05);
+  }
+  .char-card.selected-heal {
+    border-color: var(--accent-g);
+    box-shadow: 0 0 0 2px rgba(46,204,113,0.25), inset 0 0 20px rgba(46,204,113,0.05);
+  }
+  .char-card.selected-cond {
+    border-color: var(--accent-p);
+    box-shadow: 0 0 0 2px rgba(168,85,247,0.25), inset 0 0 20px rgba(168,85,247,0.05);
+  }
+  .char-card.selected-rest {
+    border-color: var(--accent-b);
+    box-shadow: 0 0 0 2px rgba(74,158,255,0.25), inset 0 0 20px rgba(74,158,255,0.05);
+  }
+  .char-card.active-turn {
+    border-color: rgba(245,158,11,0.5);
+  }
+
+  .selection-ring {
+    display: none;
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    align-items: center; justify-content: center;
+    font-size: 12px;
+    background: var(--surface2);
+    z-index: 2;
+    transition: all 0.15s;
+  }
+  .char-card.selectable .selection-ring { display: flex; }
+  .char-card.selected-dmg .selection-ring { background: var(--accent-r); border-color: var(--accent-r); }
+  .char-card.selected-heal .selection-ring { background: var(--accent-g); border-color: var(--accent-g); }
+  .char-card.selected-cond .selection-ring { background: var(--accent-p); border-color: var(--accent-p); }
+  .char-card.selected-rest .selection-ring { background: var(--accent-b); border-color: var(--accent-b); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px 10px;
+  }
+  .char-portrait {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .char-info { flex: 1; min-width: 0; }
+  .char-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .char-class {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .char-hp-inline {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .char-hp-inline .hp-max { font-size: 12px; color: var(--muted); }
+
+  /* HP Bar */
+  .hp-bar-wrap {
+    padding: 0 16px 6px;
+  }
+  .hp-bar-track {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .hp-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .hp-full { background: var(--accent-g); }
+  .hp-mid  { background: var(--accent-o); }
+  .hp-low  { background: var(--accent-r); animation: hp-pulse 1.5s ease-in-out infinite; }
+  @keyframes hp-pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.5 } }
+
+  /* Conditions */
+  .char-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 4px 16px 12px;
+  }
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border: 1px solid;
+  }
+  .tag-debuff { color: var(--accent-r); border-color: rgba(233,69,96,0.3); background: rgba(233,69,96,0.08); }
+  .tag-buff   { color: var(--accent-g); border-color: rgba(46,204,113,0.3); background: rgba(46,204,113,0.08); }
+
+  /* Resources */
+  .char-resources {
+    display: flex;
+    gap: 10px;
+    padding: 0 16px 14px;
+    flex-wrap: wrap;
+  }
+  .resource-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .resource-pips {
+    display: flex; gap: 3px;
+  }
+  .pip {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-b);
+  }
+  .pip.empty { background: var(--border2); }
+
+  /* Death State */
+  .death-state {
+    background: rgba(233,69,96,0.08);
+    border-top: 1px solid rgba(233,69,96,0.2);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .death-label {
+    font-size: 11px;
+    color: var(--accent-r);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .death-dice {
+    display: flex; gap: 4px;
+  }
+  .dd {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+  }
+  .dd.success { border-color: var(--accent-g); color: var(--accent-g); }
+  .dd.fail    { border-color: var(--accent-r); color: var(--accent-r); }
+  .dd.empty   { border-color: var(--border2); color: var(--muted); }
+
+  /* Action Economy mini dots */
+  .action-economy {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px 10px;
+    align-items: center;
+  }
+  .ae-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-o);
+    box-shadow: 0 0 6px rgba(245,158,11,0.5);
+  }
+  .ae-dot.used { background: var(--surface2); box-shadow: none; }
+  .ae-dot.bonus { background: var(--accent-p); box-shadow: 0 0 6px rgba(168,85,247,0.5); }
+  .ae-dot.bonus.used { background: var(--surface2); box-shadow: none; }
+  .ae-sep { width: 1px; height: 10px; background: var(--border); }
+
+  /* ── VALUE INPUT PANEL ──────────────────────────────── */
+  .value-panel {
+    width: 100%;
+    max-width: 480px;
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 20px;
+    gap: 16px;
+    flex-direction: column;
+  }
+  .value-panel.visible { display: flex; }
+  .value-panel-header {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .value-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .val-btn {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .val-btn:hover { border-color: var(--text); }
+  .val-display {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 42px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .confirm-row { display: flex; gap: 10px; }
+  .confirm-btn {
+    flex: 2;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .confirm-btn.dmg { background: var(--accent-r); color: #fff; }
+  .confirm-btn.dmg:hover { background: #f05070; }
+  .confirm-btn.heal { background: var(--accent-g); color: #000; }
+  .confirm-btn.heal:hover { background: #39de7e; }
+  .confirm-btn.rest { background: var(--accent-b); color: #fff; }
+  .cancel-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cancel-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* ── SESSION BAR ────────────────────────────────────── */
+  .session-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 12px 20px 20px;
+    gap: 10px;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .sb-btn {
+    flex: 1;
+    max-width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+    font-family: var(--font-body);
+  }
+  .sb-btn:hover { border-color: var(--border2); color: var(--text); transform: translateY(-2px); }
+  .sb-btn.active { transform: translateY(-2px); }
+  .sb-btn.active.dmg { border-color: var(--accent-r); color: var(--accent-r); background: rgba(233,69,96,0.1); }
+  .sb-btn.active.heal { border-color: var(--accent-g); color: var(--accent-g); background: rgba(46,204,113,0.1); }
+  .sb-btn.active.cond { border-color: var(--accent-p); color: var(--accent-p); background: rgba(168,85,247,0.1); }
+  .sb-btn.active.rest { border-color: var(--accent-b); color: var(--accent-b); background: rgba(74,158,255,0.1); }
+  .sb-btn.next-turn { border-color: rgba(245,158,11,0.3); color: var(--accent-o); }
+  .sb-btn.next-turn:hover { border-color: var(--accent-o); background: rgba(245,158,11,0.1); }
+  .sb-icon { font-size: 20px; }
+  .sb-label { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  /* ── TOAST ──────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 200;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="app-title">D&R</div>
+  <div class="session-info">
+    <div class="session-label"><span class="conn-dot"></span>Live</div>
+    <div class="session-round">Round 3 · Turn 2/5</div>
+  </div>
+</header>
+
+<!-- INITIATIVE STRIP -->
+<div class="initiative-strip">
+  <div class="init-label">Initiative</div>
+  <div class="init-token active" onclick="cycleInit(this)">
+    <div class="init-avatar">🧙<div class="init-num">18</div></div>
+    <div class="init-name">Marcelo</div>
+  </div>
+  <div class="init-token" onclick="cycleInit(this)">
+    <div class="init-avatar">⚔️<div class="init-num">15</div></div>
+    <div class="init-name">Hector</div>
+  </div>
+  <div class="init-separator"></div>
+  <div class="init-token" onclick="cycleInit(this)">
+    <div class="init-avatar">👺<div class="init-num">12</div></div>
+    <div class="init-name">Goblin A</div>
+  </div>
+  <div class="init-token" onclick="cycleInit(this)">
+    <div class="init-avatar">👺<div class="init-num">11</div></div>
+    <div class="init-name">Goblin B</div>
+  </div>
+  <div class="init-separator"></div>
+  <div class="init-token" onclick="cycleInit(this)">
+    <div class="init-avatar">🎸<div class="init-num">9</div></div>
+    <div class="init-name">Luis</div>
+  </div>
+  <div class="init-token" onclick="cycleInit(this)">
+    <div class="init-avatar">🗡️<div class="init-num">7</div></div>
+    <div class="init-name">Nadia</div>
+  </div>
+</div>
+
+<!-- ACTION BANNER (shown when action selected) -->
+<div class="action-banner" id="actionBanner">
+  <div class="banner-left">
+    <div class="banner-icon" id="bannerIcon">⚔️</div>
+    <div class="banner-text">
+      <div class="banner-action" id="bannerAction">DAMAGE</div>
+      <div class="banner-sub" id="bannerSub">Tap characters to select targets</div>
+    </div>
+  </div>
+  <div class="banner-counter" id="bannerCounter">0<span>targets</span></div>
+</div>
+
+<!-- QUICK SELECTS (shown in targeting mode) -->
+<div class="quick-selects" id="quickSelects">
+  <button class="qs-btn party" onclick="selectAll('party')">⚡ All Party</button>
+  <button class="qs-btn enemies" onclick="selectAll('enemies')">💀 All Enemies</button>
+  <button class="qs-btn cancel" onclick="cancelAction()">✕ Cancel</button>
+</div>
+
+<!-- CHARACTER CARDS -->
+<div class="cards-grid" id="cardsGrid">
+
+  <!-- MARCELO — CLERIC (active turn, low HP) -->
+  <div class="char-card active-turn" id="card-CH103" data-type="pc" onclick="toggleTarget(this)">
+    <div class="selection-ring" id="ring-CH103">✓</div>
+    <div class="card-header">
+      <div class="char-portrait">🧙</div>
+      <div class="char-info">
+        <div class="char-name">Marcelo</div>
+        <div class="char-class">Cleric Lv.1 · Human · ★ Active Turn</div>
+      </div>
+      <div class="char-hp-inline">3<span class="hp-max">/9</span></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-track"><div class="hp-bar-fill hp-low" style="width:33%"></div></div>
+    </div>
+    <div class="action-economy">
+      <div class="ae-dot used"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot bonus"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot" style="background:var(--accent-b); box-shadow:0 0 6px rgba(74,158,255,0.5)"></div>
+    </div>
+    <div class="char-tags">
+      <span class="tag tag-debuff">Poisoned</span>
+      <span class="tag tag-buff">Bless</span>
+    </div>
+    <div class="char-resources">
+      <div class="resource-pill">
+        Channel Divinity
+        <div class="resource-pips"><div class="pip"></div><div class="pip empty"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HECTOR — FIGHTER -->
+  <div class="char-card" id="card-CH101" data-type="pc" onclick="toggleTarget(this)">
+    <div class="selection-ring" id="ring-CH101">✓</div>
+    <div class="card-header">
+      <div class="char-portrait">⚔️</div>
+      <div class="char-info">
+        <div class="char-name">Hector</div>
+        <div class="char-class">Fighter Lv.1 · Half-Orc</div>
+      </div>
+      <div class="char-hp-inline">12<span class="hp-max">/12</span></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-track"><div class="hp-bar-fill hp-full" style="width:100%"></div></div>
+    </div>
+    <div class="action-economy">
+      <div class="ae-dot"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot bonus"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot" style="background:var(--accent-b); box-shadow:0 0 6px rgba(74,158,255,0.5)"></div>
+    </div>
+    <div class="char-resources">
+      <div class="resource-pill">
+        Second Wind
+        <div class="resource-pips"><div class="pip"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LUIS — BARD (medium HP) -->
+  <div class="char-card" id="card-CH102" data-type="pc" onclick="toggleTarget(this)">
+    <div class="selection-ring" id="ring-CH102">✓</div>
+    <div class="card-header">
+      <div class="char-portrait">🎸</div>
+      <div class="char-info">
+        <div class="char-name">Luis</div>
+        <div class="char-class">Bard Lv.1 · Tiefling</div>
+      </div>
+      <div class="char-hp-inline">4<span class="hp-max">/8</span></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-track"><div class="hp-bar-fill hp-mid" style="width:50%"></div></div>
+    </div>
+    <div class="action-economy">
+      <div class="ae-dot used"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot bonus used"></div>
+      <div class="ae-sep"></div>
+      <div class="ae-dot" style="background:var(--accent-b); box-shadow:0 0 6px rgba(74,158,255,0.5)"></div>
+    </div>
+    <div class="char-resources">
+      <div class="resource-pill">
+        Spell Slots L1
+        <div class="resource-pips">
+          <div class="pip empty"></div><div class="pip empty"></div><div class="pip"></div>
+        </div>
+      </div>
+      <div class="resource-pill">
+        Bardic Insp.
+        <div class="resource-pips"><div class="pip"></div><div class="pip"></div><div class="pip empty"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NADIA — ROGUE (dying) -->
+  <div class="char-card" id="card-CH104" data-type="pc" onclick="toggleTarget(this)">
+    <div class="selection-ring" id="ring-CH104">✓</div>
+    <div class="card-header">
+      <div class="char-portrait">🗡️</div>
+      <div class="char-info">
+        <div class="char-name">Nadia</div>
+        <div class="char-class">Rogue Lv.1 · Elf</div>
+      </div>
+      <div class="char-hp-inline">0<span class="hp-max">/10</span></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-track"><div class="hp-bar-fill hp-low" style="width:0%"></div></div>
+    </div>
+    <div class="death-state">
+      <div class="death-label">💀 DYING</div>
+      <div class="death-dice">
+        <div class="dd success">✓</div>
+        <div class="dd empty">·</div>
+        <div class="dd empty">·</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:0 4px">/</div>
+      <div class="death-dice">
+        <div class="dd fail">✗</div>
+        <div class="dd fail">✗</div>
+        <div class="dd empty">·</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOBLIN A — NPC -->
+  <div class="char-card" id="card-NPC01" data-type="npc" onclick="toggleTarget(this)">
+    <div class="selection-ring" id="ring-NPC01">✓</div>
+    <div class="card-header">
+      <div class="char-portrait">👺</div>
+      <div class="char-info">
+        <div class="char-name">Goblin A</div>
+        <div class="char-class">CR 1/4 · Enemy</div>
+      </div>
+      <div class="char-hp-inline">5<span class="hp-max">/7</span></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-track"><div class="hp-bar-fill hp-mid" style="width:71%"></div></div>
+    </div>
+    <div class="char-tags">
+      <span class="tag tag-debuff">Frightened</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- VALUE INPUT PANEL -->
+<div class="value-panel" id="valuePanel">
+  <div class="value-panel-header" id="valuePanelHeader">Enter damage amount</div>
+  <div class="value-input-row">
+    <button class="val-btn" onclick="adjustValue(-1)">−</button>
+    <div class="val-display" id="valueDisplay">8</div>
+    <button class="val-btn" onclick="adjustValue(1)">+</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;" id="quickVals">
+    <button onclick="setValue(1)"  style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">1</button>
+    <button onclick="setValue(4)"  style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">4</button>
+    <button onclick="setValue(6)"  style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">6</button>
+    <button onclick="setValue(8)"  style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">8</button>
+    <button onclick="setValue(10)" style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">10</button>
+    <button onclick="setValue(12)" style="flex:1;min-width:48px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);">12</button>
+  </div>
+  <div class="confirm-row">
+    <button class="confirm-btn" id="confirmBtn" onclick="confirmAction()">Apply to 0 targets</button>
+    <button class="cancel-btn" onclick="cancelAction()">Cancel</button>
+  </div>
+</div>
+
+<!-- SESSION BAR -->
+<div class="session-bar">
+  <button class="sb-btn" id="sb-dmg" onclick="activateAction('dmg')">
+    <div class="sb-icon">⚔️</div>
+    <div class="sb-label">Damage</div>
+  </button>
+  <button class="sb-btn" id="sb-heal" onclick="activateAction('heal')">
+    <div class="sb-icon">💚</div>
+    <div class="sb-label">Heal</div>
+  </button>
+  <button class="sb-btn" id="sb-cond" onclick="activateAction('cond')">
+    <div class="sb-icon">🔮</div>
+    <div class="sb-label">Condition</div>
+  </button>
+  <button class="sb-btn" id="sb-rest" onclick="activateAction('rest')">
+    <div class="sb-icon">🌙</div>
+    <div class="sb-label">Rest</div>
+  </button>
+  <button class="sb-btn next-turn" onclick="showToast('▶ Next turn — Hector')">
+    <div class="sb-icon">▶</div>
+    <div class="sb-label">Next Turn</div>
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let activeAction = null;
+  let selectedCards = new Set();
+  let currentValue = 8;
+
+  const actionConfig = {
+    dmg:  { label: 'DAMAGE',    sub: 'Tap characters to select targets',  icon: '⚔️',  iconClass: 'dmg',  confirmClass: 'dmg',  confirmLabel: 'Apply Damage',  needsValue: true },
+    heal: { label: 'HEAL',      sub: 'Tap characters to select targets',  icon: '💚',  iconClass: 'heal', confirmClass: 'heal', confirmLabel: 'Apply Heal',    needsValue: true },
+    cond: { label: 'CONDITION', sub: 'Tap characters to select targets',  icon: '🔮',  iconClass: 'cond', confirmClass: 'cond', confirmLabel: 'Apply Condition',needsValue: false },
+    rest: { label: 'REST',      sub: 'Select characters or use All Party',icon: '🌙',  iconClass: 'rest', confirmClass: 'rest', confirmLabel: 'Take Rest',      needsValue: false },
+  };
+
+  function activateAction(type) {
+    if (activeAction === type) { cancelAction(); return; }
+    activeAction = type;
+    selectedCards.clear();
+
+    const cfg = actionConfig[type];
+    const banner = document.getElementById('actionBanner');
+    banner.className = 'action-banner visible';
+    document.getElementById('bannerIcon').className = `banner-icon ${cfg.iconClass}`;
+    document.getElementById('bannerIcon').textContent = cfg.icon;
+    document.getElementById('bannerAction').className = `banner-action ${cfg.iconClass}`;
+    document.getElementById('bannerAction').textContent = cfg.label;
+    document.getElementById('bannerSub').textContent = cfg.sub;
+    document.getElementById('bannerCounter').innerHTML = `0<span>targets</span>`;
+
+    document.getElementById('quickSelects').className = 'quick-selects visible';
+
+    // Make all cards selectable
+    document.querySelectorAll('.char-card').forEach(card => {
+      card.classList.add('selectable');
+      card.classList.remove('selected-dmg','selected-heal','selected-cond','selected-rest');
+    });
+
+    // Activate session bar button
+    document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active','dmg','heal','cond','rest'));
+    const btn = document.getElementById(`sb-${type}`);
+    btn.classList.add('active', type);
+
+    // Show value panel if needed
+    if (cfg.needsValue) {
+      const vp = document.getElementById('valuePanel');
+      vp.classList.remove('visible');
+      document.getElementById('valuePanelHeader').textContent =
+        type === 'dmg' ? 'Enter damage amount' : 'Enter heal amount';
+    }
+    updateConfirmBtn();
+  }
+
+  function toggleTarget(card) {
+    if (!activeAction) return;
+    const id = card.id.replace('card-', '');
+    const selClass = `selected-${activeAction}`;
+
+    if (selectedCards.has(id)) {
+      selectedCards.delete(id);
+      card.classList.remove(selClass);
+    } else {
+      selectedCards.add(id);
+      card.classList.add(selClass);
+    }
+    document.getElementById('bannerCounter').innerHTML = `${selectedCards.size}<span>target${selectedCards.size !== 1 ? 's' : ''}</span>`;
+
+    if (selectedCards.size > 0 && actionConfig[activeAction].needsValue) {
+      document.getElementById('valuePanel').classList.add('visible');
+    } else if (selectedCards.size === 0) {
+      document.getElementById('valuePanel').classList.remove('visible');
+    }
+    updateConfirmBtn();
+  }
+
+  function selectAll(group) {
+    if (!activeAction) return;
+    const selClass = `selected-${activeAction}`;
+    document.querySelectorAll('.char-card').forEach(card => {
+      const isMatch = group === 'party' ? card.dataset.type === 'pc' : card.dataset.type === 'npc';
+      if (isMatch) {
+        const id = card.id.replace('card-', '');
+        selectedCards.add(id);
+        card.classList.add(selClass);
+      }
+    });
+    document.getElementById('bannerCounter').innerHTML = `${selectedCards.size}<span>target${selectedCards.size !== 1 ? 's' : ''}</span>`;
+    if (selectedCards.size > 0 && actionConfig[activeAction].needsValue) {
+      document.getElementById('valuePanel').classList.add('visible');
+    }
+    updateConfirmBtn();
+  }
+
+  function updateConfirmBtn() {
+    const btn = document.getElementById('confirmBtn');
+    if (!activeAction) return;
+    const cfg = actionConfig[activeAction];
+    btn.className = `confirm-btn ${cfg.confirmClass}`;
+    const count = selectedCards.size;
+    if (count === 0) {
+      btn.textContent = `Select targets first`;
+    } else {
+      const val = cfg.needsValue ? ` ${currentValue}` : '';
+      btn.textContent = `${cfg.confirmLabel}${val} → ${count} target${count !== 1 ? 's' : ''}`;
+    }
+  }
+
+  function adjustValue(delta) {
+    currentValue = Math.max(1, Math.min(999, currentValue + delta));
+    document.getElementById('valueDisplay').textContent = currentValue;
+    updateConfirmBtn();
+  }
+
+  function setValue(v) {
+    currentValue = v;
+    document.getElementById('valueDisplay').textContent = v;
+    updateConfirmBtn();
+  }
+
+  function confirmAction() {
+    if (!activeAction || selectedCards.size === 0) return;
+    const cfg = actionConfig[activeAction];
+    const targets = Array.from(selectedCards).join(', ');
+    const valText = cfg.needsValue ? ` · ${currentValue} ${activeAction === 'dmg' ? 'damage' : 'HP'}` : '';
+    showToast(`✓ ${cfg.label}${valText} applied to ${selectedCards.size} target${selectedCards.size !== 1 ? 's' : ''}`);
+    cancelAction();
+  }
+
+  function cancelAction() {
+    activeAction = null;
+    selectedCards.clear();
+    document.getElementById('actionBanner').className = 'action-banner';
+    document.getElementById('quickSelects').className = 'quick-selects';
+    document.getElementById('valuePanel').className = 'value-panel';
+    document.querySelectorAll('.char-card').forEach(card => {
+      card.classList.remove('selectable','selected-dmg','selected-heal','selected-cond','selected-rest');
+    });
+    document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active','dmg','heal','cond','rest'));
+  }
+
+  function cycleInit(token) {
+    document.querySelectorAll('.init-token').forEach(t => t.classList.remove('active'));
+    token.classList.add('active');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+</script>
+</body>
+</html>

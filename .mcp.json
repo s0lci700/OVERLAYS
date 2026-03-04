@@ -1,0 +1,30 @@
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "svelte": {
+      "type": "http",
+      "url": "https://mcp.svelte.dev/mcp"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "storybook": {
+      "type": "http",
+      "url": "http://localhost:6006/mcp"
+    },
+    "pocketbase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "pocketbase-mcp"],
+      "env": {
+        "POCKETBASE_URL": "${POCKETBASE_URL}",
+        "POCKETBASE_ADMIN_TOKEN": "${POCKETBASE_ADMIN_TOKEN}"
+      }
+    }
+  }
+}

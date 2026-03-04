@@ -34,9 +34,17 @@
       "Bash(printf:*)",
       "Bash(npx shadcn-svelte@latest add:*)",
       "mcp__Shadcn_UI__get_component",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "mcp__claude_ai_Context7__resolve-library-id",
+      "mcp__claude_ai_Context7__query-docs",
+      "Bash(bun run:*)",
+      "WebFetch(domain:ohmyposh.dev)"
     ]
   },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "storybook-mcp"
+  ],
   "hooks": {
     "PreToolUse": [
       {
@@ -45,6 +53,10 @@
           {
             "type": "command",
             "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('overlay-')) { console.error('[DEMO GUARD] Editing a live OBS overlay file: ' + f + '. Verify this will not break the demo before proceeding.'); process.exit(1); }\""
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('generated-tokens.css') || (f.includes('public') && f.endsWith('tokens.css'))) { console.error('[TOKEN GUARD] Edit design/tokens.json instead, then run: bun run generate:tokens'); process.exit(1); }\""
           }
         ]
       }
@@ -56,13 +68,13 @@
           {
             "type": "command",
             "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('server.js') || f.includes('socket.js')) { console.log('[PORT WATCH] Port-sensitive file edited: ' + f.split(/[\\\\/]/).pop() + '. Consider running port-consistency-checker if the IP or port changed.'); }\""
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('control-panel') && f.endsWith('.svelte')) { const { execSync } = require('child_process'); try { const out = execSync('bunx eslint ' + JSON.stringify(f) + ' --max-warnings 0', { cwd: 'C:/Users/Sol/Desktop/PITCH/OVERLAYS/control-panel' }).toString(); if (out.trim()) console.log('[LINT]', out); } catch(e) { const msg = (e.stdout || '').toString() || e.message; console.error('[LINT FAIL]\\n' + msg); process.exit(2); } }\""
           }
         ]
       }
     ]
-  },
-  "enabledMcpjsonServers": [
-    "storybook-mcp"
-  ],
-  "enableAllProjectMcpServers": true
+  }
 }

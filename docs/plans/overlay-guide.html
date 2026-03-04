@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overlay System — Build Guide</title>
+<style>
+  :root {
+    --bg: #0d0d12;
+    --surface: #141418;
+    --border: rgba(255,255,255,0.08);
+    --border-accent: rgba(255,255,255,0.15);
+    --red: #ff4d6a;
+    --cyan: #00d4e8;
+    --gold: #c9a227;
+    --purple: #8b5cf6;
+    --green: #22c55e;
+    --text: #e8e8f0;
+    --muted: rgba(255,255,255,0.4);
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --display: 'Bebas Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  nav {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  nav .logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  nav .logo-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  nav .logo-sub {
+    font-size: 13px;
+    color: var(--red);
+    font-family: var(--mono);
+    margin-top: 4px;
+  }
+
+  nav .phase-group { margin-bottom: 8px; }
+
+  nav .phase-label {
+    padding: 6px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+
+  nav a.active {
+    color: var(--text);
+    border-left-color: var(--red);
+    background: rgba(255,77,106,0.08);
+  }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 860px;
+  }
+
+  .page-title {
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 48px;
+    max-width: 600px;
+  }
+
+  /* ── Status table ── */
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 48px;
+  }
+
+  .status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .status-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .status-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .status-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── Phase sections ── */
+  .phase {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-num {
+    background: var(--red);
+    color: white;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .phase-num.cyan { background: var(--cyan); color: #000; }
+  .phase-num.gold { background: var(--gold); color: #000; }
+  .phase-num.purple { background: var(--purple); }
+  .phase-num.green { background: var(--green); color: #000; }
+  .phase-num.orange { background: #f97316; color: #000; }
+
+  .phase-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ── Tasks ── */
+  .task {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    scroll-margin-top: 32px;
+  }
+
+  .task-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .task-header:hover { background: rgba(255,255,255,0.03); }
+
+  .task-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 28px;
+  }
+
+  .task-name {
+    font-weight: 600;
+    font-size: 15px;
+    flex: 1;
+  }
+
+  .task-file {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.06);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .task-toggle {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .task-body {
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .task.collapsed .task-body { display: none; }
+  .task.collapsed .task-toggle { transform: rotate(-90deg); }
+
+  /* ── Steps ── */
+  .steps { margin-top: 16px; }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border-accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .step-note {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 8px;
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #0a0a0e;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #c9d1e0;
+    margin-top: 6px;
+  }
+
+  pre .comment { color: rgba(255,255,255,0.28); }
+  pre .keyword { color: #7dd3fc; }
+  pre .string { color: #86efac; }
+  pre .fn { color: #fbbf24; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: rgba(255,255,255,0.07);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #c9d1e0;
+  }
+
+  .cmd {
+    background: #0a0a0e;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--cyan);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cmd::before { content: '$'; color: var(--muted); flex-shrink: 0; }
+
+  .commit {
+    background: #0a0a0e;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--green);
+    margin-top: 6px;
+  }
+
+  .commit::before { content: 'git commit — '; color: var(--muted); }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+
+  .tag-new { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .tag-migrate { background: rgba(0,212,232,0.1); color: var(--cyan); border: 1px solid rgba(0,212,232,0.25); }
+  .tag-upgrade { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .tag-cleanup { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+
+  /* ── URL table ── */
+  .url-grid { margin-top: 16px; }
+
+  .url-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .url-row:last-child { border-bottom: none; }
+
+  .url-path {
+    font-family: var(--mono);
+    color: var(--cyan);
+    min-width: 260px;
+    font-size: 12px;
+  }
+
+  .url-desc { color: var(--muted); }
+
+  /* ── Tip boxes ── */
+  .tip {
+    background: rgba(0,212,232,0.07);
+    border: 1px solid rgba(0,212,232,0.2);
+    border-radius: 5px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 12px;
+  }
+
+  .tip strong { color: var(--cyan); }
+
+  p { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 12px; }
+
+  h3 { font-size: 15px; color: var(--muted); font-weight: 600; margin: 20px 0 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-title">TableRelay</div>
+    <div class="logo-sub">Overlay Build Guide</div>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Setup</div>
+    <a href="#existing">What's already built</a>
+    <a href="#urls">Final URL map</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 1 — Foundation</div>
+    <a href="#t1">1. Folder structure</a>
+    <a href="#t2">2. conditionEffects.js</a>
+    <a href="#t3">3. animations.js</a>
+    <a href="#t4">4. overlaySocket composable</a>
+    <a href="#t5">5. overlays.css</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 2 — Routes</div>
+    <a href="#t6">6. Restructure routes</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 3 — HP Bars</div>
+    <a href="#t7">7. Condition-reactive HP</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 4 — Server</div>
+    <a href="#t8">8. New socket events</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 5 — Announce</div>
+    <a href="#t9">9. OverlayAnnounce</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 6 — Moments</div>
+    <a href="#t10">10. OverlayPlayerDown</a>
+    <a href="#t11">11. OverlayLevelUp</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 7 — Show</div>
+    <a href="#t12">12. LowerThird</a>
+    <a href="#t13">13. Stats, Badge, Break</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 8 — Cleanup</div>
+    <a href="#t14">14. Remove vanilla HTML</a>
+    <a href="#t15">15. Update docs</a>
+  </div>
+
+  <div class="phase-group">
+    <div class="phase-label">Phase 9 — Storybook</div>
+    <a href="#t16">16. preview prop pattern</a>
+    <a href="#t17">17. Persistent stories</a>
+    <a href="#t18">18. Triggered stories</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">TableRelay / Audience Layer</div>
+  <h1>Overlay Build Guide</h1>
+  <p class="subtitle">Work through this phase by phase. Each task is self-contained — commit when done, ask if something's unclear.</p>
+
+  <!-- ── What exists ── -->
+  <div class="phase" id="existing">
+    <div class="phase-header">
+      <div class="phase-num cyan">STATUS</div>
+      <div class="phase-title">What's already built</div>
+    </div>
+
+    <p>Don't rebuild these — they just need to be moved, wired to shared infrastructure, or upgraded.</p>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlayHP.svelte</div>
+          <div class="status-note">Needs condition CSS + shared socket</div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlayDice.svelte</div>
+          <div class="status-note">Needs shared socket + animations</div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlayConditions.svelte</div>
+          <div class="status-note">Needs shared socket</div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlayTurnOrder.svelte</div>
+          <div class="status-note">Just needs a route</div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlaySceneTitle.svelte</div>
+          <div class="status-note">Just needs a route</div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <div>
+          <div class="status-name">OverlayCharacterFocus.svelte</div>
+          <div class="status-note">Just needs a route</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Server events already working</h3>
+    <pre>encounter_started  turn_advanced  encounter_ended
+scene_changed      character_focused  character_unfocused
+hp_updated         condition_added    condition_removed   dice_rolled</pre>
+
+    <h3>Server still needs these (Task 8)</h3>
+    <pre>announce    level_up    player_down    lower_third</pre>
+  </div>
+
+  <!-- ── URL map ── -->
+  <div class="phase" id="urls">
+    <div class="phase-header">
+      <div class="phase-num cyan">MAP</div>
+      <div class="phase-title">Final URL structure</div>
+    </div>
+    <p>This is what the OBS operator will see when setting up Browser Sources. All take <code>?server=http://[IP]:3000</code>.</p>
+    <div class="url-grid">
+      <div class="url-row"><span class="url-path">/persistent/hp</span><span class="url-desc">HP bars — always on in cast scenes</span></div>
+      <div class="url-row"><span class="url-path">/persistent/conditions</span><span class="url-desc">Conditions panel — auto shows/hides</span></div>
+      <div class="url-row"><span class="url-path">/persistent/turn-order</span><span class="url-desc">Initiative strip — combat only</span></div>
+      <div class="url-row"><span class="url-path">/persistent/focus</span><span class="url-desc">Character spotlight — DM triggered</span></div>
+      <div class="url-row"><span class="url-path">/moments/dice</span><span class="url-desc">Roll confirm card</span></div>
+      <div class="url-row"><span class="url-path">/moments/player-down</span><span class="url-desc">0 HP / KO moment</span></div>
+      <div class="url-row"><span class="url-path">/moments/level-up</span><span class="url-desc">Level-up beat</span></div>
+      <div class="url-row"><span class="url-path">/scene</span><span class="url-desc">Scene/location title card</span></div>
+      <div class="url-row"><span class="url-path">/announcements</span><span class="url-desc">Generic announcement modal</span></div>
+      <div class="url-row"><span class="url-path">/show/lower-third</span><span class="url-desc">Character nameplate</span></div>
+      <div class="url-row"><span class="url-path">/show/stats</span><span class="url-desc">Session stats (crits/pifias)</span></div>
+      <div class="url-row"><span class="url-path">/show/recording-badge</span><span class="url-desc">GRABANDO indicator</span></div>
+      <div class="url-row"><span class="url-path">/show/break</span><span class="url-desc">Break slate</span></div>
+    </div>
+  </div>
+
+  <!-- ── Phase 1 ── -->
+  <div class="phase" id="phase1">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 1</div>
+      <div class="phase-title">Shared Infrastructure</div>
+    </div>
+
+    <div class="task" id="t1">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">01</span>
+        <span class="task-name">Create folder structure</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Five new subdirectories inside <code>overlays/</code>. That's it.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Run from inside <code>control-panel/</code></div>
+              <div class="cmd">mkdir -p src/lib/components/overlays/{shared,persistent,moments,announcements,show}</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Also create the route directories</div>
+              <div class="cmd">mkdir -p src/routes/\(audience\)/{persistent,moments,show,announcements,scene}</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): scaffold category folder structure"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t2">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">02</span>
+        <span class="task-name">conditionEffects.js</span>
+        <span class="task-file">overlays/shared/conditionEffects.js</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Maps condition names (like <code>"Poisoned"</code>) to CSS classes (like <code>is-poisoned</code>) and a stacking priority. Used by the HP bar to apply visual states.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Create <code>conditionEffects.js</code></div>
+              <pre>// shared/conditionEffects.js
+export const CONDITION_EFFECTS = {
+  unconscious: { cssClass: 'is-unconscious', priority: 10 },
+  paralyzed:   { cssClass: 'is-paralyzed',   priority: 9  },
+  petrified:   { cssClass: 'is-petrified',   priority: 9  },
+  stunned:     { cssClass: 'is-stunned',     priority: 7  },
+  poisoned:    { cssClass: 'is-poisoned',    priority: 5  },
+  burning:     { cssClass: 'is-burning',     priority: 5  },
+  frozen:      { cssClass: 'is-frozen',      priority: 5  },
+  frightened:  { cssClass: 'is-frightened',  priority: 4  },
+  cursed:      { cssClass: 'is-cursed',      priority: 4  },
+  charmed:     { cssClass: 'is-charmed',     priority: 3  },
+  blinded:     { cssClass: 'is-blinded',     priority: 3  },
+  invisible:   { cssClass: 'is-invisible',   priority: 2  },
+  prone:       { cssClass: 'is-prone',       priority: 1  },
+};
+
+// Takes the character.conditions array, returns CSS class string.
+// e.g. [{ condition_name: "Poisoned" }] → "is-poisoned"
+export function getConditionClasses(conditions) {
+  if (!conditions?.length) return '';
+  return conditions
+    .map(c => CONDITION_EFFECTS[c.condition_name.toLowerCase()])
+    .filter(Boolean)
+    .map(e => e.cssClass)
+    .join(' ');
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Run tests</div>
+              <div class="cmd">bun test src/lib/components/overlays/shared/conditionEffects.test.js</div>
+              <div class="tip"><strong>Optional:</strong> Write a quick test file first if you want to practice TDD — the test cases are in the full plan doc. Otherwise just verify it works by importing it in the next task.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add conditionEffects utility"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t3">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">03</span>
+        <span class="task-name">animations.js</span>
+        <span class="task-file">overlays/shared/animations.js</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Every anime.js pattern used across overlays, extracted as named exports. No overlay writes <code>anime({})</code> directly — they import from here.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Create <code>animations.js</code> with these exports</div>
+              <pre>import anime from 'animejs';
+
+export const fadeInFromBottom  = (el, ms=400)       => el && anime({ targets:el, opacity:[0,1], translateY:[40,0], duration:ms, easing:'easeOutQuad' });
+export const fadeOutToTop      = (el, ms=350, done)  => el && anime({ targets:el, opacity:[1,0], translateY:[0,-20], duration:ms, easing:'easeInQuad', complete:done });
+export const elasticPop        = (el, scale=1.15)    => el && anime({ targets:el, opacity:[0,1], scale:[0.3,scale,1], duration:600, easing:'easeOutElastic(1,.5)' });
+export const critPop           = (el)                => el && anime({ targets:el, opacity:[0,1], scale:[0.2,1.45,1], duration:800, easing:'easeOutElastic(1,.5)' });
+export const shakeElement      = (el)                => el && anime({ targets:el, translateX:[0,-14,14,-9,9,-5,5,0], duration:520, easing:'easeInOutSine' });
+export const slideInFromLeft   = (el, ms=500)        => el && anime({ targets:el, opacity:[0,1], translateX:[-60,0], duration:ms, easing:'easeOutExpo' });
+export const slideOutToLeft    = (el, ms=400, done)  => el && anime({ targets:el, opacity:[1,0], translateX:[0,-60], duration:ms, easing:'easeInExpo', complete:done });
+export const stripSlideIn      = (el)                => el && anime({ targets:el, translateY:[80,0], opacity:[0,1], duration:600, easing:'easeOutExpo' });
+export const stripSlideOut     = (el, done)          => el && anime({ targets:el, translateY:[0,80], opacity:[1,0], duration:400, easing:'easeInExpo', complete:done });
+
+export function screenFlash(el, color, ms=450) {
+  if (!el) return;
+  el.style.background = color;
+  anime({ targets:el, opacity:[0, 0.75, 0], duration:ms, easing:'easeInOutQuad' });
+}
+
+export function typewriterReveal(el, text, cps=30) {
+  if (!el) return Promise.resolve();
+  return new Promise(resolve => {
+    let i = 0;
+    el.textContent = '';
+    const t = setInterval(() => {
+      el.textContent += text[i++];
+      if (i >= text.length) { clearInterval(t); resolve(); }
+    }, 1000/cps);
+  });
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add shared animations library"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t4">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">04</span>
+        <span class="task-name">overlaySocket composable</span>
+        <span class="task-file">overlays/shared/overlaySocket.svelte.js</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Every overlay currently calls <code>io(serverUrl)</code> itself. This composable replaces that — one place for connection logic, reconnect handling, and character map hydration.</p>
+
+        <div class="tip"><strong>Why .svelte.js?</strong> The file uses Svelte 5 runes (<code>$state</code>) outside of a component. The <code>.svelte.js</code> extension tells the compiler to allow that.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Create <code>overlaySocket.svelte.js</code></div>
+              <pre>import { io } from 'socket.io-client';
+import { onDestroy } from 'svelte';
+
+export function createOverlaySocket(serverUrl) {
+  const socket = io(serverUrl, {
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000
+  });
+
+  let characters = $state([]);
+  const charMap = {};
+
+  socket.on('initialData', ({ characters: chars }) => {
+    characters = chars ?? [];
+    chars?.forEach(c => { charMap[c.id] = c; });
+  });
+
+  socket.on('character_updated', ({ character }) => {
+    charMap[character.id] = character;
+    characters = characters.map(c => c.id === character.id ? character : c);
+  });
+
+  socket.on('hp_updated', ({ character }) => {
+    charMap[character.id] = character;
+    characters = characters.map(c => c.id === character.id ? character : c);
+  });
+
+  // Silent reconnect — overlays must never show error UI
+  socket.on('connect_error', err => console.warn('[overlay]', err.message));
+
+  onDestroy(() => socket.disconnect());
+
+  return {
+    get socket()     { return socket; },
+    get characters() { return characters; },
+    getChar: id      => charMap[id] ?? null,
+  };
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add shared overlaySocket composable"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t5">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">05</span>
+        <span class="task-name">overlays.css — condition keyframes</span>
+        <span class="task-file">src/lib/overlays.css</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>One CSS file with all condition animation keyframes. Import it in <code>OverlayHP.svelte</code> and any future overlay showing character state.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Each condition maps to a CSS class + animation</div>
+              <pre>/* src/lib/overlays.css */
+
+.is-poisoned {
+  filter: hue-rotate(85deg) saturate(1.8) brightness(0.85) !important;
+  animation: cond-nauseate 3s ease-in-out infinite;
+}
+@keyframes cond-nauseate {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-3px); }
+  40%     { transform: translateX(3px); }
+}
+
+.is-burning {
+  filter: hue-rotate(-30deg) saturate(2.5) brightness(1.1) !important;
+  animation: cond-flicker 0.15s ease-in-out infinite alternate;
+}
+@keyframes cond-flicker {
+  0%   { opacity: 1; }
+  100% { opacity: 0.82; }
+}
+
+.is-frozen, .is-paralyzed, .is-petrified {
+  filter: hue-rotate(180deg) saturate(0.6) brightness(1.2) !important;
+  animation: none !important; /* totally still */
+}
+
+.is-stunned {
+  filter: brightness(1.4) saturate(0.5) !important;
+  animation: cond-dizzy 0.8s ease-in-out infinite;
+}
+@keyframes cond-dizzy { 0%,100% { opacity:1; } 50% { opacity:0.65; } }
+
+.is-cursed {
+  filter: hue-rotate(270deg) saturate(1.5) brightness(0.75) !important;
+  animation: cond-breathe 2.5s ease-in-out infinite;
+}
+@keyframes cond-breathe { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+.is-charmed {
+  filter: hue-rotate(320deg) saturate(1.8) brightness(1.05) !important;
+  animation: cond-heartbeat 1.2s ease-in-out infinite;
+}
+@keyframes cond-heartbeat {
+  0%,100% { transform:scaleY(1); }
+  10%     { transform:scaleY(1.06); }
+  30%     { transform:scaleY(1.04); }
+}
+
+.is-frightened {
+  filter: saturate(0.3) brightness(0.9) !important;
+  animation: cond-tremor 0.12s linear infinite;
+}
+@keyframes cond-tremor {
+  0%,100% { transform:translateX(0); }
+  25%     { transform:translateX(-2px); }
+  75%     { transform:translateX(2px); }
+}
+
+.is-blinded {
+  filter: grayscale(1) brightness(0.6) !important;
+}
+
+.is-invisible {
+  opacity: 0.2 !important;
+  border-style: dashed !important;
+}
+
+.is-unconscious {
+  filter: grayscale(1) brightness(0.35) !important;
+  animation: none !important;
+}
+
+/* One-shot heal flash — add class via JS, remove after 800ms */
+.heal-flash {
+  animation: cond-heal 0.7s ease-out forwards;
+}
+@keyframes cond-heal {
+  0%   { filter: brightness(1) saturate(1); }
+  30%  { filter: brightness(1.6) saturate(2) hue-rotate(85deg); }
+  100% { filter: brightness(1) saturate(1); }
+}</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add condition animation keyframes"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 2 ── -->
+  <div class="phase" id="phase2">
+    <div class="phase-header">
+      <div class="phase-num cyan">PHASE 2</div>
+      <div class="phase-title">Route Restructuring</div>
+    </div>
+
+    <div class="task" id="t6">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">06</span>
+        <span class="task-name">Move existing overlays to new routes</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Old routes: <code>/hp</code>, <code>/dice</code>, <code>/conditions</code>. New routes: everything under <code>/persistent/</code>, <code>/moments/</code>, etc.</p>
+        <p>All route pages follow the same thin pattern — they just import a component and pass <code>serverUrl</code> from context. Here's the template:</p>
+
+        <pre>&lt;!-- Every audience route page looks exactly like this --&gt;
+&lt;script&gt;
+  import OverlayXxx from '$lib/components/overlays/[category]/OverlayXxx.svelte';
+  import { getContext } from 'svelte';
+  const ctx = getContext('serverUrl');
+  let serverUrl = $derived(ctx?.get() ?? 'http://localhost:3000');
+&lt;/script&gt;
+&lt;OverlayXxx {serverUrl} /&gt;</pre>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Create these new route files (thin pattern above)</div>
+              <pre>persistent/hp/+page.svelte          → OverlayHP
+persistent/conditions/+page.svelte  → OverlayConditions
+persistent/turn-order/+page.svelte  → OverlayTurnOrder
+persistent/focus/+page.svelte       → OverlayCharacterFocus
+moments/dice/+page.svelte           → OverlayDice
+scene/+page.svelte                  → OverlaySceneTitle</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Delete the old flat routes</div>
+              <div class="cmd">rm -r src/routes/\(audience\)/hp src/routes/\(audience\)/dice src/routes/\(audience\)/conditions</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Verify build still passes</div>
+              <div class="cmd">bun run build 2>&1 | tail -10</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): restructure routes into persistent/moments/scene"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 3 ── -->
+  <div class="phase" id="phase3">
+    <div class="phase-header">
+      <div class="phase-num purple">PHASE 3</div>
+      <div class="phase-title">Condition-Reactive HP Bars</div>
+    </div>
+
+    <div class="task" id="t7">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">07</span>
+        <span class="task-name">Wire condition classes into OverlayHP</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Three changes to <code>OverlayHP.svelte</code>: import the shared utilities, apply condition classes to the HP bar fill, and add a heal flash on big heals.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Add imports at top of <code>&lt;script&gt;</code></div>
+              <pre>import { getConditionClasses } from '$lib/components/overlays/shared/conditionEffects.js';
+import '$lib/overlays.css';</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Find the HP bar fill element and add condition classes</div>
+              <pre>&lt;!-- Before --&gt;
+&lt;div class="hp-bar-fill {hpClass}" style="width: {percentage}%"&gt;&lt;/div&gt;
+
+&lt;!-- After --&gt;
+&lt;div
+  class="hp-bar-fill {hpClass} {getConditionClasses(character.conditions ?? [])}"
+  style="width: {percentage}%"
+&gt;&lt;/div&gt;</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Add heal flash detection in the <code>hp_updated</code> handler</div>
+              <pre>socket.on('hp_updated', ({ character }) => {
+  const prev = charMap[character.id];
+  const delta = character.hp_current - (prev?.hp_current ?? character.hp_current);
+
+  // ... existing update logic ...
+
+  // Flash green if healed more than 30% of max HP
+  if (delta > 0 && character.hp_max > 0 && (delta / character.hp_max) > 0.3) {
+    const el = document.querySelector(`[data-char-id="${character.id}"] .hp-bar-fill`);
+    if (el) {
+      el.classList.add('heal-flash');
+      setTimeout(() => el.classList.remove('heal-flash'), 800);
+    }
+  }
+});</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-label">Test it live — add "Poisoned" to a character via Stage and watch the bar</div>
+              <div class="cmd">bun run dev -- --host</div>
+              <div class="tip">Open <strong>/persistent/hp?server=http://localhost:3000</strong> in one tab, Stage in another. Apply conditions and watch the HP bars react.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): condition-reactive HP bar visual states"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 4 ── -->
+  <div class="phase" id="phase4">
+    <div class="phase-header">
+      <div class="phase-num">PHASE 4</div>
+      <div class="phase-title">New Server Events</div>
+    </div>
+
+    <div class="task" id="t8">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">08</span>
+        <span class="task-name">Add 4 new endpoints to server.js</span>
+        <span class="task-file">server.js</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Add these before the end of the route block. They all follow the same pattern: validate body, call <code>broadcast()</code>, return 200.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Add all four endpoints</div>
+              <pre>app.post('/api/announce', (req, res) => {
+  const { type, title, body, image, duration } = req.body;
+  if (!type || !title) return res.status(400).json({ error: 'type and title required' });
+  broadcast('announce', { type, title, body: body ?? null, image: image ?? null, duration: duration ?? null });
+  return res.status(200).json({ ok: true });
+});
+
+app.post('/api/level-up', (req, res) => {
+  const { charId, newLevel, className } = req.body;
+  if (!charId || !newLevel) return res.status(400).json({ error: 'charId and newLevel required' });
+  broadcast('level_up', { charId, newLevel, className: className ?? '' });
+  return res.status(200).json({ ok: true });
+});
+
+app.post('/api/player-down', (req, res) => {
+  const { charId, isDead } = req.body;
+  if (!charId) return res.status(400).json({ error: 'charId required' });
+  broadcast('player_down', { charId, isDead: isDead === true });
+  return res.status(200).json({ ok: true });
+});
+
+app.post('/api/lower-third', (req, res) => {
+  const { characterName, playerName, duration } = req.body;
+  if (!characterName) return res.status(400).json({ error: 'characterName required' });
+  broadcast('lower_third', { characterName, playerName: playerName ?? '', duration: duration ?? 5000 });
+  return res.status(200).json({ ok: true });
+});</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Quick smoke test with curl</div>
+              <div class="cmd">curl -s -X POST http://localhost:3000/api/announce -H 'Content-Type: application/json' -d '{"type":"custom","title":"Hola mundo"}'</div>
+              <div class="step-note">Expected: <code>{"ok":true}</code></div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(server): add announce, level-up, player-down, lower-third endpoints"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 5 ── -->
+  <div class="phase" id="phase5">
+    <div class="phase-header">
+      <div class="phase-num gold">PHASE 5</div>
+      <div class="phase-title">Announcement System</div>
+    </div>
+
+    <div class="task" id="t9">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">09</span>
+        <span class="task-name">OverlayAnnounce.svelte</span>
+        <span class="task-file">overlays/announcements/OverlayAnnounce.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>One component, all announcement types. The <code>type</code> field drives the visual treatment. Location gets a noir card with a tagline. Knowledge gets a typewriter reveal. NPC gets a name plate. Custom is just big centered text. Sponsor is minimal.</p>
+
+        <p>The full component code is in the plan doc — it's ~100 lines of Svelte. The key pieces to understand:</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Socket handling — one event, read the type</div>
+              <pre>socket.on('announce', async (data) => {
+  type  = data.type ?? 'custom';
+  title = data.title ?? '';
+  body  = data.body ?? '';
+
+  const defaults = { location:5000, knowledge:8000, npc:5000, custom:4000, sponsor:3000 };
+  const duration = data.duration ?? defaults[type] ?? 4000;
+
+  visible = true;
+  await tick(); // wait for DOM
+  slideInFromLeft(cardEl);
+
+  if (type === 'knowledge' && body) await typewriterReveal(bodyEl, body);
+  if (duration > 0) setTimeout(dismiss, duration);
+});</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Test with curl once built</div>
+              <div class="cmd">curl -X POST http://localhost:3000/api/announce -H 'Content-Type: application/json' -d '{"type":"location","title":"Las Salitreras del Norte","body":"El polvo de caliche huele a traición."}'</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add OverlayAnnounce — generic announcement modal"</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip"><strong>Stuck on the full component?</strong> Ping me and I'll walk through it with you — it's mostly a CSS layout task with a bit of animation coordination.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 6 ── -->
+  <div class="phase" id="phase6">
+    <div class="phase-header">
+      <div class="phase-num purple">PHASE 6</div>
+      <div class="phase-title">Moments Overlays</div>
+    </div>
+
+    <div class="task" id="t10">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">10</span>
+        <span class="task-name">OverlayPlayerDown.svelte</span>
+        <span class="task-file">overlays/moments/OverlayPlayerDown.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Fires on <code>player_down</code>. Two states: unconscious (dramatic, 5s) and dead (heavier, 8s). Red screen flash for unconscious, near-black flash for death.</p>
+        <p>Thin route at <code>moments/player-down/+page.svelte</code> using the standard template.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Key socket handler</div>
+              <pre>socket.on('player_down', async ({ charId, isDead }) => {
+  const char = getChar(charId);
+  charName = char?.name ?? 'Personaje';
+  // isDead → different visual treatment + longer duration
+  screenFlash(flashEl, isDead ? 'rgba(0,0,0,0.85)' : 'rgba(255,77,106,0.5)');
+  visible = true;
+  await tick();
+  fadeInFromBottom(cardEl, 500);
+  setTimeout(() => fadeOutToTop(cardEl, 400, () => visible = false), isDead ? 8000 : 5000);
+});</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add OverlayPlayerDown"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t11">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">11</span>
+        <span class="task-name">OverlayLevelUp.svelte</span>
+        <span class="task-file">overlays/moments/OverlayLevelUp.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Fires on <code>level_up</code>. Gold accent. Big level number, character name, class. Gold screen flash on entrance. 6s auto-dismiss.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Key details</div>
+              <pre>// Flash color for level up
+screenFlash(flashEl, 'rgba(201,162,39,0.4)', 600);
+
+// Display
+// NIVEL {newLevel} — big gold number
+// {charName}       — white display type
+// {className}      — small muted mono label</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add OverlayLevelUp"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 7 ── -->
+  <div class="phase" id="phase7">
+    <div class="phase-header">
+      <div class="phase-num green">PHASE 7</div>
+      <div class="phase-title">Show Layer</div>
+    </div>
+
+    <div class="task" id="t12">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">12</span>
+        <span class="task-name">OverlayLowerThird.svelte</span>
+        <span class="task-file">overlays/show/OverlayLowerThird.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Standard broadcast nameplate. Fires on <code>lower_third</code> event. Bottom-left, slides up, auto-dismisses after <code>duration</code> ms (default 5s).</p>
+        <pre>// Layout: red left border + "THORDIN" (big display) + "Panqueque" (small mono)
+// Position: absolute, bottom: 80px, left: 80px</pre>
+        <div class="commit" style="margin-top:12px">"feat(overlays): add OverlayLowerThird"</div>
+      </div>
+    </div>
+
+    <div class="task" id="t13">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">13</span>
+        <span class="task-name">Stats, RecordingBadge, Break</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Three smaller show-layer components. All follow the same build pattern as above.</p>
+
+        <h3>OverlayStats</h3>
+        <p>Counts <code>dice_rolled</code> events for crits/pifias and <code>player_down</code> events. Stage manually toggles visibility. Shows a small stats card in the corner.</p>
+
+        <h3>OverlayRecordingBadge</h3>
+        <p>Red dot + "GRABANDO". Persistent when active. Stage triggers <code>POST /api/recording/start</code> and <code>/stop</code>. This is also the <code>SYNC_START</code> visual marker for log alignment.</p>
+
+        <h3>OverlayBreak</h3>
+        <p>Full-canvas dark overlay. "VOLVEMOS EN UN MOMENTO" in large display type. Stage triggers start/end. Optional countdown timer prop.</p>
+
+        <div class="commit" style="margin-top:16px">"feat(overlays): add Stats, RecordingBadge, Break show-layer overlays"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 8 ── -->
+  <div class="phase" id="phase8">
+    <div class="phase-header">
+      <div class="phase-num cleanup">PHASE 8</div>
+      <div class="phase-title">Cleanup</div>
+    </div>
+
+    <div class="task" id="t14">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">14</span>
+        <span class="task-name">Remove vanilla HTML overlays</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Only do this after you've confirmed the Svelte routes work in OBS.</p>
+        <div class="cmd">rm public/overlay-hp.html public/overlay-hp.css public/overlay-dice.html public/overlay-dice.css public/overlay-conditions.html</div>
+        <div class="commit" style="margin-top:12px">"chore: remove vanilla HTML overlays — Svelte routes are canonical"</div>
+      </div>
+    </div>
+
+    <div class="task" id="t15">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">15</span>
+        <span class="task-name">Update docs</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Update <code>docs/layers/audience.md</code> with the new URL table and new socket events. Update <code>CLAUDE.md</code> with the new OBS URLs.</p>
+        <div class="commit" style="margin-top:12px">"docs: update audience layer and CLAUDE.md with new overlay system"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 9 ── -->
+  <div class="phase" id="phase9">
+    <div class="phase-header">
+      <div class="phase-num orange">PHASE 9</div>
+      <div class="phase-title">Storybook Stories</div>
+    </div>
+
+    <div class="tip"><strong>Run Storybook with:</strong> <code>cd control-panel && bun run storybook</code> — opens on <strong>http://localhost:6006</strong>. Socket.io is already mocked so overlays won't try to connect.</div>
+
+    <div class="task" id="t16">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">16</span>
+        <span class="task-name">Add <code>preview</code> prop pattern to overlay components</span>
+        <span class="task-file">shared refactor</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Since the socket is mocked in Storybook, overlays won't receive any events — triggered overlays stay invisible, persistent ones show empty state. Fix this by adding optional props that bypass the socket and force a display state.</p>
+
+        <h3>Persistent overlays (HP, Conditions, TurnOrder)</h3>
+        <p>Add a <code>mockCharacters</code> prop. If provided, skip the socket and use it directly:</p>
+        <pre>// OverlayHP.svelte
+let { serverUrl = 'http://localhost:3000', mockCharacters = null } = $props();
+
+let characters = $state(mockCharacters ?? []);
+
+// In socket setup — guard with mockCharacters
+if (!mockCharacters) {
+  const socket = io(serverUrl);
+  socket.on('initialData', ({ characters: chars }) => {
+    characters = chars;
+  });
+  // ...rest of socket setup
+}</pre>
+
+        <h3>Triggered overlays (Dice, PlayerDown, LevelUp, Announce)</h3>
+        <p>Add a <code>preview</code> prop. On mount, if set, call the display function directly:</p>
+        <pre>// OverlayDice.svelte
+let { serverUrl = 'http://localhost:3000', preview = null } = $props();
+
+$effect(() => {
+  if (preview) {
+    // small delay so DOM is ready
+    setTimeout(() => showRoll(preview), 100);
+  }
+});</pre>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Apply to</div>
+              <pre>OverlayHP.svelte        → mockCharacters prop
+OverlayConditions.svelte → mockCharacters prop
+OverlayTurnOrder.svelte  → mockCharacters + mockEncounter props
+OverlayDice.svelte       → preview prop (roll data)
+OverlaySceneTitle.svelte → preview prop (scene data)
+OverlayCharacterFocus.svelte → preview prop (character data)
+// New overlays → add preview props as you build them</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(overlays): add preview/mockCharacters props for Storybook isolation"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t17">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">17</span>
+        <span class="task-name">Persistent overlay stories</span>
+        <span class="task-file">src/lib/components/overlays/*.stories.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Stories for HP, Conditions, TurnOrder, SceneTitle, CharacterFocus. Use the project's existing Svelte CSF pattern.</p>
+
+        <h3>Story file template</h3>
+        <pre>&lt;script module&gt;
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import OverlayHP from "./OverlayHP.svelte";
+
+  const { Story } = defineMeta({
+    title: "Overlays/HP",
+    component: OverlayHP,
+    tags: ["autodocs"],
+    parameters: {
+      docs: {
+        description: {
+          component: "Real-time HP bars. Top-right column. Persistent OBS source.",
+        },
+      },
+    },
+  });
+&lt;/script&gt;
+
+&lt;!-- Mock character data --&gt;
+&lt;script&gt;
+  const healthy = { id: 'CH101', name: 'Kaminaw', player: 'Kumi',
+    hp_current: 45, hp_max: 52, hp_temp: 0, armor_class: 16,
+    class_primary: { name: 'Bárbaro', level: 5 }, conditions: [], photo: null };
+
+  const injured = { id: 'CH102', name: 'Panqueque', player: 'Pank',
+    hp_current: 12, hp_max: 38, hp_temp: 0, armor_class: 14,
+    class_primary: { name: 'Clérigo', level: 5 },
+    conditions: [{ id: 'c1', condition_name: 'Poisoned' }], photo: null };
+
+  const critical = { id: 'CH103', name: 'Thordin', player: 'Thor',
+    hp_current: 3, hp_max: 44, hp_temp: 0, armor_class: 18,
+    class_primary: { name: 'Guerrero', level: 5 },
+    conditions: [{ id: 'c2', condition_name: 'Unconscious' }], photo: null };
+&lt;/script&gt;
+
+{#snippet FullParty()}
+  &lt;OverlayHP mockCharacters={[healthy, injured, critical]} /&gt;
+{/snippet}
+
+&lt;Story name="Full Party" children={FullParty} /&gt;
+
+{#snippet SingleHealthy()}
+  &lt;OverlayHP mockCharacters={[healthy]} /&gt;
+{/snippet}
+
+&lt;Story name="Single — Healthy" children={SingleHealthy} /&gt;
+
+{#snippet EmptyState()}
+  &lt;OverlayHP mockCharacters={[]} /&gt;
+{/snippet}
+
+&lt;Story name="Empty (no characters)" children={EmptyState} /&gt;</pre>
+
+        <h3>Stories to write per component</h3>
+        <pre>OverlayHP          → Full Party, Healthy/Injured/Critical states, Conditions active
+OverlayConditions  → No conditions, One condition, Multiple conditions
+OverlayTurnOrder   → Mid-encounter (ordered list), Between encounters (empty)
+OverlaySceneTitle  → Scene reveal, Scene with location subtitle
+OverlayCharacterFocus → Character highlighted, No focus</pre>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(stories): add persistent overlay stories"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task" id="t18">
+      <div class="task-header" onclick="toggle(this)">
+        <span class="task-num">18</span>
+        <span class="task-name">Triggered overlay stories</span>
+        <span class="task-file">src/lib/components/overlays/*.stories.svelte</span>
+        <span class="task-toggle">▾</span>
+      </div>
+      <div class="task-body">
+        <p>Stories for Dice, PlayerDown, LevelUp, Announce, LowerThird. These use the <code>preview</code> prop to force the triggered state on mount — you'll see the animation play once when Storybook loads the story.</p>
+
+        <h3>OverlayDice.stories.svelte</h3>
+        <pre>{#snippet CriticalHit()}
+  &lt;OverlayDice preview={{
+    characterName: 'Kaminaw', result: 20, sides: 20,
+    modifier: 3, rollResult: 23, charId: 'CH101'
+  }} /&gt;
+{/snippet}
+
+&lt;Story name="¡CRÍTICO!" children={CriticalHit} /&gt;
+
+{#snippet Pifia()}
+  &lt;OverlayDice preview={{
+    characterName: 'Panqueque', result: 1, sides: 20,
+    modifier: 0, rollResult: 1, charId: 'CH102'
+  }} /&gt;
+{/snippet}
+
+&lt;Story name="¡PIFIA!" children={Pifia} /&gt;
+
+{#snippet NormalRoll()}
+  &lt;OverlayDice preview={{
+    characterName: 'Thordin', result: 14, sides: 20,
+    modifier: 5, rollResult: 19, charId: 'CH103'
+  }} /&gt;
+{/snippet}
+
+&lt;Story name="Normal Roll" children={NormalRoll} /&gt;</pre>
+
+        <h3>Stories to write per component</h3>
+        <pre>OverlayDice        → ¡Crítico! (d20), ¡Pifia! (d20), Normal d20, d8 roll
+OverlayPlayerDown  → Unconscious, Dead
+OverlayLevelUp     → Level up (show new level number)
+OverlayAnnounce    → Location reveal, Knowledge unlock, NPC intro, Custom message
+OverlayLowerThird  → Character nameplate, Custom lower third</pre>
+
+        <div class="tip"><strong>Tip:</strong> For animated overlays, the story is basically a "press play" — the animation fires once on mount. That's fine for visual review. If you want to replay it, just navigate away and back in Storybook.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-label">Commit</div>
+              <div class="commit">"feat(stories): add triggered overlay stories"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function toggle(header) {
+    header.closest('.task').classList.toggle('collapsed');
+  }
+
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('[id]');
+  const links = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

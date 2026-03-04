@@ -1,11 +1,11 @@
 <!--
-  Root index route: redirect users to the control panel characters page.
+  Root index route: redirect to Stage › Live › Characters.
 -->
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
 
   onMount(() => {
-    goto("/control/characters");
+    goto("/live/characters");
   });
 </script>

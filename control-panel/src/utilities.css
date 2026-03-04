@@ -1,0 +1,109 @@
+/**
+ * DADO & RISAS — Semantic Utility Classes
+ * ========================================
+ * Composable, token-based utilities for control-panel UI components.
+ * Source of truth for design tokens: design/tokens.json → generated-tokens.css
+ *
+ * Import order in app.css:
+ *   generated-tokens.css  (CSS custom properties)
+ *   utilities.css         (this file — utility classes built on those vars)
+ *
+ * Sections:
+ *   1. LAYOUT      — flex/inline helpers
+ *   2. SURFACES    — background fills
+ *   3. BORDERS     — border color helpers
+ *   4. TEXT        — color and weight helpers
+ *   5. SHAPE       — border-radius shortcuts
+ *   6. INTERACTIVE — cursor, transitions
+ */
+
+/* ═══════════════════════════════════════════════
+   1. LAYOUT
+   ═══════════════════════════════════════════════ */
+
+/* Horizontal rows */
+.row        { display: flex; align-items: center; gap: var(--space-2); }
+.row-tight  { display: flex; align-items: center; gap: var(--space-1); }
+.row-spread { display: flex; align-items: center; justify-content: space-between; }
+
+/* Inline rows (for badge-like elements) */
+.inline-row       { display: inline-flex; align-items: center; gap: var(--space-1); }
+.inline-row-tight { display: inline-flex; align-items: center; gap: var(--space-half); }
+
+/* Vertical stacks */
+.stack        { display: flex; flex-direction: column; gap: var(--space-2); }
+.stack-tight  { display: flex; flex-direction: column; gap: var(--space-1); }
+.stack-center { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+
+/* ═══════════════════════════════════════════════
+   2. SURFACES
+   ═══════════════════════════════════════════════ */
+
+/* Canvas-level backgrounds */
+.surface-canvas   { background: var(--black); }
+
+/* Card surfaces */
+.surface-card     { background: var(--black-card); }
+
+/* Elevated surfaces — inputs, steppers, dropdowns */
+.surface-elevated { background: var(--black-elevated); }
+
+/* Tinted accent fills (used for pills, badges, hover states) */
+.surface-red      { background: var(--red-dim); }
+.surface-cyan     { background: var(--cyan-dim); }
+.surface-purple   { background: var(--purple-dim); }
+
+/* ═══════════════════════════════════════════════
+   3. BORDERS
+   ═══════════════════════════════════════════════ */
+
+.border-subtle { border: 1px solid var(--grey-dim); }
+.border-red    { border: 1px solid var(--red); }
+.border-cyan   { border: 1px solid var(--cyan); }
+.border-purple { border: 1px solid var(--purple); }
+
+/* ═══════════════════════════════════════════════
+   4. TEXT
+   ═══════════════════════════════════════════════ */
+
+/* Colors */
+.text-muted  { color: var(--grey); }
+.text-red    { color: var(--red); }
+.text-cyan   { color: var(--cyan); }
+.text-purple { color: var(--purple); }
+
+/* Numeric values — pairs with font-mono from app.css */
+.text-value {
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════
+   5. SHAPE
+   ═══════════════════════════════════════════════ */
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded    { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.pill       { border-radius: var(--radius-pill); }
+
+/* ═══════════════════════════════════════════════
+   6. INTERACTIVE
+   ═══════════════════════════════════════════════ */
+
+/* Base for any clickable element that needs cursor + smooth transitions */
+.interactive {
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast),
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+
+/* Press feedback for touch-friendly controls */
+.pressable:active {
+  transform: scale(0.95);
+}

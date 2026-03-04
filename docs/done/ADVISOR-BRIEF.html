@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dados & Risas — Briefing para el Asesor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:     #FF4D6A;
+      --cyan:    #00D4E8;
+      --purple:  #500DF5;
+      --purple-light: #7B3FF8;
+      --green:   #00E896;
+      --yellow:  #FFD166;
+      --bg:      #0d0d0d;
+      --bg-card: #141414;
+      --bg-card2:#1a1a1a;
+      --border:  #2a2a2a;
+      --text:    #f0f0f0;
+      --muted:   #888;
+      --font-head: 'Bebas Neue', 'Impact', sans-serif;
+      --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 0 16px 80px;
+    }
+
+    /* ─── Layout ────────────────────────────────────────────────────────── */
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ─── Divider ───────────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+      margin: 60px 0;
+    }
+
+    /* ─── Header ────────────────────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      padding: 72px 0 60px;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse at center top, rgba(255,77,106,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .header-eyebrow {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      opacity: 0.85;
+    }
+
+    .header-title {
+      font-family: var(--font-head);
+      font-size: clamp(72px, 14vw, 128px);
+      line-height: 0.9;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--red) 0%, #ff6b85 40%, #ff9aab 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 40px rgba(255,77,106,0.3));
+    }
+
+    .header-subtitle {
+      font-family: var(--font-head);
+      font-size: clamp(18px, 3vw, 26px);
+      letter-spacing: 0.12em;
+      color: var(--text);
+      opacity: 0.9;
+      margin-bottom: 14px;
+    }
+
+    .header-tagline {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 18px;
+      margin-top: 8px;
+    }
+
+    /* ─── Section Headers ───────────────────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(32px, 5vw, 48px);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    .section-title .accent { color: var(--cyan); }
+    .section-title .accent-red { color: var(--red); }
+    .section-title .accent-purple { color: var(--purple-light); }
+
+    /* ─── What Is It ────────────────────────────────────────────────────── */
+    .what-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .what-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--red), var(--cyan), var(--purple));
+    }
+
+    .what-box p {
+      font-size: 17px;
+      line-height: 1.8;
+      color: rgba(240,240,240,0.88);
+    }
+
+    .what-box p + p {
+      margin-top: 14px;
+    }
+
+    .what-box strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ─── Cards Grid ────────────────────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Green cards */
+    .card--green:hover { border-color: rgba(0,232,150,0.35); box-shadow: 0 8px 32px rgba(0,232,150,0.08); }
+    .card--green .card-icon { color: var(--green); }
+
+    /* Yellow cards */
+    .card--yellow:hover { border-color: rgba(255,209,102,0.35); box-shadow: 0 8px 32px rgba(255,209,102,0.08); }
+    .card--yellow .card-icon { color: var(--yellow); }
+
+    /* Purple cards */
+    .card--purple:hover { border-color: rgba(123,63,248,0.4); box-shadow: 0 8px 32px rgba(80,13,245,0.12); }
+    .card--purple .card-icon { color: var(--purple-light); }
+
+    .card-icon {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .card-body {}
+
+    .card-title {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 5px;
+      letter-spacing: 0.01em;
+    }
+
+    .card-desc {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ─── Status Badges ─────────────────────────────────────────────────── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 4px 12px;
+      margin-bottom: 20px;
+    }
+
+    .status-badge--green  { background: rgba(0,232,150,0.1);  color: var(--green);  border: 1px solid rgba(0,232,150,0.25); }
+    .status-badge--yellow { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.25); }
+    .status-badge--purple { background: rgba(123,63,248,0.1);  color: var(--purple-light); border: 1px solid rgba(123,63,248,0.25); }
+
+    .status-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-badge--green  .dot { animation: pulse-green  2s ease-in-out infinite; }
+    .status-badge--yellow .dot { animation: pulse-yellow 2s ease-in-out infinite; }
+
+    @keyframes pulse-green  { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes pulse-yellow { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ─── Questions Box ─────────────────────────────────────────────────── */
+    .questions-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 16px 16px 0;
+      padding: 36px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .questions-box::after {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(0,212,232,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .questions-box-title {
+      font-family: var(--font-head);
+      font-size: 28px;
+      letter-spacing: 0.08em;
+      color: var(--cyan);
+      margin-bottom: 24px;
+    }
+
+    .questions-list {
+      list-style: none;
+      counter-reset: q-counter;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .questions-list li {
+      counter-increment: q-counter;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      font-size: 15px;
+      color: rgba(240,240,240,0.85);
+      line-height: 1.6;
+    }
+
+    .questions-list li::before {
+      content: counter(q-counter);
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(0,212,232,0.12);
+      border: 1px solid rgba(0,212,232,0.3);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* ─── Progress Bar ──────────────────────────────────────────────────── */
+    .progress-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 600px) {
+      .progress-summary { grid-template-columns: 1fr; }
+    }
+
+    .progress-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      text-align: center;
+    }
+
+    .progress-num {
+      font-family: var(--font-head);
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .progress-item:nth-child(1) .progress-num { color: var(--green); }
+    .progress-item:nth-child(2) .progress-num { color: var(--yellow); }
+    .progress-item:nth-child(3) .progress-num { color: var(--purple-light); }
+
+    .progress-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 40px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .footer strong {
+      color: rgba(240,240,240,0.5);
+      font-weight: 500;
+    }
+
+    .footer .heart { color: var(--red); }
+
+    /* ─── Glow Lines ────────────────────────────────────────────────────── */
+    .glow-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan) 50%, transparent);
+      opacity: 0.2;
+      margin: 60px 0;
+    }
+
+    .glow-line--red {
+      background: linear-gradient(90deg, transparent, var(--red) 50%, transparent);
+    }
+
+    .glow-line--purple {
+      background: linear-gradient(90deg, transparent, var(--purple-light) 50%, transparent);
+    }
+
+    /* ─── Intro Stats Bar ───────────────────────────────────────────────── */
+    .intro-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .intro-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .intro-meta-value {
+      font-family: var(--font-head);
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+
+    .intro-meta-key {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .intro-meta-sep {
+      width: 1px;
+      height: 36px;
+      background: var(--border);
+      align-self: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- HEADER                                                             -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <header class="header">
+      <p class="header-eyebrow">Sistema de Overlays · OBS · D&amp;D 5e</p>
+      <h1 class="header-title">Dados &amp; Risas</h1>
+      <p class="header-subtitle">Sistema de Overlays para D&amp;D en Vivo</p>
+      <span class="header-tagline">Briefing para el Asesor &mdash; Marzo 2026</span>
+
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <span class="intro-meta-value" style="color: var(--green);">10</span>
+          <span class="intro-meta-key">Funciones activas</span>
+        </div>
+        <div class="intro-meta-sep"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-value" style="color: var(--yellow);">2</span>
+          <span class="intro-meta-key">En construcción</span>
+        </div>
+        <div class="intro-meta-sep"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-value" style="color: var(--purple-light);">4</span>
+          <span class="intro-meta-key">En el horizonte</span>
+        </div>
+        <div class="intro-meta-sep"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-value" style="color: var(--cyan);">6+</span>
+          <span class="intro-meta-key">Jugadores soportados</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: ¿Qué es esto?                                          -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section>
+      <p class="section-label">Descripción general</p>
+      <h2 class="section-title">¿Qué es <span class="accent">esto</span>?</h2>
+
+      <div class="what-box">
+        <p>
+          <strong>Dados &amp; Risas</strong> es un sistema de control en tiempo real diseñado
+          específicamente para sesiones de D&amp;D que se emiten en streaming. Conecta la mesa
+          de juego con la audiencia de forma visual, dinámica y sin interrupciones en la
+          narrativa.
+        </p>
+        <p>
+          El <strong>Dungeon Master</strong> utiliza su teléfono o tablet para actualizar puntos
+          de vida, condiciones y tiradas de dados durante el combate — sin apartar la vista de
+          la mesa ni romper el ritmo de la sesión.
+        </p>
+        <p>
+          La <strong>audiencia</strong> ve todos estos cambios al instante a través de overlays
+          integrados en OBS: barras de vida animadas, dados en vuelo, iconos de condiciones, y
+          mucho más — como si estuvieran sentados en la mesa.
+        </p>
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--red"></div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3: Lo que ya funciona                                      -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section>
+      <p class="section-label">Estado del sistema</p>
+      <h2 class="section-title">Lo que ya <span class="accent" style="color:var(--green)">funciona</span></h2>
+      <div class="status-badge status-badge--green">
+        <span class="dot"></span>
+        Listo para usar en sesión
+      </div>
+
+      <div class="cards-grid">
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">HP en Tiempo Real</p>
+            <p class="card-desc">El DM sube o baja HP y el overlay en pantalla se actualiza al instante, con animaciones de daño y curación.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Dados Animados</p>
+            <p class="card-desc">Las tiradas se muestran con animación completa en pantalla, desde d4 hasta d100, con resultado visible para la audiencia.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Condiciones</p>
+            <p class="card-desc">Sistema de condiciones completo — Envenenado, Aturdido, Asustado y más — visible para el público con iconos dedicados.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Retratos de Personajes</p>
+            <p class="card-desc">Fotos de los personajes con barras de vida codificadas por color que reflejan el estado de salud de cada uno.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Panel de Control Móvil</p>
+            <p class="card-desc">Interfaz completamente optimizada para teléfono y tablet, pensada para uso durante la sesión sin fricciones.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Recursos de Personaje</p>
+            <p class="card-desc">Rabia de bárbaro, Ki de monje, Puntos de Hechicería y otros recursos especiales representados con puntos visuales.</p>
+          </div>
+        </div>
+
+        <div class="card card--green" style="grid-column: 1 / -1;">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Múltiples Personajes</p>
+            <p class="card-desc">Soporte completo para partidas de hasta 6 o más jugadores en pantalla simultáneamente, con diseño que escala sin romper el overlay.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Panel de Sesión del DM</p>
+            <p class="card-desc">Vista rápida de todos los personajes durante el combate — HP, condiciones, recursos y turno activo en una sola pantalla.</p>
+          </div>
+        </div>
+
+        <div class="card card--green">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Franja de Iniciativa</p>
+            <p class="card-desc">Orden de combate con retratos, ronda visible y avance de turno — el DM controla el flujo del combate desde la misma pantalla.</p>
+          </div>
+        </div>
+
+        <div class="card card--green" style="grid-column: 1 / -1;">
+          <span class="card-icon">✓</span>
+          <div class="card-body">
+            <p class="card-title">Barra de Acciones del DM</p>
+            <p class="card-desc">Daño, curación, condiciones y descanso aplicables en dos toques durante el combate — sin salir de la vista de sesión.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="glow-line"></div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 4: En construcción                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section>
+      <p class="section-label">En desarrollo activo</p>
+      <h2 class="section-title">En <span class="accent" style="color:var(--yellow)">construcción</span></h2>
+      <div class="status-badge status-badge--yellow">
+        <span class="dot"></span>
+        Próximamente disponible
+      </div>
+
+      <div class="cards-grid">
+
+        <div class="card card--yellow">
+          <span class="card-icon">⚙</span>
+          <div class="card-body">
+            <p class="card-title">Seguimiento de Enemigos</p>
+            <p class="card-desc">Vista de NPCs y monstruos en el panel del DM — HP en tiempo real, iniciativa y condiciones de cada enemigo activo en el encuentro.</p>
+          </div>
+        </div>
+
+        <div class="card card--yellow" style="grid-column: 1 / -1;">
+          <span class="card-icon">⚙</span>
+          <div class="card-body">
+            <p class="card-title">Contador de Tiradas de Muerte</p>
+            <p class="card-desc">Tracker visual de successes/failures para personajes inconscientes — con alerta de estabilización y marcador de muerte visible para el DM.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--purple"></div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 5: En el horizonte                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section>
+      <p class="section-label">Visión a futuro</p>
+      <h2 class="section-title">En el <span class="accent-purple">horizonte</span></h2>
+      <div class="status-badge status-badge--purple">
+        <span style="font-size:14px;">🔮</span>
+        Planificado
+      </div>
+
+      <div class="cards-grid">
+
+        <div class="card card--purple">
+          <span class="card-icon">🔮</span>
+          <div class="card-body">
+            <p class="card-title">Inspector para Espectadores</p>
+            <p class="card-desc">Los viewers pueden explorar las fichas completas de los personajes directamente desde el stream, con stats y trasfondo.</p>
+          </div>
+        </div>
+
+        <div class="card card--purple">
+          <span class="card-icon">🔮</span>
+          <div class="card-body">
+            <p class="card-title">Overlay de Reacciones</p>
+            <p class="card-desc">Popup dramático y cinematográfico cuando alguien usa Escudo, Ataque de Oportunidad u otras reacciones clave.</p>
+          </div>
+        </div>
+
+        <div class="card card--purple">
+          <span class="card-icon">🔮</span>
+          <div class="card-body">
+            <p class="card-title">Economía de Acción</p>
+            <p class="card-desc">Visualizar en pantalla las Acciones, Acciones Adicionales y Reacciones usadas en cada turno — claridad total para la audiencia.</p>
+          </div>
+        </div>
+
+        <div class="card card--purple">
+          <span class="card-icon">🔮</span>
+          <div class="card-body">
+            <p class="card-title">Encuestas de Combate</p>
+            <p class="card-desc">Los espectadores votan decisiones de los jugadores en tiempo real, al estilo de los streams de Baldur's Gate 3 en Twitch.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="glow-line"></div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 6: Preguntas                                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <section>
+      <p class="section-label">Tu perspectiva importa</p>
+      <h2 class="section-title">Preguntas para <span class="accent">ti</span></h2>
+
+      <div class="questions-box">
+        <p class="questions-box-title">Necesitamos tu experiencia de mesa</p>
+        <ol class="questions-list">
+          <li>¿Qué información echas más en falta como DM durante una sesión en streaming? ¿Qué te obligaría a pausar o improvisar?</li>
+          <li>¿Qué condiciones de D&amp;D 5e son más frecuentes en combate? Necesitamos priorizar qué iconos desarrollar primero.</li>
+          <li>¿Cómo sueles gestionar la iniciativa en mesa? ¿Con papel, una app, de memoria? ¿Qué funciona mejor para ti?</li>
+          <li>¿Hay momentos del combate que el público siempre se pierde o no llega a entender bien desde fuera?</li>
+          <li>¿Qué te parece más valioso para el stream: más información visual en pantalla, o más control y velocidad para el DM?</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- FOOTER                                                             -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <footer class="footer">
+      <p>Construido con <span class="heart">❤</span> para la mesa &mdash; <strong>Dados &amp; Risas © 2026</strong></p>
+    </footer>
+
+  </div>
+</body>
+</html>

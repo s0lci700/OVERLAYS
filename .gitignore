@@ -3,6 +3,7 @@ node_modules/
 
 ## GitNexus / Claude
 .gitnexus/
+gitnexus/
 .claude/worktrees/
 
 ## Playwright CLI output
@@ -65,3 +66,11 @@ temp/
 
 ## Optional: local runtime data
 .local/
+
+## PocketBase
+pb_data/
+pb_migrations/
+pocketbase
+pocketbase.exe.env\n.mcp.json
+\n# Deprecated route backups\ncontrol-panel/src/routes/_deprecated/
+/_deprecated/

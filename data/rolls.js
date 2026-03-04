@@ -1,37 +1,37 @@
-const { createShortId } = require("./id");
-
 /**
  * Simple roll log for dice results that can be replayed on the overlays.
  */
-const rolls = [];
 
 /**
  * Return every recorded dice roll.
  * @returns {Array<Object>}
  */
-function getAll() {
-  return rolls;
+async function getAll(pb) {
+  return await pb.collection("rolls").getFullList({
+    sort: "-created",
+  });
 }
 
 /**
  * Persist a dice roll entry and return the stored record.
- * @param {{charId: string, result: number, characterName: string, modifier?: number, sides: number}} payload
+ * @param {{result: number, characterName: string, modifier?: number, sides: number}} payload
  * @returns {Object}
  */
-function logRoll({ charId, result, characterName, modifier = 0, sides }) {
+async function logRoll(
+  pb,
+  { charId, result, characterName, modifier = 0, sides },
+) {
   const rollResult = result + modifier;
   const entry = {
-    id: createShortId(),
     charId,
     characterName,
     result,
     modifier,
     rollResult,
     sides,
-    timestamp: new Date().toISOString(),
   };
-  rolls.push(entry);
-  return entry;
+
+  return await pb.collection("rolls").create(entry);
 }
 
 module.exports = {

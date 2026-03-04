@@ -1,0 +1,9 @@
+{
+  "name": "overlays",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start-demo": "bun scripts/start-demo.js",
+    "stop-demo": "bun scripts/stop-demo.js"
+  }
+}

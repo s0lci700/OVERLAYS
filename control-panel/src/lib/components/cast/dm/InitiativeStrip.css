@@ -1,0 +1,283 @@
+/**
+ * InitiativeStrip Component Styles
+ * =================================
+ * Two-mode initiative tracker for the DM session panel.
+ *
+ * Modes:
+ *   Pre-combat (.is-precombat)  — roll input per character + "INICIAR COMBATE" button
+ *   Combat     (.is-strip)      — horizontal scrolling token strip + round badge
+ *
+ * State classes:
+ *   .is-token.is-active  → cyan glow + enlarged — current turn
+ *
+ * Svelte ↔ CSS map:
+ *   Pre-combat: .is-precombat > .is-precombat-title + .is-roll-list > .is-roll-row > .is-roll-photo + .is-roll-name + .is-roll-input
+ *               + .is-start-btn
+ *   Combat:     .is-strip > .is-round-badge + .is-scroll > .is-token(.is-active) > .is-token-photo + .is-token-name + .is-token-roll + .is-token-indicator
+ */
+
+/* ═══════════════════════════════════════════════
+   PRE-COMBAT SHELL
+   ═══════════════════════════════════════════════ */
+
+.is-precombat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.is-precombat-title {
+  color: var(--grey);
+}
+
+/* ═══════════════════════════════════════════════
+   ROLL INPUT ROWS
+   ═══════════════════════════════════════════════ */
+
+.is-roll-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 260px; /* IS-5: prevent overflow on small phones with 5+ characters */
+  overflow-y: auto;
+}
+
+.is-roll-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2);
+  background: var(--black-elevated);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-sm);
+  min-height: 52px; /* IS-3: consistent tap area across all row heights */
+  transition: border-color var(--t-fast);
+}
+
+.is-roll-row:focus-within {
+  border-color: var(--cyan);
+}
+
+.is-roll-photo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0;
+  border: 1px solid var(--grey-dim);
+}
+
+.is-roll-name {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--white);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.is-roll-input {
+  width: 52px;
+  height: 44px; /* IS-2: raised from 36px — WCAG 44px minimum touch target */
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  flex-shrink: 0;
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
+}
+
+.is-roll-input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.25);
+}
+
+.is-roll-input::placeholder {
+  color: var(--grey-dim);
+}
+
+/* ═══════════════════════════════════════════════
+   START COMBAT BUTTON
+   ═══════════════════════════════════════════════ */
+
+.is-start-btn {
+  width: 100%;
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: var(--shadow-red);
+  font-size: 1rem;
+}
+
+.is-start-btn:hover {
+  background: var(--red);
+  color: var(--white);
+  box-shadow: var(--shadow-red);
+}
+
+.is-start-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════
+   COMBAT STRIP SHELL
+   ═══════════════════════════════════════════════ */
+
+.is-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.is-round-badge {
+  align-self: flex-start;
+  padding: 2px var(--space-3);
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0, 212, 232, 0.3);
+  border-radius: var(--radius-pill);
+  color: var(--cyan);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+}
+
+/* ═══════════════════════════════════════════════
+   TOKEN SCROLL CONTAINER
+   ═══════════════════════════════════════════════ */
+
+.is-scroll {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  /* Hide scrollbar on all browsers while keeping functionality */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════
+   TOKENS
+   ═══════════════════════════════════════════════ */
+
+/* IS-1: Responsive token width — wider on larger screens for better name visibility */
+.is-token {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  width: 64px;
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast),
+    opacity var(--t-fast);
+  opacity: 0.55;
+}
+
+@media (min-width: 480px) {
+  .is-token { width: 72px; }
+}
+
+@media (min-width: 640px) {
+  .is-token { width: 80px; }
+}
+
+.is-token.is-active {
+  border-color: var(--cyan);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 232, 0.35),
+    0 0 12px rgba(0, 212, 232, 0.2);
+  opacity: 1;
+}
+
+.is-token-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  object-position: center;
+  border: 1px solid var(--grey-dim);
+  flex-shrink: 0;
+  transition: border-color var(--t-fast);
+}
+
+.is-token.is-active .is-token-photo {
+  border-color: var(--cyan);
+}
+
+.is-token-name {
+  font-family: var(--font-display);
+  font-size: 0.70rem; /* IS-CRIT-01: raised from 0.65rem — names must be readable during a session */
+  color: var(--grey);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  transition: color var(--t-fast);
+}
+
+.is-token.is-active .is-token-name {
+  color: var(--white);
+}
+
+.is-token-roll {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--grey);
+  line-height: 1;
+  transition: color var(--t-fast);
+}
+
+.is-token.is-active .is-token-roll {
+  color: var(--cyan);
+}
+
+/* Bottom indicator dot on active token */
+.is-token-indicator {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+  animation: isPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes isPulse {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 0.5; transform: translateX(-50%) scale(0.7); }
+}

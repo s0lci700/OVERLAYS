@@ -33,7 +33,7 @@ const config = {
   viteFinal: async (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "$lib/socket": path.resolve(__dirname, "../src/__mocks__/socket.js"),
+      "$lib/stores/socket": path.resolve(__dirname, "../src/__mocks__/socket.js"),
     };
     return config;
   },

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dados & Risas — Combat System Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:     #FF4D6A;
+      --cyan:    #00D4E8;
+      --purple:  #500DF5;
+      --purple-light: #7B3FF8;
+      --green:   #00E896;
+      --yellow:  #FFD166;
+      --orange:  #FF8C42;
+      --bg:      #0a0a0a;
+      --bg-card: #111111;
+      --bg-card2:#181818;
+      --bg-elevated: #1e1e1e;
+      --border:  #2a2a2a;
+      --border-bright: #3a3a3a;
+      --text:    #f0f0f0;
+      --muted:   #888;
+      --font-head: 'Bebas Neue', 'Impact', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 0 16px 100px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+
+    /* ── HEADER ── */
+    .page-header {
+      text-align: center;
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 60px;
+    }
+    .page-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 16px;
+    }
+    .page-title {
+      font-family: var(--font-head);
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .page-title span { color: var(--red); }
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section { margin-bottom: 64px; }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 24px;
+      line-height: 1.1;
+    }
+    .accent-red   { color: var(--red); }
+    .accent-cyan  { color: var(--cyan); }
+    .accent-purple{ color: var(--purple-light); }
+    .accent-green { color: var(--green); }
+    .accent-yellow{ color: var(--yellow); }
+
+    /* ── DIVIDERS ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+      margin: 56px 0;
+    }
+    .glow-line {
+      height: 1px;
+      margin: 56px 0;
+      opacity: 0.3;
+    }
+    .glow-line--cyan   { background: linear-gradient(90deg, transparent, var(--cyan) 50%, transparent); }
+    .glow-line--red    { background: linear-gradient(90deg, transparent, var(--red) 50%, transparent); }
+    .glow-line--purple { background: linear-gradient(90deg, transparent, var(--purple-light) 50%, transparent); }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .card--cyan   { border-color: rgba(0,212,232,0.35); }
+    .card--red    { border-color: rgba(255,77,106,0.35); }
+    .card--purple { border-color: rgba(123,63,248,0.35); }
+    .card--green  { border-color: rgba(0,232,150,0.35); }
+    .card--yellow { border-color: rgba(255,209,102,0.35); }
+
+    /* ── TIMELINE / FLOW ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 32px;
+    }
+    .flow::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--cyan), var(--purple-light), var(--red));
+      opacity: 0.4;
+    }
+    .flow-step {
+      position: relative;
+      padding: 16px 0 16px 16px;
+    }
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: -21px;
+      top: 24px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--cyan);
+    }
+    .flow-step:nth-child(2)::before { border-color: var(--purple-light); }
+    .flow-step:nth-child(3)::before { border-color: var(--yellow); }
+    .flow-step:nth-child(4)::before { border-color: var(--red); }
+    .flow-step:nth-child(5)::before { border-color: var(--green); }
+    .flow-step:nth-child(6)::before { border-color: var(--cyan); }
+    .flow-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .flow-title {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .flow-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── COMBAT STATE TABLE ── */
+    .combat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .combat-table th {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .combat-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .combat-table tr:last-child td { border-bottom: none; }
+    .combat-table tr.is-player td { color: var(--cyan); }
+    .combat-table tr.is-enemy  td { color: rgba(255,77,106,0.85); }
+    .combat-table tr.is-active td { background: rgba(0,212,232,0.05); }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .tag--player { background: rgba(0,212,232,0.12); color: var(--cyan); border: 1px solid rgba(0,212,232,0.3); }
+    .tag--enemy  { background: rgba(255,77,106,0.12); color: var(--red);  border: 1px solid rgba(255,77,106,0.3); }
+    .tag--condition { background: rgba(255,209,102,0.12); color: var(--yellow); border: 1px solid rgba(255,209,102,0.3); }
+    .tag--active { background: rgba(0,212,232,0.2); color: var(--cyan); border: 1px solid var(--cyan); font-weight: 700; }
+    .hp-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .hp-bar { height: 4px; border-radius: 999px; background: var(--bg-elevated); flex: 1; min-width: 60px; }
+    .hp-fill { height: 100%; border-radius: 999px; }
+    .hp-fill--healthy  { background: #22c55e; }
+    .hp-fill--injured  { background: #f59e0b; }
+    .hp-fill--critical { background: var(--red); animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .hp-text { font-family: var(--font-mono); font-size: 12px; white-space: nowrap; }
+
+    /* ── DATA SCHEMA BLOCK ── */
+    .schema-block {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .schema-collection { color: var(--cyan); font-weight: 700; }
+    .schema-field  { color: var(--text); padding-left: 20px; }
+    .schema-type   { color: var(--purple-light); }
+    .schema-comment{ color: var(--muted); }
+    .schema-relation { color: var(--yellow); }
+
+    /* ── ACTION TYPES ── */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .action-chip {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .action-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1.2; }
+    .action-label {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .action-cost { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+
+    /* ── DATA FLOW DIAGRAM ── */
+    .data-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    @media (max-width: 640px) {
+      .data-flow { grid-template-columns: 1fr; }
+      .flow-arrow { display: none; }
+    }
+    .flow-node {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .flow-node-title {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .flow-node-sub { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+    .flow-arrow { text-align: center; color: var(--muted); font-size: 1.2rem; }
+
+    /* ── CONDITION PILLS ── */
+    .conditions-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cond-pill {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      flex: 1;
+      min-width: 200px;
+    }
+    .cond-name { font-family: var(--font-head); font-size: 0.9rem; letter-spacing: 0.05em; color: var(--red); }
+    .cond-effect { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 40px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.08em;
+    }
+    .footer strong { color: rgba(240,240,240,0.5); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- HEADER -->
+    <header class="page-header">
+      <p class="page-eyebrow">ESDH TTRPG · Technical Reference · March 2026</p>
+      <h1 class="page-title">Combat <span>System</span></h1>
+      <p class="page-subtitle">How D&amp;D 5e combat is tracked, managed, and broadcast in real-time across the Dados &amp; Risas overlay system.</p>
+    </header>
+
+    <!-- SECTION 1: D&D 5e COMBAT RULES (the rules the system implements) -->
+    <section class="section">
+      <p class="section-label">D&amp;D 5e Rules Foundation</p>
+      <h2 class="section-title">How <span class="accent-cyan">Combat Works</span> in D&amp;D 5e</h2>
+      <p style="color:var(--muted); margin-bottom: 24px; font-size: 14px;">
+        The system implements the D&amp;D 5th Edition combat loop (PHB p.189). Every mechanical decision in the codebase maps to one of these phases.
+      </p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <p class="flow-num">Phase 01</p>
+          <p class="flow-title">Surprise Check</p>
+          <p class="flow-desc">DM determines if any combatants are surprised (no actions or reactions on turn 1). Handled narratively — not yet tracked in the system.</p>
+        </div>
+        <div class="flow-step">
+          <p class="flow-num">Phase 02</p>
+          <p class="flow-title">Roll Initiative — d20 + DEX Modifier</p>
+          <p class="flow-desc">Every combatant rolls d20 + their DEX modifier. The DM enters rolls manually in the Initiative Strip. Ties broken automatically by DEX mod in the app.</p>
+        </div>
+        <div class="flow-step">
+          <p class="flow-num">Phase 03 → Repeated</p>
+          <p class="flow-title">Combat Rounds (6 seconds each)</p>
+          <p class="flow-desc">Each combatant takes a turn in initiative order. A full cycle = 1 Round. The app tracks round number and advances the active turn pointer on "Siguiente ▶".</p>
+        </div>
+        <div class="flow-step">
+          <p class="flow-num">Each Turn</p>
+          <p class="flow-title">Move + Action + Bonus Action + Reaction</p>
+          <p class="flow-desc">Movement (up to Speed ft.), one Action, one Bonus Action (if available), and one Reaction (triggered off-turn). The DM resolves these narratively; the app tracks HP and condition outcomes.</p>
+        </div>
+        <div class="flow-step">
+          <p class="flow-num">Outcomes</p>
+          <p class="flow-title">HP Changes, Conditions, Death Saves</p>
+          <p class="flow-desc">Damage reduces HP. Healing restores it. Conditions (Poisoned, Frightened, etc.) alter capabilities. At 0 HP, players make Death Saving Throws (3 successes = stable, 3 failures = dead). Death saves not yet tracked in the system.</p>
+        </div>
+        <div class="flow-step">
+          <p class="flow-num">End State</p>
+          <p class="flow-title">Combat Ends → Short or Long Rest</p>
+          <p class="flow-desc">Combat ends when all enemies are defeated (or fled). Party recovers with a Short Rest (hit dice, some abilities) or Long Rest (full HP, all resources). The app handles both via the Rest button.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--cyan"></div>
+
+    <!-- SECTION 2: LIVE COMBAT STATE — current encounter snapshot -->
+    <section class="section">
+      <p class="section-label">Active Encounter · Session 3 · Round 4</p>
+      <h2 class="section-title">Current <span class="accent-red">Combat State</span></h2>
+      <p style="color:var(--muted); margin-bottom: 20px; font-size:14px;">
+        "La Mina del Susurro Roto" — Amber Cavern. Party is mid-combat, Round 4. Turn index 2 = Hector is active.
+      </p>
+
+      <div style="overflow-x:auto;">
+        <table class="combat-table">
+          <thead>
+            <tr>
+              <th>Init</th>
+              <th>Combatant</th>
+              <th>Type</th>
+              <th>HP</th>
+              <th>Conditions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-enemy">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">14</span></td>
+              <td>Skarrik the Pickaxe</td>
+              <td><span class="tag tag--enemy">Enemy</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--healthy" style="width:100%"></div></div>
+                  <span class="hp-text" style="color:var(--muted)">21/21</span>
+                </div>
+              </td>
+              <td>—</td>
+            </tr>
+            <tr class="is-enemy">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">11</span></td>
+              <td>Gnash</td>
+              <td><span class="tag tag--enemy">Enemy</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--healthy" style="width:100%"></div></div>
+                  <span class="hp-text" style="color:var(--muted)">7/7</span>
+                </div>
+              </td>
+              <td>—</td>
+            </tr>
+            <tr class="is-player is-active">
+              <td><span style="font-family:var(--font-mono);font-size:13px;color:var(--cyan)">10</span></td>
+              <td><strong>HECTOR</strong> <span class="tag tag--active" style="margin-left:6px">ACTIVE</span></td>
+              <td><span class="tag tag--player">Player</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--injured" style="width:50%"></div></div>
+                  <span class="hp-text" style="color:var(--yellow)">6/12</span>
+                </div>
+              </td>
+              <td><span class="tag tag--condition">Poisoned</span></td>
+            </tr>
+            <tr class="is-enemy">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">9</span></td>
+              <td>Wort</td>
+              <td><span class="tag tag--enemy">Enemy</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--critical" style="width:57%"></div></div>
+                  <span class="hp-text" style="color:var(--red)">4/7</span>
+                </div>
+              </td>
+              <td><span class="tag tag--condition">Frightened</span></td>
+            </tr>
+            <tr class="is-player">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">8</span></td>
+              <td>MARCELO</td>
+              <td><span class="tag tag--player">Player</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--healthy" style="width:78%"></div></div>
+                  <span class="hp-text" style="color:var(--muted)">7/9</span>
+                </div>
+              </td>
+              <td>—</td>
+            </tr>
+            <tr class="is-player">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">7</span></td>
+              <td>CYNTHIA <span style="font-family:var(--font-mono);font-size:10px;color:var(--red)">⚠ CRITICAL</span></td>
+              <td><span class="tag tag--player">Player</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--critical" style="width:25%"></div></div>
+                  <span class="hp-text" style="color:var(--red)">2/8</span>
+                </div>
+              </td>
+              <td>—</td>
+            </tr>
+            <tr class="is-enemy">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">6</span></td>
+              <td>Tunnel Crawler</td>
+              <td><span class="tag tag--enemy">Enemy</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--healthy" style="width:100%"></div></div>
+                  <span class="hp-text" style="color:var(--muted)">7/7</span>
+                </div>
+              </td>
+              <td>—</td>
+            </tr>
+            <tr class="is-player">
+              <td><span style="font-family:var(--font-mono);font-size:13px;">5</span></td>
+              <td>LUIS</td>
+              <td><span class="tag tag--player">Player</span></td>
+              <td>
+                <div class="hp-bar-wrap">
+                  <div class="hp-bar"><div class="hp-fill hp-fill--injured" style="width:63%"></div></div>
+                  <span class="hp-text" style="color:var(--yellow)">5/8</span>
+                </div>
+              </td>
+              <td><span class="tag tag--condition">Frightened</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:16px; padding: 12px 16px; background: rgba(255,77,106,0.06); border: 1px solid rgba(255,77,106,0.2); border-radius: 8px; font-size:13px; color: var(--muted);">
+        ⚠ <strong style="color:var(--red)">Critical situation:</strong> Cynthia is at 25% HP with 0 spell slots. One more hit and she's making Death Saving Throws. Marcelo (Cleric) has burned Channel Divinity keeping her alive — can't use it again until a Short Rest. Skarrik hasn't taken damage yet.
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--red"></div>
+
+    <!-- SECTION 3: DM ACTIONS — what the DM can do -->
+    <section class="section">
+      <p class="section-label">DM Session Panel · /session</p>
+      <h2 class="section-title">DM <span class="accent-cyan">Actions</span> During Combat</h2>
+      <p style="color:var(--muted); margin-bottom:24px; font-size:14px;">
+        From the Session Panel, the DM applies outcomes in 2 taps: select action → select target → confirm. Updates broadcast instantly via Socket.io.
+      </p>
+
+      <div class="actions-grid">
+        <div class="action-chip">
+          <span class="action-icon">⚔</span>
+          <div>
+            <p class="action-label" style="color:var(--red)">Damage</p>
+            <p class="action-cost">ACTION · tap + amount</p>
+            <p class="card-desc" style="margin-top:4px">Reduces target HP. Clamped to 0 (can't go negative). Triggers critical animation on overlay if HP ≤ 30%.</p>
+          </div>
+        </div>
+        <div class="action-chip">
+          <span class="action-icon">✦</span>
+          <div>
+            <p class="action-label" style="color:var(--cyan)">Heal</p>
+            <p class="action-cost">ACTION · tap + amount</p>
+            <p class="card-desc" style="margin-top:4px">Restores HP. Clamped to hp_max. Triggers heal pulse on HP bar.</p>
+          </div>
+        </div>
+        <div class="action-chip">
+          <span class="action-icon">◈</span>
+          <div>
+            <p class="action-label" style="color:var(--text)">Condition</p>
+            <p class="action-cost">ACTION · tap + name</p>
+            <p class="card-desc" style="margin-top:4px">Adds a named condition badge (Poisoned, Frightened, etc.) to the character. Visible on overlay and DM panel immediately.</p>
+          </div>
+        </div>
+        <div class="action-chip">
+          <span class="action-icon">☽</span>
+          <div>
+            <p class="action-label" style="color:var(--purple-light)">Rest</p>
+            <p class="action-cost">ACTION · tap + short/long</p>
+            <p class="card-desc" style="margin-top:4px">Short rest: recovers hit dice HP. Long rest: full HP + all resource pools restored.</p>
+          </div>
+        </div>
+        <div class="action-chip">
+          <span class="action-icon">▶</span>
+          <div>
+            <p class="action-label" style="color:var(--text)">Next Turn</p>
+            <p class="action-cost">ALWAYS AVAILABLE</p>
+            <p class="card-desc" style="margin-top:4px">Advances initiative pointer. Wraps at end → increments round counter. Active token in strip gets cyan glow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--purple"></div>
+
+    <!-- SECTION 4: REAL-TIME DATA FLOW -->
+    <section class="section">
+      <p class="section-label">Technical Architecture</p>
+      <h2 class="section-title">Real-Time <span class="accent-purple">Data Flow</span></h2>
+      <p style="color:var(--muted); margin-bottom:24px; font-size:14px;">
+        Every DM action follows this exact path. The overlay never polls — it only listens. Updates appear in &lt;50ms on the same network.
+      </p>
+
+      <div class="data-flow">
+        <div class="flow-node" style="border-color: rgba(0,212,232,0.4);">
+          <p class="flow-node-title" style="color:var(--cyan)">DM Phone</p>
+          <p class="flow-node-sub">SvelteKit :5173<br>/session</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node" style="border-color: rgba(255,209,102,0.4);">
+          <p class="flow-node-title" style="color:var(--yellow)">Express Server</p>
+          <p class="flow-node-sub">Node.js :3000<br>REST + Socket.io</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node" style="border-color: rgba(123,63,248,0.4);">
+          <p class="flow-node-title" style="color:var(--purple-light)">OBS Overlay</p>
+          <p class="flow-node-sub">Browser Source<br>1920×1080</p>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;" class="data-flow">
+        <div class="flow-node" style="border-color: rgba(0,232,150,0.4);">
+          <p class="flow-node-title" style="color:var(--green)">PocketBase</p>
+          <p class="flow-node-sub">SQLite :8090<br>Persistent state</p>
+        </div>
+        <div class="flow-arrow">↑</div>
+        <div class="flow-node">
+          <p class="flow-node-title">Server writes to DB</p>
+          <p class="flow-node-sub">Characters, rolls,<br>conditions, resources</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">
+          <p class="flow-node-title">io.emit broadcasts</p>
+          <p class="flow-node-sub">hp_updated<br>dice_rolled</p>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; padding:14px 16px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; font-family:var(--font-mono); font-size:12px; color:var(--muted); line-height:1.9;">
+        <span style="color:var(--cyan)">PUT</span> /api/characters/:id/hp <span style="color:var(--border-bright)">→</span> server validates + clamps <span style="color:var(--border-bright)">→</span> PocketBase.update() <span style="color:var(--border-bright)">→</span> <span style="color:var(--yellow)">io.emit('hp_updated', data)</span> <span style="color:var(--border-bright)">→</span> overlay mutates DOM by <span style="color:var(--purple-light)">data-char-id</span><br>
+        <span style="color:var(--cyan)">POST</span> /api/characters/:id/conditions <span style="color:var(--border-bright)">→</span> creates condition record <span style="color:var(--border-bright)">→</span> <span style="color:var(--yellow)">io.emit('character_updated')</span> <span style="color:var(--border-bright)">→</span> all clients re-render
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--cyan"></div>
+
+    <!-- SECTION 5: DATA SCHEMA -->
+    <section class="section">
+      <p class="section-label">PocketBase Schema</p>
+      <h2 class="section-title">Combat <span class="accent-yellow">Data Model</span></h2>
+      <p style="color:var(--muted); margin-bottom:20px; font-size:14px;">Collections that power live combat. All persisted in SQLite — survive server restarts.</p>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="schema-block">
+          <span class="schema-collection">encounters</span><br>
+          <span class="schema-field">status <span class="schema-type">text</span> <span class="schema-comment">// "active" | "ended"</span></span><br>
+          <span class="schema-field">round <span class="schema-type">number</span> <span class="schema-comment">// current round</span></span><br>
+          <span class="schema-field">turn_index <span class="schema-type">text</span> <span class="schema-comment">// active combatant</span></span><br>
+          <span class="schema-field">combat_order <span class="schema-type">json</span> <span class="schema-comment">// initiative array</span></span><br>
+          <span class="schema-field"><span class="schema-relation">campaign_id</span> <span class="schema-type">→ campaigns</span></span>
+        </div>
+        <div class="schema-block">
+          <span class="schema-collection">npc_instances</span><br>
+          <span class="schema-field">display_name <span class="schema-type">text</span></span><br>
+          <span class="schema-field">hp_current <span class="schema-type">number</span></span><br>
+          <span class="schema-field">conditions <span class="schema-type">json</span></span><br>
+          <span class="schema-field"><span class="schema-relation">template_id</span> <span class="schema-type">→ npc_templates</span></span><br>
+          <span class="schema-field"><span class="schema-relation">encounter_id</span> <span class="schema-type">→ encounters</span></span>
+        </div>
+        <div class="schema-block">
+          <span class="schema-collection">characters</span><br>
+          <span class="schema-field">hp_current / hp_max <span class="schema-type">number</span></span><br>
+          <span class="schema-field">conditions <span class="schema-type">json[]</span></span><br>
+          <span class="schema-field">resources <span class="schema-type">json[]</span> <span class="schema-comment">// pools + recharge</span></span><br>
+          <span class="schema-field">stats <span class="schema-type">json</span> <span class="schema-comment">// str/dex/con…</span></span>
+        </div>
+        <div class="schema-block">
+          <span class="schema-collection">npc_templates</span><br>
+          <span class="schema-field">cr <span class="schema-type">text</span> <span class="schema-comment">// "1/4" | "1" | "1/8"</span></span><br>
+          <span class="schema-field">hp_max / armor_class <span class="schema-type">number</span></span><br>
+          <span class="schema-field">ability_scores <span class="schema-type">json</span></span><br>
+          <span class="schema-field">resistances <span class="schema-type">json</span></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--red"></div>
+
+    <!-- SECTION 6: CONDITIONS REFERENCE -->
+    <section class="section">
+      <p class="section-label">D&amp;D 5e PHB p.290 · Seeded in conditions_library</p>
+      <h2 class="section-title">Active <span class="accent-red">Conditions</span> Reference</h2>
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-top:8px;">
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Poisoned</p>
+            <p class="cond-effect">Disadvantage on attack rolls and ability checks. <em>Hector is currently Poisoned — Giant Rat bite, DC 10 Con save.</em></p>
+          </div>
+        </div>
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Frightened</p>
+            <p class="cond-effect">Disadvantage on ability checks and attacks while source is visible. Can't willingly move closer to source. <em>Luis and Wort are Frightened.</em></p>
+          </div>
+        </div>
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Prone</p>
+            <p class="cond-effect">Attacks against have advantage (melee) or disadvantage (ranged). Own attacks have disadvantage. Half speed to stand.</p>
+          </div>
+        </div>
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Blinded</p>
+            <p class="cond-effect">Attacks against have advantage. Own attacks have disadvantage. Fails sight-based ability checks.</p>
+          </div>
+        </div>
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Restrained</p>
+            <p class="cond-effect">Speed 0. Attacks against have advantage. Own attacks and Dex saves have disadvantage.</p>
+          </div>
+        </div>
+        <div class="cond-pill">
+          <div>
+            <p class="cond-name">Stunned</p>
+            <p class="cond-effect">Incapacitated (no actions/reactions). Fails Str and Dex saves automatically. Attacks against have advantage.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="glow-line glow-line--purple"></div>
+
+    <!-- SECTION 7: WHAT'S NOT YET TRACKED -->
+    <section class="section">
+      <p class="section-label">Honest Assessment · Future Work</p>
+      <h2 class="section-title">What's <span class="accent-yellow">Not Yet</span> Tracked</h2>
+      <div class="card-grid">
+        <div class="card">
+          <p class="card-title" style="color:var(--yellow)">Death Saving Throws</p>
+          <p class="card-desc">At 0 HP, D&amp;D requires 3 successes/failures on d20 rolls. Currently the app only shows 0 HP — death save tracking UI is planned for next sprint.</p>
+        </div>
+        <div class="card">
+          <p class="card-title" style="color:var(--yellow)">Enemy HP (Live)</p>
+          <p class="card-desc">npc_instances have hp_current seeded, but damage to enemies isn't wired through the DM panel yet. The DM tracks enemy HP mentally or on paper.</p>
+        </div>
+        <div class="card">
+          <p class="card-title" style="color:var(--yellow)">Surprise Round</p>
+          <p class="card-desc">Surprised creatures can't act on their first turn. Purely narrative right now — no mechanical enforcement in the initiative strip.</p>
+        </div>
+        <div class="card">
+          <p class="card-title" style="color:var(--yellow)">Concentration Tracking</p>
+          <p class="card-desc">Cynthia's Hex requires Concentration. Taking damage requires a DC 10 Con save or the spell drops. Not automatically tracked.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>DADOS &amp; RISAS · ESDH TTRPG · Combat System Reference</p>
+      <p style="margin-top:6px;"><strong>PocketBase:</strong> localhost:8090/_/ &nbsp;·&nbsp; <strong>API:</strong> localhost:3000 &nbsp;·&nbsp; <strong>Control Panel:</strong> localhost:5173/session</p>
+    </footer>
+
+  </div>
+</body>
+</html>

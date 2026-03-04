@@ -1,6 +1,6 @@
 # Architecture Guide
 
-> Quick-reference map for navigating the DADOS & RISAS codebase.
+> Quick-reference map for navigating the TableRelay codebase (repo currently named `OVERLAYS`, rename pending).
 
 Fast lookup: see [docs/INDEX.md](docs/INDEX.md).
 
@@ -22,24 +22,27 @@ Fast lookup: see [docs/INDEX.md](docs/INDEX.md).
 │   Express + Socket.io       │
 │   :3000                     │
 │                             │
-│   data/characters.js        │ ← in-memory character state
-│   data/rolls.js             │ ← roll history log
-└──────────┬──────────────────┘
-           │  Socket.io broadcast
-           │  (all events → all clients)
-     ┌─────┴─────┐
-     ▼           ▼
-┌──────────┐ ┌──────────┐
-│ HP       │ │ Dice     │
-│ Overlay  │ │ Overlay  │
-│ (OBS)    │ │ (OBS)    │
-└──────────┘ └──────────┘
+│   data/characters.js        │ ← PocketBase character CRUD
+│   data/rolls.js             │ ← PocketBase roll history
+└──────┬───────────┬──────────┘
+       │           │  Socket.io broadcast
+       │           │  (all events → all clients)
+       ▼     ┌─────┴─────┐
+┌──────────┐ ▼           ▼
+│PocketBase│ ┌──────────┐ ┌──────────┐
+│ :8090    │ │ HP       │ │ Dice     │
+│ (SQLite) │ │ Overlay  │ │ Overlay  │
+└──────────┘ │ (OBS)    │ │ (OBS)    │
+             └──────────┘ └──────────┘
 ```
 
 Every client connects to the same Socket.io server. When the control panel
-sends a REST request (e.g., PUT HP), the server mutates in-memory state,
+sends a REST request (e.g., PUT HP), the server writes to PocketBase,
 responds to the caller, and broadcasts a Socket.io event to **all** clients
 (including overlays). Overlays never send requests — they only listen.
+
+PocketBase runs as a separate process (`.\pocketbase.exe serve`) and must
+be started before the Node.js server.
 
 ---
 
@@ -49,13 +52,11 @@ responds to the caller, and broadcasts a Socket.io event to **all** clients
 
 | File                 | Purpose                                                        | Key exports                                                                                               |
 | -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `server.js`          | Express app, Socket.io server, all API routes                  | Listens on `:3000`                                                                                        |
-| `data/characters.js` | Character fixtures + CRUD (HP, conditions, resources, rest)    | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources` |
-| `data/rolls.js`      | Roll history logger                                            | `getAll`, `logRoll`                                                                                       |
-| `data/photos.js`     | Photo assignment utility (random fallback from `assets/img/`)  | `ensureCharactersPhotos`, `ensureCharacterPhoto`                                                          |
-| `data/id.js`         | Short 5-character ID generator                                 | `createShortId`                                                                                           |
-| `data/resources.js`  | **Unused** — standalone resource pool experiment               | `getActive`, `forCharacter`                                                                               |
-| `data/state.js`      | **Unused** — snapshot aggregator re-exporting all data modules | `getSnapshot`                                                                                             |
+| `server.js`          | Express app, Socket.io server, all API routes. Wraps startup in `async main()`, authenticates PocketBase before listening. | Listens on `:3000` |
+| `data/characters.js` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
+| `data/rolls.js`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
+| `data/id.js`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
+| `scripts/seed.js`    | One-time seeder — reads `data/template-characters.json` and populates PocketBase. Guards against double-seeding. | Run with `node -r dotenv/config scripts/seed.js` |
 
 ### Control Panel (`/control-panel/src/`)
 
@@ -63,17 +64,21 @@ The control panel is a **SvelteKit** application. File-based routes live under `
 
 #### Routes
 
-| Route path             | File                                        | Purpose                                       |
-| ---------------------- | ------------------------------------------- | --------------------------------------------- |
-| `/`                    | `routes/+page.svelte`                       | Redirects to `/control/characters`            |
-| (all routes)           | `routes/+layout.svelte`                     | App shell: header, sidebar, navigation        |
-| `/control/characters`  | `routes/control/characters/+page.svelte`    | Character HP / conditions / resources view    |
-| `/control/dice`        | `routes/control/dice/+page.svelte`          | Dice roller view                              |
-| `/control` (shared)    | `routes/control/+layout.svelte`             | Characters / Dice bottom nav                  |
-| `/management/create`   | `routes/management/create/+page.svelte`     | Character creation form                       |
-| `/management/manage`   | `routes/management/manage/+page.svelte`     | Photo/data editing + bulk controls            |
-| `/management` (shared) | `routes/management/+layout.svelte`          | Create / Manage bottom nav                    |
-| `/dashboard`           | `routes/dashboard/+page.svelte`             | Live read-only dashboard (TV/monitor view)    |
+Route groups use `(parens)` — they are organizational only and do NOT appear in URLs. Old routes (`/control/`, `/management/`, `/dashboard/`, `/session/`) have been moved to `routes/_deprecated/` (gitignored, reference only).
+
+| Route path          | File                                                    | Purpose                                    |
+| ------------------- | ------------------------------------------------------- | ------------------------------------------ |
+| `/`                 | `routes/+page.svelte`                                   | Redirects to `/live/characters`            |
+| (all routes)        | `routes/+layout.svelte`                                 | App shell: header, sidebar, navigation     |
+| `/live/characters`  | `routes/(stage)/live/characters/+page.svelte`           | Character HP / conditions / resources view |
+| `/live/dice`        | `routes/(stage)/live/dice/+page.svelte`                 | Dice roller view                           |
+| `/live` (shared)    | `routes/(stage)/live/+layout.svelte`                    | PERSONAJES / DADOS bottom nav              |
+| `/setup/create`     | `routes/(stage)/setup/create/+page.svelte`              | Character creation form                    |
+| `/setup/manage`     | `routes/(stage)/setup/manage/+page.svelte`              | Photo/data editing + bulk controls         |
+| `/setup` (shared)   | `routes/(stage)/setup/+layout.svelte`                   | CREAR / GESTIONAR bottom nav               |
+| `/overview`         | `routes/(stage)/overview/+page.svelte`                  | Live read-only operator dashboard          |
+| `/dm`               | `routes/(cast)/dm/+page.svelte`                         | Initiative tracker + SessionCards          |
+| `/players/[id]`     | `routes/(cast)/players/[id]/+page.svelte`               | Player character sheet (mobile-first)      |
 
 #### Library (`lib/`)
 
@@ -178,7 +183,7 @@ The control panel is a **SvelteKit** application. File-based routes live under `
 | SvelteKit file-based routing                     | Clean URL structure, layout nesting, standard Svelte framework choice   |
 | Separate CSS files per component                 | Avoids Svelte scoped style limitations with dynamic classes             |
 | anime.js for animations                          | Small library, elastic/spring easing, already used in overlay-dice.html |
-| `.env` + `?server=` param for server URL         | No hardcoded IPs — `npm run setup-ip` auto-detects local address        |
+| `.env` + `?server=` param for server URL         | No hardcoded IPs — `bun run setup-ip` auto-detects local address        |
 
 ---
 
@@ -203,6 +208,6 @@ The current codebase includes:
 - Full CRUD character management (create, update HP, update photo, update fields)
 - Condition system (add/remove D&D 5e status effects with intensity levels)
 - Resource pool system (Rage, Ki, Spell Slots, etc. with short/long rest recharge)
-- SvelteKit control panel with three top-level routes: `/control`, `/management`, `/dashboard`
+- SvelteKit control panel with Stage routes (`/live`, `/setup`, `/overview`) and Cast routes (`/dm`, `/players/[id]`)
 - Live dashboard view suitable for a TV or second monitor
 - Character photo support (URL or base64 data URI, with random fallback from `assets/img/`)

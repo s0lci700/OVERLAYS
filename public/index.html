@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <title>DADOS & RISAS — Panel de Inicio</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap"
@@ -23,7 +24,11 @@
         --font-mono: "JetBrains Mono", "Courier New", monospace;
       }
 
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
       body {
         background: var(--black);
@@ -85,15 +90,22 @@
         transition: background 0.3s;
       }
 
-      .status-dot.online { background: #22c55e; }
+      .status-dot.online {
+        background: #22c55e;
+      }
       .status-dot.pulse {
         background: #22c55e;
         animation: pulse 2s ease-in-out infinite;
       }
 
       @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
       }
 
       .status-ip {
@@ -142,7 +154,9 @@
         padding: 16px 18px;
         text-decoration: none;
         color: var(--white);
-        transition: border-color 0.2s, transform 0.15s;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
         cursor: pointer;
       }
 
@@ -151,8 +165,12 @@
         transform: translateY(-2px);
       }
 
-      .link-card.red:hover { border-color: var(--red); }
-      .link-card.purple:hover { border-color: var(--purple); }
+      .link-card.red:hover {
+        border-color: var(--red);
+      }
+      .link-card.purple:hover {
+        border-color: var(--purple);
+      }
 
       .link-card-icon {
         font-size: 22px;
@@ -161,7 +179,8 @@
         margin-top: 2px;
       }
 
-      .link-card-body {}
+      .link-card-body {
+      }
 
       .link-card-title {
         font-family: var(--font-display);
@@ -177,9 +196,15 @@
         word-break: break-all;
       }
 
-      .link-card:hover .link-card-url { color: var(--cyan); }
-      .link-card.red:hover .link-card-url { color: var(--red); }
-      .link-card.purple:hover .link-card-url { color: var(--purple); }
+      .link-card:hover .link-card-url {
+        color: var(--cyan);
+      }
+      .link-card.red:hover .link-card-url {
+        color: var(--red);
+      }
+      .link-card.purple:hover .link-card-url {
+        color: var(--purple);
+      }
 
       .link-card-badge {
         display: inline-block;
@@ -217,7 +242,9 @@
         counter-increment: steps;
       }
 
-      .step:last-child { border-bottom: none; }
+      .step:last-child {
+        border-bottom: none;
+      }
 
       .step-number {
         font-family: var(--font-display);
@@ -228,7 +255,8 @@
         line-height: 1;
       }
 
-      .step-body {}
+      .step-body {
+      }
 
       .step-title {
         font-size: 13px;
@@ -283,7 +311,9 @@
         border: 1px solid var(--grey-dim);
       }
 
-      .obs-url-row:last-child { margin-bottom: 0; }
+      .obs-url-row:last-child {
+        margin-bottom: 0;
+      }
 
       .obs-url-label {
         font-size: 10px;
@@ -319,16 +349,20 @@
       }
 
       /* ── Loading state ──────────────────────── */
-      .loading { opacity: 0.4; font-style: italic; }
+      .loading {
+        opacity: 0.4;
+        font-style: italic;
+      }
     </style>
   </head>
   <body>
     <div class="page">
-
       <!-- ── Header ──────────────────────────── -->
       <header class="header">
         <div class="logo">DADOS <span>&</span> RISAS</div>
-        <div class="tagline">Sistema de producción en tiempo real · D&amp;D · OBS</div>
+        <div class="tagline">
+          Sistema de producción en tiempo real · D&amp;D · OBS
+        </div>
         <div class="status-bar">
           <div class="status-dot pulse" id="status-dot"></div>
           <span>Servidor activo en&nbsp;</span>
@@ -340,7 +374,12 @@
       <section class="section">
         <div class="section-title">Panel de Control</div>
         <div class="link-grid">
-          <a class="link-card" id="link-cp" href="http://localhost:5173" target="_blank">
+          <a
+            class="link-card"
+            id="link-cp"
+            href="http://localhost:5173"
+            target="_blank"
+          >
             <div class="link-card-icon">🎛️</div>
             <div class="link-card-body">
               <div class="link-card-title">Abrir Panel</div>
@@ -349,37 +388,140 @@
             </div>
           </a>
         </div>
-        <p style="margin-top:10px; font-size:11px; color:var(--grey); letter-spacing:0.04em;">
-          Usa este enlace en tu celular (misma red Wi-Fi) para controlar PV, tirar dados y gestionar condiciones.
+        <p
+          style="
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--grey);
+            letter-spacing: 0.04em;
+          "
+        >
+          Usa este enlace en tu celular (misma red Wi-Fi) para controlar PV,
+          tirar dados y gestionar condiciones.
         </p>
       </section>
 
       <!-- ── Overlays OBS ─────────────────────── -->
       <section class="section">
-        <div class="section-title">Overlays OBS</div>
+        <div class="section-title">Overlays Persistentes</div>
+        <p style="font-size:11px;color:var(--grey);letter-spacing:0.04em;margin-bottom:14px;">
+          Siempre visibles en escena. Agregar como Browser Source en OBS — resolución 1920×1080, fondo transparente.
+        </p>
         <div class="link-grid">
-          <a class="link-card" id="link-hp" href="/overlay-hp.html" target="_blank">
+          <a class="link-card" id="link-hp" href="#" target="_blank">
             <div class="link-card-icon">❤️</div>
             <div class="link-card-body">
-              <div class="link-card-title">Overlay HP</div>
-              <div class="link-card-url" id="url-hp">/overlay-hp.html</div>
-              <div class="link-card-badge">Browser Source · 1920×1080</div>
+              <div class="link-card-title">Barras de PV</div>
+              <div class="link-card-url" id="url-hp">/persistent/hp</div>
+              <div class="link-card-badge">Persistente · 1920×1080</div>
             </div>
           </a>
-          <a class="link-card red" id="link-dice" href="/overlay-dice.html" target="_blank">
-            <div class="link-card-icon">🎲</div>
-            <div class="link-card-body">
-              <div class="link-card-title">Overlay Dados</div>
-              <div class="link-card-url" id="url-dice">/overlay-dice.html</div>
-              <div class="link-card-badge" style="background:rgba(255,77,106,.12);color:var(--red);border-color:rgba(255,77,106,.3)">Browser Source · 1920×1080</div>
-            </div>
-          </a>
-          <a class="link-card" id="link-cond" href="/overlay-conditions.html" target="_blank">
+          <a class="link-card" id="link-cond" href="#" target="_blank">
             <div class="link-card-icon">⚡</div>
             <div class="link-card-body">
-              <div class="link-card-title">Overlay Condiciones</div>
-              <div class="link-card-url" id="url-cond">/overlay-conditions.html</div>
-              <div class="link-card-badge">Browser Source · 1920×1080</div>
+              <div class="link-card-title">Condiciones</div>
+              <div class="link-card-url" id="url-cond">/persistent/conditions</div>
+              <div class="link-card-badge">Persistente · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card" id="link-turn" href="#" target="_blank">
+            <div class="link-card-icon">⚔️</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Orden de Turno</div>
+              <div class="link-card-url" id="url-turn">/persistent/turn-order</div>
+              <div class="link-card-badge">Persistente · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card" id="link-focus" href="#" target="_blank">
+            <div class="link-card-icon">🎯</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Foco Personaje</div>
+              <div class="link-card-url" id="url-focus">/persistent/focus</div>
+              <div class="link-card-badge">Persistente · 1920×1080</div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── Overlays de Momentos ──────────────── -->
+      <section class="section">
+        <div class="section-title">Momentos &amp; Anuncios</div>
+        <p style="font-size:11px;color:var(--grey);letter-spacing:0.04em;margin-bottom:14px;">
+          Se activan por eventos del juego. Agregar como Browser Source adicional en OBS.
+        </p>
+        <div class="link-grid">
+          <a class="link-card red" id="link-dice" href="#" target="_blank">
+            <div class="link-card-icon">🎲</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Resultado de Dados</div>
+              <div class="link-card-url" id="url-dice">/moments/dice</div>
+              <div class="link-card-badge" style="background:rgba(255,77,106,0.12);color:var(--red);border-color:rgba(255,77,106,0.3)">Momento · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card red" id="link-down" href="#" target="_blank">
+            <div class="link-card-icon">💀</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Personaje Caído</div>
+              <div class="link-card-url" id="url-down">/moments/player-down</div>
+              <div class="link-card-badge" style="background:rgba(255,77,106,0.12);color:var(--red);border-color:rgba(255,77,106,0.3)">Momento · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card" id="link-levelup" href="#" target="_blank">
+            <div class="link-card-icon">⬆️</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Subida de Nivel</div>
+              <div class="link-card-url" id="url-levelup">/moments/level-up</div>
+              <div class="link-card-badge">Momento · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card" id="link-announce" href="#" target="_blank">
+            <div class="link-card-icon">📣</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Anuncio</div>
+              <div class="link-card-url" id="url-announce">/announcements</div>
+              <div class="link-card-badge">Anuncio · 1920×1080</div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ── Overlays de Producción ────────────── -->
+      <section class="section">
+        <div class="section-title">Producción</div>
+        <p style="font-size:11px;color:var(--grey);letter-spacing:0.04em;margin-bottom:14px;">
+          Elementos de show: plantillas de nombre, estadísticas, señal de grabación y pantalla de pausa.
+        </p>
+        <div class="link-grid">
+          <a class="link-card purple" id="link-lt" href="#" target="_blank">
+            <div class="link-card-icon">🎬</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Lower Third</div>
+              <div class="link-card-url" id="url-lt">/show/lower-third</div>
+              <div class="link-card-badge" style="background:rgba(80,13,245,0.15);color:rgba(180,150,255,1);border-color:rgba(80,13,245,0.4)">Show · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card purple" id="link-stats" href="#" target="_blank">
+            <div class="link-card-icon">📊</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Estadísticas</div>
+              <div class="link-card-url" id="url-stats">/show/stats</div>
+              <div class="link-card-badge" style="background:rgba(80,13,245,0.15);color:rgba(180,150,255,1);border-color:rgba(80,13,245,0.4)">Show · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card purple" id="link-rec" href="#" target="_blank">
+            <div class="link-card-icon">🔴</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Señal Grabación</div>
+              <div class="link-card-url" id="url-rec">/show/recording-badge</div>
+              <div class="link-card-badge" style="background:rgba(80,13,245,0.15);color:rgba(180,150,255,1);border-color:rgba(80,13,245,0.4)">Show · 1920×1080</div>
+            </div>
+          </a>
+          <a class="link-card purple" id="link-break" href="#" target="_blank">
+            <div class="link-card-icon">☕</div>
+            <div class="link-card-body">
+              <div class="link-card-title">Pantalla de Pausa</div>
+              <div class="link-card-url" id="url-break">/show/break</div>
+              <div class="link-card-badge" style="background:rgba(80,13,245,0.15);color:rgba(180,150,255,1);border-color:rgba(80,13,245,0.4)">Show · 1920×1080</div>
             </div>
           </a>
         </div>
@@ -389,9 +531,9 @@
       <section class="section">
         <div class="section-title">Configurar OBS</div>
         <div class="obs-box">
-          <div class="obs-box-title">URLS PARA BROWSER SOURCE</div>
+          <div class="obs-box-title">URLS ESENCIALES PARA BROWSER SOURCE</div>
           <div class="obs-url-row">
-            <span class="obs-url-label">HP Bars</span>
+            <span class="obs-url-label">PV</span>
             <span class="obs-url-value" id="obs-url-hp">cargando...</span>
           </div>
           <div class="obs-url-row">
@@ -402,27 +544,41 @@
             <span class="obs-url-label">Condiciones</span>
             <span class="obs-url-value" id="obs-url-cond">cargando...</span>
           </div>
+          <div class="obs-url-row">
+            <span class="obs-url-label">Turno</span>
+            <span class="obs-url-value" id="obs-url-turn">cargando...</span>
+          </div>
         </div>
-        <div class="steps" style="margin-top:16px;">
+        <div class="steps" style="margin-top: 16px">
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-body">
               <div class="step-title">Agregar Browser Source en OBS</div>
-              <div class="step-desc">En OBS: Fuentes → + → Navegador. Resolución: <code>1920 × 1080</code>. Fondo transparente activado.</div>
+              <div class="step-desc">
+                En OBS: Fuentes → + → Navegador. Resolución:
+                <code>1920 × 1080</code>. Fondo transparente activado. Activar
+                <code>Actualizar al activar escena</code>.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-body">
               <div class="step-title">Pegar la URL del overlay</div>
-              <div class="step-desc">Copia una de las URLs de arriba (ej. HP Bars) y pégala como URL del Browser Source. OBS cargará el overlay automáticamente.</div>
+              <div class="step-desc">
+                Copia una URL de arriba y pégala en el Browser Source. El parámetro
+                <code>?server=</code> conecta el overlay al servidor automáticamente.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-body">
-              <div class="step-title">Repetir para cada overlay</div>
-              <div class="step-desc">Puedes tener los 3 overlays activos al mismo tiempo como capas separadas en la misma escena.</div>
+              <div class="step-title">Apilar overlays como capas</div>
+              <div class="step-desc">
+                Agrega múltiples Browser Sources en la misma escena — PV, Dados, Condiciones
+                y Turno pueden estar activos simultáneamente como capas transparentes.
+              </div>
             </div>
           </div>
         </div>
@@ -430,41 +586,57 @@
 
       <!-- ── Cómo usar el panel ────────────────── -->
       <section class="section">
-        <div class="section-title">Demo en 5 pasos</div>
+        <div class="section-title">Demo rápido</div>
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-body">
               <div class="step-title">Abre el panel en el celular</div>
-              <div class="step-desc">Usa la URL del Panel de Control de arriba. Tiene que estar en la misma red Wi-Fi que este servidor.</div>
+              <div class="step-desc">
+                Usa la URL del Panel de Control de arriba. Tiene que estar en la
+                misma red Wi-Fi que este servidor.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-body">
-              <div class="step-title">Modifica el PV de un personaje</div>
-              <div class="step-desc">En el panel, cambia el PV de Hector. El overlay HP en OBS se actualiza en tiempo real — sin recargar.</div>
+              <div class="step-title">Agrega los overlays en OBS</div>
+              <div class="step-desc">
+                Copia las URLs del bloque "Configurar OBS" y agrégalas como Browser Sources.
+                Mínimo recomendado: <code>PV</code> + <code>Dados</code>.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-body">
-              <div class="step-title">Tira un dado</div>
-              <div class="step-desc">Usa el dado en el panel. El resultado aparece animado en el overlay. Un 20 natural activa el efecto <code>¡CRÍTICO!</code>.</div>
+              <div class="step-title">Modifica el PV de un personaje</div>
+              <div class="step-desc">
+                En el panel → Personajes, cambia el PV. El overlay HP se actualiza
+                en tiempo real vía Socket.io — sin recargar.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">4</div>
             <div class="step-body">
-              <div class="step-title">Aplica una condición</div>
-              <div class="step-desc">Marca "Envenenado" o cualquier condición en un personaje. Aparece como badge en el overlay HP y en el overlay Condiciones.</div>
+              <div class="step-title">Tira un dado</div>
+              <div class="step-desc">
+                En el panel → Dados, lanza el dado. El resultado aparece animado en
+                el overlay. Un 20 natural activa el efecto <code>¡CRÍTICO!</code>.
+              </div>
             </div>
           </div>
           <div class="step">
             <div class="step-number">5</div>
             <div class="step-body">
-              <div class="step-title">Esto es solo el MVP</div>
-              <div class="step-desc">Se puede agregar tracker de iniciativa, fotogramas animados, alertas de sonido, integración con Twitch, y más.</div>
+              <div class="step-title">Aplica condiciones y momentos</div>
+              <div class="step-desc">
+                Las condiciones se reflejan en la barra de PV con animaciones CSS.
+                Los eventos de momento (caída, nivel, anuncio) se disparan desde el panel
+                y muestran overlays animados automáticamente.
+              </div>
             </div>
           </div>
         </div>
@@ -472,48 +644,60 @@
 
       <!-- ── Footer ────────────────────────────── -->
       <footer class="footer">
-        <span>DADOS &amp; RISAS — MVP Demo</span>
-        <span id="footer-ip" style="color:var(--cyan)">...</span>
+        <span>DADOS &amp; RISAS — Sistema de Producción</span>
+        <span id="footer-ip" style="color: var(--cyan)">...</span>
       </footer>
-
     </div>
 
     <script>
-      // Use window.location.origin as the server base so URLs are correct
-      // whether running on localhost, LAN, or a cloud host like Railway.
-      fetch('/api/info')
-        .then(r => r.json())
+      fetch("/api/info")
+        .then((r) => r.json())
         .then(({ ip, port, controlPanelUrl }) => {
-          // Always use the current page origin — works on any host/port/domain.
           const base = window.location.origin;
           const cpBase = controlPanelUrl || `http://${ip}:5173`;
           const serverParam = `?server=${base}`;
 
           // Status bar
-          document.getElementById('server-address').textContent = base;
-          document.getElementById('footer-ip').textContent = base;
+          document.getElementById("server-address").textContent = base;
+          document.getElementById("footer-ip").textContent = base;
 
           // Control panel link
-          document.getElementById('link-cp').href = cpBase;
-          document.getElementById('url-cp').textContent = cpBase;
+          document.getElementById("link-cp").href = cpBase;
+          document.getElementById("url-cp").textContent = cpBase;
 
-          // Overlay links (clickable previews)
-          const setOverlay = (linkId, urlId, path) => {
-            const url = base + path + serverParam;
+          // Helper: set overlay card href and display URL (overlays live on control panel)
+          function setOverlay(linkId, urlId, path) {
+            const url = cpBase + path + serverParam;
             document.getElementById(linkId).href = url;
-            document.getElementById(urlId).textContent = base + path;
-          };
-          setOverlay('link-hp',   'url-hp',   '/overlay-hp.html');
-          setOverlay('link-dice', 'url-dice', '/overlay-dice.html');
-          setOverlay('link-cond', 'url-cond', '/overlay-conditions.html');
+            document.getElementById(urlId).textContent = cpBase + path;
+          }
 
-          // OBS copy-paste URLs (include ?server= param)
-          document.getElementById('obs-url-hp').textContent   = base + '/overlay-hp.html'   + serverParam;
-          document.getElementById('obs-url-dice').textContent = base + '/overlay-dice.html' + serverParam;
-          document.getElementById('obs-url-cond').textContent = base + '/overlay-conditions.html' + serverParam;
+          // Persistent overlays
+          setOverlay("link-hp",    "url-hp",    "/persistent/hp");
+          setOverlay("link-cond",  "url-cond",  "/persistent/conditions");
+          setOverlay("link-turn",  "url-turn",  "/persistent/turn-order");
+          setOverlay("link-focus", "url-focus", "/persistent/focus");
+
+          // Moment overlays
+          setOverlay("link-dice",     "url-dice",     "/moments/dice");
+          setOverlay("link-down",     "url-down",     "/moments/player-down");
+          setOverlay("link-levelup",  "url-levelup",  "/moments/level-up");
+          setOverlay("link-announce", "url-announce", "/announcements");
+
+          // Show / production overlays
+          setOverlay("link-lt",    "url-lt",    "/show/lower-third");
+          setOverlay("link-stats", "url-stats", "/show/stats");
+          setOverlay("link-rec",   "url-rec",   "/show/recording-badge");
+          setOverlay("link-break", "url-break", "/show/break");
+
+          // OBS copy-paste URLs (essential 4)
+          document.getElementById("obs-url-hp").textContent   = cpBase + "/persistent/hp"         + serverParam;
+          document.getElementById("obs-url-dice").textContent = cpBase + "/moments/dice"           + serverParam;
+          document.getElementById("obs-url-cond").textContent = cpBase + "/persistent/conditions"  + serverParam;
+          document.getElementById("obs-url-turn").textContent = cpBase + "/persistent/turn-order"  + serverParam;
         })
         .catch(() => {
-          document.getElementById('server-address').textContent = window.location.origin;
+          document.getElementById("server-address").textContent = window.location.origin;
         });
     </script>
   </body>
