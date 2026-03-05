@@ -1,8 +1,9 @@
-<!--
+﻿<!--
   Stage › Live layout: bottom nav for in-session operator tabs + SYNC_START button.
 -->
 <script>
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
+  import { resolve } from "$app/paths";
   import { SERVER_URL } from "$lib/stores/socket.js";
 
   let { children } = $props();
@@ -15,7 +16,9 @@
     try {
       await fetch(`${SERVER_URL}/api/sync-start`, { method: "POST" });
       synced = true;
-      setTimeout(() => { synced = false; }, 3000);
+      setTimeout(() => {
+        synced = false;
+      }, 3000);
     } finally {
       syncing = false;
     }
@@ -27,16 +30,16 @@
 <nav class="bottom-nav">
   <a
     class="nav-tab"
-    class:active={$page.url.pathname.includes("/characters")}
-    href="/live/characters"
+    class:active={page.url.pathname.includes("/characters")}
+    href={resolve("/live/characters", {})}
   >
     <span class="nav-icon">⚔</span>
     <span class="nav-label">PERSONAJES</span>
   </a>
   <a
     class="nav-tab"
-    class:active={$page.url.pathname.includes("/dice")}
-    href="/live/dice"
+    class:active={page.url.pathname.includes("/dice")}
+    href={resolve("/live/dice", {})}
   >
     <span class="nav-icon">⬡</span>
     <span class="nav-label">DADOS</span>

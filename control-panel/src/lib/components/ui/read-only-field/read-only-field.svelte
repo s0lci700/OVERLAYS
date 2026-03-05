@@ -44,12 +44,12 @@
     label,
     value = "",
     variant = "default",
-    class: className,
-    children,
+    class: className = '',
+    children = undefined,
     ...restProps
   } = $props();
 
-  const s = $derived(readOnlyFieldVariants({ variant }));
+  const s = $derived(readOnlyFieldVariants({ variant: /** @type {any} */ (variant) }));
 </script>
 
 <div class={cn(s.root(), className)} {...restProps}>

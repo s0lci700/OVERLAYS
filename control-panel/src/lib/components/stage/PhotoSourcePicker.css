@@ -9,8 +9,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  position: relative;
-  bottom: 5%; /* Nudge the picker up slightly to visually center it with the preview, which is a bit lower due to its aspect ratio */
 }
 
 .photo-picker.dense {
@@ -41,8 +39,6 @@
   gap: var(--space-2);
   min-width: 0;
   height: 100%;
-  position: relative;
-  top: 10%;
 }
 
 .photo-segment-controls {
@@ -311,7 +307,7 @@
       content height differs from the left column.
   */
   width: 100%;
-  max-width: 460px;
+  max-width: 120px;
   aspect-ratio: 1 / 1;
   height: auto;
   min-height: 0;

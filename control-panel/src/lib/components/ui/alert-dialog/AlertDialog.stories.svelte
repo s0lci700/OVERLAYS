@@ -14,7 +14,7 @@
 <Story name="Delete Confirm">
   <div style="padding:24px;">
     <AlertDialog.Root>
-      <AlertDialog.Trigger asChild>
+      <AlertDialog.Trigger>
         <Button class="btn-base">Delete character</Button>
       </AlertDialog.Trigger>
 
@@ -30,10 +30,10 @@
         <div
           style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;"
         >
-          <AlertDialog.Cancel asChild>
+          <AlertDialog.Cancel>
             <Button class="btn-base">Cancelar</Button>
           </AlertDialog.Cancel>
-          <AlertDialog.Action asChild>
+          <AlertDialog.Action>
             <Button class="btn-destructive">Eliminar</Button>
           </AlertDialog.Action>
         </div>

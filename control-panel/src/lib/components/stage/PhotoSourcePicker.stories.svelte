@@ -25,8 +25,10 @@
   });
 </script>
 
-<Story name="Default" let:args>
-  <div style="padding:20px;max-width:720px;">
-    <PhotoSourcePicker {...args} />
-  </div>
+<Story name="Default" >
+  {#snippet children({ args })}
+    <div style="padding:20px;max-width:720px;">
+      <PhotoSourcePicker {...args} />
+    </div>
+  {/snippet}
 </Story>

@@ -20,6 +20,14 @@
 
   let { serverUrl = "http://localhost:3000", mockEncounter = null } = $props();
 
+  /** @param {Event} e */
+  function handleImageError(e) {
+    const img = /** @type {HTMLElement} */ (e.currentTarget);
+    img.style.display = 'none';
+    const sib = /** @type {HTMLElement | null} */ (img.nextElementSibling);
+    if (sib) sib.style.display = '';
+  }
+
   let participants = $state(mockEncounter?.participants ?? []);
   let currentTurnIndex = $state(mockEncounter?.currentTurnIndex ?? 0);
   let round = $state(mockEncounter?.round ?? 0);
@@ -109,7 +117,7 @@
               <img
                 src="{serverUrl}{p.photo}"
                 alt={p.name}
-                onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.nextElementSibling.style.display=''; }}
+                onerror={handleImageError}
               />
               <span class="token-initials" style="display:none">{initials(p.name)}</span>
             {:else}

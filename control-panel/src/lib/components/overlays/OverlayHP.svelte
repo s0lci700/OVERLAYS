@@ -21,6 +21,14 @@
 
   let { serverUrl = "http://localhost:3000", mockCharacters = null } = $props();
 
+  /** @param {Event} e */
+  function handleImageError(e) {
+    const img = /** @type {HTMLElement} */ (e.currentTarget);
+    img.style.display = 'none';
+    const sib = /** @type {HTMLElement | null} */ (img.nextElementSibling);
+    if (sib) sib.style.display = '';
+  }
+
   // ── State ──────────────────────────────────────────────────────────────────
   let characters = $state(mockCharacters ?? []);
   let statusText = $state("");
@@ -93,7 +101,7 @@
     const el = document.querySelector(`[data-char-id="${charId}"]`);
     if (!el) return;
     el.classList.remove("flash-condition");
-    void el.offsetWidth;
+    void /** @type {HTMLElement} */ (el).offsetWidth;
     el.classList.add("flash-condition");
     flashTimers[charId] = setTimeout(() => el.classList.remove("flash-condition"), 800);
   }
@@ -147,7 +155,7 @@
             <img
               src="{serverUrl}{char.photo}"
               alt={char.name}
-              onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.nextElementSibling.style.display=''; }}
+              onerror={handleImageError}
             />
             <span class="char-avatar-initials" style="display:none">{initials(char.name)}</span>
           {:else}

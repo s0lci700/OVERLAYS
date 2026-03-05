@@ -18,7 +18,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.photo-modal-card {
+.cp-modal-card {
   background: var(--black-elevated);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-cyan);
@@ -36,9 +36,8 @@
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.6),
     0 0 0 2px rgba(0, 212, 232, 0.03) inset;
-  inset: 0;
 }
-.photo-modal-head {
+.cp-modal-head {
   grid-column: 1 / -1;
   display: block;
   padding-bottom: var(--space-2);
@@ -46,12 +45,12 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.02);
   position: relative;
 }
-.photo-modal-title {
+.cp-modal-title {
   font-family: var(--font-display);
   color: var(--cyan);
   font-size: 1.1rem;
 }
-.photo-modal-close {
+.cp-modal-close {
   position: absolute;
   right: 0%;
   top: -25%;

@@ -3,8 +3,9 @@
 -->
 <script>
   import "../app.css";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { characters, socket } from "$lib/stores/socket.js";
+  import { resolve } from "$app/paths";
 
   let connected = $state(false);
   let isSidebarOpen = $state(false);
@@ -17,10 +18,10 @@
     isSidebarOpen = !isSidebarOpen;
   }
 
-  let isOverview  = $derived($page.url.pathname.startsWith("/overview"));
-  let isSetup     = $derived($page.url.pathname.startsWith("/setup"));
-  let isDM        = $derived($page.url.pathname.startsWith("/dm"));
-  let isPlayers   = $derived($page.url.pathname.startsWith("/players"));
+  let isOverview = $derived(page.url.pathname.startsWith("/overview"));
+  let isSetup = $derived(page.url.pathname.startsWith("/setup"));
+  let isDM = $derived(page.url.pathname.startsWith("/dm"));
+  let isPlayers = $derived(page.url.pathname.startsWith("/players"));
 </script>
 
 <div class="app-shell">
@@ -82,38 +83,38 @@
     </div>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/live")}
-      href="/live/characters"
+      class:active={page.url.pathname.startsWith("/live")}
+      href={resolve("/live/characters")}
     >
-      STAGE — EN VIVO
+      WIP
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/setup")}
-      href="/setup/create"
+      class:active={page.url.pathname.startsWith("/setup")}
+      href={resolve("/setup/create")}
     >
-      STAGE — PREPARACIÓN
+      Gestion de personajes
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/overview")}
-      href="/overview"
+      class:active={page.url.pathname.startsWith("/overview")}
+      href={resolve("/overview")}
     >
-      OVERVIEW
+      DASHBOARD
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/dm")}
-      href="/dm"
+      class:active={page.url.pathname.startsWith("/dm")}
+      href={resolve("/dm")}
     >
-      CAST — DM 🛡
+      PANEL DM
     </a>
     <a
       class="app-sidebar-link"
-      class:active={$page.url.pathname.startsWith("/players")}
-      href="/players"
+      class:active={page.url.pathname.startsWith("/players")}
+      href={resolve("/players")}
     >
-      CAST — JUGADORES 🎲
+      PANEL JUGADORES
     </a>
   </aside>
 </div>

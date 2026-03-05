@@ -22,7 +22,7 @@
   $effect(() => {
     if (!socket) return;
 
-    const handleBreakStart = async ({ countdown: secs } = {}) => {
+    const handleBreakStart = async ({ countdown: secs } = /** @type {{ countdown?: number }} */ ({})) => {
       visible = true;
       if (secs > 0) {
         countdown = secs;

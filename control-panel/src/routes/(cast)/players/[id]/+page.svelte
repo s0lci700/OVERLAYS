@@ -6,14 +6,14 @@
   Mobile-first, one-handed — player holds dice with the other hand.
 -->
 <script>
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { characters, SERVER_URL } from "$lib/stores/socket.js";
   import { resolvePhotoSrc } from "$lib/utils.js";
   import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
   import * as Tooltip from "$lib/components/ui/tooltip/index.js";
   import "./PlayerSheet.css";
 
-  let characterId = $derived($page.params.id);
+  let characterId = $derived(page.params.id);
   let character = $derived(($characters ?? []).find(c => c.id === characterId));
 
   /* ── Ability score helpers ── */

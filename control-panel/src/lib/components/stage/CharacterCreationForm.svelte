@@ -14,7 +14,7 @@
   import "$lib/components/ui/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
-  import * as Dialog from "$lib/components/ui/dialog/index.js";
+  // import * as Dialog from "$lib/components/ui/dialog/index.js";
   import Modal from "$lib/components/ui/modal/Modal.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -344,18 +344,20 @@
         <!-- Section: Photo (moved inline for better layout) -->
         <div class="create-section photo-section">
           <h3 class="section-title">Foto de personaje</h3>
-          <button
-            class="photo-modal-trigger btn-base"
-            type="button"
-            onclick={() => (showPhotoModal = true)}
-          >
-            {getResolvedPhotoValue() ? "Editar foto" : "Agregar foto"}
-          </button>
-          {#if getResolvedPhotoValue()}
-            <div class="photo-preview-inline">
-              <img src={getResolvedPhotoValue()} alt="Preview foto" />
-            </div>
-          {/if}
+          <div class="photo-section-container">
+            <button
+              class="photo-modal-trigger btn-base ph-el-1"
+              type="button"
+              onclick={() => (showPhotoModal = true)}
+            >
+              {getResolvedPhotoValue() ? "Editar foto" : "Agregar foto"}
+            </button>
+            {#if getResolvedPhotoValue()}
+              <div class="photo-preview ph-el-2">
+                <img src={getResolvedPhotoValue()} alt="Preview foto" />
+              </div>
+            {/if}
+          </div>
           <Modal
             bind:open={showPhotoModal}
             title="Seleccionar foto"
@@ -378,8 +380,8 @@
           </Modal>
         </div>
         <!-- Required identity fields. Arrange 'Nombre' and 'Jugador' side-by-side -->
-        <div class="create-grid create-grid--two identity-group">
-          <div class="create-field">
+        <div class="identity-group">
+          <div class="create-field field-name">
             <Label for="name-input" class="label-caps">Nombre</Label>
             <Input
               class="name-input form-input"
@@ -392,7 +394,7 @@
             />
           </div>
 
-          <div class="create-field">
+          <div class="create-field field-player">
             <Label for="player-input" class="label-caps">Jugador</Label>
             <Input
               class="form-input"
@@ -407,8 +409,8 @@
         </div>
 
         <!-- Core combat stats. -->
-        <div class="create-grid stats-grid">
-          <div class="create-field">
+        <div class="stats-grid">
+          <div class="create-field field-hp">
             <Label for="hp-max-input" class="label-caps">HP MAX</Label>
             <Input
               class="form-input"
@@ -420,7 +422,7 @@
               required
             />
           </div>
-          <div class="create-field">
+          <div class="create-field field-ac">
             <Label for="ac-input" class="label-caps">AC</Label>
             <Input
               class="form-input"
@@ -431,7 +433,7 @@
               bind:value={armorClass}
             />
           </div>
-          <div class="create-field">
+          <div class="create-field field-vel">
             <Label for="speed-input" class="label-caps">VEL</Label>
             <Input
               class="form-input"
@@ -447,8 +449,8 @@
         <!-- Section: Character Options (class, background, species, alignment) -->
         <div class="create-section options-section">
           <h3 class="section-title">Opciones de personaje</h3>
-          <div class="create-grid create-grid--two">
-            <label class="create-field">
+          <div class="options-grid">
+            <label class="create-field field-class">
               <span class="label-caps">Clase</span>
               <select class="selector" bind:value={classPrimary}>
                 <option value="">Sin definir</option>
@@ -457,7 +459,7 @@
                 {/each}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-subclass">
               <span class="label-caps">Subclase</span>
               <select
                 class="selector"
@@ -474,7 +476,7 @@
                 {/if}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-level">
               <span class="label-caps">Nivel</span>
               <Input
                 class="form-input"
@@ -484,7 +486,7 @@
                 bind:value={classLevel}
               />
             </label>
-            <label class="create-field">
+            <label class="create-field field-bg">
               <span class="label-caps">Background</span>
               <select class="selector" bind:value={backgroundName}>
                 <option value="">Sin definir</option>
@@ -493,7 +495,7 @@
                 {/each}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-feat">
               <span class="label-caps">Feat</span>
               <select
                 class="selector"
@@ -510,7 +512,7 @@
                 {/if}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-species">
               <span class="label-caps">Especie</span>
               <select class="selector" bind:value={speciesName}>
                 <option value="">Sin definir</option>
@@ -519,7 +521,7 @@
                 {/each}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-size">
               <span class="label-caps">Tamaño</span>
               <select class="selector" bind:value={speciesSize}>
                 <option value="">Sin definir</option>
@@ -528,7 +530,7 @@
                 {/each}
               </select>
             </label>
-            <label class="create-field">
+            <label class="create-field field-align">
               <span class="label-caps">Alineamiento</span>
               <select class="selector" bind:value={alignment}>
                 <option value="">Sin definir</option>
@@ -543,8 +545,8 @@
         <!-- Section: Languages & Proficiencies -->
         <div class="create-section languages-section">
           <h3 class="section-title">Idiomas y proficiencias</h3>
-          <div class="create-grid create-grid--two">
-            <div class="create-field">
+          <div class="languages-grid">
+            <div class="create-field field-langs">
               <span class="label-caps"
                 >Idiomas {#if selectedLanguages.length > 0}<span
                     class="selection-count">{selectedLanguages.length}</span
@@ -558,7 +560,7 @@
               />
               <SelectionPillList items={selectedLanguages} labelMap={labelOf} />
             </div>
-            <div class="create-field">
+            <div class="create-field field-rare">
               <span class="label-caps"
                 >Idiomas raros {#if selectedRareLanguages.length > 0}<span
                     class="selection-count">{selectedRareLanguages.length}</span
@@ -575,9 +577,7 @@
                 labelMap={labelOf}
               />
             </div>
-          </div>
-          <div class="create-grid create-grid--two">
-            <div class="create-field">
+            <div class="create-field field-skills">
               <span class="label-caps"
                 >Skills {#if selectedSkills.length > 0}<span
                     class="selection-count">{selectedSkills.length}</span
@@ -591,7 +591,7 @@
               />
               <SelectionPillList items={selectedSkills} labelMap={labelOf} />
             </div>
-            <div class="create-field">
+            <div class="create-field field-tools">
               <span class="label-caps"
                 >Herramientas {#if selectedTools.length > 0}<span
                     class="selection-count">{selectedTools.length}</span
@@ -605,9 +605,7 @@
               />
               <SelectionPillList items={selectedTools} labelMap={labelOf} />
             </div>
-          </div>
-          <div class="create-grid create-grid--two">
-            <div class="create-field">
+            <div class="create-field field-armor">
               <span class="label-caps"
                 >Armadura {#if selectedArmorProficiencies.length > 0}<span
                     class="selection-count"
@@ -625,7 +623,7 @@
                 labelMap={labelOf}
               />
             </div>
-            <div class="create-field">
+            <div class="create-field field-weapons">
               <span class="label-caps"
                 >Armas {#if selectedWeaponProficiencies.length > 0}<span
                     class="selection-count"
@@ -647,10 +645,10 @@
         </div>
 
         <!-- Section: Equipment -->
-        <div class="create-section">
+        <div class="create-section equipment-wrapper">
           <h3 class="section-title">Equipo</h3>
-          <div class="create-grid create-grid--two equipment-section">
-            <div class="create-field">
+          <div class="equipment-grid">
+            <div class="create-field field-items">
               <span class="label-caps"
                 >Items {#if selectedItems.length > 0}<span
                     class="selection-count">{selectedItems.length}</span
@@ -665,7 +663,7 @@
               />
               <SelectionPillList items={selectedItems} labelMap={labelOf} />
             </div>
-            <label class="create-field">
+            <label class="create-field field-trinket">
               <span class="label-caps">Trinket</span>
               <select
                 class="selector"

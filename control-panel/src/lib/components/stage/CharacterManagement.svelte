@@ -123,7 +123,7 @@
 
   // Unified label lookup for pill previews.
   // eslint-disable-next-line svelte/prefer-svelte-reactivity
-  const labelOf = new Map([
+  const labelOf = new Map(/** @type {[string, string][]} */ ([
     ...languageOptions.map((o) => [o.key, o.label]),
     ...rareLanguageOptions.map((o) => [o.key, o.label]),
     ...skillOptions.map((o) => [o.key, o.label]),
@@ -131,7 +131,7 @@
     ...armorOptions.map((o) => [o.key, o.label]),
     ...weaponOptions.map((o) => [o.key, o.label]),
     ...itemOptions.map((o) => [o.key, o.label]),
-  ]);
+  ]));
 
   function inferSource(photoValue) {
     if (!photoValue || PHOTO_OPTIONS.some((o) => o.value === photoValue)) {

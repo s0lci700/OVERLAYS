@@ -12,14 +12,14 @@
   - Refresh browser when scene becomes active: ON
 -->
 <script>
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { setContext } from "svelte";
 
   let { children } = $props();
 
   // Read ?server= and expose to child overlay components via context.
   const serverUrl = $derived(
-    $page.url.searchParams.get("server") || "http://localhost:3000"
+    page.url.searchParams.get("server") || "http://localhost:3000"
   );
 
   setContext("serverUrl", { get: () => serverUrl });

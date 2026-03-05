@@ -65,7 +65,7 @@
     max = Infinity,
     size = "sm",
     onchange = () => {},
-    class: className,
+    class: className = '',
     ...restProps
   } = $props();
 
@@ -106,7 +106,7 @@
     onchange(value);
   }
 
-  const s = $derived(stepperVariants({ size }));
+  const s = $derived(stepperVariants({ size: /** @type {any} */ (size) }));
 </script>
 
 <div class={cn(s.root(), className)} {...restProps}>

@@ -56,68 +56,128 @@
 /* 1) Identity: Nombre + Jugador — two equal columns on wide screens */
 .identity-group {
   display: grid;
-  grid-template-rows: auto auto;
+  grid-template-areas: "f-name f-player";
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
   align-items: start;
 }
 @media (max-width: 480px) {
   .identity-group {
+    grid-template-areas: "f-name" "f-player";
     grid-template-columns: 1fr;
   }
 }
+.field-name   { grid-area: f-name; }
+.field-player { grid-area: f-player; }
 
 /* 2) Stats: HP MAX / AC / VEL — prefer three columns on desktop */
 .stats-grid {
+  display: grid;
+  grid-template-areas: "f-hp f-ac f-vel";
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
-}
-@media (max-width: 720px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 @media (max-width: 480px) {
   .stats-grid {
+    grid-template-areas: "f-hp" "f-ac" "f-vel";
     grid-template-columns: 1fr;
   }
 }
+.field-hp  { grid-area: f-hp; }
+.field-ac  { grid-area: f-ac; }
+.field-vel { grid-area: f-vel; }
 
-/* 3) Options block: broader grid for character options; let `.create-grid--two`
-   promote to three columns at large widths while keeping sensible defaults. */
+/* 3) Options block: named-area grid for all character options fields. */
 
-.options-section .create-grid--two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.options-grid {
+  display: grid;
+  grid-template-areas:
+    "f-class    f-subclass"
+    "f-level    f-bg"
+    "f-feat     f-species"
+    "f-size     f-align";
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
 }
-@media (min-width: 1100px) {
-  .options-section .create-grid--two {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (max-width: 480px) {
+  .options-grid {
+    grid-template-areas:
+      "f-class"
+      "f-subclass"
+      "f-level"
+      "f-bg"
+      "f-feat"
+      "f-species"
+      "f-size"
+      "f-align";
+    grid-template-columns: 1fr;
   }
 }
+@media (min-width: 1100px) {
+  .options-grid {
+    grid-template-areas:
+      "f-class    f-subclass f-level"
+      "f-bg       f-feat     f-species"
+      "f-size     f-align    .";
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.field-class    { grid-area: f-class; }
+.field-subclass { grid-area: f-subclass; }
+.field-level    { grid-area: f-level; }
+.field-bg       { grid-area: f-bg; }
+.field-feat     { grid-area: f-feat; }
+.field-species  { grid-area: f-species; }
+.field-size     { grid-area: f-size; }
+.field-align    { grid-area: f-align; }
 
-/* 4) Languages block: keep selects tall but compact, two columns on tablet */
+/* 4) Languages block: single named-area grid merging the three former sub-grids. */
 
-.languages-section .create-grid--two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.languages-grid {
+  display: grid;
+  grid-template-areas:
+    "f-langs  f-rare"
+    "f-skills f-tools"
+    "f-armor  f-weapons";
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
 }
 @media (max-width: 720px) {
-  .languages-section .create-grid--two {
+  .languages-grid {
+    grid-template-areas:
+      "f-langs"
+      "f-rare"
+      "f-skills"
+      "f-tools"
+      "f-armor"
+      "f-weapons";
     grid-template-columns: 1fr;
   }
 }
+.field-langs   { grid-area: f-langs; }
+.field-rare    { grid-area: f-rare; }
+.field-skills  { grid-area: f-skills; }
+.field-tools   { grid-area: f-tools; }
+.field-armor   { grid-area: f-armor; }
+.field-weapons { grid-area: f-weapons; }
 
 /* 5) Equipment block: items + trinket — keep two columns but allow the items
    column to flex larger while the trinket select remains compact. */
-.equipment-section {
+.equipment-grid {
   display: grid;
+  grid-template-areas: "f-items f-trinket";
   grid-template-columns: 1fr 260px;
   gap: var(--space-2);
   align-items: start;
 }
 @media (max-width: 720px) {
-  .equipment-section {
+  .equipment-grid {
+    grid-template-areas: "f-items" "f-trinket";
     grid-template-columns: 1fr;
   }
 }
+.field-items   { grid-area: f-items; }
+.field-trinket { grid-area: f-trinket; }
 
 /* Form stack: each field group separated by spacing scale. */
 .create-form {
@@ -143,15 +203,29 @@
 
 /*
   Fields column (main vertical stack).
-  - A simple vertical flex container that stacks each `.create-section` and
-    input block. Keeps consistent vertical rhythm using the design token gap.
+  - Grid container that places each section into a named area, enabling
+    precise two-level layout: top-level sections and inner field grids.
   - This container lives in the main `1fr` area of `.create-layout`.
 */
 .create-fields {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-areas:
+    "photo"
+    "identity"
+    "stats"
+    "options"
+    "languages"
+    "equipment";
   gap: var(--space-2);
 }
+
+/* Grid-area assignments for each top-level section */
+.photo-section     { grid-area: photo; }
+.identity-group    { grid-area: identity; }
+.stats-grid        { grid-area: stats; }
+.options-section   { grid-area: options; }
+.languages-section { grid-area: languages; }
+.equipment-wrapper { grid-area: equipment; }
 
 /* Stats row (HP/AC/VEL). Mobile-first single column by default. */
 /*
@@ -326,3 +400,22 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.photo-section-container {
+  display: grid;
+  grid-template-areas: "preview trigger trigger";
+  gap: var(--space-2);
+  justify-content: center;
+  align-items: center;
+}
+.ph-el-1 {
+  grid-area: trigger;
+  aspect-ratio: 3/1;
+  max-height: 10vh;
+} /* EDITAR
+   FOTO button */
+.ph-el-2 {
+  grid-area: preview;
+  align-self: center;
+} /* photo
+  preview */

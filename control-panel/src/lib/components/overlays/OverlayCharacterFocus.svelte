@@ -21,6 +21,14 @@
 
   let { serverUrl = "http://localhost:3000", preview = null } = $props();
 
+  /** @param {Event} e */
+  function handleImageError(e) {
+    const img = /** @type {HTMLElement} */ (e.currentTarget);
+    img.style.display = 'none';
+    const sib = /** @type {HTMLElement | null} */ (img.nextElementSibling);
+    if (sib) sib.style.display = '';
+  }
+
   let char = $state(preview ?? null);
   let panelEl = $state();
 
@@ -106,7 +114,7 @@
         <img
           src="{serverUrl}{char.photo}"
           alt={char.name}
-          onerror={(e) => { e.currentTarget.style.display='none'; e.currentTarget.nextElementSibling.style.display=''; }}
+          onerror={handleImageError}
         />
         <div class="focus-initials" style="display:none">{initials(char.name)}</div>
       {:else}

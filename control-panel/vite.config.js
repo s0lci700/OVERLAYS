@@ -1,4 +1,6 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vitest/config";
+import { playwright } from "@vitest/browser-playwright";
+import { loadEnv } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "url";
@@ -15,48 +17,48 @@ function createLogger() {
     info(msg, options) {
       console.log(`[vite] ${msg}`);
     },
+
     warn(msg, options) {
-      if (
-        typeof msg === "string" &&
-        msg.includes("didn't resolve at build time")
-      ) {
+      if (typeof msg === "string" && msg.includes("didn't resolve at build time")) {
         return;
       }
+
       console.warn(`[vite] ${msg}`);
     },
+
     warnOnce(msg, options) {
-      if (
-        typeof msg === "string" &&
-        msg.includes("didn't resolve at build time")
-      ) {
+      if (typeof msg === "string" && msg.includes("didn't resolve at build time")) {
         return;
       }
+
       console.warn(`[vite] ${msg}`);
     },
+
     error(msg, options) {
       _hasError = true;
       console.error(`[vite] ${msg}`);
     },
+
     clearScreen(type) {
       // no-op or implement as needed
     },
+
     // SvelteKit expects a `hasErrorLogged()` function on the logger
     hasErrorLogged() {
       return _hasError;
-    },
+    }
   };
 }
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "");
+
   return {
     plugins: [tailwindcss(), sveltekit()],
     logger: createLogger(),
     server: {
       port: parseInt(env.VITE_PORT || "5173", 10),
-      fs: {
-        allow: [path.resolve(__dirname, "..")],
-      },
+      fs: { allow: [path.resolve(__dirname, "..")] }
     },
     // Vitest configuration required by Storybook's addon-vitest (manual setup)
     test: {
@@ -65,6 +67,31 @@ export default defineConfig(({ mode }) => {
       // Use the existing vitest.setup.js located in .storybook (storybook generator created it)
       setupFiles: [path.resolve(__dirname, ".storybook/vitest.setup.js")],
       include: ["src/**/*.test.{js,ts}", "src/**/*.spec.{js,ts}"],
-    },
+      projects: [
+        {
+          extends: "./vite.config.js",
+          test: {
+            name: "client",
+            browser: {
+              enabled: true,
+              provider: playwright(),
+              instances: [{ browser: "chromium", headless: true }]
+            },
+            include: ["src/**/*.svelte.{test,spec}.{js,ts}"],
+            exclude: ["src/lib/server/**"]
+          }
+        },
+
+        {
+          extends: "./vite.config.js",
+          test: {
+            name: "server",
+            environment: "node",
+            include: ["src/**/*.{test,spec}.{js,ts}"],
+            exclude: ["src/**/*.svelte.{test,spec}.{js,ts}"]
+          }
+        }
+      ]
+    }
   };
 });

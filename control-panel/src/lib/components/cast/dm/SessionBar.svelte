@@ -77,7 +77,7 @@
     </div>
     <button
       class="sb-btn sb-btn--next"
-      onclick={onNextTurn}
+      onclick={() => onNextTurn()}
       aria-label="Siguiente turno"
     >
       Siguiente ▶
@@ -87,7 +87,7 @@
     <!-- ── STATE 2: ACTION SELECTED, no target yet ── -->
     <button
       class="sb-btn sb-btn--cancel"
-      onclick={onCancel}
+      onclick={() => onCancel()}
       aria-label="Cancelar acción"
     >
       ← Cancelar
@@ -100,7 +100,7 @@
     <!-- ── STATE 3: TARGET SELECTED — confirm panel ── -->
     <button
       class="sb-btn sb-btn--cancel"
-      onclick={onCancel}
+      onclick={() => onCancel()}
       aria-label="Cancelar acción"
     >
       ← Cancelar

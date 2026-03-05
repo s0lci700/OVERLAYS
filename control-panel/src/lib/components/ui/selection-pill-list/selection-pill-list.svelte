@@ -14,7 +14,7 @@
 </script>
 
 <script>
-  let { items = [], labelMap = undefined, class: className } = $props();
+  let { items = [], labelMap = undefined, class: className = '' } = $props();
 
   function resolveLabel(key) {
     if (labelMap instanceof Map) return labelMap.get(key) ?? key;

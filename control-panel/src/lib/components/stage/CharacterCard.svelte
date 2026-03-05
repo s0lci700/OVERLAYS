@@ -43,7 +43,7 @@
     selectable = false,
     selected = false,
     onToggleSelect = () => {},
-    prevHp: _prevHp, // Accept prevHp as a prop for external control (e.g., from parent component)
+    prevHp: _prevHp = undefined, // Accept prevHp as a prop for external control (e.g., from parent component)
   } = $props();
 
   /** Previous HP value for detecting damage and triggering flash animation. */

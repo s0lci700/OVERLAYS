@@ -2,9 +2,21 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import "./modal.css";
 
-  export let open = false;
-  export let title = "";
-  export let showCloseButton = true;
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} [open]
+   * @property {string} [title]
+   * @property {boolean} [showCloseButton]
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let {
+    open = $bindable(false),
+    title = "",
+    showCloseButton = true,
+    children,
+  } = $props();
 
   function handleClose() {
     open = false;
@@ -13,26 +25,26 @@
 
 <Dialog.Root bind:open>
   <Dialog.Content
-    class="photo-modal-card card-base"
+    class="cp-modal-card card-base"
     {showCloseButton}
     aria-labelledby="modal-title"
   >
-    <header class="photo-modal-head">
+    <header class="cp-modal-head">
       {#if title}
-        <h3 id="modal-title" class="photo-modal-title">{title}</h3>
+        <h3 id="modal-title" class="cp-modal-title">{title}</h3>
       {/if}
       {#if showCloseButton}
         <Dialog.Close asChild>
           <button
-            class="photo-modal-close"
+            class="cp-modal-close"
             type="button"
             aria-label="Cerrar"
-            on:click={handleClose}>✕</button
+            onclick={handleClose}>✕</button
           >
         </Dialog.Close>
       {/if}
     </header>
 
-    <slot />
+    {@render children?.()}
   </Dialog.Content>
 </Dialog.Root>

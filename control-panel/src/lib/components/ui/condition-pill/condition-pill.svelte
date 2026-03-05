@@ -35,9 +35,7 @@
           "data-[interactive=true]:cursor-pointer",
           "data-[interactive=true]:hover:bg-[var(--cyan)] data-[interactive=true]:hover:text-[var(--black)]",
         ],
-        info: [
-          "bg-transparent border-[var(--grey-dim)] text-[var(--grey)]",
-        ],
+        info: ["bg-transparent border-[var(--grey-dim)] text-[var(--grey)]"],
       },
     },
     defaultVariants: {
@@ -52,24 +50,32 @@
     variant = "condition",
     interactive = false,
     onRemove = () => {},
-    class: className,
+    class: className = "",
     ...restProps
   } = $props();
 </script>
 
 {#if interactive}
-  <button
-    type="button"
-    class={cn(conditionPillVariants({ variant }), className)}
+  <span
+    role="button"
+    tabindex="0"
+    class={cn(
+      conditionPillVariants({ variant: /** @type {any} */ (variant) }),
+      className,
+    )}
     data-interactive="true"
-    onclick={onRemove}
+    onclick={() => onRemove()}
+    onkeydown={(e) => e.key === "Enter" && onRemove()}
     {...restProps}
   >
     {label} <span aria-hidden="true">×</span>
-  </button>
+  </span>
 {:else}
   <span
-    class={cn(conditionPillVariants({ variant }), className)}
+    class={cn(
+      conditionPillVariants({ variant: /** @type {any} */ (variant) }),
+      className,
+    )}
     data-interactive="false"
     {...restProps}
   >

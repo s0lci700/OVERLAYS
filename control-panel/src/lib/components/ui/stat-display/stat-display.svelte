@@ -44,11 +44,11 @@
     label,
     value,
     variant = "inline",
-    class: className,
+    class: className = '',
     ...restProps
   } = $props();
 
-  const styles = $derived(statDisplayVariants({ variant }));
+  const styles = $derived(statDisplayVariants({ variant: /** @type {any} */ (variant) }));
 </script>
 
 <div class={cn(styles.root(), className)} {...restProps}>

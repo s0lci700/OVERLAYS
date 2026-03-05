@@ -36,23 +36,25 @@
 
 <script>
   let {
-    class: className,
+    class: className = '',
     variant = "default",
     size = "default",
     ref = $bindable(null),
     href = undefined,
     type = "button",
-    disabled,
-    children,
+    disabled = false,
+    children = undefined,
     ...restProps
   } = $props();
+
+  const buttonType = /** @type {'button' | 'submit' | 'reset'} */ (type);
 </script>
 
 {#if href}
   <a
     bind:this={ref}
     data-slot="button"
-    class={cn(buttonVariants({ variant, size }), className)}
+    class={cn(buttonVariants({ variant: /** @type {any} */ (variant), size: /** @type {any} */ (size) }), className)}
     href={disabled ? undefined : href}
     aria-disabled={disabled}
     role={disabled ? "link" : undefined}
@@ -65,8 +67,8 @@
   <button
     bind:this={ref}
     data-slot="button"
-    class={cn(buttonVariants({ variant, size }), className)}
-    {type}
+    class={cn(buttonVariants({ variant: /** @type {any} */ (variant), size: /** @type {any} */ (size) }), className)}
+    type={buttonType}
     {disabled}
     {...restProps}
   >
