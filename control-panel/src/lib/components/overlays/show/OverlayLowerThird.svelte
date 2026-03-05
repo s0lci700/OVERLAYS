@@ -10,30 +10,43 @@
 
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
-  const { socket } = preview ? { socket: { on() {} } } : createOverlaySocket(serverUrl);
-
+  let socket = $state();
   let visible = $state(preview != null);
   let characterName = $state(preview?.characterName ?? '');
   let playerName = $state(preview?.playerName ?? '');
   let barEl = $state();
   let hideTimer = null;
 
+  $effect(() => {
+    socket = preview ? { on() {} } : createOverlaySocket(serverUrl);
+  });
+
   onMount(() => {
     if (preview) setTimeout(() => { visible = true; }, 100);
   });
 
-  socket.on('lower_third', async ({ characterName: cn, playerName: pn, duration = 5000 }) => {
-    if (hideTimer) clearTimeout(hideTimer);
-    characterName = cn;
-    playerName = pn;
-    visible = true;
-    await tick();
-    if (barEl) fadeInFromBottom(barEl, 350);
-    if (duration > 0) {
-      hideTimer = setTimeout(() => {
-        fadeOutToTop(barEl, 300, () => { visible = false; });
-      }, duration);
-    }
+  $effect(() => {
+    if (!socket) return;
+
+    const handleLowerThird = async ({ characterName: cn, playerName: pn, duration = 5000 }) => {
+      if (hideTimer) clearTimeout(hideTimer);
+      characterName = cn;
+      playerName = pn;
+      visible = true;
+      await tick();
+      if (barEl) fadeInFromBottom(barEl, 350);
+      if (duration > 0) {
+        hideTimer = setTimeout(() => {
+          fadeOutToTop(barEl, 300, () => { visible = false; });
+        }, duration);
+      }
+    };
+
+    socket.on('lower_third', handleLowerThird);
+
+    return () => {
+      socket.off('lower_third', handleLowerThird);
+    };
   });
 </script>
 

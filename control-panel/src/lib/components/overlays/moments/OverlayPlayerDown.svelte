@@ -10,8 +10,8 @@
 
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
-  const { socket, getChar } = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
-
+  let socket = $state();
+  let getChar = $state();
   let visible = $state(false);
   let charName = $state(preview?.charName ?? '');
   let isDead = $state(preview?.isDead ?? false);
@@ -19,25 +19,41 @@
   let flashEl;
   let hideTimer = null;
 
+  $effect(() => {
+    const init = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
+    socket = init.socket;
+    getChar = init.getChar;
+  });
+
   onMount(() => {
     if (preview) setTimeout(() => { visible = true; }, 100);
   });
 
-  socket.on('player_down', async ({ charId, isDead: dead }) => {
-    if (hideTimer) clearTimeout(hideTimer);
-    const char = getChar(charId);
-    charName = char?.name ?? 'Personaje';
-    isDead = dead;
+  $effect(() => {
+    if (!socket) return;
 
-    if (flashEl) screenFlash(flashEl, dead ? 'rgba(0,0,0,0.85)' : 'rgba(255,77,106,0.5)');
+    const handlePlayerDown = async ({ charId, isDead: dead }) => {
+      if (hideTimer) clearTimeout(hideTimer);
+      const char = getChar(charId);
+      charName = char?.name ?? 'Personaje';
+      isDead = dead;
 
-    visible = true;
-    await tick();
-    if (cardEl) fadeInFromBottom(cardEl, 500);
+      if (flashEl) screenFlash(flashEl, dead ? 'rgba(0,0,0,0.85)' : 'rgba(255,77,106,0.5)');
 
-    hideTimer = setTimeout(() => {
-      fadeOutToTop(cardEl, 400, () => { visible = false; });
-    }, isDead ? 8000 : 5000);
+      visible = true;
+      await tick();
+      if (cardEl) fadeInFromBottom(cardEl, 500);
+
+      hideTimer = setTimeout(() => {
+        fadeOutToTop(cardEl, 400, () => { visible = false; });
+      }, isDead ? 8000 : 5000);
+    };
+
+    socket.on('player_down', handlePlayerDown);
+
+    return () => {
+      socket.off('player_down', handlePlayerDown);
+    };
   });
 </script>
 

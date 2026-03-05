@@ -10,8 +10,8 @@
 
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
-  const { socket, getChar } = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
-
+  let socket = $state();
+  let getChar = $state();
   let visible = $state(false);
   let charName = $state(preview?.charName ?? '');
   let newLevel = $state(preview?.newLevel ?? 1);
@@ -19,25 +19,41 @@
   let cardEl = $state();
   let flashEl;
 
+  $effect(() => {
+    const init = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
+    socket = init.socket;
+    getChar = init.getChar;
+  });
+
   onMount(() => {
     if (preview) setTimeout(() => { visible = true; }, 100);
   });
 
-  socket.on('level_up', async ({ charId, newLevel: lvl, className: cls }) => {
-    const char = getChar(charId);
-    charName = char?.name ?? 'Personaje';
-    newLevel = lvl;
-    className = cls;
+  $effect(() => {
+    if (!socket) return;
 
-    if (flashEl) screenFlash(flashEl, 'rgba(201,162,39,0.4)', 600);
+    const handleLevelUp = async ({ charId, newLevel: lvl, className: cls }) => {
+      const char = getChar(charId);
+      charName = char?.name ?? 'Personaje';
+      newLevel = lvl;
+      className = cls;
 
-    visible = true;
-    await tick();
-    if (cardEl) fadeInFromBottom(cardEl, 600);
+      if (flashEl) screenFlash(flashEl, 'rgba(201,162,39,0.4)', 600);
 
-    setTimeout(() => {
-      fadeOutToTop(cardEl, 400, () => { visible = false; });
-    }, 6000);
+      visible = true;
+      await tick();
+      if (cardEl) fadeInFromBottom(cardEl, 600);
+
+      setTimeout(() => {
+        fadeOutToTop(cardEl, 400, () => { visible = false; });
+      }, 6000);
+    };
+
+    socket.on('level_up', handleLevelUp);
+
+    return () => {
+      socket.off('level_up', handleLevelUp);
+    };
   });
 </script>
 

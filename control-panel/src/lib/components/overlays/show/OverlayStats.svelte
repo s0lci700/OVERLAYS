@@ -9,21 +9,39 @@
 
   let { serverUrl = 'http://localhost:3000' } = $props();
 
-  const { socket } = createOverlaySocket(serverUrl);
-
+  let socket = $state();
   let visible = $state(false);
   let crits = $state(0);
   let pifias = $state(0);
   let downs = $state(0);
 
-  socket.on('dice_rolled', ({ result, sides }) => {
-    if (result === sides) crits++;
-    if (result === 1) pifias++;
+  $effect(() => {
+    const { socket: s } = createOverlaySocket(serverUrl);
+    socket = s;
   });
 
-  socket.on('player_down', () => { downs++; });
+  $effect(() => {
+    if (!socket) return;
 
-  socket.on('toggle_stats', ({ visible: v }) => { visible = v; });
+    const handleDiceRolled = ({ result, sides }) => {
+      if (result === sides) crits++;
+      if (result === 1) pifias++;
+    };
+
+    const handlePlayerDown = () => { downs++; };
+
+    const handleToggleStats = ({ visible: v }) => { visible = v; };
+
+    socket.on('dice_rolled', handleDiceRolled);
+    socket.on('player_down', handlePlayerDown);
+    socket.on('toggle_stats', handleToggleStats);
+
+    return () => {
+      socket.off('dice_rolled', handleDiceRolled);
+      socket.off('player_down', handlePlayerDown);
+      socket.off('toggle_stats', handleToggleStats);
+    };
+  });
 </script>
 
 {#if visible}

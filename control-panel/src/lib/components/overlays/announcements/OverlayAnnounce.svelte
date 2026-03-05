@@ -11,8 +11,7 @@
 
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
-  const { socket } = preview ? { socket: { on() {} } } : createOverlaySocket(serverUrl);
-
+  let socket = $state();
   let visible = $state(preview != null);
   let type = $state(preview?.type ?? 'custom');
   let title = $state(preview?.title ?? '');
@@ -31,29 +30,44 @@
     sponsor:   { defaultDuration: 3000 },
   };
 
-  socket.on('announce', async (data) => {
-    if (hideTimer) clearTimeout(hideTimer);
+  $effect(() => {
+    // Re-initialize socket when serverUrl or preview changes
+    socket = preview ? { on() {} } : createOverlaySocket(serverUrl);
+  });
 
-    type  = data.type ?? 'custom';
-    title = data.title ?? '';
-    body  = data.body ?? '';
-    image = data.image ?? null;
+  $effect(() => {
+    if (!socket) return;
 
-    const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.custom;
-    const duration = data.duration ?? cfg.defaultDuration;
+    const handleAnnounce = async (data) => {
+      if (hideTimer) clearTimeout(hideTimer);
 
-    visible = true;
-    await tick();
+      type  = data.type ?? 'custom';
+      title = data.title ?? '';
+      body  = data.body ?? '';
+      image = data.image ?? null;
 
-    if (cardEl) slideInFromLeft(cardEl);
+      const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.custom;
+      const duration = data.duration ?? cfg.defaultDuration;
 
-    if (type === 'knowledge' && bodyEl && body) {
-      await typewriterReveal(bodyEl, body);
-    }
+      visible = true;
+      await tick();
 
-    if (duration > 0) {
-      hideTimer = setTimeout(dismiss, duration);
-    }
+      if (cardEl) slideInFromLeft(cardEl);
+
+      if (type === 'knowledge' && bodyEl && body) {
+        await typewriterReveal(bodyEl, body);
+      }
+
+      if (duration > 0) {
+        hideTimer = setTimeout(dismiss, duration);
+      }
+    };
+
+    socket.on('announce', handleAnnounce);
+
+    return () => {
+      socket.off('announce', handleAnnounce);
+    };
   });
 
   async function dismiss() {

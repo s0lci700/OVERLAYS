@@ -11,19 +11,35 @@
 
   let { serverUrl = 'http://localhost:3000' } = $props();
 
-  const { socket } = createOverlaySocket(serverUrl);
-
+  let socket = $state();
   let visible = $state(false);
   let badgeEl = $state();
 
-  socket.on('sync_start', async () => {
-    visible = true;
-    await tick();
-    if (badgeEl) fadeInFromBottom(badgeEl, 300);
+  $effect(() => {
+    const { socket: s } = createOverlaySocket(serverUrl);
+    socket = s;
   });
 
-  socket.on('recording_stop', () => {
-    fadeOutToTop(badgeEl, 300, () => { visible = false; });
+  $effect(() => {
+    if (!socket) return;
+
+    const handleSyncStart = async () => {
+      visible = true;
+      await tick();
+      if (badgeEl) fadeInFromBottom(badgeEl, 300);
+    };
+
+    const handleRecordingStop = () => {
+      fadeOutToTop(badgeEl, 300, () => { visible = false; });
+    };
+
+    socket.on('sync_start', handleSyncStart);
+    socket.on('recording_stop', handleRecordingStop);
+
+    return () => {
+      socket.off('sync_start', handleSyncStart);
+      socket.off('recording_stop', handleRecordingStop);
+    };
   });
 </script>
 

@@ -9,26 +9,42 @@
 
   let { serverUrl = 'http://localhost:3000' } = $props();
 
-  const { socket } = createOverlaySocket(serverUrl);
-
+  let socket = $state();
   let visible = $state(false);
   let countdown = $state(0);
   let countdownTimer = null;
 
-  socket.on('break_start', async ({ countdown: secs } = {}) => {
-    visible = true;
-    if (secs > 0) {
-      countdown = secs;
-      countdownTimer = setInterval(() => {
-        countdown--;
-        if (countdown <= 0) { clearInterval(countdownTimer); countdown = 0; }
-      }, 1000);
-    }
+  $effect(() => {
+    const { socket: s } = createOverlaySocket(serverUrl);
+    socket = s;
   });
 
-  socket.on('break_end', () => {
-    clearInterval(countdownTimer);
-    visible = false;
+  $effect(() => {
+    if (!socket) return;
+
+    const handleBreakStart = async ({ countdown: secs } = {}) => {
+      visible = true;
+      if (secs > 0) {
+        countdown = secs;
+        countdownTimer = setInterval(() => {
+          countdown--;
+          if (countdown <= 0) { clearInterval(countdownTimer); countdown = 0; }
+        }, 1000);
+      }
+    };
+
+    const handleBreakEnd = () => {
+      clearInterval(countdownTimer);
+      visible = false;
+    };
+
+    socket.on('break_start', handleBreakStart);
+    socket.on('break_end', handleBreakEnd);
+
+    return () => {
+      socket.off('break_start', handleBreakStart);
+      socket.off('break_end', handleBreakEnd);
+    };
   });
 </script>
 
