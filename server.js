@@ -97,7 +97,12 @@ async function ensureAuth() {
       await pb.collection(PB_SUPERUSERS).authRefresh();
       return true;
     } catch {
-      // Token may have already expired — fall through to full re-auth below
+      // Only fall back to full re-auth if the token is now actually invalid.
+      // A transient network/5xx error during refresh doesn't invalidate the
+      // existing token, so we can continue using it as-is.
+      if (pb.authStore.isValid) {
+        return true;
+      }
     }
   }
   console.warn("[server] Auth store invalid or refresh failed — re-authenticating with PocketBase...");
@@ -255,20 +260,35 @@ async function seedIfEmpty() {
 }
 
 async function main() {
-  await connectToPocketBase();
+  const connected = await connectToPocketBase();
   await seedIfEmpty();
 
-  // Proactively refresh the PocketBase auth token every 23 hours.
+  // Proactively refresh the PocketBase auth token to keep it alive.
   // Superuser JWTs have a finite TTL; without this the auth store silently
   // expires and every socket connection returns empty data.
+  //
+  // If startup auth failed, use a shorter 5-minute retry interval until we
+  // first connect; then switch to the normal 23-hour refresh cadence.
   const REAUTH_INTERVAL_MS = 23 * 60 * 60 * 1000;
-  setInterval(async () => {
-    console.log("[server] Proactive PocketBase token refresh...");
-    const ok = await ensureAuth();
-    if (!ok) {
-      console.error("[server] ❌ Proactive token refresh failed. PocketBase operations will fail until the next retry.");
-    }
-  }, REAUTH_INTERVAL_MS).unref(); // .unref() so the interval doesn't prevent clean process exit
+  const RETRY_INTERVAL_MS = 5 * 60 * 1000;
+
+  let refreshTimer;
+
+  function scheduleRefresh(intervalMs) {
+    refreshTimer = setTimeout(async () => {
+      console.log("[server] PocketBase token refresh...");
+      const ok = await ensureAuth();
+      if (!ok) {
+        console.error("[server] ❌ Token refresh failed. Retrying in 5 minutes...");
+        scheduleRefresh(RETRY_INTERVAL_MS);
+      } else {
+        scheduleRefresh(REAUTH_INTERVAL_MS);
+      }
+    }, intervalMs);
+    if (refreshTimer.unref) refreshTimer.unref();
+  }
+
+  scheduleRefresh(connected ? REAUTH_INTERVAL_MS : RETRY_INTERVAL_MS);
 
   // Cache design tokens at startup; /api/tokens reads from this in-memory cache (no per-request I/O).
   const fs = require("fs");
