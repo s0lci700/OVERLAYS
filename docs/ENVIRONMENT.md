@@ -52,15 +52,30 @@ The start command stays:
 bun server.js
 ```
 
-Required Railway environment variables:
+### Production service URLs
 
-| Key                  | Purpose                                    |
-| -------------------- | ------------------------------------------ |
-| POCKETBASE_URL       | Full URL of your PocketBase instance       |
-| PB_MAIL              | PocketBase superuser email                 |
-| PB_PASS              | PocketBase superuser password              |
-| PORT                 | Port Railway assigns (set automatically)   |
-| CONTROL_PANEL_ORIGIN | CORS origin for the deployed control panel |
+| Service    | URL                                              |
+| ---------- | ------------------------------------------------ |
+| Server     | https://overlays-production-2a9d.up.railway.app  |
+| PocketBase | https://db-production-4bc8.up.railway.app        |
+
+### Required Railway environment variables
+
+**Backend service (`overlays-production-2a9d`):**
+
+| Key                  | Value                                            |
+| -------------------- | ------------------------------------------------ |
+| POCKETBASE_URL       | https://db-production-4bc8.up.railway.app        |
+| PB_MAIL              | *(PocketBase superuser email)*                   |
+| PB_PASS              | *(PocketBase superuser password)*                |
+| PORT                 | *(set automatically by Railway)*                 |
+| CONTROL_PANEL_ORIGIN | *(full URL of the deployed control panel)*       |
+
+**Control panel service:**
+
+| Key             | Value                                                    |
+| --------------- | -------------------------------------------------------- |
+| VITE_SERVER_URL | https://overlays-production-2a9d.up.railway.app          |
 
 > `seedIfEmpty()` is idempotent — safe to run on every redeploy.
 

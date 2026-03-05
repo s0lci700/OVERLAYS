@@ -33,6 +33,7 @@ control-panel/storybook-static/
 .rollup.cache
 
 ## Dependency managers
+package-lock.json
 .pnpm-store/
 .pnpm-debug.log*
 
