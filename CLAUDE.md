@@ -166,3 +166,57 @@ Before doing any UI or frontend work, check Storybook for component context and 
 - `docs/ENVIRONMENT.md` — `.env` setup, IP configuration
 - `docs/THEMING.md` — token generator usage and live theme editor
 - `docs/INDEX.md` — fast file map and entry points
+
+---
+
+## Agent Rules — How to Update the Planner
+
+### After any audit, investigation, or review:
+
+**For tech findings (bugs, improvements, refactors):**
+
+1. Create a GitHub Issue at: https://github.com/s0lci700/OVERLAYS/issues/new
+2. Apply the correct labels:
+   - Area: `area:frontend` ← Svelte components, CSS, HTML overlays, design tokens
+   - Area: `area:backend` ← server.js, API routes, Socket.io events, data modules, PocketBase
+   - Priority: `p0` (blocking) / `p1` (this sprint) / `p2` (next sprint) / `p3` (someday)
+   - Size: `size:quick` (<1hr) / `size:small` (1–3hr) / `size:medium` (3–8hr) / `size:large` (8+hr)
+3. Assign to the correct Milestone (Sprint 1, 2, or 3)
+4. Notion task is created automatically when the area label is applied.
+
+**For non-tech findings (outreach, session planning, content):**
+
+Add directly to Notion: https://notion.so/319b63b6f5ec81bcbe9aeb2b6815c88c
+- Area: `📣 Pitch & Outreach` or `🎭 Session Planning`
+- These never become GitHub Issues.
+
+### Current sprint
+
+See `SPRINT.md` for active tasks. It is always current — do not query Notion directly.
+
+### Routing cheat-sheet
+
+| Type of finding | Where it goes |
+|-----------------|---------------|
+| Svelte component bug | GitHub Issue, `area:frontend` |
+| CSS / overlay visual fix | GitHub Issue, `area:frontend` |
+| API endpoint bug | GitHub Issue, `area:backend` |
+| Socket.io event issue | GitHub Issue, `area:backend` |
+| PocketBase / data layer issue | GitHub Issue, `area:backend` |
+| Contact ESDH / follow up | Notion task, Pitch & Outreach |
+| Campaign planning with Lucas | Notion task, Session Planning |
+
+### Label → Notion field mapping
+
+| GitHub Label | Notion Field | Value |
+|---|---|---|
+| `area:frontend` | Area | 🎨 Frontend |
+| `area:backend` | Area | ⚙️ Backend |
+| `p0` | Priority | P0 — Now |
+| `p1` | Priority | P1 — Soon |
+| `p2` | Priority | P2 — Later |
+| `p3` | Priority | P3 — Someday |
+| `size:quick` | Size | Quick |
+| `size:small` | Size | Small |
+| `size:medium` | Size | Medium |
+| `size:large` | Size | Large |
