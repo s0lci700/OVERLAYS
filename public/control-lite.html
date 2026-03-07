@@ -49,7 +49,9 @@
         chars.forEach(c=>{
           const div=document.createElement('div');div.className='char';
           const left=document.createElement('div');
-          left.innerHTML=`<div style="font-weight:700">${c.name}</div><div class="meta">${c.player} • ${formatHp(c)}</div>`;
+          const nameDiv=document.createElement('div');nameDiv.style.fontWeight='700';nameDiv.textContent=c.name;
+          const metaDiv=document.createElement('div');metaDiv.className='meta';metaDiv.textContent=`${c.player} • ${formatHp(c)}`;
+          left.append(nameDiv,metaDiv);
           const controls=document.createElement('div');controls.className='controls';
           const dmg5=document.createElement('button');dmg5.textContent='-5';dmg5.onclick=()=>updateHp(c.id,c.hp_current-5);
           const dmg10=document.createElement('button');dmg10.textContent='-10';dmg10.onclick=()=>updateHp(c.id,c.hp_current-10);

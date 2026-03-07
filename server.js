@@ -314,10 +314,22 @@ async function main() {
     return "127.0.0.1";
   }
 
-  // Allow the Svelte control panel and OBS overlay browser sources to connect from different ports.
+  // Allow the Svelte control panel and OBS overlay browser sources to connect.
+  // Build a CORS allow-list: the configured control-panel origin + the server's own origin
+  // (so overlays served from the same host:port can also connect via Socket.io).
+  const allowedOrigins = [
+    CONTROL_PANEL_ORIGIN,
+    `http://localhost:${PORT}`,
+    `http://127.0.0.1:${PORT}`,
+  ];
+  const serverIP = getMainIP();
+  if (serverIP !== "127.0.0.1") {
+    allowedOrigins.push(`http://${serverIP}:${PORT}`);
+  }
+
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: allowedOrigins,
     },
   });
 
@@ -415,8 +427,8 @@ async function main() {
     process.exit(1);
   });
 
-  // Parse JSON payloads from the control panel and allow requests from any origin.
-  app.use(cors({ origin: "*" }));
+  // Parse JSON payloads from the control panel; restrict CORS to known origins.
+  app.use(cors({ origin: allowedOrigins }));
   app.use(express.json({ limit: "1mb" }));
   app.use("/assets", express.static(path.join(__dirname, "assets")));
 
@@ -448,7 +460,7 @@ async function main() {
     } catch (err) {
       res
         .status(500)
-        .json({ error: "Could not read design tokens.", details: err.message });
+        .json({ error: "Could not read design tokens." });
     }
   });
 
