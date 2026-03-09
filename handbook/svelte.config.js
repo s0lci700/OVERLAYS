@@ -5,7 +5,14 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
+		prerender: {
+			handleHttpError: ({ path, message }) => {
+				// Ignore missing favicon during prerender
+				if (path === '/favicon.png') return;
+				throw new Error(message);
+			}
+		}
 	}
 };
 
