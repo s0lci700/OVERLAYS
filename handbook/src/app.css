@@ -196,11 +196,13 @@ a:hover {
 	align-items: center;
 	font-size: 0.75rem;
 	font-weight: 500;
-	padding: 0.2em 0.6em;
+	line-height: 1;
+	padding: 0.3em 0.65em;
 	border-radius: 999px;
 	background: var(--bg-card);
 	color: var(--text-muted);
 	border: 1px solid var(--border);
+	white-space: nowrap;
 }
 
 .section-label {

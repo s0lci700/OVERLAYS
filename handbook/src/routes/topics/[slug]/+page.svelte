@@ -173,6 +173,7 @@
 	.topic-actions {
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
 		gap: 0.5rem;
 		margin-bottom: 0.75rem;
 	}
@@ -263,5 +264,15 @@
 	.related-summary {
 		font-size: 0.8rem;
 		color: var(--text-muted);
+	}
+
+	@media (max-width: 768px) {
+		.topic-title {
+			font-size: 1.4rem;
+		}
+
+		.topic-summary {
+			font-size: 0.95rem;
+		}
 	}
 </style>

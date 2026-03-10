@@ -253,4 +253,18 @@
 		font-size: 0.75rem;
 		color: var(--text-dim);
 	}
+
+	@media (max-width: 768px) {
+		.home-title {
+			font-size: 1.65rem;
+		}
+
+		.home-subtitle {
+			font-size: 0.95rem;
+		}
+
+		.progress-strip {
+			gap: 1rem;
+		}
+	}
 </style>

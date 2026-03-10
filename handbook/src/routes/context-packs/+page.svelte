@@ -86,6 +86,8 @@
 	}
 
 	.pack-title {
+		flex: 1;
+		min-width: 0;
 		font-size: 1rem;
 		font-weight: 600;
 		color: var(--text);
