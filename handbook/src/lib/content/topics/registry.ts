@@ -31,7 +31,13 @@ export const topicRegistry: TopicMeta[] = [
 				path: 'control-panel/src/app.d.ts'
 			}
 		],
-		related: ['ts-syntax', 'ts-functions']
+		related: ['ts-syntax', 'ts-functions'],
+		recall: [
+			'What does TypeScript add on top of plain JavaScript — at runtime vs at compile time?',
+			'Where do global type augmentations live in this codebase?',
+			"What's the difference between a type annotation you write and a type TypeScript infers?"
+		],
+		confusedWith: ['ts-syntax']
 	},
 	{
 		slug: 'ts-syntax',
@@ -52,7 +58,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://www.typescriptlang.org/docs/handbook/utility-types.html'
 			}
 		],
-		related: ['ts-intro', 'ts-functions', 'ts-function-types']
+		related: ['ts-intro', 'ts-functions', 'ts-function-types'],
+		recall: [
+			"What's the difference between a union type (`A | B`) and an intersection type (`A & B`)?",
+			'When would you use `Omit<T, K>` instead of `Pick<T, K>`?',
+			'What does `type TopicMeta = Omit<Topic, "content">` mean in plain English?'
+		],
+		confusedWith: ['ts-function-types']
 	},
 	{
 		slug: 'ts-functions',
@@ -70,7 +82,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://www.typescriptlang.org/docs/handbook/2/functions.html'
 			}
 		],
-		related: ['ts-function-types', 'ts-syntax', 'contracts-boundaries']
+		related: ['ts-function-types', 'ts-syntax', 'contracts-boundaries'],
+		recall: [
+			"What does it mean for a function to be a 'first-class value'?",
+			'Can you assign a function to a variable the same way you assign a number? Show the syntax.',
+			"What's the difference between a function declaration and a function expression?"
+		],
+		confusedWith: ['ts-function-types']
 	},
 	{
 		slug: 'ts-function-types',
@@ -87,7 +105,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions'
 			}
 		],
-		related: ['ts-functions', 'ts-syntax', 'svelte5-props']
+		related: ['ts-functions', 'ts-syntax', 'svelte5-props'],
+		recall: [
+			'Write the type for a callback that takes a `string` and returns nothing.',
+			"What's the difference between `() => void` and `() => undefined`?",
+			'In `(pb: PocketBase, id: string) => Promise<Character>`, identify each part of the signature.'
+		],
+		confusedWith: ['ts-functions']
 	},
 
 	// ─── Svelte 5 ─────────────────────────────────────────────────────────────
@@ -109,7 +133,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://svelte.dev/docs/svelte/$props'
 			}
 		],
-		related: ['ts-function-types', 'svelte5-callbacks-snippets', 'svelte5-derived']
+		related: ['ts-function-types', 'svelte5-callbacks-snippets', 'svelte5-derived'],
+		recall: [
+			'What Svelte 5 rune replaces `export let` for receiving props?',
+			'How do you give a prop a default value in Svelte 5?',
+			'What happens at runtime if a parent does not pass a required prop?'
+		],
+		confusedWith: ['svelte5-callbacks-snippets']
 	},
 	{
 		slug: 'svelte5-callbacks-snippets',
@@ -131,7 +161,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://svelte.dev/docs/svelte/@render'
 			}
 		],
-		related: ['svelte5-props', 'svelte5-derived', 'bits-ui-mental-model']
+		related: ['svelte5-props', 'svelte5-derived', 'bits-ui-mental-model'],
+		recall: [
+			'When should you pass a callback prop instead of using a Snippet?',
+			'What tag renders a Snippet passed from a parent component?',
+			"What's the Svelte 5 replacement for named slots?"
+		],
+		confusedWith: ['svelte5-props']
 	},
 	{
 		slug: 'svelte5-derived',
@@ -153,7 +189,13 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://svelte.dev/docs/svelte/$effect'
 			}
 		],
-		related: ['svelte5-props', 'svelte5-callbacks-snippets', 'contracts-boundaries']
+		related: ['svelte5-props', 'svelte5-callbacks-snippets', 'contracts-boundaries'],
+		recall: [
+			"What's the difference between `$state` and `$derived`?",
+			'When should you use `$derived.by()` instead of plain `$derived`?',
+			"What's the key difference between `$derived` and `$effect` — one computes, the other does what?"
+		],
+		confusedWith: ['svelte5-props']
 	},
 
 	// ─── Architecture ─────────────────────────────────────────────────────────
@@ -177,7 +219,13 @@ export const topicRegistry: TopicMeta[] = [
 				path: 'docs/SOCKET-EVENTS.md'
 			}
 		],
-		related: ['overlays-architecture', 'ts-function-types', 'component-placement']
+		related: ['overlays-architecture', 'ts-function-types', 'component-placement'],
+		recall: [
+			'In OVERLAYS, which layer is the only one allowed to write to PocketBase directly?',
+			'What should an overlay component do when it needs fresh data — poll, fetch, or listen?',
+			'Name three concrete places in the codebase where a contract boundary is enforced.'
+		],
+		confusedWith: ['overlays-architecture']
 	},
 	{
 		slug: 'overlays-architecture',
@@ -201,7 +249,13 @@ export const topicRegistry: TopicMeta[] = [
 				path: 'docs/SOCKET-EVENTS.md'
 			}
 		],
-		related: ['contracts-boundaries', 'component-placement', 'svelte5-derived']
+		related: ['contracts-boundaries', 'component-placement', 'svelte5-derived'],
+		recall: [
+			'What port does each service run on (PocketBase, Node server, control panel)?',
+			'Does Socket.io data flow from server to clients, or do clients pull from the server?',
+			'Why do overlay routes never send HTTP requests to the server?'
+		],
+		confusedWith: ['contracts-boundaries']
 	},
 
 	// ─── Patterns ─────────────────────────────────────────────────────────────
@@ -226,7 +280,13 @@ export const topicRegistry: TopicMeta[] = [
 				path: 'docs/ARCHITECTURE.md'
 			}
 		],
-		related: ['styling-placement', 'overlays-architecture', 'bits-ui-mental-model']
+		related: ['styling-placement', 'overlays-architecture', 'bits-ui-mental-model'],
+		recall: [
+			'Where should a reusable button that appears in both stage and cast routes live?',
+			"What distinguishes a `ui/` component from a `stage/` component?",
+			'If a component is only used in one route file, where should it live?'
+		],
+		confusedWith: ['styling-placement']
 	},
 	{
 		slug: 'styling-placement',
@@ -254,7 +314,13 @@ export const topicRegistry: TopicMeta[] = [
 				path: 'scripts/generate-tokens.ts'
 			}
 		],
-		related: ['component-placement', 'bits-ui-mental-model', 'overlays-architecture']
+		related: ['component-placement', 'bits-ui-mental-model', 'overlays-architecture'],
+		recall: [
+			'Where is the single source of truth for design tokens in this codebase?',
+			'Should you ever edit `generated-tokens.css` directly? Why or why not?',
+			"What's the difference between a design token variable and a utility class?"
+		],
+		confusedWith: ['component-placement']
 	},
 	{
 		slug: 'bits-ui-mental-model',
@@ -277,6 +343,12 @@ export const topicRegistry: TopicMeta[] = [
 				url: 'https://www.shadcn-svelte.com/'
 			}
 		],
-		related: ['component-placement', 'svelte5-callbacks-snippets', 'styling-placement']
+		related: ['component-placement', 'svelte5-callbacks-snippets', 'styling-placement'],
+		recall: [
+			"What does 'headless' mean in the context of bits-ui?",
+			'When you install a shadcn-svelte component, what actually lands in your project directory?',
+			'How does bits-ui composition differ from wrapping everything in a single opinionated component?'
+		],
+		confusedWith: ['svelte5-callbacks-snippets']
 	}
 ];

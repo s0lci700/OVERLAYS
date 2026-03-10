@@ -22,6 +22,8 @@ export interface Topic {
 	repoDirs?: string[];
 	sources?: Source[];
 	related?: string[]; // slugs of related topics
+	recall?: string[]; // active-recall questions (no answers — find them in the content)
+	confusedWith?: string[]; // slugs of topics commonly mistaken for this one
 }
 
 /** Topic metadata without the markdown body — used in registry.ts */

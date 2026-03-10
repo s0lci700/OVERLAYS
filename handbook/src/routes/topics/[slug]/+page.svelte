@@ -40,6 +40,17 @@
 			.map((slug) => allTopics.find((t) => t.slug === slug))
 			.filter((t): t is NonNullable<typeof t> => t != null);
 	});
+
+	const confusedTopics = $derived.by(() => {
+		if (!topic.confusedWith?.length) return [];
+		return topic.confusedWith
+			.map((slug) => allTopics.find((t) => t.slug === slug))
+			.filter((t): t is NonNullable<typeof t> => t != null);
+	});
+
+	const nextTopic = $derived(
+		nextSlug ? (allTopics.find((t) => t.slug === nextSlug) ?? null) : null
+	);
 </script>
 
 <svelte:head>
@@ -88,6 +99,33 @@
 		<SourceBlock sources={topic.sources} />
 	{/if}
 
+	{#if topic.recall?.length}
+		<section class="recall-prompts">
+			<h3 class="recall-heading">Test yourself</h3>
+			<ol class="recall-list">
+				{#each topic.recall as question}
+					<li class="recall-item">{question}</li>
+				{/each}
+			</ol>
+		</section>
+	{/if}
+
+	{#if confusedTopics.length}
+		<section class="confused-with">
+			<h3 class="confused-heading">Often confused with</h3>
+			<ul class="confused-list">
+				{#each confusedTopics as ct}
+					<li>
+						<a href="/topics/{ct.slug}" class="confused-link">
+							<span class="confused-title">{ct.title}</span>
+							<span class="confused-summary">{ct.summary}</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
+
 	{#if relatedTopics.length}
 		<section class="related-topics">
 			<h3 class="related-heading">Related topics</h3>
@@ -102,6 +140,16 @@
 				{/each}
 			</ul>
 		</section>
+	{/if}
+
+	{#if nextTopic}
+		<div class="up-next">
+			<span class="up-next-label">Up next</span>
+			<a href="/topics/{nextTopic.slug}" class="up-next-card">
+				<span class="up-next-title">{nextTopic.title}</span>
+				<span class="up-next-summary">{nextTopic.summary}</span>
+			</a>
+		</div>
 	{/if}
 
 	<nav class="topic-nav">
@@ -212,6 +260,143 @@
 		color: var(--text);
 		text-decoration: none;
 	}
+
+	/* ── Recall prompts ─────────────────────────────────────────────────── */
+
+	.recall-prompts {
+		margin-top: 2.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.recall-heading {
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-muted);
+		margin-bottom: 0.75rem;
+	}
+
+	.recall-list {
+		margin: 0;
+		padding-left: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.recall-item {
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		line-height: 1.5;
+	}
+
+	/* ── Confused with ───────────────────────────────────────────────────── */
+
+	.confused-with {
+		margin-top: 2rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.confused-heading {
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-muted);
+		margin-bottom: 0.75rem;
+	}
+
+	.confused-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.confused-link {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		padding: 0.6rem 0.75rem;
+		border: 1px solid var(--border);
+		border-left: 2px solid var(--text-dim);
+		border-radius: var(--radius);
+		background: var(--bg-surface);
+		text-decoration: none;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.confused-link:hover {
+		background: var(--bg-hover);
+		border-left-color: var(--text-muted);
+		text-decoration: none;
+	}
+
+	.confused-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text);
+	}
+
+	.confused-summary {
+		font-size: 0.8rem;
+		color: var(--text-dim);
+	}
+
+	/* ── Up next ─────────────────────────────────────────────────────────── */
+
+	.up-next {
+		margin-top: 2.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.up-next-label {
+		display: block;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-muted);
+		margin-bottom: 0.75rem;
+	}
+
+	.up-next-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		background: var(--bg-surface);
+		text-decoration: none;
+		transition: background 0.15s, border-color 0.15s;
+	}
+
+	.up-next-card:hover {
+		background: var(--bg-hover);
+		border-color: var(--cyan);
+		text-decoration: none;
+	}
+
+	.up-next-title {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--cyan);
+	}
+
+	.up-next-summary {
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		line-height: 1.4;
+	}
+
+	/* ── Related topics ──────────────────────────────────────────────────── */
 
 	.related-topics {
 		margin-top: 2.5rem;
