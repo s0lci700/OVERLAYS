@@ -18,8 +18,13 @@ export const learningPath: LearningSection[] = [
 		id: 'architecture',
 		title: 'Architecture & Boundaries',
 		description:
-			'Understand contracts, separation of concerns, and how OVERLAYS is structured end to end.',
-		topics: ['contracts-boundaries', 'overlays-architecture']
+			'Understand contracts, separation of concerns, how OVERLAYS is structured end to end, and how to reason about state ownership.',
+		topics: [
+			'contracts-boundaries',
+			'overlays-architecture',
+			'authoritative-state-flow',
+			'state-ownership'
+		]
 	},
 	{
 		id: 'patterns',
