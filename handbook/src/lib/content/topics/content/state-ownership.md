@@ -33,9 +33,9 @@ These stores are **read replicas** — they hold the last value broadcast by the
 // socket.js — store is updated by socket events only
 export const characters = writable([]);
 
-socket.on('hp_updated', ({ id, hp, maxHp }) => {
+socket.on('hp_updated', ({ character }) => {
   characters.update((chars) =>
-    chars.map((c) => (c.id === id ? { ...c, hp, maxHp } : c))
+    chars.map((c) => (c.id === character.id ? character : c))
   );
 });
 ```
@@ -65,7 +65,7 @@ Derived state is computed from other state. It has no independent existence — 
 ```svelte
 <script>
   let { character } = $props();
-  let isCritical = $derived(character.hp / character.maxHp < 0.25);
+  let isCritical = $derived(character.hp_current / character.hp_max < 0.25);
 </script>
 ```
 
@@ -92,14 +92,14 @@ Can this value be computed from other state?
 
 **The selected character in a route** is local state. Other routes do not need to know which character is selected in `/live/characters`.
 
-**Critical HP flag** is derived — `hp / maxHp < 0.25` — computed in the component or overlay that displays it. It is not stored anywhere.
+**Critical HP flag** is derived — `hp_current / hp_max < 0.25` — computed in the component or overlay that displays it. It is not stored anywhere.
 
 **Form field values** (create character form) are local state. They only become persisted state when the operator submits the form.
 
 ## Common mistakes
 
 - **Promoting local state to shared state unnecessarily** — two components that both need a "selected character" might use a store when they should share a prop, or be in the same route.
-- **Storing derived values persistently** — saving `isCritical` to PocketBase when it can be recomputed from `hp` and `maxHp`. Stored computed values drift when inputs change.
+- **Storing derived values persistently** — saving `isCritical` to PocketBase when it can be recomputed from `hp_current` and `hp_max`. Stored computed values drift when inputs change.
 - **Writing to the socket store from a component** — the store is a read replica. Direct writes bypass the server, will not persist, and will be overwritten by the next broadcast.
 - **Using local `$state` for values that need to survive navigation** — navigating to a different route destroys the component. If the value needs to survive, it belongs in a shared store or PocketBase.
 - **Duplicating shared state across multiple stores** — maintaining `currentHp` in two stores creates a synchronization problem. One authority, one store.
