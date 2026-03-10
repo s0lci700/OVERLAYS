@@ -1,4 +1,4 @@
-import type { Topic } from '$lib/types/content';
+import type { Topic, Section } from '$lib/types/content';
 
 export const allTopics: Topic[] = [
 	// ─── TypeScript ───────────────────────────────────────────────────────────
@@ -925,6 +925,6 @@ export function getTopic(slug: string): Topic | undefined {
 }
 
 /** Get all topics in a section, sorted by order */
-export function getTopicsBySection(section: string): Topic[] {
+export function getTopicsBySection(section: Section): Topic[] {
 	return allTopics.filter((t) => t.section === section).sort((a, b) => a.order - b.order);
 }
