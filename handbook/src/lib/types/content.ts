@@ -23,6 +23,9 @@ export interface Topic {
 	sources?: Source[];
 }
 
+/** Topic metadata without the markdown body — used in registry.ts */
+export type TopicMeta = Omit<Topic, 'content'>;
+
 export interface LearningSection {
 	id: string;
 	title: string;
