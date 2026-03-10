@@ -31,6 +31,7 @@
 <style>
 	.app-shell {
 		display: flex;
+		flex-direction: column;
 		min-height: 100vh;
 	}
 
@@ -46,6 +47,7 @@
 		.main-content {
 			margin-left: 0;
 			padding: 1.25rem 1rem;
+			max-width: 100%;
 		}
 	}
 </style>
