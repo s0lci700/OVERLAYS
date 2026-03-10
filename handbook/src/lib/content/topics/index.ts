@@ -33,6 +33,8 @@ import overlaysArchitecture from './content/overlays-architecture.md?raw';
 import componentPlacement from './content/component-placement.md?raw';
 import stylingPlacement from './content/styling-placement.md?raw';
 import bitsUiMentalModel from './content/bits-ui-mental-model.md?raw';
+import authoritativeStateFlow from './content/authoritative-state-flow.md?raw';
+import stateOwnership from './content/state-ownership.md?raw';
 
 const contentMap: Record<string, string> = {
 	'ts-intro': tsIntro,
@@ -46,7 +48,9 @@ const contentMap: Record<string, string> = {
 	'overlays-architecture': overlaysArchitecture,
 	'component-placement': componentPlacement,
 	'styling-placement': stylingPlacement,
-	'bits-ui-mental-model': bitsUiMentalModel
+	'bits-ui-mental-model': bitsUiMentalModel,
+	'authoritative-state-flow': authoritativeStateFlow,
+	'state-ownership': stateOwnership
 };
 
 export const allTopics: Topic[] = topicRegistry.map((meta) => ({

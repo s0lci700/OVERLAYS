@@ -21,9 +21,15 @@ export const contextPacks: ContextPack[] = [
 		slug: 'overlays-frontend-architecture',
 		title: 'OVERLAYS Frontend Architecture',
 		description:
-			'How the frontend is organized, why boundaries exist, and the full data flow from PocketBase to overlays.',
-		topics: ['contracts-boundaries', 'overlays-architecture', 'component-placement'],
-		tags: ['architecture', 'sveltekit']
+			'How the frontend is organized, why boundaries exist, the full data flow from PocketBase to overlays, and how to reason about state ownership.',
+		topics: [
+			'contracts-boundaries',
+			'overlays-architecture',
+			'authoritative-state-flow',
+			'state-ownership',
+			'component-placement'
+		],
+		tags: ['architecture', 'sveltekit', 'state']
 	},
 	{
 		slug: 'styling-system',

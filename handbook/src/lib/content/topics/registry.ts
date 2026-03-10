@@ -312,6 +312,80 @@ export const topicRegistry: TopicMeta[] = [
 		]
 	},
 
+	{
+		slug: 'authoritative-state-flow',
+		title: 'Authoritative State Flow',
+		section: 'architecture',
+		order: 13,
+		summary:
+			'What authoritative state means, why UI must not invent truth, and how update flow works in OVERLAYS.',
+		tags: ['architecture', 'state', 'runtime', 'producer-consumer', 'socket-io'],
+		repoFiles: ['server.js', 'data/characters.js', 'control-panel/src/lib/stores/socket.js'],
+		sources: [
+			{
+				type: 'arch',
+				label: 'Socket events reference',
+				path: 'docs/SOCKET-EVENTS.md'
+			},
+			{
+				type: 'arch',
+				label: 'OVERLAYS Architecture doc',
+				path: 'docs/ARCHITECTURE.md'
+			}
+		],
+		related: ['contracts-boundaries', 'overlays-architecture', 'state-ownership'],
+		recall: [
+			'What makes a piece of code the "authority" for a value?',
+			'Why should an overlay component never send a fetch request to get its own data?',
+			'What is the risk of a component updating local state before the server broadcast arrives?',
+			'Trace the path a HP change takes from the moment the operator clicks to the moment the overlay updates.'
+		],
+		confusedWith: [
+			{
+				slug: 'state-ownership',
+				distinction:
+					'This topic explains the direction state travels once ownership is established — producer writes, consumers react. State Ownership explains how to decide which layer owns a value in the first place.'
+			}
+		]
+	},
+	{
+		slug: 'state-ownership',
+		title: 'State Ownership',
+		section: 'architecture',
+		order: 14,
+		summary:
+			'How to decide whether state belongs in a component, a shared store, the backend, or as derived state.',
+		tags: ['architecture', 'state', 'local-state', 'shared-state', 'derived'],
+		repoFiles: ['control-panel/src/lib/stores/socket.js', 'server.js', 'data/characters.js'],
+		repoDirs: ['control-panel/src/routes/(stage)/live/characters/'],
+		sources: [
+			{
+				type: 'arch',
+				label: 'OVERLAYS Architecture doc',
+				path: 'docs/ARCHITECTURE.md'
+			}
+		],
+		related: [
+			'authoritative-state-flow',
+			'contracts-boundaries',
+			'svelte5-derived',
+			'overlays-architecture'
+		],
+		recall: [
+			'Name the four kinds of state and give an example of each from OVERLAYS.',
+			'Why should a component not write to the `characters` socket store directly?',
+			'When is it correct to derive a value with `$derived` instead of storing it?',
+			'A feature needs the "currently focused character" visible to both operator and player view. Where does that state belong?'
+		],
+		confusedWith: [
+			{
+				slug: 'authoritative-state-flow',
+				distinction:
+					'This topic explains who owns a value and which layer it belongs to. Authoritative State Flow explains the direction state travels once ownership is established — from producer through broadcast to consumers.'
+			}
+		]
+	},
+
 	// ─── Patterns ─────────────────────────────────────────────────────────────
 	{
 		slug: 'component-placement',
