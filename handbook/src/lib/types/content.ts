@@ -21,6 +21,7 @@ export interface Topic {
 	repoFiles?: string[];
 	repoDirs?: string[];
 	sources?: Source[];
+	related?: string[]; // slugs of related topics
 }
 
 /** Topic metadata without the markdown body — used in registry.ts */

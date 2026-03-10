@@ -8,7 +8,7 @@
 	const topics = $derived(data.topics);
 
 	// Build a plain-text context block for LLM usage
-	const contextBlock = $derived(() => {
+	const contextBlock = $derived.by(() => {
 		const lines: string[] = [
 			`# Context Pack: ${pack.title}`,
 			'',
@@ -46,7 +46,7 @@
 		<h1 class="pack-title">{pack.title}</h1>
 		<p class="pack-desc">{pack.description}</p>
 		<div class="pack-actions">
-			<CopyButton text={contextBlock()} label="Copy full context" />
+			<CopyButton text={contextBlock} label="Copy full context" />
 			<a
 				href="/api/context-packs/{pack.slug}"
 				target="_blank"

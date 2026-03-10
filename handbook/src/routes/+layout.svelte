@@ -6,6 +6,12 @@
 	let { children } = $props();
 
 	let sidebarOpen = $state(false);
+
+	$effect(() => {
+		if (typeof document !== 'undefined') {
+			document.body.style.overflow = sidebarOpen ? 'hidden' : '';
+		}
+	});
 </script>
 
 <div class="app-shell">

@@ -30,7 +30,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Global type augmentations',
 				path: 'control-panel/src/app.d.ts'
 			}
-		]
+		],
+		related: ['ts-syntax', 'ts-functions']
 	},
 	{
 		slug: 'ts-syntax',
@@ -50,7 +51,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'TypeScript — Utility Types',
 				url: 'https://www.typescriptlang.org/docs/handbook/utility-types.html'
 			}
-		]
+		],
+		related: ['ts-intro', 'ts-functions', 'ts-function-types']
 	},
 	{
 		slug: 'ts-functions',
@@ -67,7 +69,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'TypeScript — More on Functions',
 				url: 'https://www.typescriptlang.org/docs/handbook/2/functions.html'
 			}
-		]
+		],
+		related: ['ts-function-types', 'ts-syntax', 'contracts-boundaries']
 	},
 	{
 		slug: 'ts-function-types',
@@ -83,7 +86,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'TypeScript — Function Types',
 				url: 'https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions'
 			}
-		]
+		],
+		related: ['ts-functions', 'ts-syntax', 'svelte5-props']
 	},
 
 	// ─── Svelte 5 ─────────────────────────────────────────────────────────────
@@ -104,7 +108,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Svelte 5 — $props',
 				url: 'https://svelte.dev/docs/svelte/$props'
 			}
-		]
+		],
+		related: ['ts-function-types', 'svelte5-callbacks-snippets', 'svelte5-derived']
 	},
 	{
 		slug: 'svelte5-callbacks-snippets',
@@ -125,7 +130,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Svelte 5 — {@render}',
 				url: 'https://svelte.dev/docs/svelte/@render'
 			}
-		]
+		],
+		related: ['svelte5-props', 'svelte5-derived', 'bits-ui-mental-model']
 	},
 	{
 		slug: 'svelte5-derived',
@@ -146,7 +152,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Svelte 5 — $effect',
 				url: 'https://svelte.dev/docs/svelte/$effect'
 			}
-		]
+		],
+		related: ['svelte5-props', 'svelte5-callbacks-snippets', 'contracts-boundaries']
 	},
 
 	// ─── Architecture ─────────────────────────────────────────────────────────
@@ -169,7 +176,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Socket events reference',
 				path: 'docs/SOCKET-EVENTS.md'
 			}
-		]
+		],
+		related: ['overlays-architecture', 'ts-function-types', 'component-placement']
 	},
 	{
 		slug: 'overlays-architecture',
@@ -192,7 +200,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Socket events reference',
 				path: 'docs/SOCKET-EVENTS.md'
 			}
-		]
+		],
+		related: ['contracts-boundaries', 'component-placement', 'svelte5-derived']
 	},
 
 	// ─── Patterns ─────────────────────────────────────────────────────────────
@@ -216,7 +225,8 @@ export const topicRegistry: TopicMeta[] = [
 				note: 'Described in CLAUDE.md and docs/ARCHITECTURE.md',
 				path: 'docs/ARCHITECTURE.md'
 			}
-		]
+		],
+		related: ['styling-placement', 'overlays-architecture', 'bits-ui-mental-model']
 	},
 	{
 		slug: 'styling-placement',
@@ -243,7 +253,8 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'Token generator script',
 				path: 'scripts/generate-tokens.ts'
 			}
-		]
+		],
+		related: ['component-placement', 'bits-ui-mental-model', 'overlays-architecture']
 	},
 	{
 		slug: 'bits-ui-mental-model',
@@ -265,6 +276,7 @@ export const topicRegistry: TopicMeta[] = [
 				label: 'shadcn-svelte',
 				url: 'https://www.shadcn-svelte.com/'
 			}
-		]
+		],
+		related: ['component-placement', 'svelte5-callbacks-snippets', 'styling-placement']
 	}
 ];
