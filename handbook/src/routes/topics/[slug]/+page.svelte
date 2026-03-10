@@ -31,7 +31,17 @@
 	};
 
 	const copySummaryText = $derived(
-		`# ${topic.title}\n\n${topic.summary}\n\n${topic.repoFiles?.map((f) => `- ${f}`).join('\n') ?? ''}`
+		[
+			`# ${topic.title}`,
+			`Section: ${sectionLabel[topic.section] ?? topic.section} | Tags: ${topic.tags.join(', ')}`,
+			'',
+			topic.summary,
+			topic.repoFiles?.length
+				? '\n## Key files\n' + topic.repoFiles.map((f) => `- ${f}`).join('\n')
+				: ''
+		]
+			.join('\n')
+			.trim()
 	);
 
 	const relatedTopics = $derived.by(() => {
@@ -43,9 +53,10 @@
 
 	const confusedTopics = $derived.by(() => {
 		if (!topic.confusedWith?.length) return [];
-		return topic.confusedWith
-			.map((slug) => allTopics.find((t) => t.slug === slug))
-			.filter((t): t is NonNullable<typeof t> => t != null);
+		return topic.confusedWith.flatMap(({ slug, distinction }) => {
+			const t = allTopics.find((t) => t.slug === slug);
+			return t ? [{ ...t, distinction }] : [];
+		});
 	});
 
 	const nextTopic = $derived(
@@ -118,7 +129,7 @@
 					<li>
 						<a href="/topics/{ct.slug}" class="confused-link">
 							<span class="confused-title">{ct.title}</span>
-							<span class="confused-summary">{ct.summary}</span>
+							<span class="confused-distinction">{ct.distinction}</span>
 						</a>
 					</li>
 				{/each}
@@ -343,9 +354,10 @@
 		color: var(--text);
 	}
 
-	.confused-summary {
+	.confused-distinction {
 		font-size: 0.8rem;
-		color: var(--text-dim);
+		color: var(--text-muted);
+		line-height: 1.45;
 	}
 
 	/* ── Up next ─────────────────────────────────────────────────────────── */

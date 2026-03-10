@@ -37,7 +37,13 @@ export const topicRegistry: TopicMeta[] = [
 			'Where do global type augmentations live in this codebase?',
 			"What's the difference between a type annotation you write and a type TypeScript infers?"
 		],
-		confusedWith: ['ts-syntax']
+		confusedWith: [
+			{
+				slug: 'ts-syntax',
+				distinction:
+					'This topic covers what TypeScript is and why it exists. Reading TypeScript Syntax covers the actual notation and constructs you will encounter daily.'
+			}
+		]
 	},
 	{
 		slug: 'ts-syntax',
@@ -64,7 +70,13 @@ export const topicRegistry: TopicMeta[] = [
 			'When would you use `Omit<T, K>` instead of `Pick<T, K>`?',
 			'What does `type TopicMeta = Omit<Topic, "content">` mean in plain English?'
 		],
-		confusedWith: ['ts-function-types']
+		confusedWith: [
+			{
+				slug: 'ts-function-types',
+				distinction:
+					'This topic covers type-level constructs: unions, intersections, and utility types. Function Types covers specifically how to annotate a function\'s parameters and return value.'
+			}
+		]
 	},
 	{
 		slug: 'ts-functions',
@@ -88,7 +100,13 @@ export const topicRegistry: TopicMeta[] = [
 			'Can you assign a function to a variable the same way you assign a number? Show the syntax.',
 			"What's the difference between a function declaration and a function expression?"
 		],
-		confusedWith: ['ts-function-types']
+		confusedWith: [
+			{
+				slug: 'ts-function-types',
+				distinction:
+					'This topic covers treating functions as data you pass around — assigning, passing, and returning them. Function Types covers how to write down the TypeScript type annotation for that function.'
+			}
+		]
 	},
 	{
 		slug: 'ts-function-types',
@@ -111,7 +129,13 @@ export const topicRegistry: TopicMeta[] = [
 			"What's the difference between `() => void` and `() => undefined`?",
 			'In `(pb: PocketBase, id: string) => Promise<Character>`, identify each part of the signature.'
 		],
-		confusedWith: ['ts-functions']
+		confusedWith: [
+			{
+				slug: 'ts-functions',
+				distinction:
+					'This topic covers how to write type annotations for functions: parameter types, return types, and signatures. Functions as Values covers why and how you pass or return functions as data.'
+			}
+		]
 	},
 
 	// ─── Svelte 5 ─────────────────────────────────────────────────────────────
@@ -139,7 +163,13 @@ export const topicRegistry: TopicMeta[] = [
 			'How do you give a prop a default value in Svelte 5?',
 			'What happens at runtime if a parent does not pass a required prop?'
 		],
-		confusedWith: ['svelte5-callbacks-snippets']
+		confusedWith: [
+			{
+				slug: 'svelte5-callbacks-snippets',
+				distinction:
+					'This topic covers how a component declares the values it receives via $props(). Callback Props vs Snippets covers two patterns for what you can pass into that component.'
+			}
+		]
 	},
 	{
 		slug: 'svelte5-callbacks-snippets',
@@ -167,7 +197,13 @@ export const topicRegistry: TopicMeta[] = [
 			'What tag renders a Snippet passed from a parent component?',
 			"What's the Svelte 5 replacement for named slots?"
 		],
-		confusedWith: ['svelte5-props']
+		confusedWith: [
+			{
+				slug: 'svelte5-props',
+				distinction:
+					'This topic covers two patterns for passing behaviour or content into a component. $props() covers how the receiving component declares all of its inputs, including callbacks.'
+			}
+		]
 	},
 	{
 		slug: 'svelte5-derived',
@@ -195,7 +231,13 @@ export const topicRegistry: TopicMeta[] = [
 			'When should you use `$derived.by()` instead of plain `$derived`?',
 			"What's the key difference between `$derived` and `$effect` — one computes, the other does what?"
 		],
-		confusedWith: ['svelte5-props']
+		confusedWith: [
+			{
+				slug: 'svelte5-props',
+				distinction:
+					'$derived computes new reactive values from existing state inside the component. $props() declares the values that arrive from outside — they are inputs, not computed results.'
+			}
+		]
 	},
 
 	// ─── Architecture ─────────────────────────────────────────────────────────
@@ -225,7 +267,13 @@ export const topicRegistry: TopicMeta[] = [
 			'What should an overlay component do when it needs fresh data — poll, fetch, or listen?',
 			'Name three concrete places in the codebase where a contract boundary is enforced.'
 		],
-		confusedWith: ['overlays-architecture']
+		confusedWith: [
+			{
+				slug: 'overlays-architecture',
+				distinction:
+					'This topic covers the rules each layer must enforce — what it can and cannot do. Architecture Overview covers the full picture of which services exist and how they connect.'
+			}
+		]
 	},
 	{
 		slug: 'overlays-architecture',
@@ -255,7 +303,13 @@ export const topicRegistry: TopicMeta[] = [
 			'Does Socket.io data flow from server to clients, or do clients pull from the server?',
 			'Why do overlay routes never send HTTP requests to the server?'
 		],
-		confusedWith: ['contracts-boundaries']
+		confusedWith: [
+			{
+				slug: 'contracts-boundaries',
+				distinction:
+					'This topic covers the full stack diagram — which services exist, how they connect, and what each port does. Contracts and Boundaries covers the rules each layer must enforce.'
+			}
+		]
 	},
 
 	// ─── Patterns ─────────────────────────────────────────────────────────────
@@ -286,7 +340,13 @@ export const topicRegistry: TopicMeta[] = [
 			"What distinguishes a `ui/` component from a `stage/` component?",
 			'If a component is only used in one route file, where should it live?'
 		],
-		confusedWith: ['styling-placement']
+		confusedWith: [
+			{
+				slug: 'styling-placement',
+				distinction:
+					'This topic answers "which folder does this .svelte file belong in". Styling Placement answers "which file does this CSS rule belong in".'
+			}
+		]
 	},
 	{
 		slug: 'styling-placement',
@@ -320,7 +380,13 @@ export const topicRegistry: TopicMeta[] = [
 			'Should you ever edit `generated-tokens.css` directly? Why or why not?',
 			"What's the difference between a design token variable and a utility class?"
 		],
-		confusedWith: ['component-placement']
+		confusedWith: [
+			{
+				slug: 'component-placement',
+				distinction:
+					'This topic answers "which file does this CSS rule belong in". Component Placement answers "which folder does this .svelte file belong in".'
+			}
+		]
 	},
 	{
 		slug: 'bits-ui-mental-model',
@@ -349,6 +415,12 @@ export const topicRegistry: TopicMeta[] = [
 			'When you install a shadcn-svelte component, what actually lands in your project directory?',
 			'How does bits-ui composition differ from wrapping everything in a single opinionated component?'
 		],
-		confusedWith: ['svelte5-callbacks-snippets']
+		confusedWith: [
+			{
+				slug: 'svelte5-callbacks-snippets',
+				distinction:
+					'This topic covers the headless primitive model — what bits-ui is and how composition works. Callback Props vs Snippets covers the Svelte mechanism bits-ui uses for slots, but that is one tool within this larger pattern.'
+			}
+		]
 	}
 ];
