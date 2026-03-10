@@ -1,6 +1,5 @@
 <script lang="ts">
-	const REPO_BASE = 'https://github.com/s0lci700/OVERLAYS/blob/main';
-	const REPO_TREE = 'https://github.com/s0lci700/OVERLAYS/tree/main';
+	import { repoFileUrl, repoDirUrl } from '$lib/config/repo';
 
 	interface Props {
 		files?: string[];
@@ -10,19 +9,19 @@
 	let { files = [], dirs = [] }: Props = $props();
 
 	let copied = $state<string | null>(null);
-
-	function fileUrl(path: string) {
-		return `${REPO_BASE}/${path}`;
-	}
-
-	function dirUrl(path: string) {
-		return `${REPO_TREE}/${path}`;
-	}
+	let copyError = $state<string | null>(null);
 
 	async function copyPath(path: string) {
-		await navigator.clipboard.writeText(path);
-		copied = path;
-		setTimeout(() => (copied = null), 1500);
+		try {
+			await navigator.clipboard.writeText(path);
+			copied = path;
+			copyError = null;
+			setTimeout(() => (copied = null), 1500);
+		} catch {
+			// Clipboard write failed (non-HTTPS, permission denied, etc.)
+			copyError = path;
+			setTimeout(() => (copyError = null), 1500);
+		}
 	}
 </script>
 
@@ -35,11 +34,12 @@
 				<span class="repo-kind">Directories</span>
 				{#each dirs as dir}
 					<div class="repo-entry">
-						<a href={dirUrl(dir)} target="_blank" rel="noopener noreferrer" class="repo-path">
+						<a href={repoDirUrl(dir)} target="_blank" rel="noopener noreferrer" class="repo-path">
 							📁 {dir}
 						</a>
-						<button class="copy-btn" onclick={() => copyPath(dir)} title="Copy path">
-							{copied === dir ? '✓' : '⎘'}
+						<button class="copy-btn" onclick={() => copyPath(dir)} title="Copy path"
+							class:is-error={copyError === dir}>
+							{copied === dir ? '✓' : copyError === dir ? '✕' : '⎘'}
 						</button>
 					</div>
 				{/each}
@@ -51,11 +51,12 @@
 				<span class="repo-kind">Files</span>
 				{#each files as file}
 					<div class="repo-entry">
-						<a href={fileUrl(file)} target="_blank" rel="noopener noreferrer" class="repo-path">
+						<a href={repoFileUrl(file)} target="_blank" rel="noopener noreferrer" class="repo-path">
 							📄 {file}
 						</a>
-						<button class="copy-btn" onclick={() => copyPath(file)} title="Copy path">
-							{copied === file ? '✓' : '⎘'}
+						<button class="copy-btn" onclick={() => copyPath(file)} title="Copy path"
+							class:is-error={copyError === file}>
+							{copied === file ? '✓' : copyError === file ? '✕' : '⎘'}
 						</button>
 					</div>
 				{/each}
@@ -133,5 +134,9 @@
 
 	.copy-btn:hover {
 		color: var(--text-muted);
+	}
+
+	.copy-btn.is-error {
+		color: var(--red, #f87171);
 	}
 </style>

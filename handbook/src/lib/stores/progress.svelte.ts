@@ -32,7 +32,11 @@ function persist() {
 		currentTopic,
 		lastStudied
 	};
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	} catch (err) {
+		console.warn('[handbook] Progress could not be persisted:', err);
+	}
 }
 
 function getStatus(slug: string): ProgressStatus {

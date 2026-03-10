@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { repoMap } from '$lib/content/repo-map';
-
-	const REPO_BASE = 'https://github.com/s0lci700/OVERLAYS';
-
-	function entryUrl(path: string, type: 'file' | 'dir'): string {
-		const verb = type === 'dir' ? 'tree' : 'blob';
-		return `${REPO_BASE}/${verb}/main/${path}`;
-	}
+	import { repoEntryUrl } from '$lib/config/repo';
 </script>
 
 <svelte:head>
@@ -26,7 +20,7 @@
 				{#each section.entries as entry}
 					<li class="entry">
 						<a
-							href={entryUrl(entry.path, entry.type)}
+							href={repoEntryUrl(entry.path, entry.type)}
 							target="_blank"
 							rel="noopener noreferrer"
 							class="entry-path"
