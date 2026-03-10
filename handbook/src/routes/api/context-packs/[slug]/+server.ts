@@ -23,7 +23,10 @@ export function GET({ params }) {
 			content: topic!.content,
 			repoFiles: topic!.repoFiles,
 			repoDirs: topic!.repoDirs,
-			sources: topic!.sources
+			sources: topic!.sources,
+			related: topic!.related,
+			recall: topic!.recall,
+			confusedWith: topic!.confusedWith
 		}));
 
 	return json(

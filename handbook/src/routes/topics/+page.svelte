@@ -77,6 +77,8 @@
 	}
 
 	.topic-title {
+		flex: 1;
+		min-width: 0;
 		font-size: 0.875rem;
 		font-weight: 600;
 		color: var(--text);
@@ -92,7 +94,6 @@
 	.topic-tags {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.3rem;
-		margin-top: 0.25rem;
+		gap: 0.35rem;
 	}
 </style>

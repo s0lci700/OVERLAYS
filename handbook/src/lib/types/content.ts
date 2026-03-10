@@ -10,6 +10,11 @@ export interface Source {
 	note?: string;
 }
 
+export interface ConfusedWith {
+	slug: string;
+	distinction: string; // one sentence: what THIS topic covers vs what that one covers
+}
+
 export interface Topic {
 	slug: string;
 	title: string;
@@ -22,6 +27,8 @@ export interface Topic {
 	repoDirs?: string[];
 	sources?: Source[];
 	related?: string[]; // slugs of related topics
+	recall?: string[]; // active-recall questions (no answers — find them in the content)
+	confusedWith?: ConfusedWith[]; // topics commonly mistaken for this one, with contrast note
 }
 
 /** Topic metadata without the markdown body — used in registry.ts */
