@@ -13,7 +13,3 @@ export function GET() {
 }
 
 export const prerender = true;
-// Required to avoid a prerender conflict with /api/topics/[slug]:
-// without this, SvelteKit writes /api/topics as a file AND needs it
-// as a directory for child routes, which is impossible on disk.
-export const trailingSlash = 'always';
