@@ -1,11 +1,11 @@
 <!--
   DashboardCard
   =============
-  Read-only, monitor-first character card for the live dashboard view.
+  Read-only, monitor-first character card for the live overview.
 -->
 <script>
   import "./DashboardCard.css";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import { SERVER_URL } from "$lib/services/socket.js";
   import StatDisplay from "$lib/components/ui/stat-display/stat-display.svelte";
   import ConditionPill from "$lib/components/ui/condition-pill/condition-pill.svelte";
 

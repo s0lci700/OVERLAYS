@@ -3,7 +3,7 @@
   import { Stepper } from "$lib/components/ui/stepper/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Tooltip from "$lib/components/ui/tooltip/index.js";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import { SERVER_URL } from "$lib/services/socket.js";
 
   // ──────────────────────────────────────────────────────────────────────────
 

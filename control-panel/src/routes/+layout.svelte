@@ -4,7 +4,7 @@
 <script>
   import "../app.css";
   import { page } from "$app/state";
-  import { characters, socket } from "$lib/stores/socket.js";
+  import { characters, socket } from "$lib/services/socket.js";
   import { resolve } from "$app/paths";
 
   let connected = $state(false);

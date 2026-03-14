@@ -386,7 +386,7 @@ async function main() {
     const mainIP = getMainIP();
     console.log(`[server] Local URL: http://localhost:${PORT}`);
     console.log(`[server] Network URL: http://${mainIP}:${PORT}`);
-    console.log(`[server] Control panel origin: ${CONTROL_PANEL_ORIGIN}`);
+    console.log(`[server] Stage origin: ${CONTROL_PANEL_ORIGIN}`);
   });
 
   httpServer.on("error", (error) => {

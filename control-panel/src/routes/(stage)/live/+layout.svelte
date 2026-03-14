@@ -4,7 +4,7 @@
 <script>
   import { page } from "$app/state";
   import { resolve } from "$app/paths";
-  import { SERVER_URL } from "$lib/stores/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.js";
 
   let { children } = $props();
 

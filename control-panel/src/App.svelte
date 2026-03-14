@@ -4,15 +4,14 @@
   Main control panel application shell for DADOS & RISAS.
   
   Features:
-  - Mobile-first tabbed interface (Characters, Dice, Dashboard)
+  - Mobile-first tabbed interface (Characters, Dice)
   - Real-time connection status indicator
   - Character count display
   - Socket.io connection management
-  
+
   Architecture:
   - Characters tab: Grid of CharacterCard components for HP/resource management
   - Dice tab: DiceRoller component for rolling dice and sending to overlays
-  - Dashboard tab: Activity history, pending actions, and analytics
   
   The app shell provides consistent header/nav chrome around tab content.
   All state updates flow through Socket.io to keep overlays in sync.
@@ -23,7 +22,6 @@
   import CharacterCard from "./lib/components/stage/CharacterCard.svelte";
   import CharacterCreationForm from "./lib/components/stage/CharacterCreationForm.svelte";
   import CharacterManagement from "./lib/components/stage/CharacterManagement.svelte";
-  // import Dashboard from "./lib/dashboard/Dashboard.svelte";
   import { characters, socket } from "./lib/stores/socket.js";
   import { parseHash, updateHash, onHashChange } from "./lib/utils/router.js";
 

@@ -54,10 +54,10 @@ Configure `control-panel/.env` to point at the backend server URL.
 | ---------------- | ------------------- | -------- | -------------------------------------------- |
 | `characters`     | `socket.js`         | writable | Character array, updated by Socket.io events |
 | `lastRoll`       | `socket.js`         | writable | Most recent dice roll result                 |
-| `history`        | `dashboardStore.js` | writable | Activity log (max 40 entries)                |
-| `pendingActions` | `dashboardStore.js` | writable | Optimistic UI action queue                   |
-| `isSyncing`      | `dashboardStore.js` | derived  | True when actions are pending                |
-| `currentRole`    | `dashboardStore.js` | writable | "player" / "dm" / "spectator"                |
+| `history`        | `overviewStore.js`  | writable | Activity log (max 40 entries)                |
+| `pendingActions` | `overviewStore.js`  | writable | Optimistic UI action queue                   |
+| `isSyncing`      | `overviewStore.js`  | derived  | True when actions are pending                |
+| `currentRole`    | `overviewStore.js`  | writable | "player" / "dm" / "spectator"                |
 
 ## Styling
 

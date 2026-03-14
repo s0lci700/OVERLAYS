@@ -38,7 +38,8 @@
       "mcp__claude_ai_Context7__resolve-library-id",
       "mcp__claude_ai_Context7__query-docs",
       "Bash(bun run:*)",
-      "WebFetch(domain:ohmyposh.dev)"
+      "WebFetch(domain:ohmyposh.dev)",
+      "mcp__claude_ai_Notion__notion-fetch"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -76,5 +77,8 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "notion-workspace-plugin@notion-plugin-marketplace": true
   }
 }

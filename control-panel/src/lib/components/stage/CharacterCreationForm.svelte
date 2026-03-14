@@ -20,7 +20,7 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
   import { SelectionPillList } from "$lib/components/ui/selection-pill-list/index.js";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import { SERVER_URL } from "$lib/services/socket.js";
   import characterOptions from "$lib/data/character-options.template.json";
 
   // Controlled form fields for the character payload.
@@ -328,7 +328,7 @@
   }
 </script>
 
-<!-- Character creation card used by the control panel dashboard. -->
+<!-- Character creation card used by the stage. -->
 <section
   class="character-create card-base"
   aria-labelledby="create-character-title"

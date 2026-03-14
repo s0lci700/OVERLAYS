@@ -7,7 +7,7 @@
 -->
 <script>
   import { page } from "$app/state";
-  import { characters, SERVER_URL } from "$lib/stores/socket.js";
+  import { characters, SERVER_URL } from "$lib/services/socket.js";
   import { resolvePhotoSrc } from "$lib/utils.js";
   import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
   import * as Tooltip from "$lib/components/ui/tooltip/index.js";

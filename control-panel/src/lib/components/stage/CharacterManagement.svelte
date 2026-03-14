@@ -11,7 +11,7 @@
   import SelectionPills from "$lib/components/ui/pills/SelectionPills.svelte";
   import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
-  import { characters, SERVER_URL } from "$lib/stores/socket";
+  import { characters, SERVER_URL } from "$lib/services/socket.js";
   import * as Dialog from "$lib/components/ui/dialog";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Input } from "$lib/components/ui/input/index.js";

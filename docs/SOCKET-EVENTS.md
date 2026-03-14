@@ -49,7 +49,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Replaces character in `characters` store |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 | `overlay-hp.html` | `updateCharacterHP()` — bar width + color transition |
 
 ### `character_created`
@@ -112,7 +112,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Appends condition to character in `characters` store |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 
 ### `condition_removed`
 
@@ -131,7 +131,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Filters condition out of character in `characters` store |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -160,7 +160,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Updates matching resource in character's `resources` array |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -185,7 +185,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Replaces entire character object in `characters` store |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -214,7 +214,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | File | Action |
 |---|---|
 | `socket.js` | Sets `lastRoll` store |
-| `dashboardStore.js` | Logs to activity history |
+| `overviewStore.js` | Logs to activity history |
 | `overlay-dice.html` | `showRoll()` — anime.js card animation + 4s auto-hide |
 
 ---
@@ -230,7 +230,7 @@ Control Panel (Svelte)                Server (:3000)                  OBS Overla
        │←── Socket.io "event" ───────────│                              │
        │                                  │                              │
        │  socket.js updates stores        │                    overlay updates DOM
-       │  dashboardStore logs history     │
+       │  overviewStore logs history      │
        │  components re-render            │
 ```
 

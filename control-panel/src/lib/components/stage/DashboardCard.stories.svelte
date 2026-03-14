@@ -65,7 +65,7 @@
       docs: {
         description: {
           component:
-            "Read-only dashboard view of a character. Monitor-first layout showing all stats, conditions, and resources.",
+            "Read-only overview card for a character. Monitor-first layout showing all stats, conditions, and resources.",
         },
       },
     },
@@ -80,7 +80,7 @@
 
 <Story name="Empty / Undefined Data" args={{ character: {} }} />
 
-<Story name="Party Dashboard">
+<Story name="Party Overview">
   <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 16px;">
     <DashboardCard character={fullCharacter} />
     <DashboardCard character={minimalCharacter} />

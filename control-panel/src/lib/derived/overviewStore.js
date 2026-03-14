@@ -1,7 +1,7 @@
 /**
- * Dashboard Store
+ * Overview Store
  * ================
- * Svelte store for managing control panel UI state, action tracking, and
+ * Svelte store for managing stage UI state, action tracking, and
  * activity history across all game events.
  *
  * Features:
@@ -11,7 +11,7 @@
  * - Role-based access control state
  * - Socket.io event listeners for all game actions
  *
- * This store acts as a central hub for dashboard-level state that isn't
+ * This store acts as a central hub for stage-level state that isn't
  * character-specific (character data lives in socket.js).
  */
 
@@ -105,7 +105,7 @@ function recordHistory(entry) {
 // ═══════════════════════════════════════════════════════════════════════════
 // Socket.io Event Listeners
 // ═══════════════════════════════════════════════════════════════════════════
-// These listeners record dashboard-level activity history for all game events.
+// These listeners record stage-level activity history for all game events.
 // Character state updates are handled in socket.js; these only log to history.
 
 /**
@@ -185,7 +185,7 @@ socket.on("rest_taken", ({ charId, type }) => {
 
 /**
  * Logs dice rolls to history.
- * Triggered when any character rolls dice from the control panel.
+ * Triggered when any character rolls dice from the stage.
  * Displays character name, final result, and roll breakdown.
  *
  * Payload: { charId, characterName, result, modifier, rollResult, sides }

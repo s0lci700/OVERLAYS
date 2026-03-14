@@ -32,7 +32,7 @@
   // Lightweight spring helper that returns an anime easing string.
   const spring = (_opts = {}) => "spring(1, 80, 10, 0)";
   import { onMount } from "svelte";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import { SERVER_URL } from "$lib/services/socket.js";
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props

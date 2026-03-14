@@ -1,13 +1,13 @@
 <!--
-  Dashboard route
-  ===============
-  Live, read-only dashboard for monitor/TV viewing.
+  Overview route
+  ==============
+  Live, read-only overview for monitor/TV viewing.
 -->
 <script>
   import "$lib/components/cast/dashboard/Dashboard.css";
   import DashboardCard from "$lib/components/cast/dashboard/DashboardCard.svelte";
-  import { characters } from "$lib/stores/socket.js";
-  import { history } from "$lib/stores/dashboardStore.js";
+  import { characters } from "$lib/services/socket.js";
+  import { history } from "$lib/derived/overviewStore.js";
 
   const MAX_ACTION_LOG = 10;
   const MAX_ROLL_LOG = 10;

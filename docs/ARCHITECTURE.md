@@ -85,7 +85,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 | File                              | Purpose                                                          | Key exports / state                                                                                          |
 | --------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `lib/socket.js`                   | Socket.io singleton + Svelte stores                              | `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`                                      |
-| `lib/dashboardStore.js`           | Activity history, pending action queue, role state               | `history`, `pendingActions`, `isSyncing`, `currentRole`, `recordHistory`, `enqueuePending`, `dequeuePending` |
+| `lib/stores/overviewStore.js`     | Activity history, pending action queue, role state               | `history`, `pendingActions`, `isSyncing`, `currentRole`, `recordHistory`, `enqueuePending`, `dequeuePending` |
 | `lib/router.js`                   | Hash-based router helpers (for App.svelte fallback)              | `parseHash`, `updateHash`, `onHashChange`                                                                    |
 | `lib/CharacterCard.svelte`        | Per-character card: HP, conditions, resources, rest, damage/heal | Props: `character`                                                                                           |
 | `lib/CharacterCard.css`           | Card styles: HP bar, pips, conditions, stepper                   | —                                                                                                            |
@@ -148,7 +148,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
      ↓
 5. All clients receive "hp_updated":
    ├── socket.js → updates characters store → CharacterCard re-renders
-   ├── dashboardStore.js → logs to activity history
+   ├── overviewStore.js → logs to activity history
    ├── overlay-hp.html → updateCharacterHP() → bar width + color transition
    └── (any other connected client)
 ```
@@ -166,7 +166,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
      ↓
 5. All clients receive "dice_rolled":
    ├── socket.js → updates lastRoll store → DiceRoller shows result with animation
-   ├── dashboardStore.js → logs to activity history
+   ├── overviewStore.js → logs to activity history
    └── overlay-dice.html → showRoll() → anime.js card + bounce + 4s auto-hide
 ```
 
@@ -177,7 +177,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 | Decision                                         | Rationale                                                               |
 | ------------------------------------------------ | ----------------------------------------------------------------------- |
 | In-memory data (no DB)                           | MVP speed — characters reset on restart, fine for demo                  |
-| Vanilla JS for overlays                          | Lighter than frameworks, better OBS Browser Source performance          |
+| Svelte for overlays                          | Light and Reactive framework, better OBS Browser Source performance          |
 | Socket.io over raw WS                            | Auto-reconnect, room support, CDN available for overlay scripts         |
 | Svelte 5 runes (`$state`, `$derived`, `$effect`) | Latest Svelte reactivity model, simpler than stores for component state |
 | SvelteKit file-based routing                     | Clean URL structure, layout nesting, standard Svelte framework choice   |

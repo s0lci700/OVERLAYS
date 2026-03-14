@@ -1,7 +1,7 @@
 <script>
   import "./SessionCard.css";
   import { resolvePhotoSrc } from "$lib/utils.js";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import { SERVER_URL } from "$lib/services/socket.js";
 
   let {
     character,

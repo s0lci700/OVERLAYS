@@ -1,5 +1,5 @@
 <script>
-  import { characters, SERVER_URL } from "$lib/stores/socket.js";
+  import { characters, SERVER_URL } from "$lib/services/socket.js";
   import { get } from "svelte/store";
   import InitiativeStrip from "$lib/components/cast/dm/InitiativeStrip.svelte";
   import SessionCard from "$lib/components/cast/dm/SessionCard.svelte";
