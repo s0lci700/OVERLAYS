@@ -18,13 +18,13 @@
 -->
 <script>
   import "./CharacterCard.css";
-  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
+  import LevelPill from "$lib/components/shared/pills/LevelPill.svelte";
   import CardActions from "./CardActions.svelte";
 
-  import { StatDisplay } from "$lib/components/ui/stat-display/index.js";
+  import { StatDisplay } from "$lib/components/shared/stat-display/index.js";
 
-  import { resolvePhotoSrc } from "$lib/utils.js";
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
+  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
 
   import { animate } from "animejs";
   // Helper wrapper to keep existing animate(element, options) usage.

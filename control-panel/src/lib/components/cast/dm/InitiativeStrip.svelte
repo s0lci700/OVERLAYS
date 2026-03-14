@@ -7,7 +7,7 @@
   //   exists:
 
   import "./InitiativeStrip.css";
-  import { resolvePhotoSrc } from "$lib/utils.js";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
   import { SERVER_URL } from "$lib/services/socket.js";
 
   let {

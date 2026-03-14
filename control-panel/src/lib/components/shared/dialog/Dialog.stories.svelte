@@ -1,8 +1,8 @@
 <script module>
   import { defineMeta } from "@storybook/addon-svelte-csf";
-  import * as Dialog from "$lib/components/ui/dialog";
-  import DialogRoot from "$lib/components/ui/dialog/dialog.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import * as Dialog from "$lib/components/shared/dialog";
+  import DialogRoot from "$lib/components/shared/dialog/dialog.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
 
   const { Story } = defineMeta({
     title: "Components/Dialog",

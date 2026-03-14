@@ -22,8 +22,8 @@
   import CharacterCard from "./lib/components/stage/CharacterCard.svelte";
   import CharacterCreationForm from "./lib/components/stage/CharacterCreationForm.svelte";
   import CharacterManagement from "./lib/components/stage/CharacterManagement.svelte";
-  import { characters, socket } from "./lib/stores/socket.js";
-  import { parseHash, updateHash, onHashChange } from "./lib/utils/router.js";
+  import { characters, socket } from "$lib/services/socket.js";
+  import { parseHash, updateHash, onHashChange } from "$lib/services/router.js";
 
   // ───────────────────────────────────────────────────────────────────────────
   // State Management

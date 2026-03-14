@@ -8,9 +8,9 @@
 <script>
   import { page } from "$app/state";
   import { characters, SERVER_URL } from "$lib/services/socket.js";
-  import { resolvePhotoSrc } from "$lib/utils.js";
-  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
+  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
+  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
   import "./PlayerSheet.css";
 
   let characterId = $derived(page.params.id);

@@ -1,5 +1,5 @@
 <script>
-	import { Button } from "$lib/components/ui/button/index.js";
+	import { Button } from "$lib/components/shared/button/index.js";
 
 	let { ref = $bindable(null), ...restProps } = $props();
 </script>

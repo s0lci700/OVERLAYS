@@ -14,7 +14,7 @@
    * All state is controlled — the parent owns the value and passes `onchange`.
    */
   import { tv } from "tailwind-variants";
-  import { cn } from "$lib/utils.js";
+  import { cn } from "$lib/services/utils.js";
 
   export const stepperVariants = tv({
     slots: {

@@ -18,8 +18,8 @@
 <script>
   import "./DiceRoller.css";
   import { characters, SERVER_URL, lastRoll } from "$lib/services/socket.js";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import Stepper from "$lib/components/ui/stepper/stepper.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import Stepper from "$lib/components/shared/stepper/stepper.svelte";
   import { get } from "svelte/store";
   import { animate } from "animejs";
   // Keep existing animate(element, options) callsites working.

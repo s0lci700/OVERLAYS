@@ -13,7 +13,7 @@
    * calls `onRemove` on click. Set to false (default) for display-only spans.
    */
   import { tv } from "tailwind-variants";
-  import { cn } from "$lib/utils.js";
+  import { cn } from "$lib/services/utils.js";
 
   export const conditionPillVariants = tv({
     base: [

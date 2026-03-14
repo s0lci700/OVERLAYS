@@ -9,8 +9,8 @@
    * @prop labelMap - Map<key, displayLabel> for resolving display names
    *                 Pass undefined to use the key itself as the label
    */
-  import { cn } from "$lib/utils.js";
-  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
+  import { cn } from "$lib/services/utils.js";
+  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
 </script>
 
 <script>

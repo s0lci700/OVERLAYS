@@ -6,19 +6,19 @@
 -->
 <script>
   import "./CharacterManagement.css";
-  import "$lib/components/ui/pills/Pills.css";
+  import "$lib/components/shared/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
-  import SelectionPills from "$lib/components/ui/pills/SelectionPills.svelte";
-  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
+  import SelectionPills from "$lib/components/shared/pills/SelectionPills.svelte";
+  import LevelPill from "$lib/components/shared/pills/LevelPill.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
   import { characters, SERVER_URL } from "$lib/services/socket.js";
-  import * as Dialog from "$lib/components/ui/dialog";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { resolvePhotoSrc } from "$lib/utils.js";
-  import * as AlertDialog from "$lib/components/ui/alert-dialog";
-  import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
+  import * as Dialog from "$lib/components/shared/dialog";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import { Input } from "$lib/components/shared/input/index.js";
+  import { Label } from "$lib/components/shared/label/index.js";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
+  import * as AlertDialog from "$lib/components/shared/alert-dialog";
+  import ReadOnlyField from "$lib/components/shared/read-only-field/read-only-field.svelte";
   import characterOptions from "$lib/data/character-options.template.json";
   import { fade } from "svelte/transition";
 

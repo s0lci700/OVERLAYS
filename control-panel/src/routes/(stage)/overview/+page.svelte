@@ -5,7 +5,7 @@
 -->
 <script>
   import "$lib/components/cast/dashboard/Dashboard.css";
-  import DashboardCard from "$lib/components/cast/dashboard/DashboardCard.svelte";
+  import DashboardCard from "$lib/components/stage/DashboardCard.svelte";
   import { characters } from "$lib/services/socket.js";
   import { history } from "$lib/derived/overviewStore.js";
 

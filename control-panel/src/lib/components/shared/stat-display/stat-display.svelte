@@ -11,7 +11,7 @@
    * The value is always rendered in a monospace font for alignment.
    */
   import { tv } from "tailwind-variants";
-  import { cn } from "$lib/utils.js";
+  import { cn } from "$lib/services/utils.js";
 
   export const statDisplayVariants = tv({
     slots: {

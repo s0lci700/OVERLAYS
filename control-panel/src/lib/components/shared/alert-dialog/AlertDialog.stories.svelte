@@ -1,8 +1,8 @@
 <script module>
   import { defineMeta } from "@storybook/addon-svelte-csf";
-  import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
-  import AlertContent from "$lib/components/ui/alert-dialog/alert-dialog-content.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import * as AlertDialog from "$lib/components/shared/alert-dialog/index.js";
+  import AlertContent from "$lib/components/shared/alert-dialog/alert-dialog-content.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
 
   const { Story } = defineMeta({
     title: "Components/AlertDialog",

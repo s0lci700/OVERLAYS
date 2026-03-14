@@ -2,7 +2,7 @@
   Shared modal styles (consolidated)
   - Used for PhotoSourcePicker and other custom modals where Tailwind
     utility classes aren't used inline. Keeps overlay/card visuals together
-    under `components/ui/modal`.
+    under components/shared/modal.
 */
 .photo-modal-overlay {
   position: fixed;

@@ -53,7 +53,7 @@
 	</nav>
 
 	<div class="sidebar-footer">
-		<a href="/api/topics/" class="api-link" target="_blank">
+		<a href="/api/topics" class="api-link" target="_blank">
 			API: topics.json ↗
 		</a>
 	</div>

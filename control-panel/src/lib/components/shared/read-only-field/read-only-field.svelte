@@ -11,7 +11,7 @@
    * Pass `children` to render rich content instead of the plain `value` string.
    */
   import { tv } from "tailwind-variants";
-  import { cn } from "$lib/utils.js";
+  import { cn } from "$lib/services/utils.js";
 
   export const readOnlyFieldVariants = tv({
     slots: {

@@ -6,8 +6,8 @@
 -->
 <script>
   import "./PhotoSourcePicker.css";
-  import "$lib/components/ui/modal/modal.css";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import "$lib/components/shared/modal/modal.css";
+  import { Button } from "$lib/components/shared/button/index.js";
 
   let {
     title = "",

@@ -1,5 +1,5 @@
 <script module>
-  import { cn } from "$lib/utils.js";
+  import { cn } from "$lib/services/utils.js";
   import { tv } from "tailwind-variants";
 
   export const buttonVariants = tv({

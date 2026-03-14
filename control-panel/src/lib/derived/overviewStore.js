@@ -16,7 +16,7 @@
  */
 
 import { writable, derived } from "svelte/store";
-import { socket } from "./socket.js";
+import { socket } from "../services/socket.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Store Definitions

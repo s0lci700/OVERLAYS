@@ -1,8 +1,8 @@
 <script>
-  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
-  import { Stepper } from "$lib/components/ui/stepper/index.js";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
+  import { Stepper } from "$lib/components/shared/stepper/index.js";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
   import { SERVER_URL } from "$lib/services/socket.js";
 
   // ──────────────────────────────────────────────────────────────────────────

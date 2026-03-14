@@ -6,8 +6,8 @@
 	},
 	"aliases": {
 		"components": "$lib/components",
-		"utils": "$lib/utils",
-		"ui": "$lib/components/ui",
+		"utils": "$lib/services/utils",
+		"ui": "$lib/components/shared",
 		"hooks": "$lib/hooks",
 		"lib": "$lib"
 	},

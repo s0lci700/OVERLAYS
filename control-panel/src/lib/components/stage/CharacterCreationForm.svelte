@@ -11,15 +11,15 @@
 -->
 <script>
   import "./CharacterCreationForm.css";
-  import "$lib/components/ui/pills/Pills.css";
+  import "$lib/components/shared/pills/Pills.css";
   import MultiSelect from "./MultiSelect.svelte";
   import PhotoSourcePicker from "./PhotoSourcePicker.svelte";
-  // import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import Modal from "$lib/components/ui/modal/Modal.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { SelectionPillList } from "$lib/components/ui/selection-pill-list/index.js";
+  // import * as Dialog from "$lib/components/shared/dialog/index.js";
+  import Modal from "$lib/components/shared/modal/Modal.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import { Input } from "$lib/components/shared/input/index.js";
+  import { Label } from "$lib/components/shared/label/index.js";
+  import { SelectionPillList } from "$lib/components/shared/selection-pill-list/index.js";
   import { SERVER_URL } from "$lib/services/socket.js";
   import characterOptions from "$lib/data/character-options.template.json";
 

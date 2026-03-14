@@ -1,7 +1,7 @@
 <script>
 	import * as FormPrimitive from "formsnap";
-	import { Label } from "$lib/components/ui/label/index.js";
-	import { cn } from "$lib/utils.js";
+	import { Label } from "$lib/components/shared/label/index.js";
+	import { cn } from "$lib/services/utils.js";
 
 	let {
 		ref = $bindable(null),

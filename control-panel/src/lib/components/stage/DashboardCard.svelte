@@ -4,10 +4,10 @@
   Read-only, monitor-first character card for the live overview.
 -->
 <script>
-  import "./DashboardCard.css";
+  import "$lib/components/cast/dashboard/DashboardCard.css";
   import { SERVER_URL } from "$lib/services/socket.js";
-  import StatDisplay from "$lib/components/ui/stat-display/stat-display.svelte";
-  import ConditionPill from "$lib/components/ui/condition-pill/condition-pill.svelte";
+  import StatDisplay from "$lib/components/shared/stat-display/stat-display.svelte";
+  import ConditionPill from "$lib/components/shared/condition-pill/condition-pill.svelte";
 
   const FALLBACK_PHOTO_OPTIONS = [
     "/assets/img/barbarian.png",
