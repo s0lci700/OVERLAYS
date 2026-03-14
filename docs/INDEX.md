@@ -7,7 +7,7 @@ entry points, and how the system hangs together.
 
 - Backend server: server.js
 - PocketBase: `.\pocketbase.exe serve` (must start before server.js)
-- OBS overlays: public/overlay-hp.html, public/overlay-dice.html
+- OBS overlays (SvelteKit): control-panel/src/routes/(audience)/
 - Control panel app: control-panel/src/main.js
 
 ## Key directories
@@ -35,22 +35,22 @@ entry points, and how the system hangs together.
 ## Socket.io contract
 
 - Full event list: docs/SOCKET-EVENTS.md
-- Socket client store: control-panel/src/lib/socket.js
+- Socket client store: control-panel/src/lib/services/socket.js
 
 ## Control panel UI
 
 - Shell + layout: control-panel/src/routes/+layout.svelte
-- Character card: control-panel/src/lib/CharacterCard.svelte
-- Dice roller: control-panel/src/lib/DiceRoller.svelte
-- Character creation: control-panel/src/lib/CharacterCreationForm.svelte
-- Character management: control-panel/src/lib/CharacterManagement.svelte
-- Photo picker: control-panel/src/lib/PhotoSourcePicker.svelte
-- Dashboard card: control-panel/src/lib/DashboardCard.svelte
+- Character card: control-panel/src/lib/components/stage/CharacterCard.svelte
+- Dice roller: control-panel/src/lib/components/stage/DiceRoller.svelte
+- Character creation: control-panel/src/lib/components/stage/CharacterCreationForm.svelte
+- Character management: control-panel/src/lib/components/stage/CharacterManagement.svelte
+- Photo picker: control-panel/src/lib/components/stage/PhotoSourcePicker.svelte
+- Dashboard card: control-panel/src/lib/components/stage/DashboardCard.svelte
 
 ## Overlay UI
 
-- HP overlay styles: public/overlay-hp.css
-- Dice overlay styles: public/overlay-dice.css
+- Shared overlay styles: control-panel/src/lib/components/overlays/overlays.css
+- Overlay components: control-panel/src/lib/components/overlays/
 
 ## Common tasks
 

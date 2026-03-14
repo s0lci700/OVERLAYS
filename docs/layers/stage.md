@@ -34,22 +34,23 @@ Production operator / Sol. Runs on a phone or tablet out of frame during recordi
 
 | Route | Purpose |
 |---|---|
-| `/control/characters` | Live HP, conditions, resources per character |
-| `/control/dice` | Dice roller — sends roll event to all clients |
-| `/management/create` | Pre-session character creation form |
-| `/management/manage` | Pre-session photo/data editing, bulk controls |
-| `/dashboard` | Live read-only overview (operator monitor) |
+| `/live/characters` | Live HP, conditions, resources per character |
+| `/live/dice` | Dice roller — sends roll event to all clients |
+| `/setup/create` | Pre-session character creation form |
+| `/setup/manage` | Pre-session photo/data editing, bulk controls |
+| `/overview` | Live read-only overview (operator monitor) |
 
 ## Target Routes
 
 ```
 (stage)/
-  setup/
-    characters/     ← merged create + manage
   live/
-    characters/     ← HP, conditions, resources
-    dice/           ← dice roller
-    overview/       ← read-only operator dashboard
+    characters/
+    dice/
+  setup/
+    create/
+    manage/
+  overview/
 ```
 
 ---
@@ -61,12 +62,12 @@ Production operator / Sol. Runs on a phone or tablet out of frame during recordi
 | `server.js` | All REST endpoints + Socket.io broadcasts |
 | `data/characters.js` | PocketBase CRUD wrappers |
 | `data/rolls.js` | Roll history logger |
-| `control-panel/src/routes/control/` | Current live routes |
-| `control-panel/src/routes/management/` | Current setup routes |
-| `control-panel/src/lib/CharacterCard.svelte` | Main live control component |
-| `control-panel/src/lib/CharacterCreationForm.svelte` | Character creation |
-| `control-panel/src/lib/CharacterManagement.svelte` | Pre-session management |
-| `control-panel/src/lib/DiceRoller.svelte` | Dice trigger component |
+| `control-panel/src/routes/(stage)/live/` | Current live routes |
+| `control-panel/src/routes/(stage)/setup/` | Current setup routes |
+| `control-panel/src/lib/components/stage/CharacterCard.svelte` | Main live control component |
+| `control-panel/src/lib/components/stage/CharacterCreationForm.svelte` | Character creation |
+| `control-panel/src/lib/components/stage/CharacterManagement.svelte` | Pre-session management |
+| `control-panel/src/lib/components/stage/DiceRoller.svelte` | Dice trigger component |
 
 ---
 

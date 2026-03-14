@@ -32,11 +32,12 @@ This script auto-detects your local IPv4 address and writes:
 ## OBS overlay server URL
 
 Overlays default to http://localhost:3000. To connect them to a LAN IP, append
-`?server=` to the local file URL in OBS:
+`?server=` to the SvelteKit overlay URL in OBS:
 
 ```
-overlay-hp.html?server=http://192.168.1.83:3000
-overlay-dice.html?server=http://192.168.1.83:3000
+http://192.168.1.83:5173/persistent/hp?server=http://192.168.1.83:3000
+http://192.168.1.83:5173/moments/dice?server=http://192.168.1.83:3000
+http://192.168.1.83:5173/persistent/conditions?server=http://192.168.1.83:3000
 ```
 
 ## Railway deployment

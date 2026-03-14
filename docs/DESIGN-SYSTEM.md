@@ -14,27 +14,29 @@ src/
 ├── app.css                    ← shadcn aliases + CSS reset/utilities (tokens imported from generated-tokens.css)
 ├── routes/
 │   ├── +layout.svelte         ← Root shell: header, nav, sidebar
-│   ├── +page.svelte           ← Redirects to /control/characters
-│   ├── control/
-│   │   ├── +layout.svelte     ← Control sub-layout
-│   │   ├── characters/+page.svelte  ← HP management, conditions, resources
-│   │   └── dice/+page.svelte        ← Dice roller
-│   ├── dashboard/+page.svelte       ← Activity history, analytics
-│   └── management/
-│       ├── +layout.svelte
-│       ├── create/+page.svelte      ← Character creation form
-│       └── manage/+page.svelte      ← Character list / bulk actions
+│   ├── +page.svelte           ← Redirects to /live/characters
+│   ├── (stage)/
+│   │   ├── live/characters/+page.svelte
+│   │   ├── live/dice/+page.svelte
+│   │   ├── setup/create/+page.svelte
+│   │   ├── setup/manage/+page.svelte
+│   │   └── overview/+page.svelte
+│   ├── (cast)/
+│   │   ├── dm/+page.svelte
+│   │   └── players/[id]/+page.svelte
+│   └── (audience)/
+│       ├── persistent/*
+│       ├── moments/*
+│       ├── scene/+page.svelte
+│       ├── announcements/+page.svelte
+│       └── show/*
 └── lib/
-    ├── CharacterCard.svelte/.css         ← Per-character HP panel
-    ├── CharacterBulkControls.svelte/.css ← Multi-select bulk actions
-    ├── CharacterCreationForm.svelte/.css ← New character wizard
-    ├── CharacterManagement.svelte/.css   ← Management list view
-    ├── Dashboard.css / DashboardCard.svelte/.css
-    ├── DiceRoller.svelte/.css
-    ├── Modal.svelte                      ← Reusable dialog overlay
-    ├── MultiSelect.svelte/.css           ← Custom multi-select listbox
-    ├── PhotoSourcePicker.svelte/.css     ← Avatar source chooser
-    └── socket.js                         ← Socket.io + shared stores
+  ├── components/stage/                 ← Stage components
+  ├── components/cast/                  ← DM + dashboard components
+  ├── components/overlays/              ← Audience overlays
+  ├── components/shared/                ← Shared UI primitives
+  ├── services/socket.js                ← Socket.io + shared stores
+  └── derived/overviewStore.js          ← History + derived state
 
 public/
 └── tokens.css   ← Overlay-shared token subset (see §Token Sync below)
@@ -261,7 +263,7 @@ Multi-field form: name, player, class, level, HP max, AC, movement, avatar (via 
 ---
 
 ### CharacterManagement
-List view of all characters with edit/delete. Used in `management/manage` route.
+List view of all characters with edit/delete. Used in `/setup/manage` route.
 
 ---
 
@@ -333,15 +335,23 @@ Filled state: `.pip--filled` adds background + glow `box-shadow`.
 
 ## OBS Overlay Specifics
 
-Three HTML files in `public/` loaded as OBS Browser Sources (1920×1080, transparent):
+Overlays are SvelteKit routes loaded as OBS Browser Sources (1920×1080, transparent):
 
-| File | Purpose |
+| Path | Purpose |
 |------|---------|
-| `overlay-hp.html` | HP bars, character avatars, class badges, AC, conditions |
-| `overlay-dice.html` | Animated dice roll popup with crit flash, character avatar, auto-hide |
-| `overlay-conditions.html` | Active conditions + depleted resources panel |
+| `/persistent/hp` | HP bars, character avatars, class badges, AC, conditions |
+| `/moments/dice` | Animated dice roll popup with crit/fail states, auto-hide |
+| `/persistent/conditions` | Active conditions + depleted resources panel |
+| `/persistent/turn-order` | Initiative strip |
+| `/persistent/focus` | Character focus spotlight |
+| `/scene` | Scene title card |
+| `/announcements` | Generic announcement modal |
+| `/show/lower-third` | Lower-third nameplate |
+| `/show/stats` | Session stats panel |
+| `/show/recording-badge` | On-air/recording indicator |
+| `/show/break` | Break slate |
 
-Overlays import `public/tokens.css` for their token values — this file must stay in sync with `app.css`.
+Route components live under `control-panel/src/lib/components/overlays/` and use shared token values from `generated-tokens.css`/`public/tokens.css`.
 
 ---
 

@@ -29,7 +29,7 @@ DADOS & RISAS is a lightweight, low-latency toolkit designed for DMs and players
 | **Database** | PocketBase (SQLite) |
 | **Frontend** | Svelte 5, Vite 7, Tailwind CSS 4 |
 | **Runtime** | Bun (recommended) |
-| **Overlays** | Vanilla HTML/CSS/JS |
+| **Overlays** | SvelteKit routes under `(audience)` |
 
 ---
 
@@ -119,13 +119,10 @@ OVERLAYS/
 ├── server.js            # Express + Socket.io backend
 ├── pocketbase.exe       # PocketBase binary
 ├── data/                # Data access modules (characters, rolls)
-├── public/              # OBS overlays (Vanilla JS/CSS)
-│   ├── overlay-hp.html  # HP tracking overlay
-│   ├── overlay-dice.html # Dice roll popup overlay
-│   └── ...
+├── public/              # Static assets + generated overlay tokens
 ├── control-panel/       # Svelte 5 Control Panel
-│   ├── src/routes/      # App pages (Live, Setup, DM)
-│   ├── src/lib/         # Components and stores
+│   ├── src/routes/      # Route groups: (stage), (cast), (audience)
+│   ├── src/lib/         # Components, services, contracts, stores
 │   └── ...
 ├── scripts/             # Utility scripts (IP detection, seeding)
 ├── tests/               # Backend and E2E tests

@@ -90,13 +90,11 @@ Stage is the only initiator. Cast and Audience are consumers.
 
 | Layer | Status | Location |
 |---|---|---|
-| Stage — pre-session | ✅ Built | `/control/management/*` |
-| Stage — live session | ✅ Built | `/control/characters`, `/control/dice` |
-| Cast — DM Panel | ⚠️ Prototype | `dm-session-panel.html` (reference only) |
-| Cast — Players | ❌ Not built | New — mobile character sheet |
-| Audience — HP overlay | ✅ Built | `public/overlay-hp.html` |
-| Audience — Dice overlay | ✅ Built | `public/overlay-dice.html` |
-| Audience — Conditions | ✅ Built | `public/overlay-conditions.html` |
+| Stage — pre-session | ✅ Built | `/setup/create`, `/setup/manage` |
+| Stage — live session | ✅ Built | `/live/characters`, `/live/dice`, `/overview` |
+| Cast — DM Panel | ✅ Built | `/dm` |
+| Cast — Players | ✅ Built | `/players/[id]` |
+| Audience — overlays | ✅ Built | `/persistent/*`, `/moments/*`, `/scene`, `/announcements`, `/show/*` |
 | Backend / server | ✅ Built | `server.js` + PocketBase |
 
 ---
@@ -111,24 +109,37 @@ control-panel/src/routes/
 
 (stage)/                    ← Operator UI: dense, functional, full control
   setup/
-    characters/             ← was /management/create + /management/manage
+    create/
+    manage/
   live/
-    characters/             ← was /control/characters
-    dice/                   ← was /control/dice
-    overview/               ← was /dashboard (operator read view)
+    characters/
+    dice/
+  overview/
 
 (cast)/                     ← Session UI: clean, fast, mobile-first, low friction
-  dm/                       ← DM panel [partially built, needs structure]
-  players/[id]/             ← Player sheet [not built]
+  dm/
+  players/[id]/
 
 (audience)/                 ← Broadcast UI: full-screen, no chrome, OBS-targeted
-  hp/                       ← was public/overlay-hp.html
-  dice/                     ← was public/overlay-dice.html
-  conditions/               ← was public/overlay-conditions.html
+  persistent/
+    hp/
+    conditions/
+    turn-order/
+    focus/
+  moments/
+    dice/
+    player-down/
+    level-up/
+  scene/
+  announcements/
+  show/
+    lower-third/
+    stats/
+    recording-badge/
+    break/
 ```
 
-Migration note: `public/overlay-*.html` stays functional until `(audience)/` routes
-are built in Svelte. They can coexist during transition.
+Migration note: legacy `public/overlay-*.html` references in historical docs remain for audit context, but the active overlay surfaces are SvelteKit routes under `(audience)/`.
 
 ---
 

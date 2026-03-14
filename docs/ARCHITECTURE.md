@@ -64,7 +64,7 @@ The control panel is a **SvelteKit** application. File-based routes live under `
 
 #### Routes
 
-Route groups use `(parens)` — they are organizational only and do NOT appear in URLs. Old routes (`/control/`, `/management/`, `/dashboard/`, `/session/`) have been moved to `routes/_deprecated/` (gitignored, reference only).
+Route groups use `(parens)` — they are organizational only and do NOT appear in URLs.
 
 | Route path          | File                                                    | Purpose                                    |
 | ------------------- | ------------------------------------------------------- | ------------------------------------------ |
@@ -84,32 +84,32 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 | File                              | Purpose                                                          | Key exports / state                                                                                          |
 | --------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `lib/socket.js`                   | Socket.io singleton + Svelte stores                              | `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`                                      |
-| `lib/stores/overviewStore.js`     | Activity history, pending action queue, role state               | `history`, `pendingActions`, `isSyncing`, `currentRole`, `recordHistory`, `enqueuePending`, `dequeuePending` |
-| `lib/router.js`                   | Hash-based router helpers (for App.svelte fallback)              | `parseHash`, `updateHash`, `onHashChange`                                                                    |
-| `lib/CharacterCard.svelte`        | Per-character card: HP, conditions, resources, rest, damage/heal | Props: `character`                                                                                           |
-| `lib/CharacterCard.css`           | Card styles: HP bar, pips, conditions, stepper                   | —                                                                                                            |
-| `lib/CharacterCreationForm.svelte`| New character creation form                                      | —                                                                                                            |
-| `lib/CharacterCreationForm.css`   | Creation form styles                                             | —                                                                                                            |
-| `lib/CharacterManagement.svelte`  | Photo/data editing, bulk controls, character list                | —                                                                                                            |
-| `lib/CharacterManagement.css`     | Management panel styles                                          | —                                                                                                            |
-| `lib/CharacterBulkControls.css`   | Bulk action button styles                                        | —                                                                                                            |
-| `lib/PhotoSourcePicker.svelte`    | URL / file-upload photo picker                                   | —                                                                                                            |
-| `lib/PhotoSourcePicker.css`       | Photo picker styles                                              | —                                                                                                            |
-| `lib/DashboardCard.svelte`        | Per-character dashboard tile (read-only)                         | Props: `character`                                                                                           |
-| `lib/DashboardCard.css`           | Dashboard card styles                                            | —                                                                                                            |
-| `lib/Dashboard.css`               | Dashboard shell / grid styles                                    | —                                                                                                            |
-| `lib/DiceRoller.svelte`           | Dice roller: character selector, modifier, d4–d20 grid           | `selectedCharId`, `modifier`                                                                                 |
-| `lib/DiceRoller.css`              | Dice grid, result card, crit/fail states                         | —                                                                                                            |
+| `lib/services/socket.js`                 | Socket.io singleton + Svelte stores                        | `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`                   |
+| `lib/derived/overviewStore.js`           | Activity history and derived dashboard state               | `history`, helpers for feed/summary                                                   |
+| `lib/services/router.js`                 | Routing helpers                                            | route/hash helpers                                                                    |
+| `lib/components/stage/*`                 | Stage UI components                                        | CharacterCard, DiceRoller, CharacterManagement, forms                                 |
+| `lib/components/cast/dm/*`               | DM panel components                                        | InitiativeStrip, SessionCard, SessionBar                                              |
+| `lib/components/cast/dashboard/*`        | Dashboard view styles/components                           | Dashboard.css, DashboardCard.css                                                       |
+| `lib/components/overlays/*`              | Audience overlays                                          | OverlayHP, OverlayDice, OverlayConditions, OverlayTurnOrder, OverlaySceneTitle, etc.  |
+| `lib/components/shared/*`                | Shared UI primitives                                       | button, dialog, tooltip, form, condition-pill, etc.                                   |
 
-### OBS Overlays (`/public/`)
+### OBS Overlays (SvelteKit `(audience)` routes)
 
-| File                | Purpose                                                           |
-| ------------------- | ----------------------------------------------------------------- |
-| `overlay-hp.html`   | HP bars overlay — positioned top-right, color-coded health states |
-| `overlay-hp.css`    | HP overlay styles: gradients, pulse animation, status banner      |
-| `overlay-dice.html` | Dice roll popup — bottom-center, anime.js bounce, auto-hide 4s    |
-| `overlay-dice.css`  | Dice card styles: crit/fail states, result number                 |
+| Route path                  | Component                                  |
+| -------------------------- | ------------------------------------------ |
+| `/persistent/hp`           | `OverlayHP.svelte`                         |
+| `/persistent/conditions`   | `OverlayConditions.svelte`                 |
+| `/persistent/turn-order`   | `OverlayTurnOrder.svelte`                  |
+| `/persistent/focus`        | `OverlayCharacterFocus.svelte`             |
+| `/moments/dice`            | `OverlayDice.svelte`                       |
+| `/moments/player-down`     | `OverlayPlayerDown.svelte`                 |
+| `/moments/level-up`        | `OverlayLevelUp.svelte`                    |
+| `/scene`                   | `OverlaySceneTitle.svelte`                 |
+| `/announcements`           | `OverlayAnnounce.svelte`                   |
+| `/show/lower-third`        | `OverlayLowerThird.svelte`                 |
+| `/show/stats`              | `OverlayStats.svelte`                      |
+| `/show/recording-badge`    | `OverlayRecordingBadge.svelte`             |
+| `/show/break`              | `OverlayBreak.svelte`                      |
 
 ### Documentation (`/docs/`)
 
@@ -147,9 +147,9 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 4. server.js responds 200 + io.emit("hp_updated", { character, hp_current })
      ↓
 5. All clients receive "hp_updated":
-   ├── socket.js → updates characters store → CharacterCard re-renders
-   ├── overviewStore.js → logs to activity history
-   ├── overlay-hp.html → updateCharacterHP() → bar width + color transition
+     ├── services/socket.js → updates characters store → CharacterCard re-renders
+     ├── derived/overviewStore.js → logs to activity history
+     ├── OverlayHP.svelte → updates reactive HP/condition state
    └── (any other connected client)
 ```
 
@@ -165,9 +165,9 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 4. server.js responds 201 + io.emit("dice_rolled", { ...rollRecord })
      ↓
 5. All clients receive "dice_rolled":
-   ├── socket.js → updates lastRoll store → DiceRoller shows result with animation
-   ├── overviewStore.js → logs to activity history
-   └── overlay-dice.html → showRoll() → anime.js card + bounce + 4s auto-hide
+     ├── services/socket.js → updates lastRoll store → DiceRoller shows result with animation
+     ├── derived/overviewStore.js → logs to activity history
+     └── OverlayDice.svelte → dice moment animation + auto-hide
 ```
 
 ---
@@ -182,7 +182,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 | Svelte 5 runes (`$state`, `$derived`, `$effect`) | Latest Svelte reactivity model, simpler than stores for component state |
 | SvelteKit file-based routing                     | Clean URL structure, layout nesting, standard Svelte framework choice   |
 | Separate CSS files per component                 | Avoids Svelte scoped style limitations with dynamic classes             |
-| anime.js for animations                          | Small library, elastic/spring easing, already used in overlay-dice.html |
+| anime.js for animations                          | Small library, elastic/spring easing, used across stage + overlay components |
 | `.env` + `?server=` param for server URL         | No hardcoded IPs — `bun run setup-ip` auto-detects local address        |
 
 ---
@@ -193,8 +193,8 @@ The project now uses `.env` files instead of hardcoding IP addresses:
 
 1. Root `.env` (generated by `npm run setup-ip`) sets `PORT` and `CONTROL_PANEL_ORIGIN`.
 2. `control-panel/.env` sets `VITE_SERVER_URL` and `VITE_PORT` for the frontend.
-3. Overlays accept a `server` query parameter, for example:
-   `overlay-hp.html?server=http://192.168.1.83:3000`
+3. Overlay routes accept a `server` query parameter, for example:
+     `http://192.168.1.83:5173/persistent/hp?server=http://192.168.1.83:3000`
 
 If the overlays are loaded without a query parameter, they fall back to
 `http://localhost:3000`.

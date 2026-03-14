@@ -81,7 +81,7 @@ Not built. This is the highest-priority new build before Session 0.
 | File | Notes |
 |---|---|
 | `dm-session-panel.html` | DM prototype — reference only, not production |
-| `control-panel/src/lib/socket.js` | Socket.io client + shared stores — Cast will use same connection |
+| `control-panel/src/lib/services/socket.js` | Socket.io client + shared stores — Cast will use same connection |
 | `control-panel/src/lib/DashboardCard.svelte` | Read-only character tile — may be reused in Cast views |
 
 ---

@@ -25,8 +25,8 @@ Fired when any client connects. Server sends `initialData` in response.
 
 **Listeners:**
 
-- `control-panel/src/lib/socket.js` — populates `characters` store
-- `public/overlay-hp.html` — calls `renderAllCharacters()`
+- `control-panel/src/lib/services/socket.js` — populates `characters` store
+- `control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.js` — bootstraps overlay state
 
 ---
 
@@ -48,9 +48,9 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Replaces character in `characters` store |
-| `overviewStore.js` | Logs to activity history |
-| `overlay-hp.html` | `updateCharacterHP()` — bar width + color transition |
+| `services/socket.js` | Replaces character in `characters` store |
+| `derived/overviewStore.js` | Logs to activity history |
+| `components/overlays/OverlayHP.svelte` | Reactive HP bar + condition-aware state update |
 
 ### `character_created`
 
@@ -67,7 +67,7 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Appends to `characters` store |
+| `services/socket.js` | Appends to `characters` store |
 
 ### `character_updated`
 
@@ -84,7 +84,7 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Replaces character in `characters` store |
+| `services/socket.js` | Replaces character in `characters` store |
 
 ---
 
@@ -111,8 +111,8 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Appends condition to character in `characters` store |
-| `overviewStore.js` | Logs to activity history |
+| `services/socket.js` | Appends condition to character in `characters` store |
+| `derived/overviewStore.js` | Logs to activity history |
 
 ### `condition_removed`
 
@@ -130,8 +130,8 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Filters condition out of character in `characters` store |
-| `overviewStore.js` | Logs to activity history |
+| `services/socket.js` | Filters condition out of character in `characters` store |
+| `derived/overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -159,8 +159,8 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Updates matching resource in character's `resources` array |
-| `overviewStore.js` | Logs to activity history |
+| `services/socket.js` | Updates matching resource in character's `resources` array |
+| `derived/overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -184,8 +184,8 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Replaces entire character object in `characters` store |
-| `overviewStore.js` | Logs to activity history |
+| `services/socket.js` | Replaces entire character object in `characters` store |
+| `derived/overviewStore.js` | Logs to activity history |
 
 ---
 
@@ -213,9 +213,9 @@ Fired when any client connects. Server sends `initialData` in response.
 **Listeners:**
 | File | Action |
 |---|---|
-| `socket.js` | Sets `lastRoll` store |
-| `overviewStore.js` | Logs to activity history |
-| `overlay-dice.html` | `showRoll()` — anime.js card animation + 4s auto-hide |
+| `services/socket.js` | Sets `lastRoll` store |
+| `derived/overviewStore.js` | Logs to activity history |
+| `components/overlays/OverlayDice.svelte` | Renders roll moment overlay with timed dismissal |
 
 ---
 
@@ -229,8 +229,8 @@ Control Panel (Svelte)                Server (:3000)                  OBS Overla
        │                                  │── io.emit("event") ────────→│
        │←── Socket.io "event" ───────────│                              │
        │                                  │                              │
-       │  socket.js updates stores        │                    overlay updates DOM
-       │  overviewStore logs history      │
+      │  services/socket.js updates      │                    overlay components update reactively
+      │  derived/overviewStore logs      │
        │  components re-render            │
 ```
 
