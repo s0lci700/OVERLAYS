@@ -48,3 +48,50 @@ Examples:
 - terrain
 - reveal_preset
 */
+
+export interface CharacterRecord {
+    id: string;
+    name: string;
+    species: string;
+    class_name: string;
+    subclass_name?: string;
+    level:number;
+    hp_current: number;
+    hp_max: number;
+    hp_temp?: number;
+    ac_base: number;
+    speed: number;
+    proficiency_bonus: number;
+    ability_scores: Record<string, number>;
+    saving_throws_proficiencies: string[];
+    skill_proficiencies: string[];
+    expertise: string[];
+    resources: ResourceSlot[];
+    conditions: string[];
+    is_active: boolean;
+    is_visible_to_party_overlay: boolean;
+    portrait?: string; // URL or base64 image data
+    notes?: string[];
+}
+
+export interface ResourceSlot {
+    name: string;
+    pool_max: number;
+    pool_used: number;
+    reset_on: 'long_rest' | 'short_rest' | 'turn' | 'dm';
+}
+
+export interface CampaignRecord {
+    id: string;
+    title: string;
+    setting: string;
+    is_active: boolean;
+}
+
+export interface SessionRecord {
+    id: string;
+    campaign: string;
+    title: string;
+    session_number: number;
+    is_active: boolean;
+}
