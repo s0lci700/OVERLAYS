@@ -19,6 +19,7 @@ entry points, and how the system hangs together.
 - control-panel/ Svelte control panel source and build output
 - scripts/ Local tooling (setup-ip.js, seed.js)
 - docs/ Architecture, events, design system, environment guide
+- control-panel/docs/ Documentation specific for the "control panel app"
 
 ## Configuration
 

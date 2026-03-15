@@ -9,14 +9,6 @@
       "WebFetch(domain:yt3.googleusercontent.com)",
       "mcp__plugin_playwright_playwright__browser_navigate",
       "Bash(git checkout:*)",
-      "Bash(New-Item -ItemType File -Path \"C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\\\\.claude\\\\worktrees\\\\amazing-engelbart\\\\control-panel\\\\src\\\\App.css\" -Force)",
-      "Bash(Out-Null)",
-      "Bash(New-Item -ItemType File -Path \"C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\\\\.claude\\\\worktrees\\\\amazing-engelbart\\\\control-panel\\\\src\\\\lib\\\\CharacterCard.css\" -Force)",
-      "Bash(New-Item -ItemType File -Path \"C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\\\\.claude\\\\worktrees\\\\amazing-engelbart\\\\control-panel\\\\src\\\\lib\\\\DiceRoller.css\" -Force)",
-      "Bash(git -C \"C:/Users/Sol/Desktop/PITCH/OVERLAYS/.claude/worktrees/amazing-engelbart\" status)",
-      "Bash(git -C \"C:/Users/Sol/Desktop/PITCH/OVERLAYS/.claude/worktrees/amazing-engelbart\" ls-files control-panel/src/App.css control-panel/src/app.css)",
-      "Bash(git -C \"C:/Users/Sol/Desktop/PITCH/OVERLAYS/.claude/worktrees/amazing-engelbart\" show HEAD:control-panel/src/app.css)",
-      "Bash(git -C \"C:/Users/Sol/Desktop/PITCH/OVERLAYS/.claude/worktrees/amazing-engelbart\" diff HEAD -- control-panel/src/app.css)",
       "Bash(powershell -Command:*)",
       "Bash(python:*)",
       "Bash(npm install:*)",
@@ -39,7 +31,10 @@
       "mcp__claude_ai_Context7__query-docs",
       "Bash(bun run:*)",
       "WebFetch(domain:ohmyposh.dev)",
-      "mcp__claude_ai_Notion__notion-fetch"
+      "mcp__claude_ai_Notion__notion-fetch",
+      "Bash(gh issue:*)",
+      "mcp__claude_ai_Notion__notion-search",
+      "Bash(gh label:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

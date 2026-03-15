@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(where gh:*)",
+      "Read(//c/Users/Barba/**)",
+      "Read(//c/Program Files/**)"
+    ]
+  },
   "enabledPlugins": {
     "notion-workspace-plugin@notion-plugin-marketplace": true
   }
