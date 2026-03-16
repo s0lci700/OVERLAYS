@@ -1,0 +1,342 @@
+{
+  "global": {
+    "colors": {
+      "black": {
+        "value": "#000000",
+        "type": "color",
+        "description": "Global canvas / app background"
+      },
+      "black-card": {
+        "value": "#0d0d0d",
+        "type": "color",
+        "description": "Card surfaces"
+      },
+      "black-elevated": {
+        "value": "#1a1a1a",
+        "type": "color",
+        "description": "Elevated surfaces, inputs, popovers"
+      },
+      "white": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "Primary text"
+      },
+      "grey": {
+        "value": "#888888",
+        "type": "color",
+        "description": "Secondary / muted text"
+      },
+      "grey-dim": {
+        "value": "#333333",
+        "type": "color",
+        "description": "Subtle borders and dividers"
+      },
+      "red": {
+        "value": "#ff4d6a",
+        "type": "color",
+        "description": "Primary action / damage / critical state"
+      },
+      "red-dim": {
+        "value": "rgba(255, 77, 106, 0.12)",
+        "type": "color",
+        "description": "Red tint for hover/active backgrounds"
+      },
+      "cyan": {
+        "value": "#00d4e8",
+        "type": "color",
+        "description": "Accent / healing / connection indicator"
+      },
+      "cyan-dim": {
+        "value": "rgba(0, 212, 232, 0.12)",
+        "type": "color",
+        "description": "Cyan tint for hover/active backgrounds"
+      },
+      "purple": {
+        "value": "#500df5",
+        "type": "color",
+        "description": "Dice / d20 highlight"
+      },
+      "purple-dim": {
+        "value": "rgba(80, 13, 245, 0.12)",
+        "type": "color",
+        "description": "Purple tint for hover/active backgrounds"
+      },
+      "purple-mid": {
+        "value": "rgba(80, 13, 245, 0.5)",
+        "type": "color",
+        "description": "Mid-opacity purple for borders"
+      }
+    },
+    "hp": {
+      "hp-healthy": {
+        "value": "#22c55e",
+        "type": "color",
+        "description": "HP bar — healthy (>50%)"
+      },
+      "hp-injured": {
+        "value": "#f59e0b",
+        "type": "color",
+        "description": "HP bar — injured (25–50%)"
+      },
+      "hp-critical": {
+        "value": "#ff4d6a",
+        "type": "color",
+        "description": "HP bar — critical (<25%)"
+      },
+      "hp-healthy-dim": {
+        "value": "#15803d",
+        "type": "color",
+        "description": "HP gradient start — healthy"
+      },
+      "hp-injured-dim": {
+        "value": "#b45309",
+        "type": "color",
+        "description": "HP gradient start — injured"
+      },
+      "hp-critical-dim": {
+        "value": "#991b1b",
+        "type": "color",
+        "description": "HP gradient start — critical"
+      }
+    },
+    "spacing": {
+      "space-half": {
+        "value": "2",
+        "type": "spacing",
+        "description": "Half-step for tight layouts"
+      },
+      "space-1": {
+        "value": "4",
+        "type": "spacing",
+        "description": "4px base unit"
+      },
+      "space-2": {
+        "value": "8",
+        "type": "spacing",
+        "description": "2× base unit"
+      },
+      "space-3": {
+        "value": "12",
+        "type": "spacing",
+        "description": "3× base unit"
+      },
+      "space-4": {
+        "value": "16",
+        "type": "spacing",
+        "description": "4× base unit"
+      },
+      "space-5": {
+        "value": "20",
+        "type": "spacing",
+        "description": "5× base unit"
+      },
+      "space-6": {
+        "value": "24",
+        "type": "spacing",
+        "description": "6× base unit"
+      },
+      "space-8": {
+        "value": "32",
+        "type": "spacing",
+        "description": "8× base unit"
+      },
+      "space-10": {
+        "value": "40",
+        "type": "spacing",
+        "description": "10× base unit"
+      },
+      "space-12": {
+        "value": "48",
+        "type": "spacing",
+        "description": "12× base unit"
+      }
+    },
+    "borderRadius": {
+      "radius-sm": {
+        "value": "4",
+        "type": "borderRadius",
+        "description": "Small — buttons, tags"
+      },
+      "radius-md": {
+        "value": "8",
+        "type": "borderRadius",
+        "description": "Medium — cards, inputs"
+      },
+      "radius-lg": {
+        "value": "12",
+        "type": "borderRadius",
+        "description": "Large — modals, panels"
+      },
+      "radius-pill": {
+        "value": "999",
+        "type": "borderRadius",
+        "description": "Pill badges"
+      }
+    },
+    "opacity": {
+      "alpha-subtle": {
+        "value": "4%",
+        "type": "opacity",
+        "description": "Barely-there background tint"
+      },
+      "alpha-dim": {
+        "value": "12%",
+        "type": "opacity",
+        "description": "Dim overlay / hover fill"
+      },
+      "alpha-medium": {
+        "value": "35%",
+        "type": "opacity",
+        "description": "Medium translucency"
+      },
+      "alpha-overlay": {
+        "value": "65%",
+        "type": "opacity",
+        "description": "Modal / drawer backdrop"
+      },
+      "alpha-solid": {
+        "value": "88%",
+        "type": "opacity",
+        "description": "Near-opaque surface"
+      }
+    },
+    "fontFamilies": {
+      "font-display": {
+        "value": "Bebas Neue",
+        "type": "fontFamilies",
+        "description": "Headings, labels, brand text"
+      },
+      "font-script": {
+        "value": "Dancing Script",
+        "type": "fontFamilies",
+        "description": "Brand ampersand (& Risas)"
+      },
+      "font-mono": {
+        "value": "JetBrains Mono",
+        "type": "fontFamilies",
+        "description": "Numbers, HP values, dice results"
+      },
+      "font-ui": {
+        "value": "system-ui",
+        "type": "fontFamilies",
+        "description": "Body text, form elements"
+      }
+    },
+    "motion": {
+      "t-fast": {
+        "value": "150ms ease",
+        "type": "other",
+        "description": "Fast micro-interactions"
+      },
+      "t-normal": {
+        "value": "250ms ease",
+        "type": "other",
+        "description": "Standard transitions"
+      },
+      "t-spring": {
+        "value": "280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "type": "other",
+        "description": "Springy entrance animations"
+      }
+    },
+    "shadows": {
+      "shadow-card": {
+        "value": {
+          "x": "4",
+          "y": "4",
+          "blur": "0",
+          "spread": "0",
+          "color": "rgba(255, 255, 255, 0.05)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow",
+        "description": "Default card shadow (control panel)"
+      },
+      "shadow-red": {
+        "value": {
+          "x": "3",
+          "y": "3",
+          "blur": "0",
+          "spread": "0",
+          "color": "#ff4d6a",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow",
+        "description": "Red pixel-art accent shadow"
+      },
+      "shadow-cyan": {
+        "value": {
+          "x": "3",
+          "y": "3",
+          "blur": "0",
+          "spread": "0",
+          "color": "#00d4e8",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow",
+        "description": "Cyan pixel-art accent shadow"
+      },
+      "shadow-purple": {
+        "value": {
+          "x": "4",
+          "y": "4",
+          "blur": "0",
+          "spread": "0",
+          "color": "#500df5",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow",
+        "description": "Purple pixel-art accent shadow"
+      }
+    },
+    "zIndex": {
+      "z-sidebar-backdrop": {
+        "value": "30",
+        "type": "other",
+        "description": "Sidebar backdrop layer"
+      },
+      "z-sidebar": {
+        "value": "40",
+        "type": "other",
+        "description": "Sidebar panel layer"
+      },
+      "z-nav": {
+        "value": "50",
+        "type": "other",
+        "description": "Bottom navigation layer"
+      },
+      "z-modal-backdrop": {
+        "value": "60",
+        "type": "other",
+        "description": "Modal backdrop layer"
+      },
+      "z-modal": {
+        "value": "70",
+        "type": "other",
+        "description": "Modal panel layer"
+      }
+    },
+    "gradients": {
+      "gradient-healthy": {
+        "value": "linear-gradient(90deg, #15803d, #22c55e)",
+        "type": "other",
+        "description": "HP bar gradient — healthy (overlay-only shorthand)"
+      },
+      "gradient-injured": {
+        "value": "linear-gradient(90deg, #b45309, #f59e0b)",
+        "type": "other",
+        "description": "HP bar gradient — injured (overlay-only shorthand)"
+      },
+      "gradient-critical": {
+        "value": "linear-gradient(90deg, #991b1b, #ff4d6a)",
+        "type": "other",
+        "description": "HP bar gradient — critical (overlay-only shorthand)"
+      }
+    }
+  },
+  "$metadata": {
+    "tokenSetOrder": [
+      "global"
+    ]
+  }
+}
