@@ -1,0 +1,31 @@
+# Dependencies — never read these
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+.svelte-kit/
+build/
+dist/
+public/tokens.css
+public/overlay-*.html
+
+# Generated files
+control-panel/src/generated-tokens.css
+
+# Lock files (large, not useful to read)
+bun.lock
+package-lock.json
+pnpm-lock.yaml
+
+# PocketBase binary & data
+pocketbase
+pb_data/
+pb_migrations/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.serena/

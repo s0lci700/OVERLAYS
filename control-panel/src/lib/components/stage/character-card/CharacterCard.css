@@ -389,42 +389,19 @@
   margin-top: var(--space-2);
 }
 
-.hp-fill {
-  height: 100%;
-  border-radius: var(--radius-pill);
-  transition:
-    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    background var(--t-normal);
-}
+@import "../../ui/hp-bar.css";
 
+/* CharacterCard adds glows on top of the canonical hp-bar base. */
 .hp-fill.hp--healthy {
-  background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy));
   box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
 }
 
 .hp-fill.hp--injured {
-  background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured));
   box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
 }
 
 .hp-fill.hp--critical {
-  background: linear-gradient(
-    90deg,
-    var(--hp-critical-dim),
-    var(--hp-critical)
-  );
   box-shadow: 0 0 6px rgba(255, 77, 106, 0.4);
-  animation: barPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes barPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
 }
 
 /* Damage / heal controls and numeric amount stepper. */

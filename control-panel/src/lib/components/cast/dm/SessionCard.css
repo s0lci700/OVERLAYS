@@ -147,31 +147,7 @@
   margin-top: var(--space-1);
 }
 
-.hp-fill {
-  height: 100%;
-  border-radius: var(--radius-pill);
-  transition:
-    width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    background var(--t-normal);
-}
-
-.hp-fill.hp--healthy {
-  background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy));
-}
-
-.hp-fill.hp--injured {
-  background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured));
-}
-
-.hp-fill.hp--critical {
-  background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
-  animation: scBarPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes scBarPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.55; }
-}
+@import "../../ui/hp-bar.css";
 
 /* ═══════════════════════════════════════════════
    HP NUMBERS

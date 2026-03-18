@@ -6,7 +6,7 @@
 		value = $bindable(),
 		type,
 		files = $bindable(),
-		class: className = '',
+		class: className,
 		"data-slot": dataSlot = "input",
 		...restProps
 	} = $props();

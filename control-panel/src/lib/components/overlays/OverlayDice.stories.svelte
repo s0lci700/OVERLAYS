@@ -19,11 +19,11 @@
   });
 </script>
 
-<Story name="¡Crítico! (Nat 20)">
+<Story name="Critico Nat 20">
   <OverlayDice preview={{ characterName: "Kael", charId: "CH101", result: 20, sides: 20, modifier: 3, rollResult: 23 }} />
 </Story>
 
-<Story name="¡Pifia! (Nat 1)">
+<Story name="Pifia Nat 1">
   <OverlayDice preview={{ characterName: "Lyra", charId: "CH102", result: 1, sides: 20, modifier: 0, rollResult: 1 }} />
 </Story>
 

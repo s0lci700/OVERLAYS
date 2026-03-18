@@ -1,5 +1,8 @@
+import prettier from "eslint-config-prettier";
+
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
+
 import path from "node:path";
 import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
@@ -14,21 +17,15 @@ export default [
   includeIgnoreFile(gitignorePath),
   js.configs.recommended,
   ...svelte.configs.recommended,
+  prettier,
+  ...svelte.configs.prettier,
   {
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
+    languageOptions: { globals: { ...globals.browser, ...globals.node } }
   },
+
   {
     files: ["**/*.svelte", "**/*.svelte.js"],
-    languageOptions: {
-      parserOptions: {
-        svelteConfig,
-      },
-    },
+    languageOptions: { parserOptions: { svelteConfig } }
   },
-  ...storybook.configs["flat/recommended"],
+  ...storybook.configs["flat/recommended"]
 ];

@@ -2,7 +2,7 @@
   Management create page: character creation form wrapper.
 -->
 <script>
-  import CharacterCreationForm from "$lib/components/stage/CharacterCreationForm.svelte";
+  import CharacterCreationForm from "$lib/components/stage/character-creation-form/CharacterCreationForm.svelte";
 </script>
 
 <section class="tab-panel">

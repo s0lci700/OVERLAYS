@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start-demo": "bun scripts/start-demo.js",
-    "stop-demo": "bun scripts/stop-demo.js"
+    "stop-demo": "bun scripts/stop-demo.js",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -12,5 +14,10 @@
     "express": "^5.2.1",
     "pocketbase": "^0.26.0",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^3.4.1",
+    "shadcn": "^4.0.0"
   }
 }

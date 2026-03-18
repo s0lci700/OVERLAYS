@@ -25,8 +25,8 @@
 
 	let {
 		ref = $bindable(null),
-		href = undefined,
-		class: className = '',
+		href,
+		class: className,
 		variant = "default",
 		children,
 		...restProps
@@ -38,7 +38,7 @@
 	bind:this={ref}
 	data-slot="badge"
 	{href}
-	class={cn(badgeVariants({ variant: /** @type {any} */ (variant) }), className)}
+	class={cn(badgeVariants({ variant }), className)}
 	{...restProps}
 >
 	{@render children?.()}

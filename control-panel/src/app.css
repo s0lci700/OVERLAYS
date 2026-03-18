@@ -27,7 +27,6 @@
  * (CharacterCard.css, DiceRoller.css).
  */
 
-/* shadcn-svelte infrastructure */
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -64,6 +63,21 @@
   --input: var(--black-elevated);
   --ring: var(--cyan);
   --radius: var(--radius-md);
+  /* Sidebar tokens — mapped to brand palette */
+  --sidebar: var(--black-elevated);
+  --sidebar-foreground: var(--white);
+  --sidebar-primary: var(--cyan);
+  --sidebar-primary-foreground: var(--black);
+  --sidebar-accent: var(--purple-dim);
+  --sidebar-accent-foreground: var(--white);
+  --sidebar-border: var(--grey-dim);
+  --sidebar-ring: var(--cyan);
+  /* Chart tokens — mapped to brand palette */
+  --chart-1: var(--red);
+  --chart-2: var(--cyan);
+  --chart-3: var(--purple);
+  --chart-4: var(--grey);
+  --chart-5: var(--white);
 }
 
 /* shadcn @theme inline — maps semantic vars to Tailwind utility classes */
@@ -90,6 +104,19 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
@@ -139,11 +166,6 @@ body {
 
 /* ========================================================================
    Font enforcement for shadcn / Tailwind interaction
-
-   Some shadcn or Tailwind base styles can override the intended font
-   stack. These rules make the design tokens the single source of truth
-   for typography across the control panel while keeping headings and
-   numeric UI elements using their brand fonts.
    ======================================================================== */
 html,
 body,
@@ -151,7 +173,6 @@ body,
   font-family: var(--font-ui) !important;
 }
 
-/* Headings and compact labels use the display font */
 h1,
 h2,
 h3,
@@ -163,7 +184,6 @@ h6,
   font-family: var(--font-display) !important;
 }
 
-/* Numeric UI uses the mono font for consistent alignment */
 .hp-cur,
 .hp-max,
 .hp-sep,
@@ -173,14 +193,12 @@ h6,
   font-family: var(--font-mono) !important;
 }
 
-/* Reaffirm monospace for inputs that display numeric values */
 input[type="number"],
 .amount-input,
 .modifier-value {
   font-family: var(--font-mono) !important;
 }
 
-/* Skip-to-content link: visible only on keyboard focus for a11y. */
 .skip-to-content {
   position: absolute;
   left: -999px;
@@ -202,7 +220,6 @@ input[type="number"],
 }
 
 button {
-  /* Buttons are styled per-component; defaults keep them neutral. */
   cursor: pointer;
   border: none;
   background: none;
@@ -212,7 +229,6 @@ button {
 }
 
 input {
-  /* Inputs adopt component styling; defaults avoid browser chrome. */
   border: none;
   background: none;
   font: inherit;
@@ -221,7 +237,6 @@ input {
 }
 
 input[type="number"] {
-  /* Hide native spinners; custom steppers provide interaction. */
   appearance: textfield;
   -moz-appearance: textfield;
 }
@@ -231,7 +246,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 select {
-  /* Reset native select for custom styling. */
   appearance: none;
   -webkit-appearance: none;
   font: inherit;
@@ -242,7 +256,6 @@ select {
   outline: none;
 }
 
-/* Reusable styled select: dark elevated bg, grey border, chevron arrow. */
 .selector {
   min-height: 44px;
   border: 1px solid var(--grey-dim);
@@ -291,7 +304,6 @@ a {
   border-radius: var(--radius-pill);
 }
 
-/* A11Y: Respect user motion preferences — disable all animations/transitions */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -314,7 +326,6 @@ a {
 }
 
 .label-caps {
-  /* Small uppercase label used for form headings. */
   font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 700;
@@ -324,7 +335,6 @@ a {
   line-height: 1;
 }
 
-/* Focus-visible helper for keyboard users (used across interactive controls) */
 :where(
   .btn-damage,
   .btn-heal,
@@ -339,14 +349,12 @@ a {
 }
 
 .mono-num {
-  /* Numeric emphasis for HP, rolls, and counters. */
   font-family: var(--font-mono);
   font-weight: 700;
   line-height: 1;
 }
 
 .sr-only {
-  /* A11y: hide text visually while keeping it screen-reader accessible. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -362,7 +370,6 @@ a {
    SHARED COMPONENT BASES
    ═══════════════════════════════════════════════════ */
 .card-base {
-  /* Shared card frame for CharacterCard and DiceRoller sections. */
   background: var(--black-card);
   border: 1px solid var(--grey-dim);
   border-radius: var(--radius-lg);
@@ -374,7 +381,6 @@ a {
 }
 
 .btn-base {
-  /* Shared button base; color variants are applied per component. */
   font-family: var(--font-display);
   font-size: 1.1rem;
   letter-spacing: 0.04em;
@@ -393,40 +399,10 @@ a {
   box-shadow: none !important;
 }
 
-/* ── Selection preview pills (below multi-selects) ── */
-.selection-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.selection-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--cyan-dim);
-  border: 1px solid rgba(0, 212, 232, 0.25);
-  color: var(--cyan);
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.selection-count {
-  color: var(--cyan);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  margin-left: var(--space-1);
-}
-
 /* ═══════════════════════════════════════════════════
    APP SHELL LAYOUT
    ═══════════════════════════════════════════════════ */
 .app-shell {
-  /* App layout wrapper: header, main content, bottom nav. */
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -435,7 +411,6 @@ a {
 }
 
 .app-header {
-  /* Fixed top bar with brand and tab controls. */
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -446,7 +421,6 @@ a {
 }
 
 .brand-wordmark {
-  /* Brand lockup: DADOS + & Risas styles. */
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
@@ -525,30 +499,23 @@ a {
   animation: fadeUp var(--t-fast) ease;
 }
 
-/* Character cards: single column on small screens, two on medium+. */
 .characters-grid {
-  /* Masonry-style column layout: use CSS columns for variable height cards.
-     Fallback to a single column on small screens. */
   display: block;
   column-gap: var(--space-3);
-  /* Try to balance column heights to reduce large reflows when items change */
   -webkit-column-fill: balance;
   column-fill: balance;
 }
 
-/* Single column on mobile */
 .characters-grid {
   column-count: 1;
 }
 
-/* Two columns at tablet+ */
 @media (min-width: 640px) {
   .characters-grid {
     column-count: 2;
   }
 }
 
-/* Three columns at medium screens when there are 3+ cards */
 @media (min-width: 768px) {
   .characters-grid.grid-three {
     column-count: 3;
@@ -622,7 +589,6 @@ a {
   line-height: 1;
 }
 
-/* SYNC_START button — sits alongside nav-tabs in the live layout bottom nav */
 .sync-btn {
   display: flex;
   flex-direction: column;

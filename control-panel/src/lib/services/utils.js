@@ -1,8 +1,8 @@
-import { clsx } from "clsx";
+import { clsx, } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs) {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 /**
@@ -12,28 +12,22 @@ export function cn(...inputs) {
  * @param {string} charId - Character ID for fallback generation
  * @returns {string} Full URL or data URL for the photo
  */
-export function resolvePhotoSrc(photoPath = "", serverUrl = "", charId = "") {
-  // If no photo path, return a data URL placeholder or server placeholder
-  if (!photoPath) {
-    return `${serverUrl}/assets/img/placeholder.png`;
-  }
-
-  // Already a full URL or data URL
-  if (
-    photoPath.startsWith("http://") ||
-    photoPath.startsWith("https://") ||
-    photoPath.startsWith("data:") ||
-    photoPath.startsWith("blob:")
-  ) {
-    return photoPath;
-  }
-
-  // Relative path — combine with server URL
-  if (photoPath.startsWith("/")) {
-    return `${serverUrl}${photoPath}`;
-  }
-
-  return `${serverUrl}/${photoPath.replace(/^\/+/, "")}`;
+export function resolvePhotoSrc(photoPath = '', serverUrl = '', charId = '') {
+	if (!photoPath) {
+		return `${serverUrl}/assets/img/placeholder.png`;
+	}
+	if (
+		photoPath.startsWith('http://') ||
+		photoPath.startsWith('https://') ||
+		photoPath.startsWith('data:') ||
+		photoPath.startsWith('blob:')
+	) {
+		return photoPath;
+	}
+	if (photoPath.startsWith('/')) {
+		return `${serverUrl}${photoPath}`;
+	}
+	return `${serverUrl}/${photoPath.replace(/^\/+/, '')}`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
