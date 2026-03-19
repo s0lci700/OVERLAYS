@@ -13,7 +13,7 @@
 | TASK-0.2 | Define shared contract type modules | ✅ Done | 5 | `src/lib/contracts/` — 6 `.ts` files + `records.ts` |
 | TASK-0.3 | Align SvelteKit directory to surface map | ✅ Done | 3 | Domain-first component dirs, `$lib/` aliases throughout |
 | TASK-0.5 | Sync architecture docs to repo | ✅ Done | 3 | `docs/` baseline with architecture index + state matrix |
-| TASK-0.4 | Establish services layer scaffold | 📋 Planned | 5 | Unblocked — TASK-0.2 is done |
+| TASK-0.4 | Establish services layer scaffold | 🚧 In Progress | 5 | Unblocked — TASK-0.2 is done |
 | TASK-0.6 | Set up Storybook with surface-based organization | 📋 Planned | 8 | Surface dirs: Stage/ Cast/ Commons/ Audience/ Shared/ |
 | TASK-0.7 | Create canonical mock fixture files | 📋 Planned | 3 | Blocked by TASK-0.6 |
 
