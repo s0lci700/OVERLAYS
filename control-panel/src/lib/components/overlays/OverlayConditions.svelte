@@ -18,8 +18,7 @@
     character_updated — full character refresh
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
   import { animate, utils } from "animejs";
 
   let { serverUrl = "http://localhost:3000", mockCharacters = null } = $props();
@@ -42,7 +41,7 @@
 
   // ── Socket setup (skipped when mockCharacters provided) ─────────────────────
   if (!mockCharacters) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("initialData", ({ characters }) => {
     const next = {};
@@ -121,7 +120,6 @@
     updateVisibility();
   });
 
-  onDestroy(() => socket.disconnect());
   } // end if (!mockCharacters)
 
   // ── Helpers ────────────────────────────────────────────────────────────────

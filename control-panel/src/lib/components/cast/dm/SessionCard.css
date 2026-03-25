@@ -147,7 +147,7 @@
   margin-top: var(--space-1);
 }
 
-@import "../../ui/hp-bar.css";
+@import "../../shared/hp-bar.css";
 
 /* ═══════════════════════════════════════════════
    HP NUMBERS

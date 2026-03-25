@@ -5,9 +5,9 @@
 -->
 <script>
   import { SERVER_URL } from "$lib/stores/config";
-  import { resolvePhotoSrc } from "$lib/utils.js";
-  import { ConditionPill } from "$lib/components/ui/condition-pill/index.js";
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
+  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
+  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
   import "./PlayerSheet.css";
 
   let { character = null } = $props();

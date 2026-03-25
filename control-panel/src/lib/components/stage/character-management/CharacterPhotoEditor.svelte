@@ -13,9 +13,9 @@
 -->
 <script>
   import PhotoSourcePicker from "../photo-source-picker/PhotoSourcePicker.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as Dialog from "$lib/components/ui/dialog";
-  import { resolvePhotoSrc } from "$lib/utils.js";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import * as Dialog from "$lib/components/shared/dialog";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
   import { untrack } from "svelte";
 
   /** @type {{ id: string, photo?: string, name: string }} */

@@ -15,15 +15,15 @@
 <script>
   import CharacterOptionsFields from "../character-form-fields/CharacterOptionsFields.svelte";
   import CharacterProficienciesFields from "../character-form-fields/CharacterProficienciesFields.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import { Input } from "$lib/components/shared/input/index.js";
+  import { Label } from "$lib/components/shared/label/index.js";
   import {
     parseOptionSets,
     buildLabelMap,
     buildCharacterPayload,
     getFormValuesFromCharacter,
-  } from "$lib/utils/character-form.js";
+  } from "$lib/services/character-form.js";
 
   let { character, SERVER_URL, characterOptions, onProfileSaved, onLevelUp } =
     $props();

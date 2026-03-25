@@ -12,8 +12,8 @@
     dice_rolled      — show animated result card
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy, onMount } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
+  import { onMount } from "svelte";
   import { animate, utils } from "animejs";
 
   let { serverUrl = "http://localhost:3000", preview = null } = $props();
@@ -49,7 +49,7 @@
 
   // ── Socket setup (skipped in Storybook when preview provided) ───────────────
   if (!preview) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("initialData", ({ characters }) => {
     characters.forEach((c) => { characterMap[c.id] = c; });
@@ -61,7 +61,6 @@
 
   socket.on("dice_rolled", (data) => showRoll(data));
 
-  onDestroy(() => socket.disconnect());
   } // end if (!preview)
 
   // ── Preview support ─────────────────────────────────────────────────────────

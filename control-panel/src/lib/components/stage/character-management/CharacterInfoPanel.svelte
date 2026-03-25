@@ -11,8 +11,8 @@
     labelMaps – { class, species, alignment } Maps for single-value lookups
 -->
 <script>
-  import ReadOnlyField from "$lib/components/ui/read-only-field/read-only-field.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
+  import ReadOnlyField from "$lib/components/shared/read-only-field/read-only-field.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
   import { fade } from "svelte/transition";
 
   let { character, labelOf, labelMaps } = $props();

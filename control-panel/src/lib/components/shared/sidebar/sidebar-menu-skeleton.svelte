@@ -1,6 +1,6 @@
 <script>
-	import { cn } from "$lib/utils.js";
-	import { Skeleton } from "$lib/components/ui/skeleton/index.js";
+	import { cn } from "$lib/services/utils.js";
+	import { Skeleton } from "$lib/components/shared/skeleton/index.js";
 	let {
 		ref = $bindable(null),
 		class: className,

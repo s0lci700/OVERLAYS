@@ -15,8 +15,8 @@
     condition_removed    — remove condition badge
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy, tick } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
+  import { tick } from "svelte";
   import { animate, utils } from "animejs";
 
   let { serverUrl = "http://localhost:3000", preview = null } = $props();
@@ -33,7 +33,7 @@
   let panelEl = $state();
 
   if (!preview) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("initialData", ({ focusedChar }) => {
     if (focusedChar) char = focusedChar;
@@ -77,7 +77,6 @@
     }
   });
 
-  onDestroy(() => socket.disconnect());
   } // end if (!preview)
 
   function hpPct(c) {

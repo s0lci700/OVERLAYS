@@ -2,8 +2,8 @@
   Characters tab: renders one CharacterCard per character in the store.
 -->
 <script>
-  import CharacterCard from "$lib/components/stage/CharacterCard.svelte";
-  import { characters, SERVER_URL } from "$lib/services/socket.js";
+  import CharacterCard from "$lib/components/stage/character-card/CharacterCard.svelte";
+  import { characters, SERVER_URL } from "$lib/services/socket";
   // import { createDraggable } from "animejs"; // reserved for future drag-to-reorder
 
   const DEFAULT_BULK_AMOUNT = 5;

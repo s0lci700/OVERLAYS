@@ -14,8 +14,7 @@
     hp_updated       — sync HP in strip tokens
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
   import { animate, utils } from "animejs";
 
   let { serverUrl = "http://localhost:3000", mockEncounter = null } = $props();
@@ -35,7 +34,7 @@
   let stripEl = $state();
 
   if (!mockEncounter) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("initialData", ({ encounter }) => {
     if (encounter) applyEncounterState(encounter);
@@ -77,7 +76,6 @@
     );
   });
 
-  onDestroy(() => socket.disconnect());
   } // end if (!mockEncounter)
 
   function applyEncounterState(state) {

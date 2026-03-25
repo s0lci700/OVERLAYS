@@ -17,9 +17,9 @@
     trinket        – bound value for trinket select
 -->
 <script>
-  import "$lib/components/ui/pills/Pills.css";
+  import "$lib/components/shared/pills/Pills.css";
   import MultiSelect from "../multi-select/MultiSelect.svelte";
-  import SelectionPills from "$lib/components/ui/pills/SelectionPills.svelte";
+  import SelectionPills from "$lib/components/shared/pills/SelectionPills.svelte";
 
   let {
     optionSets = {},

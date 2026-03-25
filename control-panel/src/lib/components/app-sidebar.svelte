@@ -1,6 +1,6 @@
 <script>
-  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-  import * as Collapsible from "$lib/components/ui/collapsible/index.js";
+  import * as Sidebar from "$lib/components/shared/sidebar/index.js";
+  import * as Collapsible from "$lib/components/shared/collapsible/index.js";
   import { page } from "$app/state";
   import Monitor from "@lucide/svelte/icons/monitor";
   import Swords from "@lucide/svelte/icons/swords";

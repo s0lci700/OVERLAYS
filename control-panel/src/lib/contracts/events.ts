@@ -44,5 +44,47 @@ export interface ConditionRemovedPayload {
     source: string;
 }
 
-//TODO: Define ResourceUpdatedPayload, CombatStartedPayload, 
-// TurnAdvancedPayload, LocationUpdatedPayload as needed
+export interface ResourceUpdatedPayload {
+    targetID: string;
+    resourceName: string;
+    previousValue: number;
+    newValue: number;
+    source: string;
+}
+
+export interface CombatStartedPayload {
+    encounterId: string;
+    round: number;
+    initiativeOrder: Array<{ characterId: string; initiative: number }>;
+}
+
+export interface TurnAdvancedPayload {
+    round: number;
+    currentTurnCharacterId: string;
+}
+
+export interface LocationUpdatedPayload {
+    locationId: string;
+    locationName: string;
+    description: string;
+}
+
+export interface InitialDataPayload {
+    characters: Array<Record<string, unknown>>;
+    lastRoll: Record<string, unknown> | null;
+}
+
+/**
+ * Complete mapping of Socket.io event names to their payload types.
+ * Enables strict typing in subscribe<K>(event, handler) and emit(event, payload)
+ */
+export interface EventPayloadMap {
+    [HP_UPDATED]: HpUpdatedPayload;
+    [CONDITION_ADDED]: ConditionAddedPayload;
+    [CONDITION_REMOVED]: ConditionRemovedPayload;
+    [RESOURCE_UPDATED]: ResourceUpdatedPayload;
+    [COMBAT_STARTED]: CombatStartedPayload;
+    [TURN_ADVANCED]: TurnAdvancedPayload;
+    [LOCATION_UPDATED]: LocationUpdatedPayload;
+    initialData: InitialDataPayload;
+}

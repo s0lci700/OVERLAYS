@@ -1,6 +1,6 @@
 <script>
-	import { Input } from "$lib/components/ui/input/index.js";
-	import { cn } from "$lib/utils.js";
+	import { Input } from "$lib/components/shared/input/index.js";
+	import { cn } from "$lib/services/utils.js";
 
 	let {
 		ref = $bindable(null),

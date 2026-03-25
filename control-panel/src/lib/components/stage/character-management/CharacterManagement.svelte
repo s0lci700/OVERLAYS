@@ -7,14 +7,14 @@
 -->
 <script>
   import "./CharacterManagement.css";
-  import "$lib/components/ui/pills/Pills.css";
-  import LevelPill from "$lib/components/ui/pills/LevelPill.svelte";
+  import "$lib/components/shared/pills/Pills.css";
+  import LevelPill from "$lib/components/shared/pills/LevelPill.svelte";
   import CharacterPhotoEditor from "./CharacterPhotoEditor.svelte";
   import CharacterProfileForm from "../character-profile-form/CharacterProfileForm.svelte";
   import CharacterInfoPanel from "./CharacterInfoPanel.svelte";
-  import { characters, SERVER_URL } from "$lib/stores/socket";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as AlertDialog from "$lib/components/ui/alert-dialog";
+  import { characters, SERVER_URL } from "$lib/services/socket";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import * as AlertDialog from "$lib/components/shared/alert-dialog";
   import characterOptions from "$lib/data/character-options.template.json";
 
   const PHOTO_OPTIONS = [

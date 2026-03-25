@@ -389,7 +389,7 @@
   margin-top: var(--space-2);
 }
 
-@import "../../ui/hp-bar.css";
+@import "../../shared/hp-bar.css";
 
 /* CharacterCard adds glows on top of the canonical hp-bar base. */
 .hp-fill.hp--healthy {

@@ -14,18 +14,18 @@
   import PhotoSourcePicker from "../photo-source-picker/PhotoSourcePicker.svelte";
   import CharacterOptionsFields from "../character-form-fields/CharacterOptionsFields.svelte";
   import CharacterProficienciesFields from "../character-form-fields/CharacterProficienciesFields.svelte";
-  import Modal from "$lib/components/ui/modal/Modal.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import { Label } from "$lib/components/ui/label/index.js";
-  import { SERVER_URL } from "$lib/stores/socket";
+  import Modal from "$lib/components/shared/modal/Modal.svelte";
+  import { Button } from "$lib/components/shared/button/index.js";
+  import { Input } from "$lib/components/shared/input/index.js";
+  import { Label } from "$lib/components/shared/label/index.js";
+  import { SERVER_URL } from "$lib/services/socket";
   import characterOptions from "$lib/data/character-options.template.json";
   import {
     parseOptionSets,
     buildLabelMap,
     buildCharacterPayload,
     getDefaultFormValues,
-  } from "$lib/utils/character-form.js";
+  } from "$lib/services/character-form.js";
 
   const optionSets = parseOptionSets(characterOptions);
   const labelOf = buildLabelMap(optionSets);

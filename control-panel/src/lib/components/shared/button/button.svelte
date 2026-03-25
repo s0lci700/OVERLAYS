@@ -35,6 +35,8 @@
 </script>
 
 <script>
+  import { resolve } from '$app/paths';
+
   let {
     class: className = '',
     variant = "default",
@@ -47,7 +49,7 @@
     ...restProps
   } = $props();
 
-  const buttonType = /** @type {'button' | 'submit' | 'reset'} */ (type);
+  let buttonType = $derived(/** @type {'button' | 'submit' | 'reset'} */ (type));
 </script>
 
 {#if href}
@@ -55,7 +57,7 @@
     bind:this={ref}
     data-slot="button"
     class={cn(buttonVariants({ variant: /** @type {any} */ (variant), size: /** @type {any} */ (size) }), className)}
-    href={disabled ? undefined : href}
+    href={resolve(href)}
     aria-disabled={disabled}
     role={disabled ? "link" : undefined}
     tabindex={disabled ? -1 : undefined}

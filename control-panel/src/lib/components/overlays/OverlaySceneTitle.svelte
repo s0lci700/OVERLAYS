@@ -11,8 +11,8 @@
     scene_changed — show, update, or hide the title card
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy, tick } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
+  import { tick } from "svelte";
   import { animate, utils } from "animejs";
 
   let { serverUrl = "http://localhost:3000", preview = null } = $props();
@@ -23,7 +23,7 @@
   let cardEl = $state();
 
   if (!preview) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("initialData", ({ scene }) => {
     if (scene) applyScene(scene, false);
@@ -33,7 +33,6 @@
     applyScene(state, true);
   });
 
-  onDestroy(() => socket.disconnect());
   } // end if (!preview)
 
   async function applyScene(state, animate) {

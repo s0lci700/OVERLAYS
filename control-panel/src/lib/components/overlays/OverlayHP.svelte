@@ -14,8 +14,7 @@
     condition_removed — remove badge
 -->
 <script>
-  import { io } from "socket.io-client";
-  import { onDestroy } from "svelte";
+  import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
   import { getConditionClasses } from '$lib/components/overlays/shared/conditionEffects.js';
   import '$lib/components/overlays/overlays.css';
 
@@ -38,7 +37,7 @@
 
   // ── Socket setup (skipped in Storybook when mockCharacters is provided) ─────
   if (!mockCharacters) {
-  const socket = io(serverUrl);
+  const { socket } = createOverlaySocket(serverUrl);
 
   socket.on("connect", () => showStatus("✓ Conectado"));
   socket.on("disconnect", () => showStatus("✗ Desconectado"));
@@ -85,7 +84,6 @@
     );
   });
 
-  onDestroy(() => socket.disconnect());
   } // end if (!mockCharacters)
 
   // ── Helpers ────────────────────────────────────────────────────────────────

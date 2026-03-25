@@ -20,7 +20,7 @@
   Relies on the `.selector` and `.label-caps` classes from app.css.
 -->
 <script>
-  import { Input } from "$lib/components/ui/input/index.js";
+  import { Input } from "$lib/components/shared/input/index.js";
 
   let {
     optionSets = {},
