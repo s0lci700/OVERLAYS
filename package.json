@@ -5,6 +5,7 @@
   "scripts": {
     "start-demo": "bun scripts/start-demo.js",
     "stop-demo": "bun scripts/stop-demo.js",
+    "build": "tsc --noEmit",
     "lint": "prettier --check .",
     "format": "prettier --write ."
   },
@@ -16,8 +17,12 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.4.1",
-    "shadcn": "^4.0.0"
+    "shadcn": "^4.0.0",
+    "typescript": "^6.0.2"
   }
 }
