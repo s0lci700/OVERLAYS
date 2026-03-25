@@ -1,3 +1,10 @@
+---
+title: Project Index
+type: reference
+source_files: []
+last_updated: 2026-03-25
+---
+
 # Project Index
 
 > Last updated: 2026-03-24. Quick navigation for file locations, entry points, and how the system hangs together.
@@ -137,6 +144,7 @@ Stories are colocated with components as `ComponentName.stories.svelte`.
 
 ## References
 
+- `docs/API.md` — REST endpoints + frontend services reference (auto-generated)
 - `docs/ARCHITECTURE.md` — data flows, API routes, design decisions
 - `docs/SOCKET-EVENTS.md` — complete Socket.io event payloads
 - `docs/DESIGN-SYSTEM.md` — CSS tokens, typography, component style guide

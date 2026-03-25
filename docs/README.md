@@ -1,3 +1,10 @@
+---
+title: Documentation Index
+type: reference
+source_files: []
+last_updated: 2026-03-25
+---
+
 # Documentation Index
 
 **Start here** to understand the current state of the TableRelay project.
@@ -9,11 +16,13 @@
 | **`../CLAUDE.md`** | Project instructions & conventions | Setting up your environment or starting work |
 | **`../PROJECT.md`** | Four-layer system architecture | Understanding system design (Stage/Cast/Audience) |
 | **`ARCHITECTURE.md`** | Technical data flows & API routes | Building new features or debugging |
+| **`API.md`** | REST endpoints + frontend services reference | Calling the API or using a service module |
 | **`SOCKET-EVENTS.md`** | Socket.io event contracts | Working with real-time communication |
 | **`DESIGN-SYSTEM.md`** | Design tokens & component reference | Building UI or styling components |
+| **`UI-COMPONENTS.md`** | Primitive & business component style guide | Finding where a style lives |
 | **`ENVIRONMENT.md`** | `.env` setup & IP configuration | Setting up local development |
 | **`THEMING.md`** | Token generator & theme editor | Customizing design tokens |
-| **`INDEX.md`** | File locations & entry points | Quick navigation (legacy, being updated) |
+| **`INDEX.md`** | File locations & entry points | Quick navigation |
 
 ## 🏗️ Subdirectories
 

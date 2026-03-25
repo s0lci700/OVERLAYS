@@ -55,7 +55,8 @@
       "mcp__plugin_notion_notion__notion-update-page",
       "mcp__plugin_notion_notion__notion-search",
       "Skill(schedule)",
-      "mcp__storybook__preview-stories"
+      "mcp__storybook__preview-stories",
+      "mcp__storybook__get-storybook-story-instructions"
     ]
   },
   "enableAllProjectMcpServers": true,

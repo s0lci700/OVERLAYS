@@ -4,7 +4,7 @@
 
 Control characters, hit points, and dice rolls from your phone. OBS overlays update instantly — no refresh, no delay, no plugins.
 
-![Status](https://img.shields.io/badge/status-Phase%200%20complete-brightgreen)
+![Status](https://img.shields.io/badge/status-Phase%201%20in%20progress-blue)
 ![Stack](https://img.shields.io/badge/stack-Bun%20%2B%20Svelte%205%20%2B%20PocketBase-blue)
 ![Language](https://img.shields.io/badge/language-TypeScript-3178c6)
 
@@ -85,7 +85,7 @@ bun run dev -- --host
 - `bun run stop-demo`: Stops the running demo processes.
 - `bun server.ts`: Starts only the backend server (requires PocketBase running).
 - `bun run build`: Type-check with `tsc --noEmit` (Bun runs `.ts` natively).
-- `bun run setup-ip`: Auto-detect LAN IP and write `.env` files for mobile access.
+- `bun scripts/setup-ip.js`: Auto-detect LAN IP and write `.env` files for mobile access.
 
 ### Control Panel (`/control-panel`)
 
@@ -154,6 +154,7 @@ OVERLAYS/
 | File | Contents |
 | :--- | :--- |
 | `docs/INDEX.md` | Fast file map — entry points, routes, services |
+| `docs/API.md` | REST endpoints + frontend services reference |
 | `docs/ARCHITECTURE.md` | Data flows, module map, design decisions |
 | `docs/SOCKET-EVENTS.md` | Complete Socket.io event payloads |
 | `docs/ENVIRONMENT.md` | `.env` setup, LAN IP configuration |

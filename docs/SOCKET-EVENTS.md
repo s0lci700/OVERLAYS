@@ -1,3 +1,10 @@
+---
+title: Socket.io Event Reference
+type: reference
+source_files: [src/server/handlers/, src/server/socket/]
+last_updated: 2026-03-25
+---
+
 # Socket.io Event Reference
 
 > Complete reference for all Socket.io events in DADOS & RISAS.

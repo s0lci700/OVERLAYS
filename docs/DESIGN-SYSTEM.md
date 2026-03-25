@@ -1,3 +1,10 @@
+---
+title: Design System
+type: design
+source_files: [design/tokens.json, control-panel/src/app.css, control-panel/src/overlays.css]
+last_updated: 2026-03-25
+---
+
 # Dados & Risas — Design System
 **Version:** 2.1 | **Updated:** 2026-02-26 | **Stack:** Svelte 5 + SvelteKit + Vite
 

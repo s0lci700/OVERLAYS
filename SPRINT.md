@@ -21,14 +21,6 @@
 
 ---
 
-## What's Next
-
-**Phase 0 is complete.** All 7 tasks done. Phase 1 (Player Sheet) and Phase 2 (Stage Controls) are now unblocked.
-
-Stories can import from `$lib/mocks` instead of using inline fixtures. The Vitest test at `src/lib/mocks/__tests__/fixtures.test.ts` validates all fixture shapes (note: Vitest 4.1.1 has a pre-existing incompatibility with Node.js v25 — tests will run correctly once the environment is aligned).
-
----
-
 ## Dependency chain
 
 ```text
@@ -41,3 +33,39 @@ TASK-0.6 ✅ → TASK-0.7 → All Phase 1–5 stories
 ---
 
 *Source: [Notion Roadmap](https://www.notion.so/31eb63b6f5ec81e5a168cf7d204b6d78) — Phase 0 board*
+
+---
+
+# Phase 1 — Player Sheet
+
+**Goal:** Build a functional digital character sheet for players on mobile.
+**Milestone:** First live session with real character data
+**Progress:** 0 of 6 tasks done · 0 of 29 pts complete
+
+---
+
+## Status Board
+
+| ID | Task | Status | Pts | Notes |
+| --- | --- | --- | --- | --- |
+| TASK-1.1 | Define PocketBase character collections | 🔲 Todo | 5 | Schema design: fields, types, API rules for `characters` collection |
+| TASK-1.2 | Build record-driven character page | 🔲 Todo | 5 | `(cast)/players/[id]` — load from PocketBase via `character.ts` service |
+| TASK-1.3 | Build sheet sections — header, abilities, saves, skills | 🔲 Todo | 8 | Header (name, class, level, HP), ability scores, saving throws, skill list |
+| TASK-1.4 | Build resource tracker component | 🔲 Todo | 3 | Pool-based resources (Rage, Spell Slots, etc.) with recharge type display |
+| TASK-1.5 | Build conditions/status display component | 🔲 Todo | 3 | Active conditions list with intensity — uses `condition-pill` from Phase 0 |
+| TASK-1.6 | Wire live state socket overlay — HP, conditions | 🔲 Todo | 5 | Subscribe to `hp_updated`, `condition_added/removed` via `character.ts` |
+
+---
+
+## Dependency chain
+
+```text
+TASK-1.1 → TASK-1.2 → TASK-1.3
+                     → TASK-1.4
+                     → TASK-1.5
+                     → TASK-1.6 (requires socket.ts + contracts from Phase 0 ✅)
+```
+
+---
+
+*Source: [Notion — Phase 1 Player Sheet](https://www.notion.so/31eb63b6f5ec8138bc31d91a3fa4a4ab)*

@@ -1,3 +1,10 @@
+---
+title: UI Components Reference
+type: reference
+source_files: [control-panel/src/lib/components/shared/, control-panel/src/app.css, design/tokens.json]
+last_updated: 2026-03-25
+---
+
 # UI Components Reference
 
 > **Goal:** Find any component's styles in under 30 seconds.
@@ -21,7 +28,7 @@ Two tiers — know which tier = know where to look.
 
 ## Primitives
 
-All live in `control-panel/src/lib/components/ui/`.
+All live in `control-panel/src/lib/components/shared/`.
 
 ### `button/button.svelte`
 **Styled via:** `tailwind-variants` (`tv()`) inside the file — no CSS file.

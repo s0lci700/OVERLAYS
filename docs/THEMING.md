@@ -1,3 +1,10 @@
+---
+title: Theming — Token Generator & Live Editor
+type: design
+source_files: [design/tokens.json, scripts/generate-tokens.ts]
+last_updated: 2026-03-25
+---
+
 # Theming — Dados & Risas
 
 > **TL;DR** — edit `design/tokens.json`, run `bun run generate:tokens`, done.

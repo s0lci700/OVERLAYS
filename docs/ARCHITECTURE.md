@@ -1,3 +1,10 @@
+---
+title: Architecture Guide
+type: architecture
+source_files: [src/server/, data/characters.js, data/rolls.js, control-panel/src/lib/]
+last_updated: 2026-03-25
+---
+
 # Architecture Guide
 
 > Quick-reference map for navigating the TableRelay codebase (repo currently named `OVERLAYS`, rename pending).

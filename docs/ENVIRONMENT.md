@@ -1,3 +1,10 @@
+---
+title: Environment & Networking
+type: environment
+source_files: [.env, control-panel/.env, scripts/setup-ip.js]
+last_updated: 2026-03-25
+---
+
 # Environment & Networking
 
 This project uses .env files plus optional query parameters to keep all clients
