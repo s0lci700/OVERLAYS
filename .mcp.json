@@ -1,40 +1,10 @@
 {
-  "servers": {
+  "mcpServers": {
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
         "Authorization": "Bearer ${GITHUB_TOKEN}"
-      }
-    },
-    "svelte": {
-      "type": "http",
-      "url": "https://mcp.svelte.dev/mcp"
-    },
-    "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
-    },
-    "storybook": {
-      "type": "http",
-      "url": "http://localhost:6006/mcp"
-    },
-    "notion": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
-      "env": {
-        "NOTION_API_KEY": "${NOTION_API_KEY}"
-      }
-    },
-    "pocketbase": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "pocketbase-mcp"],
-      "env": {
-        "POCKETBASE_URL": "${POCKETBASE_URL}",
-        "POCKETBASE_ADMIN_TOKEN": "${POCKETBASE_ADMIN_TOKEN}"
       }
     }
   }

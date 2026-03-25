@@ -16,11 +16,13 @@ This script auto-detects your local IPv4 address and writes:
 
 ## Root .env
 
-| Key                  | Purpose                           | Example                  |
-| -------------------- | --------------------------------- | ------------------------ |
-| PORT                 | Backend server port               | 3000                     |
-| CONTROL_PANEL_ORIGIN | CORS origin for the control panel | http://192.168.1.83:5173 |
-| CHARACTERS_TEMPLATE  | Seed template from data/          | template-characters      |
+| Key                  | Purpose                           | Example                        |
+| -------------------- | --------------------------------- | ------------------------------ |
+| PORT                 | Backend server port               | `3000`                         |
+| POCKETBASE_URL       | PocketBase base URL               | `http://127.0.0.1:8090`        |
+| PB_MAIL              | PocketBase superuser email        | `admin@example.com`            |
+| PB_PASS              | PocketBase superuser password     | `yourpassword`                 |
+| CONTROL_PANEL_ORIGIN | CORS origin for the control panel | `http://192.168.1.83:5173`     |
 
 ## Control panel .env
 

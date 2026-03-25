@@ -76,7 +76,10 @@ lib/
       shared/       ← overlaySocket.svelte.js (singleton for OBS routes only)
     shared/         ← headless primitives (button, dialog, badge, tooltip, etc.)
   services/
-    socket.js       ← singleton Socket.io client + `characters` / `lastRoll` stores
+    errors.ts       ← ServiceError class — standard error shape for all service throws
+    socket.ts       ← typed Socket.io client (new canonical; socket.js is legacy)
+    pocketbase.ts   ← typed PocketBase client wrapper
+    socket.js       ← legacy singleton Socket.io client + `characters` / `lastRoll` stores
     utils.js        ← cn(), resolvePhotoSrc()
   contracts/        ← TypeScript boundary modules (records.ts, events.ts, stage.ts,
                        cast.ts, overlays.ts, rolls.ts, commons.ts)
@@ -97,6 +100,10 @@ lib/
 **Overlay socket:** OBS routes (`(audience)/`) import from `lib/components/overlays/shared/overlaySocket.svelte.js` — **not** from `lib/services/socket.js`.
 
 **TypeScript contracts:** Import all domain types from `$lib/contracts`. Do not define ad-hoc inline type shapes.
+
+**Service errors:** All service throws use `ServiceError` from `$lib/services/errors`. Catch with `instanceof ServiceError` and branch on `err.code` (`'NOT_FOUND'` | `'UNAUTHORIZED'` | `'VALIDATION'` | `'NETWORK'` | `'CONFIG'` | `'UNKNOWN'`).
+
+**Socket event types:** `EventPayloadMap` in `$lib/contracts/events` maps every Socket.io event name to its payload type. Use it as the generic parameter in typed subscribe/emit calls.
 
 **CSS:** Each component has a paired `.css` file (e.g. `CharacterCard.svelte` + `CharacterCard.css`). Shared base classes (`.card-base`, `.btn-base`, `.label-caps`) live in `app.css`. State classes use `is-` prefix (`.is-critical`, `.is-selected`). Token variables come from `generated-tokens.css` via `app.css` — reference as `var(--token-name)`. Never edit generated CSS — edit `design/tokens.json` and run `bun run generate:tokens` at the repo root.
 

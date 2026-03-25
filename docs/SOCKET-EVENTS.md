@@ -1,6 +1,8 @@
 # Socket.io Event Reference
 
 > Complete reference for all Socket.io events in DADOS & RISAS.
+>
+> **Note on event naming:** Server emits use `snake_case` (e.g. `hp_updated`). The TypeScript contract file `$lib/contracts/events.ts` currently defines `camelCase` constants (`hpUpdated`, `conditionAdded`). These do **not** match the server — treat `events.ts` as a forward-looking contract, not the current wire format. Components should listen for the snake_case names shown in this document.
 
 ---
 
@@ -19,14 +21,17 @@ Fired when any client connects. Server sends `initialData` in response.
 ```js
 {
   characters: Character[],  // Full roster with HP, conditions, resources
-  rolls: Roll[]             // All dice roll history
+  rolls: Roll[],            // All dice roll history
+  encounter: EncounterState,// Current encounter (active, round, participants)
+  scene: SceneState,        // Current scene (title, subtitle, visible)
+  focusedChar: Character | null // Character currently in focus (or null)
 }
 ```
 
 **Listeners:**
 
 - `control-panel/src/lib/services/socket.js` — populates `characters` store
-- `control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.js` — bootstraps overlay state
+- `control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts` — bootstraps overlay state
 
 ---
 
@@ -216,6 +221,236 @@ Fired when any client connects. Server sends `initialData` in response.
 | `services/socket.js` | Sets `lastRoll` store |
 | `derived/overviewStore.js` | Logs to activity history |
 | `components/overlays/OverlayDice.svelte` | Renders roll moment overlay with timed dismissal |
+
+---
+
+---
+
+## Character Deletion
+
+### `character_deleted`
+
+**Direction:** Server → all clients
+**When:** `DELETE /api/characters/:id` succeeds
+**Payload:**
+
+```js
+{
+  charId: string  // ID of the deleted character
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `services/socket.js` | Filters character out of `characters` store |
+
+---
+
+## Encounter Events
+
+### `encounter_started`
+
+**Direction:** Server → all clients
+**When:** `POST /api/encounter/start` succeeds
+**Payload:**
+
+```js
+{
+  active: boolean,
+  round: number,
+  currentTurnIndex: number,
+  participants: Array<{
+    charId: string,        // PocketBase character ID
+    name: string,
+    photo: string | null,  // URL or base64 data URI
+    class_primary: object | null,
+    hp_current: number,
+    hp_max: number,
+    initiative: number
+  }>
+}
+```
+
+### `turn_advanced`
+
+**Direction:** Server → all clients
+**When:** `POST /api/encounter/next-turn` succeeds
+**Payload:**
+
+```js
+{
+  round: number,
+  currentTurnIndex: number,
+  currentParticipant: {  // Full participant object (same shape as encounter_started participants)
+    charId: string,
+    name: string,
+    photo: string | null,
+    class_primary: object | null,
+    hp_current: number,
+    hp_max: number,
+    initiative: number
+  }
+}
+```
+
+### `encounter_ended`
+
+**Direction:** Server → all clients
+**When:** `POST /api/encounter/end` succeeds
+**Payload:** `{}`
+
+**Listeners (all encounter events):**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayTurnOrder.svelte` | Updates initiative strip display |
+
+---
+
+## Scene Events
+
+### `scene_changed`
+
+**Direction:** Server → all clients
+**When:** `POST /api/scene/change` succeeds
+**Payload:**
+
+```js
+{
+  title: string,
+  subtitle: string,
+  visible: boolean
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlaySceneTitle.svelte` | Shows/hides and updates scene title |
+
+### `character_focused`
+
+**Direction:** Server → all clients
+**When:** `POST /api/character-focus` with a valid character
+**Payload:**
+
+```js
+{
+  character: Character  // Character to spotlight
+}
+```
+
+### `character_unfocused`
+
+**Direction:** Server → all clients
+**When:** `POST /api/character-focus` with no/null character
+**Payload:** `{}`
+
+**Listeners (focus events):**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayCharacterFocus.svelte` | Shows/hides character focus panel |
+
+---
+
+## Show / Moment Events
+
+### `sync_start`
+
+**Direction:** Server → all clients
+**When:** `POST /api/sync-start`
+**Payload:**
+
+```js
+{
+  ts_abs: number  // Unix timestamp (ms) marking session sync point
+}
+```
+
+### `announce`
+
+**Direction:** Server → all clients
+**When:** `POST /api/announce`
+**Payload:**
+
+```js
+{
+  type: string,          // Announcement category key
+  title: string,
+  body: string | null,
+  image: string | null,
+  duration: number | null  // Display duration in ms (null = persistent)
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayAnnounce.svelte` | Displays announcement overlay |
+
+### `level_up`
+
+**Direction:** Server → all clients
+**When:** `POST /api/level-up`
+**Payload:**
+
+```js
+{
+  charId: string,
+  newLevel: number,
+  className: string  // Class name for display (e.g. "Barbarian")
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayLevelUp.svelte` | Plays level-up moment animation |
+
+### `player_down`
+
+**Direction:** Server → all clients
+**When:** `POST /api/player-down`
+**Payload:**
+
+```js
+{
+  charId: string,
+  isDead: boolean  // true = dead, false = unconscious/0 HP
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayPlayerDown.svelte` | Plays player-down moment animation |
+
+### `lower_third`
+
+**Direction:** Server → all clients
+**When:** `POST /api/lower-third`
+**Payload:**
+
+```js
+{
+  characterName: string,
+  playerName: string,    // Player's real name
+  duration: number       // Display duration in ms (default 5000)
+}
+```
+
+**Listeners:**
+
+| File | Action |
+|---|---|
+| `components/overlays/OverlayLowerThird.svelte` | Shows lower-third name card |
 
 ---
 

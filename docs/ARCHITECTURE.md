@@ -50,13 +50,39 @@ be started before the Node.js server.
 
 ### Backend (`/`)
 
+#### Entry point
+
+| File | Purpose |
+|---|---|
+| `server.ts` | Thin entry point (~75 lines). Initializes Express, Socket.io, PocketBase auth, seed, and token refresh timer. Delegates all routing to `src/server/router.ts` and socket setup to `src/server/socket/index.ts`. |
+
+#### `src/server/` modules
+
+| File                              | Purpose                                                                             | Key exports |
+| --------------------------------- | ----------------------------------------------------------------------------------- | ----------- |
+| `src/server/pb.ts`                | PocketBase singleton + auth helpers                                                 | `pb`, `connectToPocketBase`, `ensureAuth` |
+| `src/server/seed.ts`              | Seeds empty collections on startup (characters, NPC data, campaign context)         | `seedIfEmpty` |
+| `src/server/router.ts`            | Express `Router` — mounts all 20 REST routes                                        | `default` (Router) |
+| `src/server/handlers/characters.ts` | All `/api/characters/*` REST handlers                                             | `listCharacters`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacter`, `addCondition`, `removeCondition`, `deleteCharacter`, `updateResource`, `restoreResources`, `batchUpdateHp` |
+| `src/server/handlers/encounter.ts`  | `/api/encounter/*` REST handlers                                                  | `getEncounter`, `startEncounter`, `nextTurn`, `endEncounter` |
+| `src/server/handlers/overlay.ts`    | `/api/announce`, `/api/level-up`, `/api/player-down`, `/api/lower-third`          | `announce`, `levelUp`, `playerDown`, `lowerThird` |
+| `src/server/handlers/rolls.ts`      | `POST /api/rolls`                                                                 | `logRoll` |
+| `src/server/handlers/misc.ts`       | `/api/info`, `/api/tokens`, `/api/sync-start`, `/api/scene`, `/api/character-focus` | `getInfo`, `getTokens`, `syncStart`, `getScene`, `changeScene`, `focusCharacter`, `preloadTokens`, `getMainIP` |
+| `src/server/socket/index.ts`        | `initSocket(io)` — wires connection handler + `initialData` emit                  | `initSocket` |
+| `src/server/socket/rooms.ts`        | All `io.emit()` calls go through here; JSONL sidecar logger at `logs/sidecar.jsonl` | `initRooms`, `broadcast`, `setSyncStartTime`, `getSyncStartTime` |
+| `src/server/socket/events/character.ts` | Stub — `registerCharacterEvents()` (Phase 2)                                  | `registerCharacterEvents` |
+| `src/server/socket/events/combat.ts`    | Stub — `registerCombatEvents()` (Phase 2)                                     | `registerCombatEvents` |
+| `src/server/socket/events/session.ts`   | Stub — `registerSessionEvents()` (Phase 2)                                    | `registerSessionEvents` |
+| `src/server/state/encounter.ts`     | In-memory encounter state (active, round, participants)                           | `getEncounterState`, `setEncounterState` |
+| `src/server/state/scene.ts`         | In-memory scene + focused character state                                         | `getSceneState`, `setSceneState`, `getFocusedChar`, `setFocusedChar` |
+
+#### CJS data modules (unchanged)
+
 | File                 | Purpose                                                        | Key exports                                                                                               |
 | -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `server.js`          | Express app, Socket.io server, all API routes. Wraps startup in `async main()`, authenticates PocketBase before listening. | Listens on `:3000` |
 | `data/characters.js` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
 | `data/rolls.js`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
 | `data/id.js`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
-| `scripts/seed.js`    | One-time seeder — reads `data/template-characters.json` and populates PocketBase. Guards against double-seeding. | Run with `node -r dotenv/config scripts/seed.js` |
 
 ### Control Panel (`/control-panel/src/`)
 
@@ -84,13 +110,29 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 | File                              | Purpose                                                          | Key exports / state                                                                                          |
 | --------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `lib/services/socket.js`                 | Socket.io singleton + Svelte stores                        | `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`                   |
+| `lib/services/pocketbase.ts`             | **Canonical** typed PocketBase client                      | `pb` (singleton), `getCharacterRecord`, `updateCharacterRecord`                       |
+| `lib/services/socket.ts`                 | **Canonical** typed Socket.io client                       | `connectSocket`, `disconnectSocket`, `subscribe`, `emit`, `socketStatus`, `getSocket` |
+| `lib/services/character.ts`             | Character data facade                                      | `getCharacter`, `subscribeToCharacterUpdates`                                         |
+| `lib/services/errors.ts`                | Standard error shape for all service throws                | `ServiceError` class, `ServiceErrorCode` type                                         |
+| `lib/services/broadcast/index.ts`       | Broadcast adapter factory — returns the right adapter for OBS, vMix, or mock | `getBroadcastAdapter(config)` |
+| `lib/services/broadcast/mock.ts`        | `MockBroadcastAdapter` — logs all calls; no real connection needed | `MockBroadcastAdapter` |
+| `lib/services/broadcast/obs.ts`         | OBS WebSocket adapter stub (TASK-5.6)                      | —                                                                                     |
+| `lib/services/broadcast/vmix.ts`        | vMix TCP adapter stub (TASK-5.6)                           | —                                                                                     |
+| `lib/services/socket.js`                 | **Legacy** Socket.io singleton + Svelte stores (stage only)| `socket`, `characters` (writable), `lastRoll` (writable), `SERVER_URL`               |
+| `lib/contracts/broadcast.ts`            | Broadcast adapter interface + types                        | `BroadcastAdapter`, `BroadcastConfig`, `BroadcastStatus`, `BroadcastEvent`, `TallyState` |
+| `lib/contracts/records.ts`              | PocketBase record shapes                                   | `CharacterRecord`, `ResourceSlot`, `CampaignRecord`, `SessionRecord`                  |
+| `lib/contracts/events.ts`               | Socket.io event payload types                              | `EventPayloadMap`, payload interfaces, event name constants                           |
+| `lib/contracts/stage.ts`                | Stage surface view-model types                             | —                                                                                     |
+| `lib/contracts/cast.ts`                 | Cast surface types                                         | `CharacterLiveState`                                                                  |
+| `lib/contracts/overlays.ts`             | Overlay surface view-model types                           | —                                                                                     |
+| `lib/contracts/rolls.ts`                | Roll record types                                          | —                                                                                     |
+| `lib/contracts/commons.ts`              | Commons surface types                                      | —                                                                                     |
 | `lib/derived/overviewStore.js`           | Activity history and derived dashboard state               | `history`, helpers for feed/summary                                                   |
 | `lib/services/router.js`                 | Routing helpers                                            | route/hash helpers                                                                    |
 | `lib/components/stage/*`                 | Stage UI components                                        | CharacterCard, DiceRoller, CharacterManagement, forms                                 |
 | `lib/components/cast/dm/*`               | DM panel components                                        | InitiativeStrip, SessionCard, SessionBar                                              |
-| `lib/components/cast/dashboard/*`        | Dashboard view styles/components                           | Dashboard.css, DashboardCard.css                                                       |
 | `lib/components/overlays/*`              | Audience overlays                                          | OverlayHP, OverlayDice, OverlayConditions, OverlayTurnOrder, OverlaySceneTitle, etc.  |
+| `lib/components/overlays/shared/`        | Overlay socket factory                                     | `createOverlaySocket` (`overlaySocket.svelte.ts`)                                     |
 | `lib/components/shared/*`                | Shared UI primitives                                       | button, dialog, tooltip, form, condition-pill, etc.                                   |
 
 ### OBS Overlays (SvelteKit `(audience)` routes)
@@ -122,16 +164,12 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 ### Project Management (root)
 
-| File                                  | Purpose                                                               |
-| ------------------------------------- | --------------------------------------------------------------------- |
-| `README.md`                           | Setup guide, API reference, demo script                               |
-| `CLAUDE.md`                           | LLM project context (architecture, conventions, running instructions) |
-| `TODO.md`                             | Day-by-day task checklist                                             |
-| `PROGRESS.md`                         | Development log with technical details                                |
-| `TRACKER.md`                          | One-page status for teammates                                         |
-| `CONTEXTO_COMPLETO_PITCH.md`          | Full pitch strategy context (Spanish)                                 |
-| `DAY2_COMPLETION_REPORT.md`           | Day 2 completion summary                                              |
-| `control-panel/CONTROL-STATE-PLAN.md` | Transaction manager design plan (not yet implemented)                 |
+| File          | Purpose                                                               |
+| ------------- | --------------------------------------------------------------------- |
+| `README.md`   | Setup guide, API reference, demo script                               |
+| `CLAUDE.md`   | LLM project context (architecture, conventions, running instructions) |
+| `SPRINT.md`   | Active sprint tasks and dependency chain                              |
+| `AGENTS.md`   | Agent and subagent rules                                              |
 
 ---
 
@@ -142,9 +180,9 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
      ↓
 2. CharacterCard.updateHp("damage") → fetch PUT /api/characters/:id/hp
      ↓
-3. server.js receives PUT → characters.updateHp(id, hp) → clamps HP
+3. server.ts → handlers/characters.ts updateHp → characters.updateHp(id, hp) → clamps HP
      ↓
-4. server.js responds 200 + io.emit("hp_updated", { character, hp_current })
+4. handlers/characters.ts responds 200 + broadcast("hp_updated", { character, hp_current })
      ↓
 5. All clients receive "hp_updated":
      ├── services/socket.js → updates characters store → CharacterCard re-renders
@@ -160,7 +198,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
      ↓
 2. DiceRoller.rollDice(20) → Math.random → fetch POST /api/rolls
      ↓
-3. server.js receives POST → rolls.logRoll() → computes rollResult
+3. server.ts → handlers/rolls.ts logRoll → rolls.logRoll() → computes rollResult
      ↓
 4. server.js responds 201 + io.emit("dice_rolled", { ...rollRecord })
      ↓
@@ -176,8 +214,8 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 | Decision                                         | Rationale                                                               |
 | ------------------------------------------------ | ----------------------------------------------------------------------- |
-| In-memory data (no DB)                           | MVP speed — characters reset on restart, fine for demo                  |
-| Svelte for overlays                          | Light and Reactive framework, better OBS Browser Source performance          |
+| PocketBase (SQLite) for persistence              | Zero-config embedded DB; superuser auth from env; auto-seed on boot     |
+| Svelte for overlays                              | Lightweight + reactive; better OBS Browser Source performance           |
 | Socket.io over raw WS                            | Auto-reconnect, room support, CDN available for overlay scripts         |
 | Svelte 5 runes (`$state`, `$derived`, `$effect`) | Latest Svelte reactivity model, simpler than stores for component state |
 | SvelteKit file-based routing                     | Clean URL structure, layout nesting, standard Svelte framework choice   |
@@ -191,7 +229,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 The project now uses `.env` files instead of hardcoding IP addresses:
 
-1. Root `.env` (generated by `npm run setup-ip`) sets `PORT` and `CONTROL_PANEL_ORIGIN`.
+1. Root `.env` (generated by `bun run setup-ip`) sets `PORT` and `CONTROL_PANEL_ORIGIN`.
 2. `control-panel/.env` sets `VITE_SERVER_URL` and `VITE_PORT` for the frontend.
 3. Overlay routes accept a `server` query parameter, for example:
      `http://192.168.1.83:5173/persistent/hp?server=http://192.168.1.83:3000`

@@ -7,6 +7,6 @@
     ]
   },
   "enabledPlugins": {
-    "notion-workspace-plugin@notion-plugin-marketplace": true
+    "notion@claude-plugins-official": true
   }
 }
