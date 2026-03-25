@@ -34,13 +34,32 @@
       "mcp__claude_ai_Notion__notion-fetch",
       "Bash(gh issue:*)",
       "mcp__claude_ai_Notion__notion-search",
-      "Bash(gh label:*)"
+      "Bash(gh label:*)",
+      "Read(//c/Users/Sol/.claude/channels/discord/**)",
+      "Read(//c/Users/Sol/.claude/plugins/cache/claude-plugins-official/discord/**)",
+      "Skill(update-config)",
+      "mcp__plugin_discord_discord__reply",
+      "mcp__plugin_discord_discord__react",
+      "mcp__plugin_discord_discord__edit_message",
+      "mcp__plugin_discord_discord__fetch_messages",
+      "Bash(where node:*)",
+      "Bash(where bun:*)",
+      "Bash(bunx svelte-check:*)",
+      "mcp__claude_ai_svelte__get-documentation",
+      "Bash(grep -rl '\\\\$lib/utils\\\\.js' .)",
+      "Bash(xargs sed:*)",
+      "Bash(grep -rl '\\\\$lib/components/ui/' .)",
+      "Bash(grep -r '\\\\$lib/utils\\\\.js' .)",
+      "Bash(grep -r '\\\\$lib/components/ui/' .)",
+      "mcp__plugin_notion_notion__notion-fetch",
+      "mcp__plugin_notion_notion__notion-update-page",
+      "mcp__plugin_notion_notion__notion-search",
+      "Skill(schedule)",
+      "mcp__storybook__preview-stories"
     ]
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "storybook-mcp"
-  ],
+  "enabledMcpjsonServers": [],
   "hooks": {
     "PreToolUse": [
       {
@@ -53,6 +72,10 @@
           {
             "type": "command",
             "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('generated-tokens.css') || (f.includes('public') && f.endsWith('tokens.css'))) { console.error('[TOKEN GUARD] Edit design/tokens.json instead, then run: bun run generate:tokens'); process.exit(1); }\""
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (/\\.env(\\..*)?$/.test(f)) { console.error('[ENV GUARD] Direct .env edits are blocked. Edit the file manually in your editor.'); process.exit(1); }\""
           }
         ]
       }
@@ -63,17 +86,39 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('server.js') || f.includes('socket.js')) { console.log('[PORT WATCH] Port-sensitive file edited: ' + f.split(/[\\\\/]/).pop() + '. Consider running port-consistency-checker if the IP or port changed.'); }\""
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('server.js') || f.includes('socket.js') || f.includes('socket.ts')) { console.log('[PORT WATCH] Port-sensitive file edited: ' + f.split(/[\\\\/]/).pop() + '. Consider running port-consistency-checker if the IP or port changed.'); }\""
           },
           {
             "type": "command",
-            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('control-panel') && f.endsWith('.svelte')) { const { execSync } = require('child_process'); try { const out = execSync('bunx eslint ' + JSON.stringify(f) + ' --max-warnings 0', { cwd: 'C:/Users/Sol/Desktop/PITCH/OVERLAYS/control-panel' }).toString(); if (out.trim()) console.log('[LINT]', out); } catch(e) { const msg = (e.stdout || '').toString() || e.message; console.error('[LINT FAIL]\\n' + msg); process.exit(2); } }\""
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (f.includes('control-panel') && (f.endsWith('.svelte') || f.endsWith('.ts'))) { const { execSync } = require('child_process'); try { const out = execSync('bunx eslint ' + JSON.stringify(f) + ' --max-warnings 0', { cwd: 'C:/Users/Sol/Desktop/PITCH/OVERLAYS/control-panel' }).toString(); if (out.trim()) console.log('[LINT]', out); } catch(e) { const msg = (e.stdout || '').toString() || e.message; console.error('[LINT FAIL]\\n' + msg); process.exit(2); } }\""
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f = process.env.CLAUDE_TOOL_INPUT_FILE_PATH || ''; if (!f || f.includes('node_modules') || f.includes('.git') || f.includes('generated-tokens.css') || f.includes('bun.lock')) process.exit(0); const { execFileSync } = require('child_process'); const cwd = f.replace(/[\\\\]/g, '/').includes('control-panel') ? 'C:/Users/Sol/Desktop/PITCH/OVERLAYS/control-panel' : 'C:/Users/Sol/Desktop/PITCH/OVERLAYS'; try { execFileSync('cmd', ['/c', 'bunx', 'prettier', '--write', f], { cwd, stdio: 'pipe' }); } catch(e) { console.error('[PRETTIER FAIL]', (e.stderr || e.message || '').toString().trim()); process.exit(2); }\""
+          },
+          {
+            "type": "command",
+            "command": "powershell -File C:\\Users\\Sol\\Desktop\\PITCH\\OVERLAYS\\.claude\\hooks\\svelte-check.ps1",
+            "statusMessage": "svelte-check...",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f = (process.env.CLAUDE_TOOL_INPUT_FILE_PATH || '').replace(/\\\\\\\\/g, '/'); if ((f.includes('src/server/handlers/') || f.includes('src/lib/services/')) && f.endsWith('.ts')) { console.log('[DOC WATCH] API surface changed: ' + f.split('/').pop() + ' — run /doc-steward api to keep docs/API.md in sync.'); }\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const cmd = process.env.CLAUDE_TOOL_INPUT_COMMAND || ''; if (/git (commit|merge)/.test(cmd)) { const { execSync } = require('child_process'); try { execSync('npx gitnexus analyze', { cwd: 'C:/Users/Sol/Desktop/PITCH/OVERLAYS', stdio: 'pipe' }); console.log('[GITNEXUS] Index updated.'); } catch(e) { console.warn('[GITNEXUS] Re-index failed:', (e.stderr || e.message || '').toString().trim()); } }\"",
+            "async": true
           }
         ]
       }
     ]
   },
-  "enabledPlugins": {
-    "notion-workspace-plugin@notion-plugin-marketplace": true
-  }
+  "enabledPlugins": {}
 }
