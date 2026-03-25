@@ -4,9 +4,9 @@
 
 Control characters, hit points, and dice rolls from your phone. OBS overlays update instantly — no refresh, no delay, no plugins.
 
-![Status](https://img.shields.io/badge/status-MVP%20COMPLETE-brightgreen)
-![Stack](https://img.shields.io/badge/stack-Node.js%20%2B%20Svelte%205%20%2B%20PocketBase-blue)
-![Package Manager](https://img.shields.io/badge/package%20manager-Bun-orange)
+![Status](https://img.shields.io/badge/status-Phase%200%20complete-brightgreen)
+![Stack](https://img.shields.io/badge/stack-Bun%20%2B%20Svelte%205%20%2B%20PocketBase-blue)
+![Language](https://img.shields.io/badge/language-TypeScript-3178c6)
 
 ---
 
@@ -25,11 +25,12 @@ DADOS & RISAS is a lightweight, low-latency toolkit designed for DMs and players
 
 | Layer | Technology |
 | :--- | :--- |
-| **Backend** | Node.js 18+, Express, Socket.io 4.8 |
+| **Backend** | Bun + Express + Socket.io 4.8, TypeScript |
 | **Database** | PocketBase (SQLite) |
-| **Frontend** | Svelte 5, Vite 7, Tailwind CSS 4 |
-| **Runtime** | Bun (recommended) |
-| **Overlays** | SvelteKit routes under `(audience)` |
+| **Frontend** | Svelte 5, SvelteKit, Vite 7 |
+| **Runtime** | Bun |
+| **Overlays** | SvelteKit `(audience)` routes — listen-only, OBS Browser Source |
+| **Component dev** | Storybook 10 + Vitest |
 
 ---
 
@@ -82,14 +83,17 @@ bun run dev -- --host
 ### Root Project
 - `bun run start-demo`: Starts PocketBase and the Express server.
 - `bun run stop-demo`: Stops the running demo processes.
-- `node server.js`: Starts only the Express server (requires PocketBase to be running).
+- `bun server.ts`: Starts only the backend server (requires PocketBase running).
+- `bun run build`: Type-check with `tsc --noEmit` (Bun runs `.ts` natively).
+- `bun run setup-ip`: Auto-detect LAN IP and write `.env` files for mobile access.
 
 ### Control Panel (`/control-panel`)
-- `bun run dev`: Starts the Vite development server.
-- `bun run dev:auto`: Detects local IP, updates `.env`, and starts Vite with `--host`.
+
+- `bun run dev -- --host`: Starts Vite dev server (accessible on LAN).
 - `bun run build`: Builds the production bundle.
 - `bun run test`: Runs Vitest unit tests.
-- `bun run storybook`: Starts Storybook for component development.
+- `bun run storybook`: Starts Storybook on port 6006.
+- `bun run build-storybook`: Builds static Storybook bundle.
 
 ---
 
@@ -116,31 +120,45 @@ bun run dev -- --host
 
 ```text
 OVERLAYS/
-├── server.js            # Express + Socket.io backend
-├── pocketbase.exe       # PocketBase binary
-├── data/                # Data access modules (characters, rolls)
-├── public/              # Static assets + generated overlay tokens
-├── control-panel/       # Svelte 5 Control Panel
-│   ├── src/routes/      # Route groups: (stage), (cast), (audience)
-│   ├── src/lib/         # Components, services, contracts, stores
-│   └── ...
-├── scripts/             # Utility scripts (IP detection, seeding)
-├── tests/               # Backend and E2E tests
-└── docs/                # Detailed technical documentation
+├── server.ts                  # Thin entry point — Express + Socket.io init
+├── src/server/                # Backend modules
+│   ├── handlers/              # REST handlers (characters, encounter, overlay, rolls, misc)
+│   ├── socket/                # Socket.io init, broadcast, event stubs
+│   └── state/                 # In-memory encounter + scene state
+├── data/                      # PocketBase CRUD modules (characters, rolls)
+├── pocketbase.exe             # PocketBase binary
+├── control-panel/             # SvelteKit control panel (Svelte 5)
+│   ├── src/routes/            # Route groups: (stage), (cast), (audience)
+│   ├── src/lib/components/    # UI components + OBS overlays
+│   ├── src/lib/services/      # pocketbase.ts, socket.ts, broadcast/, errors.ts
+│   ├── src/lib/contracts/     # Shared TypeScript interfaces
+│   ├── src/lib/mocks/         # Storybook + test fixture data
+│   └── .storybook/            # Storybook config and theme
+├── scripts/                   # IP detection, seeding
+├── docs/                      # Technical documentation
+└── tsconfig.json              # TypeScript config (type-check only; Bun runs .ts natively)
 ```
 
 ---
 
 ## 🧪 Testing
 
-- **Frontend**: Vitest for unit/component testing.
-  ```bash
-  cd control-panel && bun test
-  ```
-- **Backend**: Sanity check script.
-  ```bash
-  node tests/backend-sanity.js
-  ```
+- **Frontend unit tests**: Vitest — `cd control-panel && bun test`
+- **Type checking**: `bun run build` at root (`tsc --noEmit`)
+- **Component dev**: Storybook at `:6006` — `cd control-panel && bun run storybook`
+
+---
+
+## 📚 Documentation
+
+| File | Contents |
+| :--- | :--- |
+| `docs/INDEX.md` | Fast file map — entry points, routes, services |
+| `docs/ARCHITECTURE.md` | Data flows, module map, design decisions |
+| `docs/SOCKET-EVENTS.md` | Complete Socket.io event payloads |
+| `docs/ENVIRONMENT.md` | `.env` setup, LAN IP configuration |
+| `docs/DESIGN-SYSTEM.md` | CSS tokens, typography, component style guide |
+| `control-panel/.storybook/README.md` | Story writing guide and mock data strategy |
 
 ---
 
