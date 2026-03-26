@@ -8,8 +8,8 @@
 export interface EncounterParticipant {
   charId: string;
   name: string;
-  photo: string | null;
-  class_primary: Record<string, unknown> | null;
+  portrait: string | null;
+  class_name: string | null;
   hp_current: number;
   hp_max: number;
   initiative: number;

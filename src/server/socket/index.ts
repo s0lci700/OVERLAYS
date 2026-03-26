@@ -12,10 +12,8 @@ import { registerCharacterEvents } from './events/character';
 import { registerCombatEvents } from './events/combat';
 import { registerSessionEvents } from './events/session';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const characterModule = require('../../../data/characters');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const rollsModule = require('../../../data/rolls');
+import * as characterModule from '../data/characters';
+import * as rollsModule from '../data/rolls';
 
 export function initSocket(io: Server): void {
   initRooms(io);

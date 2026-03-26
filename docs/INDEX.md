@@ -7,7 +7,7 @@ last_updated: 2026-03-25
 
 # Project Index
 
-> Last updated: 2026-03-24. Quick navigation for file locations, entry points, and how the system hangs together.
+> Last updated: 2026-03-25. Quick navigation for file locations, entry points, and how the system hangs together.
 
 ## Primary entry points
 
@@ -38,9 +38,9 @@ last_updated: 2026-03-25
 | `src/server/socket/events/` | Phase 2 stubs: `character.ts`, `combat.ts`, `session.ts` |
 | `src/server/state/encounter.ts` | In-memory encounter state (get/set) |
 | `src/server/state/scene.ts` | In-memory scene + focused character state (get/set) |
-| `data/characters.js` | PocketBase character CRUD (`getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `removeCharacter`, `updateResource`, `restoreResources`) |
-| `data/rolls.js` | PocketBase roll log (`getAll`, `logRoll`) |
-| `data/id.js` | 5-char ID generator (`createShortId`) |
+| `src/server/data/characters.ts` | PocketBase character CRUD (`getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `removeCharacter`, `updateResource`, `restoreResources`) |
+| `src/server/data/rolls.ts` | PocketBase roll log (`getAll`, `logRoll`) |
+| `src/server/data/id.ts` | 5-char ID generator (`createShortId`) |
 | `scripts/setup-ip.js` | Detects LAN IP and writes root `.env` + `control-panel/.env` |
 
 ## Control panel (`control-panel/src/`)

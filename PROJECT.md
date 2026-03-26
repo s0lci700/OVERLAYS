@@ -93,9 +93,10 @@ Stage is the only initiator. Cast and Audience are consumers.
 | Stage — pre-session | ✅ Built | `/setup/create`, `/setup/manage` |
 | Stage — live session | ✅ Built | `/live/characters`, `/live/dice`, `/overview` |
 | Cast — DM Panel | ✅ Built | `/dm` |
-| Cast — Players | ✅ Built | `/players/[id]` |
+| Cast — Players | 🚧 Route only | `/players/[id]` — sheet UI is Phase 1 work |
+| Commons | 📋 Planned | Phase 3 — route group not yet created |
 | Audience — overlays | ✅ Built | `/persistent/*`, `/moments/*`, `/scene`, `/announcements`, `/show/*` |
-| Backend / server | ✅ Built | `server.js` + PocketBase |
+| Backend / server | ✅ Built | `server.ts` + `src/server/` modules + PocketBase |
 
 ---
 

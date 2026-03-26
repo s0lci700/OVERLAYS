@@ -10,8 +10,7 @@ import { pb } from '../pb';
 import { broadcast, setSyncStartTime } from '../socket/rooms';
 import { getSceneState, setSceneState, setFocusedChar } from '../state/scene';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const characterModule = require('../../../data/characters');
+import * as characterModule from '../data/characters';
 
 // ── Token cache ──────────────────────────────────────────────────────────────
 
@@ -97,7 +96,7 @@ export async function focusCharacter(req: Request, res: Response): Promise<void>
   const char = await characterModule.findById(pb, charId);
   if (!char) { res.status(404).json({ error: 'Character not found' }); return; }
 
-  setFocusedChar(char);
+  setFocusedChar(char as unknown as Record<string, unknown>);
   broadcast('character_focused', { character: char });
   res.status(200).json({ focused: char });
 }

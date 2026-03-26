@@ -6,10 +6,8 @@ import type { Request, Response } from 'express';
 import { pb } from '../pb';
 import { broadcast } from '../socket/rooms';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const characterModule = require('../../../data/characters');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const rollsModule = require('../../../data/rolls');
+import * as characterModule from '../data/characters';
+import * as rollsModule from '../data/rolls';
 
 const isFiniteNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 

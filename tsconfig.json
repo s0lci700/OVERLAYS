@@ -9,8 +9,15 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "checkJs": false,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@contracts/*": ["./control-panel/src/lib/contracts/*"]
+    }
   },
-  "include": ["server.ts", "src/**/*"],
-  "exclude": ["node_modules", "control-panel", "data", "scripts", "public"]
+  "include": [
+    "server.ts",
+    "src/**/*",
+    "control-panel/src/lib/contracts/**/*.ts"
+  ],
+  "exclude": ["node_modules", "control-panel/node_modules"]
 }

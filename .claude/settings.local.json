@@ -56,7 +56,10 @@
       "mcp__plugin_notion_notion__notion-search",
       "Skill(schedule)",
       "mcp__storybook__preview-stories",
-      "mcp__storybook__get-storybook-story-instructions"
+      "mcp__storybook__get-storybook-story-instructions",
+      "WebFetch(domain:github.com)",
+      "Bash(stat /c/Users/Sol/Desktop/PITCH/OVERLAYS/docs/*.md)",
+      "mcp__claude_ai_Notion__notion-update-page"
     ]
   },
   "enableAllProjectMcpServers": true,

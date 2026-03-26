@@ -7,8 +7,7 @@ import { pb } from '../pb';
 import { broadcast } from '../socket/rooms';
 import { getEncounterState, setEncounterState } from '../state/encounter';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const characterModule = require('../../../data/characters');
+import * as characterModule from '../data/characters';
 
 export function getEncounter(_req: Request, res: Response): void {
   res.json(getEncounterState());
@@ -21,22 +20,22 @@ export async function startEncounter(req: Request, res: Response): Promise<void>
   }
 
   const chars = await characterModule.getAll(pb);
-  const charMap = Object.fromEntries(chars.map((c: Record<string, unknown>) => [c.id, c]));
+  const charMap = new Map(chars.map((c) => [c.id, c]));
   const sorted = participants
-    .filter((p: { charId: string }) => charMap[p.charId])
+    .filter((p: { charId: string }) => charMap.has(p.charId))
     .map((p: { charId: string; initiative: number }) => {
-      const c = charMap[p.charId] as Record<string, unknown>;
+      const c = charMap.get(p.charId)!;
       return {
         charId: p.charId,
-        name: c.name as string,
-        photo: (c.photo as string | null) || null,
-        class_primary: (c.class_primary as Record<string, unknown> | null) || null,
-        hp_current: c.hp_current as number,
-        hp_max: c.hp_max as number,
+        name: c.name,
+        portrait: c.portrait || null,
+        class_name: c.class_name || null,
+        hp_current: c.hp_current,
+        hp_max: c.hp_max,
         initiative: Number(p.initiative) || 0,
       };
     })
-    .sort((a: { initiative: number }, b: { initiative: number }) => b.initiative - a.initiative);
+    .sort((a, b) => b.initiative - a.initiative);
 
   if (sorted.length === 0) {
     res.status(400).json({ error: 'No valid participants found' }); return;

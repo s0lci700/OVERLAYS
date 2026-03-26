@@ -62,17 +62,17 @@ All REST endpoints are served by the Bun/Express server at `:3000`. Every mutati
 
 #### `POST /api/characters/batch/hp`
 **Handler:** `batchUpdateHp` in `src/server/handlers/characters.ts`
-**Body:** `{ updates: Array<{ id: string, hp: number }> }`
+**Body:** `{ updates: Array<{ charId: string, hp_current: number }> }`
 **Emits:** `hp_updated` per character (or a bulk broadcast — check handler implementation).
 
 #### `PUT /api/characters/:id/hp`
 **Handler:** `updateHp` in `src/server/handlers/characters.ts`
-**Body:** `{ hp: number }`
+**Body:** `{ hp_current: number }`
 **Emits:** `hp_updated` → `{ character: Character, hp_current: number }`
 
 #### `PUT /api/characters/:id/photo`
 **Handler:** `updatePhoto` in `src/server/handlers/characters.ts`
-**Body:** Multipart form data with photo file, or `{ photo: string }` (base64/URL).
+**Body:** `{ portrait: string }` (base64/URL).
 **Emits:** `character_updated` → `{ character: Character }`
 
 #### `PUT /api/characters/:id`
@@ -156,7 +156,7 @@ All REST endpoints are served by the Bun/Express server at `:3000`. Every mutati
 
 #### `POST /api/rolls`
 **Handler:** `logRoll` in `src/server/handlers/rolls.ts`
-**Body:** `{ charId: string, sides: number, modifier?: number }`
+**Body:** `{ charId: string, result: number, sides: number, modifier?: number }`
 **Emits:** `dice_rolled` → `{ id, charId, characterName, result, modifier, rollResult, sides, timestamp }`
 
 ---
@@ -186,7 +186,31 @@ Fetches one character from the `characters` collection. Throws `ServiceError('NO
 **`updateCharacterRecord(id: string, data: Partial<CharacterRecord>)`** → `Promise<CharacterRecord>`
 Partial update on a character record. Throws `ServiceError('VALIDATION')` on 400/422.
 
-Both functions throw typed `ServiceError` for all PocketBase and network failures.
+**`listCharacterRecords()`** → `Promise<CharacterRecord[]>`
+Fetches all characters from the `characters` collection.
+
+**`listActiveCharacters()`** → `Promise<CharacterRecord[]>`
+Fetches only characters where `is_active = true`.
+
+**`addCondition(characterId: string, condition: { condition_name: string, intensity_level?: number })`** → `Promise<CharacterRecord>`
+Adds a condition to a character's conditions array.
+
+**`removeCondition(characterId: string, conditionId: string)`** → `Promise<CharacterRecord>`
+Removes a condition by ID from a character's conditions array.
+
+**`updateResource(characterId: string, resourceId: string, poolCurrent: number)`** → `Promise<CharacterRecord>`
+Updates a resource's `pool_current` value.
+
+**`restoreResources(characterId: string, restType: 'short' | 'long')`** → `Promise<CharacterRecord>`
+Restores resources matching the given rest type.
+
+**`getPortraitUrl(record: CharacterRecord)`** → `string`
+Returns the full-size portrait file URL from a PocketBase record.
+
+**`getPortraitThumbUrl(record: CharacterRecord, size?: string)`** → `string`
+Returns a thumbnail portrait URL at the specified size (default `100x100`).
+
+All functions throw typed `ServiceError` for all PocketBase and network failures.
 
 ---
 

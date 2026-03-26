@@ -126,7 +126,7 @@ Phone / Tablet / Desktop
         │
         ▼
   Bun server (Express + Socket.io, :3000)
-  [data/characters.js] [data/rolls.js]  ← PocketBase SDK wrappers
+  [src/server/data/characters.ts] [src/server/data/rolls.ts]  ← PocketBase SDK wrappers
         │  io.emit broadcasts to ALL clients
         ▼
   PocketBase (:8090, SQLite)
@@ -169,7 +169,7 @@ Always use `bun` instead of `npm`.
 
 **Backend (root):**
 
-- `bun server.js` — Express + Socket.io on port 3000 (requires PocketBase + `.env`)
+- `bun server.ts` — Express + Socket.io on port 3000 (requires PocketBase + `.env`)
 - `bun run setup-ip` — auto-detect LAN IP and write root `.env` + `control-panel/.env`
 - `bun run generate:tokens` — regenerate CSS from `design/tokens.json`; run after editing tokens
 
@@ -188,7 +188,7 @@ PORT=3000
 CONTROL_PANEL_ORIGIN=http://localhost:5173
 ```
 
-**Start order:** PocketBase → `bun server.js` → `bun run dev -- --host` in `control-panel/`.
+**Start order:** PocketBase → `bun server.ts` → `bun run dev -- --host` in `control-panel/`.
 
 ---
 
@@ -196,15 +196,19 @@ CONTROL_PANEL_ORIGIN=http://localhost:5173
 
 **Tech stack versions:** This project uses `shadcn-svelte` with `bits-ui`. Before assuming any component API shape (e.g. Listbox, Dialog), verify what's actually installed: `cat control-panel/package.json | grep bits-ui`. Do not assume components or props exist without checking — bits-ui v2 has breaking API changes from v0/v1.
 
-**PocketBase data layer:** All functions in `data/characters.js` and `data/rolls.js` take `pb` as their first argument and are `async`. `pb.collection().getOne()` **throws** a `ClientResponseError` on 404 — use try/catch, not `if (!result)` guards.
+**PocketBase data layer:** All functions in `src/server/data/characters.ts` and `src/server/data/rolls.ts` take `pb` as their first argument and are `async`. `pb.collection().getOne()` **throws** a `ClientResponseError` on 404 — use try/catch, not `if (!result)` guards.
 
 **Key files:**
 
-- `server.js` — all Express routes, Socket.io setup, PocketBase auth on startup (`connectToPocketBase()` — exits with code 1 on failure)
-- `data/characters.js` — exports `getAll`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`
-- `data/rolls.js` — exports `getAll(pb)`, `logRoll(pb, {...})`
+- `server.ts` — entry point (Express + Socket.io init, PocketBase auth on startup)
+- `src/server/router.ts` — all route registrations
+- `src/server/handlers/` — `characters.ts`, `rolls.ts`, `encounter.ts`, `misc.ts`, `overlay.ts`
+- `src/server/data/characters.ts` — exports `getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter`
+- `src/server/data/rolls.ts` — exports `getAll(pb)`, `logRoll(pb, {...})`
+- `src/server/data/id.ts` — `createShortId()` for generating 5-char IDs
 - `data/template-characters.json` — seed fixture (4 characters, stable 5-char IDs like `"CH101"`)
 - `design/tokens.json` — canonical token source (never edit the generated CSS files)
+- `scripts/migrate-collections.ts` — applies PocketBase schema from `records.ts` contracts
 
 **Socket flow:** Stage always sends REST first; the server's Socket.io broadcast updates shared state in all clients. Never mutate `characters` or `lastRoll` stores directly from component logic.
 

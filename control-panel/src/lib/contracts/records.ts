@@ -49,9 +49,25 @@ Examples:
 - reveal_preset
 */
 
+export interface Condition {
+  id: string;
+  condition_name: string;
+  intensity_level: number;
+  applied_at: string; // ISO 8601
+}
+
+export interface ResourceSlot {
+  id: string;
+  name: string;
+  pool_max: number;
+  pool_current: number;
+  reset_on: 'long_rest' | 'short_rest' | 'turn' | 'dm';
+}
+
 export interface CharacterRecord {
     id: string;
     name: string;
+    player: string;
     species: string;
     class_name: string;
     subclass_name?: string;
@@ -67,18 +83,11 @@ export interface CharacterRecord {
     skill_proficiencies: string[];
     expertise: string[];
     resources: ResourceSlot[];
-    conditions: string[];
+    conditions: Condition[];
     is_active: boolean;
     is_visible_to_party_overlay: boolean;
     portrait?: string; // URL or base64 image data
     notes?: string[];
-}
-
-export interface ResourceSlot {
-    name: string;
-    pool_max: number;
-    pool_used: number;
-    reset_on: 'long_rest' | 'short_rest' | 'turn' | 'dm';
 }
 
 export interface CampaignRecord {

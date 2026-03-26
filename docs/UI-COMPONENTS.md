@@ -310,7 +310,7 @@ Compact version of `CharacterCard` used in the DM initiative tracker.
 
 All routes under `(audience)/`. Served as OBS browser sources at 1920×1080.
 
-**Main CSS file:** `control-panel/src/overlays.css`
+**Main CSS file:** `control-panel/src/lib/components/overlays/overlays.css`
 
 | Overlay route | Component | Key classes |
 |---|---|---|

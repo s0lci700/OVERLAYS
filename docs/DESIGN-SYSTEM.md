@@ -1,7 +1,7 @@
 ---
 title: Design System
 type: design
-source_files: [design/tokens.json, control-panel/src/app.css, control-panel/src/overlays.css]
+source_files: [design/tokens.json, control-panel/src/app.css, control-panel/src/lib/components/overlays/overlays.css]
 last_updated: 2026-03-25
 ---
 

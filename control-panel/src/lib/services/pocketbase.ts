@@ -1,7 +1,7 @@
 import PocketBase, { ClientResponseError } from 'pocketbase';
 
 //Imports record shape types from $lib/contracts/records.ts
-import type { CharacterRecord } from '$lib/contracts/records';
+import type { CharacterRecord, Condition, ResourceSlot } from '$lib/contracts/records';
 
 //Imports the ServiceError class for consistent error handling across service functions
 import { ServiceError } from './errors';
@@ -111,4 +111,124 @@ export async function updateCharacterRecord(
 	} catch (error) {
 		throw mapPocketBaseError(error, 'updateCharacterRecord', { id, dataKeys: Object.keys(data) });
 	}
+}
+
+// ─── Phase 1: List / Query ───────────────────────────────────────────────────
+
+export async function listCharacterRecords(): Promise<CharacterRecord[]> {
+	try {
+		return await pb.collection('characters').getFullList<CharacterRecord>({ sort: 'name' });
+	} catch (error) {
+		throw mapPocketBaseError(error, 'listCharacterRecords');
+	}
+}
+
+export async function listActiveCharacters(): Promise<CharacterRecord[]> {
+	try {
+		return await pb.collection('characters').getFullList<CharacterRecord>({
+			filter: 'is_active = true',
+			sort: 'name'
+		});
+	} catch (error) {
+		throw mapPocketBaseError(error, 'listActiveCharacters');
+	}
+}
+
+// ─── Phase 1: Conditions ─────────────────────────────────────────────────────
+
+export async function addCondition(
+	characterId: string,
+	condition: Condition
+): Promise<CharacterRecord> {
+	assertNonEmptyString(characterId, 'Character ID');
+	try {
+		const char = await pb.collection('characters').getOne<CharacterRecord>(characterId);
+		const conditions = [...(char.conditions ?? []), condition];
+		return await pb
+			.collection('characters')
+			.update<CharacterRecord>(characterId, { conditions });
+	} catch (error) {
+		throw mapPocketBaseError(error, 'addCondition', { characterId, condition });
+	}
+}
+
+export async function removeCondition(
+	characterId: string,
+	conditionId: string
+): Promise<CharacterRecord> {
+	assertNonEmptyString(characterId, 'Character ID');
+	assertNonEmptyString(conditionId, 'Condition ID');
+	try {
+		const char = await pb.collection('characters').getOne<CharacterRecord>(characterId);
+		const conditions = (char.conditions ?? []).filter((c) => c.id !== conditionId);
+		return await pb
+			.collection('characters')
+			.update<CharacterRecord>(characterId, { conditions });
+	} catch (error) {
+		throw mapPocketBaseError(error, 'removeCondition', { characterId, conditionId });
+	}
+}
+
+// ─── Phase 1: Resources ──────────────────────────────────────────────────────
+
+export async function updateResource(
+	characterId: string,
+	resourceId: string,
+	poolCurrent: number
+): Promise<CharacterRecord> {
+	assertNonEmptyString(characterId, 'Character ID');
+	assertNonEmptyString(resourceId, 'Resource ID');
+	try {
+		const char = await pb.collection('characters').getOne<CharacterRecord>(characterId);
+		const resources = (char.resources ?? []).map((r) => {
+			if (r.id !== resourceId) return r;
+			return { ...r, pool_current: Math.max(0, Math.min(poolCurrent, r.pool_max)) };
+		});
+		return await pb
+			.collection('characters')
+			.update<CharacterRecord>(characterId, { resources });
+	} catch (error) {
+		throw mapPocketBaseError(error, 'updateResource', { characterId, resourceId });
+	}
+}
+
+export async function restoreResources(
+	characterId: string,
+	restType: 'short' | 'long'
+): Promise<{ character: CharacterRecord; restored: string[] }> {
+	assertNonEmptyString(characterId, 'Character ID');
+	try {
+		const char = await pb.collection('characters').getOne<CharacterRecord>(characterId);
+		const restored: string[] = [];
+		const resources = (char.resources ?? []).map((r) => {
+			const shouldRestore =
+				r.reset_on === 'short_rest' || (restType === 'long' && r.reset_on === 'long_rest');
+			if (shouldRestore) {
+				restored.push(r.name);
+				return { ...r, pool_current: r.pool_max };
+			}
+			return r;
+		});
+		const character = await pb
+			.collection('characters')
+			.update<CharacterRecord>(characterId, { resources });
+		return { character, restored };
+	} catch (error) {
+		throw mapPocketBaseError(error, 'restoreResources', { characterId, restType });
+	}
+}
+
+// ─── Phase 1: Portrait ───────────────────────────────────────────────────────
+
+export function getPortraitUrl(record: CharacterRecord): string | null {
+	if (!record.portrait) return null;
+	return pb.files.getUrl(record, record.portrait);
+}
+
+export function getPortraitThumbUrl(
+	record: CharacterRecord,
+	size: string = '100x100'
+): string | null {
+	if (!record.portrait) return null;
+	return pb.files.getUrl(record, record.portrait, { thumb: size });
 }

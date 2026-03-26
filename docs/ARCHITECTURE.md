@@ -1,7 +1,7 @@
 ---
 title: Architecture Guide
 type: architecture
-source_files: [src/server/, data/characters.js, data/rolls.js, control-panel/src/lib/]
+source_files: [src/server/, src/server/data/characters.ts, src/server/data/rolls.ts, control-panel/src/lib/]
 last_updated: 2026-03-25
 ---
 
@@ -29,8 +29,8 @@ Fast lookup: see [docs/INDEX.md](docs/INDEX.md).
 │   Express + Socket.io       │
 │   :3000                     │
 │                             │
-│   data/characters.js        │ ← PocketBase character CRUD
-│   data/rolls.js             │ ← PocketBase roll history
+│   src/server/data/characters.ts │ ← PocketBase character CRUD
+│   src/server/data/rolls.ts     │ ← PocketBase roll history
 └──────┬───────────┬──────────┘
        │           │  Socket.io broadcast
        │           │  (all events → all clients)
@@ -83,13 +83,13 @@ be started before the Node.js server.
 | `src/server/state/encounter.ts`     | In-memory encounter state (active, round, participants)                           | `getEncounterState`, `setEncounterState` |
 | `src/server/state/scene.ts`         | In-memory scene + focused character state                                         | `getSceneState`, `setSceneState`, `getFocusedChar`, `setFocusedChar` |
 
-#### CJS data modules (unchanged)
+#### TypeScript data modules
 
 | File                 | Purpose                                                        | Key exports                                                                                               |
 | -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `data/characters.js` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
-| `data/rolls.js`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
-| `data/id.js`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
+| `src/server/data/characters.ts` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
+| `src/server/data/rolls.ts`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
+| `src/server/data/id.ts`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
 
 ### Control Panel (`/control-panel/src/`)
 

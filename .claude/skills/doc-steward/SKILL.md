@@ -1,7 +1,7 @@
 ---
 name: doc-steward
 description: Full documentation lifecycle manager for TableRelay. Audits staleness, archives orphans, extracts API surfaces, rebuilds indexes, and syncs summaries to Notion. Supersedes docs-refresh for full-lifecycle runs; docs-refresh remains valid for quick targeted refreshes.
-argument-hint: /doc-steward [phase] — phase is audit | clean | api | sync | all. Defaults to "all".
+argument-hint: /doc-steward [phase] — phase is audit | clean | api | sync | backlog-sync | all. Defaults to "all".
 user-invocable: true
 ---
 
@@ -24,11 +24,12 @@ Run one phase or the full pipeline:
 | Invocation | What runs |
 |---|---|
 | `/doc-steward audit` | Freshness report for all docs (root + `docs/`) — no writes |
-| `/doc-steward sprint-sync` | Pull Notion sprint → update `SPRINT.md` only |
+| `/doc-steward sprint-sync` | Pull Notion sprint → update `SPRINT.md` only (fast path) |
+| `/doc-steward backlog-sync` | Pull full Notion Roadmap → update all `backlog/` task files + regenerate `SPRINT.md` |
 | `/doc-steward clean` | Archive orphans, update root docs (PROJECT.md, README.md), rebuild index |
 | `/doc-steward api` | Extract API surface → `docs/API.md` |
 | `/doc-steward sync` | Push all doc summaries (including root docs) to Notion Docs Index |
-| `/doc-steward all` | audit → sprint-sync → clean → api → sync (full run) |
+| `/doc-steward all` | audit → backlog-sync → clean → api → sync (full run) |
 | `/doc-steward` | Same as `all` |
 
 ---
@@ -176,6 +177,67 @@ Push doc summaries to a Notion database. This makes the doc index human-browsabl
 
 ---
 
+## Phase: `backlog-sync`
+
+Pull the full Notion Roadmap database → update all `backlog/phase-N/TASK-N.N.md` files → regenerate `backlog/README.md` → regenerate `SPRINT.md`.
+
+**Source of truth:** Notion Roadmap database (`collection://b4ce9e26-ed9e-41ba-b63a-80074a0aed97`).
+**Local representation:** `backlog/` folder — one file per task, one `_phase.md` per phase.
+**SPRINT.md** is auto-generated from backlog state — never manually edited after first `backlog-sync`.
+
+### Steps
+
+1. **Pull the Roadmap database** from Notion:
+   - Fetch `collection://b4ce9e26-ed9e-41ba-b63a-80074a0aed97` to get all task rows
+   - Each row has: `Task ID`, `Feature` (title), `Phase`, `Status`, `Story Points`, `Surface`, `Milestone`, `Notes`, `GitHub Issue`, row URL
+
+2. **Group tasks by phase** (Phase 0, Phase 1, …, Phase 7)
+
+3. **For each task row** where `Task ID` is non-empty:
+   - Determine folder: `backlog/phase-N/` (N = phase number from Phase property)
+   - Check if `backlog/phase-N/TASK-N.N.md` exists
+   - **If exists:** update only the frontmatter fields (`status`, `last_synced`) and the Notes section if changed. Never overwrite local addenda (content below a `## Notes` or `## Addendum` heading).
+   - **If new task:** fetch the Notion page for full details. Create `backlog/phase-N/TASK-N.N.md` with:
+     - Frontmatter: `id`, `title`, `phase`, `status`, `points`, `surface`, `milestone`, `notion_url`, `last_synced`
+     - Title + status badge
+     - Description (from Notes property or first paragraph of page body)
+     - Acceptance criteria (from page body if available)
+     - Dependencies (from page body if available)
+   - **If task removed from Notion:** do not delete the local file — add `archived: true` to frontmatter and note at top
+
+4. **For each phase folder** `backlog/phase-N/`:
+   - Update `_phase.md` frontmatter: `tasks_done`, `points_done`, `status`
+   - Update the Tasks table in the body
+
+5. **Regenerate `backlog/README.md`:**
+   - Rebuild the Phases table with current progress counts
+   - Rebuild the per-phase task tables
+
+6. **Regenerate `SPRINT.md`:**
+   - Include only phases that are `In Progress` or `Complete` (not `Planned`)
+   - For each included phase: show the status board table from `_phase.md`
+   - Prepend the `> Auto-generated` notice
+   - Keep dependency chain sections
+
+7. Report: N tasks updated, M tasks created, K phases refreshed.
+
+### Status mapping (Notion → local)
+
+| Notion Status | Local `status` | SPRINT.md symbol |
+|---|---|---|
+| `📋 Planned` | `Planned` | `🔲 Todo` |
+| `🚧 In Progress` | `In Progress` | `🚧 In Progress` |
+| `✅ Done` | `Done` | `✅ Done` |
+| `🚫 Blocked` | `Blocked` | `🚫 Blocked` |
+
+### Never overwrite
+
+- Local `## Notes`, `## Addendum`, `## Migration Script` sections — these are local additions not in Notion
+- `notion_url` once set (Notion URLs don't change)
+- The `docs/done/` archive
+
+---
+
 ## Frontmatter Standard
 
 Every file in `docs/` (not `done/`) should have this header:
@@ -246,10 +308,10 @@ A fast-path within `audit` that only handles `SPRINT.md` alignment with Notion:
 | `src/server/handlers/*.ts` | `docs/API.md` | api |
 | `src/server/router.ts` | `docs/API.md` | api |
 | `src/server/socket/` | `docs/SOCKET-EVENTS.md` | reference |
-| `data/characters.js`, `data/rolls.js` | `docs/ARCHITECTURE.md` | architecture |
+| `src/server/data/characters.ts`, `src/server/data/rolls.ts` | `docs/ARCHITECTURE.md` | architecture |
 | `design/tokens.json` | `docs/DESIGN-SYSTEM.md` | design |
 | `control-panel/src/lib/services/` | `docs/API.md` | api |
-| `control-panel/src/lib/components/ui/` | `docs/UI-COMPONENTS.md` | reference |
+| `control-panel/src/lib/components/shared/` | `docs/UI-COMPONENTS.md` | reference |
 | `.env` structure | `docs/ENVIRONMENT.md` | environment |
 | `control-panel/.storybook/` | `docs/UI-COMPONENTS.md` | reference |
 
