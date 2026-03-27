@@ -17,7 +17,7 @@ import router from './src/server/router';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const CONTROL_PANEL_ORIGIN = process.env.CONTROL_PANEL_ORIGIN || 'http://localhost:5173';
-
+const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://localhost:8090';
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
@@ -62,6 +62,7 @@ async function main(): Promise<void> {
     console.log(`[server] Local URL: http://localhost:${PORT}`);
     console.log(`[server] Network URL: http://${mainIP}:${PORT}`);
     console.log(`[server] Stage origin: ${CONTROL_PANEL_ORIGIN}`);
+    console.log('[server] PocketBase URL:', POCKETBASE_URL);
   });
 
   httpServer.on('error', (error: NodeJS.ErrnoException) => {

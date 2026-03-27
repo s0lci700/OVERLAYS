@@ -37,9 +37,18 @@ async function connect() {
 const collections = [
 
 	// ── CharacterRecord ─────────────────────────────────────────────────────
+	// Access rules:
+	//   Read  = open ("") — overlays and player sheets hit PocketBase directly via browser SDK (unauthenticated)
+	//   Write = admin-only (null) — all mutations go through Express, which uses the admin pb singleton
+	// Phase 2+: updateRule = "@request.auth.record.id = id" for per-player safe-field writes
 	{
 		name: 'characters',
 		type: 'base',
+		listRule:   '',    // unauthenticated list allowed
+		viewRule:   '',    // unauthenticated view allowed
+		createRule: null,  // admin only
+		updateRule: null,  // admin only
+		deleteRule: null,  // admin only
 		fields: [
 			// Identity
 			{ type: 'text',   name: 'name',        required: true  },
@@ -92,10 +101,36 @@ const collections = [
 		],
 	},
 
+	// ── RollRecord ───────────────────────────────────────────────────────────
+	// Access rules: open read, admin-only write
+	{
+		name: 'rolls',
+		type: 'base',
+		listRule:   '',
+		viewRule:   '',
+		createRule: null,
+		updateRule: null,
+		deleteRule: null,
+		fields: [
+			{ type: 'text',   name: 'charId',         required: true  },
+			{ type: 'text',   name: 'characterName',   required: true  },
+			{ type: 'number', name: 'result',          required: true  },
+			{ type: 'number', name: 'modifier',        required: false },
+			{ type: 'number', name: 'rollResult',      required: true  },
+			{ type: 'number', name: 'sides',           required: true  },
+		],
+	},
+
 	// ── CampaignRecord ───────────────────────────────────────────────────────
+	// Access rules: all admin-only — frontend has no direct campaign reads in Phase 1
 	{
 		name: 'campaigns',
 		type: 'base',
+		listRule:   null,
+		viewRule:   null,
+		createRule: null,
+		updateRule: null,
+		deleteRule: null,
 		fields: [
 			{ type: 'text', name: 'title',     required: true  },
 			{ type: 'text', name: 'setting',   required: false },
@@ -104,9 +139,17 @@ const collections = [
 	},
 
 	// ── SessionRecord ────────────────────────────────────────────────────────
+	// Access rules:
+	//   Read  = open ("") — session-display wallboard will read active session (Phase 3)
+	//   Write = admin-only (null)
 	{
 		name: 'sessions',
 		type: 'base',
+		listRule:   '',    // unauthenticated list allowed (for session-display)
+		viewRule:   '',    // unauthenticated view allowed
+		createRule: null,  // admin only
+		updateRule: null,  // admin only
+		deleteRule: null,  // admin only
 		fields: [
 			{ type: 'text',     name: 'campaign',       required: true  }, // relation ID — upgrade to relation field when campaigns is stable
 			{ type: 'text',     name: 'title',          required: true  },
@@ -121,17 +164,19 @@ const collections = [
 
 async function main() {
 	await connect();
+	console.log('[migrate] Connected. Applying collection schemas...');
 
 	console.log(`[migrate] Applying ${collections.length} collection(s)...`);
 
-	// deleteMissing=false — never drops collections absent from this file
-	await (pb.collections as any).import(collections, false);
+	const deleteMissing = process.argv.includes('--delete-missing');
+	if (deleteMissing) console.log('[migrate] WARNING: --delete-missing is set. Fields not in this schema will be dropped.');
+	await (pb.collections as any).import(collections, deleteMissing);
 
 	for (const col of collections) {
 		console.log(`[migrate] ✓ ${col.name}`);
 	}
 
-	console.log('[migrate] Done. Run bun scripts/seed.js to populate characters.');
+	console.log('[migrate] Done. Run bun src/server/seed.ts to populate characters.');
 }
 
 main()

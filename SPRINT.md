@@ -45,7 +45,7 @@ TASK-0.6 ✅ → TASK-0.7 → All Phase 1–5 stories
 
 **Goal:** Build a functional digital character sheet for players on mobile.
 **Milestone:** Session 0 LAN Test
-**Progress:** 0 of 7 tasks done · 0 of 33 pts complete
+**Progress:** 1 of 7 tasks done · 5 of 33 pts complete
 
 ---
 
@@ -53,23 +53,23 @@ TASK-0.6 ✅ → TASK-0.7 → All Phase 1–5 stories
 
 | ID | Task | Status | Pts | Notes |
 | --- | --- | --- | --- | --- |
-| TASK-1.1 | Define PocketBase character collections | 🚧 In Progress | 5 | Schema + migration script ready — see [backlog/phase-1/TASK-1.1.md](backlog/phase-1/TASK-1.1.md) |
-| TASK-1.2 | Build record-driven character page | 🔲 Todo | 8 | `(cast)/players/[id]` — load from PocketBase via `character.ts` service |
-| TASK-1.3 | Ability scores + derived values engine | 🔲 Todo | 3 | Compute modifiers, saves, skills from raw ability scores |
-| TASK-1.4 | Build resource tracker component | 🔲 Todo | 5 | Pool-based resources (Rage, Spell Slots, etc.) with recharge type display |
-| TASK-1.5 | Build conditions/status display component | 🔲 Todo | 5 | Active conditions list with intensity — uses `condition-pill` from Phase 0 |
-| TASK-1.6 | Wire live state socket overlay — HP, conditions | 🔲 Todo | 5 | Subscribe to `hp_updated`, `condition_added/removed` via `character.ts` |
-| TASK-1.7 | Story coverage audit — Cast/Players | 🔲 Todo | 2 | End-of-phase Storybook coverage check for all Cast/Players components |
+| TASK-1.1 | Define PocketBase character collections | ✅ Done | 5 | Schema + migration script ready — see [backlog/phase-1/TASK-1.1.md](backlog/phase-1/TASK-1.1.md) |
+| TASK-1.2 | Build record-driven character page | 📋 Todo | 8 | `(cast)/players/[id]` — load from PocketBase via `character.ts` service |
+| TASK-1.3 | Build sheet sections — header, abilities, saves, skills | 📋 Todo | 3 | Core character sheet UI sections — header, ability scores, saves, skills |
+| TASK-1.4 | Build resource tracker component | 📋 Todo | 5 | Pool-based resources (Rage, Spell Slots, etc.) with recharge type display |
+| TASK-1.5 | Build conditions/status display component | 📋 Todo | 5 | Active conditions list with intensity — uses `condition-pill` from Phase 0 |
+| TASK-1.6 | Wire live state socket overlay — HP, conditions | 📋 Todo | 5 | Subscribe to `hp_updated`, `condition_added/removed` via `character.ts` |
+| TASK-1.7 | Story coverage audit — Cast/Players | 📋 Todo | 2 | End-of-phase Storybook coverage check for all Cast/Players components |
 
 ---
 
 ## Dependency chain
 
 ```text
-TASK-1.1 → TASK-1.2 → TASK-1.3
-                     → TASK-1.4
-                     → TASK-1.5
-                     → TASK-1.6 (requires socket.ts + contracts from Phase 0 ✅)
+TASK-1.1 ✅ → TASK-1.2 → TASK-1.3
+                        → TASK-1.4
+                        → TASK-1.5
+                        → TASK-1.6 (requires socket.ts + contracts from Phase 0 ✅)
 ```
 
 ---

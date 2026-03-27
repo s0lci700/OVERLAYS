@@ -15,95 +15,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **MCP configs:** Always go in `.mcp.json` at the project root — never in `.claude/settings.json`. Check for an existing `.mcp.json` before adding new entries.
 
 <!-- gitnexus:start -->
-# GitNexus — Code Intelligence
+# GitNexus MCP
 
-This project is indexed by GitNexus as **OVERLAYS** (1424 symbols, 2000 relationships, 38 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **OVERLAYS** (5144 symbols, 17239 relationships, 300 execution flows).
 
-> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+## Always Start Here
 
-## Always Do
+1. **Read `gitnexus://repo/{name}/context`** — codebase overview + check index freshness
+2. **Match your task to a skill below** and **read that skill file**
+3. **Follow the skill's workflow and checklist**
 
-- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
-- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
-- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
-- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
+> If step 1 warns the index is stale, run `npx gitnexus analyze` in the terminal first.
 
-## When Debugging
-
-1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
-2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
-3. `READ gitnexus://repo/OVERLAYS/process/{processName}` — trace the full execution flow step by step
-4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
-
-## When Refactoring
-
-- **Renaming**: MUST use `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` first. Review the preview — graph edits are safe, text_search edits need manual review. Then run with `dry_run: false`.
-- **Extracting/Splitting**: MUST run `gitnexus_context({name: "target"})` to see all incoming/outgoing refs, then `gitnexus_impact({target: "target", direction: "upstream"})` to find all external callers before moving code.
-- After any refactor: run `gitnexus_detect_changes({scope: "all"})` to verify only expected files changed.
-
-## Never Do
-
-- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
-- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
-- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
-- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
-
-## Tools Quick Reference
-
-| Tool | When to use | Command |
-|------|-------------|---------|
-| `query` | Find code by concept | `gitnexus_query({query: "auth validation"})` |
-| `context` | 360-degree view of one symbol | `gitnexus_context({name: "validateUser"})` |
-| `impact` | Blast radius before editing | `gitnexus_impact({target: "X", direction: "upstream"})` |
-| `detect_changes` | Pre-commit scope check | `gitnexus_detect_changes({scope: "staged"})` |
-| `rename` | Safe multi-file rename | `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` |
-| `cypher` | Custom graph queries | `gitnexus_cypher({query: "MATCH ..."})` |
-
-## Impact Risk Levels
-
-| Depth | Meaning | Action |
-|-------|---------|--------|
-| d=1 | WILL BREAK — direct callers/importers | MUST update these |
-| d=2 | LIKELY AFFECTED — indirect deps | Should test |
-| d=3 | MAY NEED TESTING — transitive | Test if critical path |
-
-## Resources
-
-| Resource | Use for |
-|----------|---------|
-| `gitnexus://repo/OVERLAYS/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/OVERLAYS/clusters` | All functional areas |
-| `gitnexus://repo/OVERLAYS/processes` | All execution flows |
-| `gitnexus://repo/OVERLAYS/process/{name}` | Step-by-step execution trace |
-
-## Self-Check Before Finishing
-
-Before completing any code modification task, verify:
-1. `gitnexus_impact` was run for all modified symbols
-2. No HIGH/CRITICAL risk warnings were ignored
-3. `gitnexus_detect_changes()` confirms changes match expected scope
-4. All d=1 (WILL BREAK) dependents were updated
-
-## Keeping the Index Fresh
-
-After committing code changes, the GitNexus index becomes stale. Re-run analyze to update it:
-
-```bash
-npx gitnexus analyze
-```
-
-If the index previously included embeddings, preserve them by adding `--embeddings`:
-
-```bash
-npx gitnexus analyze --embeddings
-```
-
-To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.embeddings` field shows the count (0 means no embeddings). **Running analyze without `--embeddings` will delete any previously generated embeddings.**
-
-> Claude Code users: A PostToolUse hook handles this automatically after `git commit` and `git merge`.
-
-## CLI
+## Skills
 
 | Task | Read this skill file |
 |------|---------------------|
@@ -113,6 +37,24 @@ To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.
 | Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
 | Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
+
+### Windows Setup (v1.3.6 Workaround)
+
+**Issue:** GitNexus v1.4.9+ fails on Windows with native module errors (tree-sitter ABI mismatch, @ladybugdb/core ERR_DLOPEN_FAILED).
+
+**Solution:** This project pins `gitnexus@1.3.6` in `package.json` with `kuzu` as an explicit runtime dependency.
+
+**To run gitnexus commands:**
+
+```powershell
+nvm use 20                  # Ensure Node v20.19.0 (v20 LTS recommended)
+bunx gitnexus analyze       # Index the repository
+bunx gitnexus mcp           # Start GitNexus MCP server for editor integration
+```
+
+> **Note:** kuzu's postinstall script must complete during `bun install`. If `bunx gitnexus` fails with "Cannot find module 'kuzu/index.mjs'", run: `cd node_modules/kuzu && node install.js && cd../..` to restore the prebuilt binary.
+
+**Why v1.3.6?** v1.4.9 upgraded tree-sitter (0.21→0.25.0) and added @ladybugdb/core, both of which require prebuilt binaries matching the exact Node ABI. Windows prebuilds are unavailable, so builds fail. v1.3.6 uses kuzu natively and works reliably on Node 20.
 
 <!-- gitnexus:end -->
 

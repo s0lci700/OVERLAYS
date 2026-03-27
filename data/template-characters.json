@@ -28,7 +28,7 @@
     "resources": [],
     "is_active": true,
     "is_visible_to_party_overlay": true,
-    "portrait": "",
+    "portrait": null,
     "notes": []
   },
   {
@@ -68,7 +68,7 @@
     ],
     "is_active": true,
     "is_visible_to_party_overlay": true,
-    "portrait": "",
+    "portrait": null,
     "notes": []
   },
   {
@@ -108,7 +108,7 @@
     ],
     "is_active": true,
     "is_visible_to_party_overlay": true,
-    "portrait": "",
+    "portrait": null,
     "notes": []
   },
   {
@@ -148,7 +148,7 @@
     ],
     "is_active": true,
     "is_visible_to_party_overlay": true,
-    "portrait": "",
+    "portrait": null,
     "notes": []
   }
 ]

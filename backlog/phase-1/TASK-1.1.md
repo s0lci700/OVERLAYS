@@ -2,7 +2,7 @@
 id: TASK-1.1
 title: Define PocketBase character collections
 phase: 1
-status: In Progress
+status: Done
 points: 5
 surface: Cast/Players
 milestone: Session 0 LAN Test
@@ -12,20 +12,20 @@ last_synced: 2026-03-25
 
 # TASK-1.1 — Define PocketBase character collections
 
-**Status:** 🚧 In Progress · **Points:** 5 · **Surface:** 📱 Cast/Players
+**Status:** ✅ Done · **Points:** 5 · **Surface:** 📱 Cast/Players
 
 > Audit and migrate PocketBase collections to match the character record contract. Define character, resources, equipment, conditions, and codex_entries collections with typed fields and access rules.
 
 ## Acceptance Criteria
 
-- [ ] Schema for `characters` collection: all fields from `records.ts` (`ability_scores` JSON, `saving_throw_proficiencies`, `skill_proficiencies`, `expertise`, `passives`, `resources`, `spellcasting` JSON, HP fields, `ac_base`, `speed`, `proficiency_bonus`, `portrait` file, `is_active`, `is_visible_to_party_overlay`)
-- [ ] Schema for `character_conditions` (relation to characters, condition_key, label, visible_to_player, is_active, expires_at)
-- [ ] Schema for `character_equipment` (relation to characters, item_name, quantity, equipped bool, rarity)
-- [ ] Schema for `character_notes` (relation to characters, author_user, note_text, note_type select)
-- [ ] Schema for `codex_entries` (entry_type select, name, description, data JSON)
-- [ ] Schema for `character_codex_unlocks` (relation to characters + codex_entries, unlocked_at)
-- [ ] Access rules documented per collection (player read-own, DM read-all, stage operator full write)
-- [ ] Migration script applies schema idempotently
+- [x] Schema for `characters` collection — `scripts/migrate-collections.ts` defines all fields matching `records.ts`: identity, HP, combat stats, ability_scores (json), proficiency arrays (json), resources (json, ResourceSlot[]), conditions (json, Condition[]), portrait (file), flags
+- [x] `character_conditions` — ⚡️ **Arch decision:** embedded as `Condition[]` JSON in the `characters` record, not a separate collection. Shape: `{ id, condition_name, intensity_level, applied_at }`. Simpler real-time updates via socket events, no joins needed.
+- [ ] Schema for `character_equipment` — deferred to Phase 2+
+- [ ] Schema for `character_notes` — deferred to Phase 2+
+- [ ] Schema for `codex_entries` — deferred to Phase 4+ (Cast/DM)
+- [ ] Schema for `character_codex_unlocks` — deferred to Phase 4+
+- [x] Access rules — `characters` read-open/write-admin, `sessions` read-open/write-admin, `campaigns` all-admin; applied via `listRule`/`viewRule`/`createRule`/`updateRule`/`deleteRule` in migration script
+- [x] Migration script applies schema idempotently — `bun scripts/migrate-collections.ts`
 
 ## Migration Script
 

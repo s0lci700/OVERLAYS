@@ -59,7 +59,18 @@
       "mcp__storybook__get-storybook-story-instructions",
       "WebFetch(domain:github.com)",
       "Bash(stat /c/Users/Sol/Desktop/PITCH/OVERLAYS/docs/*.md)",
-      "mcp__claude_ai_Notion__notion-update-page"
+      "mcp__claude_ai_Notion__notion-update-page",
+      "Bash(claude mcp:*)",
+      "Bash(where gitnexus:*)",
+      "mcp__gitnexus__query",
+      "mcp__gitnexus__context",
+      "mcp__gitnexus__impact",
+      "Bash(ls:*)",
+      "Bash(ls -la \"C:/Users/Sol/Desktop/PITCH/OVERLAYS/control-panel/src/routes/\\(cast\\)\")",
+      "Bash(while read:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/Sol/Desktop/PITCH/OVERLAYS/**)",
+      "Bash(done)"
     ]
   },
   "enableAllProjectMcpServers": true,

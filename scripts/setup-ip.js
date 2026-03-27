@@ -24,6 +24,7 @@ const path = require("path");
 
 const serverPort = parseInt(process.env.PORT || "3000", 10);
 const controlPanelPort = parseInt(process.env.VITE_PORT || "5173", 10);
+const pocketBasePort = parseInt(process.env.VITE_POCKETBASE_PORT || "8090", 10);
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ROOT_ENV = path.join(ROOT_DIR, ".env");
@@ -137,10 +138,12 @@ function upsertEnvKeys(filePath, updates) {
 const mainIP = getLocalIP();
 const serverUrl = `http://${mainIP}:${serverPort}`;
 const controlPanelUrl = `http://${mainIP}:${controlPanelPort}`;
+const pocketBaseUrl = `http://${mainIP}:${pocketBasePort}`;
 
 console.log(`[setup-ip] mainIP           → ${mainIP}`);
 console.log(`[setup-ip] serverPort       → ${serverPort}`);
 console.log(`[setup-ip] controlPanelPort → ${controlPanelPort}`);
+console.log(`[setup-ip] pocketBaseUrl    → ${pocketBaseUrl}`);
 console.log(`[setup-ip] serverUrl        → ${serverUrl}`);
 console.log(`[setup-ip] controlPanelUrl  → ${controlPanelUrl}`);
 
@@ -155,5 +158,6 @@ console.log(`[setup-ip] Updated ${ROOT_ENV}`);
 upsertEnvKeys(PANEL_ENV, {
   VITE_SERVER_URL: serverUrl,
   VITE_PORT: String(controlPanelPort),
+  VITE_POCKETBASE_URL: pocketBaseUrl,
 });
 console.log(`[setup-ip] Updated ${PANEL_ENV}`);

@@ -1,8 +1,8 @@
 ---
 title: Task Backlog
 type: reference
-notion_db: https://www.notion.so/d21004cda6424782aaf7e54f19fe0c0b
-last_synced: 2026-03-25
+notion_db: https://www.notion.so/b4ce9e26-ed9e-41ba-b63a-80074a0aed97
+last_synced: 2026-03-27
 ---
 
 # Task Backlog
@@ -18,7 +18,7 @@ One file per task, grouped by phase. Synced from the [Notion Roadmap database](h
 | Phase | Folder | Milestone | Status | Progress |
 |-------|--------|-----------|--------|----------|
 | [Phase 0 — Foundation & DX](phase-0/_phase.md) | `phase-0/` | Session 0 LAN Test | ✅ Complete | 9/9 · 35 pts |
-| [Phase 1 — Player Sheet](phase-1/_phase.md) | `phase-1/` | Session 0 LAN Test | 🚧 In Progress | 0/7 · 0/33 pts |
+| [Phase 1 — Player Sheet](phase-1/_phase.md) | `phase-1/` | Session 0 LAN Test | 🚧 In Progress | 1/7 · 5/33 pts |
 | Phase 2 — Stage Controls | `phase-2/` | Session 0 LAN Test | 📋 Planned | — |
 | Phase 3 — Commons | `phase-3/` | Session 0 LAN Test | 📋 Planned | — |
 | Phase 4 — Cast/DM Panel | `phase-4/` | Pilot Demo | 📋 Planned | — |
@@ -46,9 +46,9 @@ One file per task, grouped by phase. Synced from the [Notion Roadmap database](h
 
 | ID | Title | Status | Pts | Surface |
 |----|-------|--------|-----|---------|
-| [TASK-1.1](phase-1/TASK-1.1.md) | Define PocketBase character collections | 🚧 In Progress | 5 | 📱 Cast/Players |
+| [TASK-1.1](phase-1/TASK-1.1.md) | Define PocketBase character collections | ✅ Done | 5 | 📱 Cast/Players |
 | [TASK-1.2](phase-1/TASK-1.2.md) | Build record-driven character page | 📋 Planned | 8 | 📱 Cast/Players |
-| [TASK-1.3](phase-1/TASK-1.3.md) | Ability scores + derived values engine | 📋 Planned | 3 | 📱 Cast/Players |
+| [TASK-1.3](phase-1/TASK-1.3.md) | Build sheet sections — header, abilities, saves, skills | 📋 Planned | 3 | 📱 Cast/Players |
 | [TASK-1.4](phase-1/TASK-1.4.md) | Build resource tracker component | 📋 Planned | 5 | 📱 Cast/Players |
 | [TASK-1.5](phase-1/TASK-1.5.md) | Build conditions/status display component | 📋 Planned | 5 | 📱 Cast/Players |
 | [TASK-1.6](phase-1/TASK-1.6.md) | Wire live state socket overlay — HP, conditions | 📋 Planned | 5 | 📱 Cast/Players |

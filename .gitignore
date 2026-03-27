@@ -78,3 +78,6 @@ pocketbase.exe.env
 # Deprecated route backups
 control-panel/src/routes/_deprecated/
 /_deprecated/
+
+# Stitch Table Relay
+stitch_tablerelay/

@@ -67,6 +67,7 @@
     "socket.io-client": "^4.8.3",
     "storybook": "^10.3.3",
     "sv": "^0.12.8",
+    "svelte-check": "^4.4.5",
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.2.2"
   }
