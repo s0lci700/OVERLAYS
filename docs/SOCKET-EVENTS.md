@@ -28,7 +28,6 @@ Fired when any client connects. Server sends `initialData` in response.
 ```js
 {
   characters: Character[],  // Full roster with HP, conditions, resources
-  rolls: Roll[],            // All dice roll history
   encounter: EncounterState,// Current encounter (active, round, participants)
   scene: SceneState,        // Current scene (title, subtitle, visible)
   focusedChar: Character | null // Character currently in focus (or null)

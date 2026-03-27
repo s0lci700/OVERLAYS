@@ -22,6 +22,18 @@ export async function listCharacters(req: Request, res: Response): Promise<void>
   }
 }
 
+export async function getCharacter(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  try {
+    const char = await characterModule.findById(pb, id);
+    if (!char) { res.status(404).json({ error: 'Character not found.' }); return; }
+    res.status(200).json(char);
+  } catch (err) {
+    console.error('[server] /api/characters/:id failed:', (err as Error).message || err);
+    res.status(500).json({ error: 'Could not read character from PocketBase.' });
+  }
+}
+
 export async function createCharacter(req: Request, res: Response): Promise<void> {
   const {
     name, player, species, class_name, subclass_name, level,

@@ -17,7 +17,8 @@ export type { ResourceSlot } from '@contracts/records';
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function getAll(pb: PocketBase): Promise<CharacterRecord[]> {
-  return await pb.collection('characters').getFullList<CharacterRecord>({ sort: 'name' });
+  const result = await pb.collection('characters').getList<CharacterRecord>(1, 200, { sort: 'name' });
+  return result.items;
 }
 
 export async function findById(pb: PocketBase, id: string): Promise<CharacterRecord | null> {

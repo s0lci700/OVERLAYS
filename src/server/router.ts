@@ -23,6 +23,7 @@ router.post('/api/character-focus', misc.focusCharacter);
 
 // ── Characters ───────────────────────────────────────────────────────────────
 router.get('/api/characters', characters.listCharacters);
+router.get('/api/characters/:id', characters.getCharacter);
 router.post('/api/characters', characters.createCharacter);
 router.post('/api/characters/batch/hp', characters.batchUpdateHp);
 router.put('/api/characters/:id/hp', characters.updateHp);

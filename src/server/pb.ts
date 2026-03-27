@@ -8,6 +8,12 @@ export const pb = new PocketBase(
   process.env.POCKETBASE_URL || 'http://127.0.0.1:8090',
 );
 
+// Server-side singleton — disable auto-cancellation globally.
+// The SDK's default behaviour cancels duplicate in-flight requests (designed for
+// browser tab navigation); on a Node.js server with concurrent socket connections
+// this causes legitimate requests to abort each other.
+pb.autoCancellation(false);
+
 const PB_SUPERUSERS = '_superusers';
 
 export async function connectToPocketBase(): Promise<boolean> {

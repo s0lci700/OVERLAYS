@@ -13,7 +13,6 @@ import { registerCombatEvents } from './events/combat';
 import { registerSessionEvents } from './events/session';
 
 import * as characterModule from '../data/characters';
-import * as rollsModule from '../data/rolls';
 
 export function initSocket(io: Server): void {
   initRooms(io);
@@ -28,33 +27,35 @@ export function initSocket(io: Server): void {
     registerCombatEvents(socket, sessionId);
 
     try {
-      if (!pb.authStore.isValid) {
-        const ok = await ensureAuth();
-        if (!ok) {
-          console.warn('[server] PocketBase connection not valid. Auth store invalid.');
-          socket.emit('initialData', {
-            characters: [],
-            rolls: [],
-            encounter: getEncounterState(),
-            scene: getSceneState(),
-            focusedChar: getFocusedChar(),
-          });
-          return;
-        }
+      // Always verify auth before fetching — the local authStore can appear
+      // valid even after PocketBase restarts (stale token), which causes 400s.
+      const ok = await ensureAuth();
+      if (!ok) {
+        console.warn('[server] PocketBase connection not valid. Auth store invalid.');
+        socket.emit('initialData', {
+          characters: [],
+          encounter: getEncounterState(),
+          scene: getSceneState(),
+          focusedChar: getFocusedChar(),
+        });
+        return;
       }
       const characters = await characterModule.getAll(pb);
-      const rolls = await rollsModule.getAll(pb);
       socket.emit('initialData', {
         characters,
-        rolls,
         encounter: getEncounterState(),
         scene: getSceneState(),
         focusedChar: getFocusedChar(),
       });
     } catch (err) {
+      const pbErr = err as any;
       console.error(
         '[server] Failed to load initial data from PocketBase:',
-        (err as any).status || (err as Error).message || err,
+        `[${pbErr.status ?? 0}]`,
+        pbErr.response?.message || pbErr.message || String(err),
+        pbErr.response?.data && Object.keys(pbErr.response.data).length
+          ? JSON.stringify(pbErr.response.data)
+          : '',
       );
       socket.emit('initialData', {
         characters: [],

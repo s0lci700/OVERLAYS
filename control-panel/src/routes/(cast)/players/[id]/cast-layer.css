@@ -1,0 +1,163 @@
+/**
+ * Cast Layer — Living Archive
+ * Design Token CSS Custom Properties
+ *
+ * Imported by +layout.svelte for all (cast)/players/[id] routes.
+ * Source: stitch_tablerelay/_shared/cast-layer-tokens.css
+ */
+
+:root {
+  /* ─── Surfaces ─────────────────────────────────────────────────── */
+  --cast-bg:              #0d0d15;
+  --cast-panel-low:       #1b1b23;
+  --cast-panel-mid:       #1f1f27;
+  --cast-panel-high:      #292932;
+  --cast-panel-highest:   #34343d;
+  --cast-glass:           oklch(12% 0.01 240);
+
+  /* ─── Text ──────────────────────────────────────────────────────── */
+  --cast-text-primary:    #f0f0f0;
+  --cast-text-secondary:  #bac9cc;
+  --cast-text-on-surface: #e4e1ed;
+
+  /* ─── Accent: Amber (structural chrome) ────────────────────────── */
+  --cast-amber:           #C8944A;
+  --cast-amber-pale:      #E8B060;
+  --cast-amber-glow:      rgba(200, 148, 74, 0.4);
+  --cast-amber-dim:       rgba(200, 148, 74, 0.12);
+  --cast-amber-border:    rgba(200, 148, 74, 0.25);
+
+  /* ─── Accent: Cyan (live state ONLY) ───────────────────────────── */
+  --cast-cyan:            #00E5FF;
+  --cast-cyan-glow:       rgba(0, 229, 255, 0.4);
+  --cast-cyan-border:     rgba(0, 229, 255, 0.6);
+
+  /* ─── Accent: Lavender (magic elements) ────────────────────────── */
+  --cast-lavender:        #cdbdff;
+  --cast-lavender-glow:   rgba(192, 172, 255, 0.4);
+
+  /* ─── Typography ────────────────────────────────────────────────── */
+  --cast-font-identity:   'Noto Serif', Georgia, serif;
+  --cast-font-chrome:     'Space Grotesk', system-ui, sans-serif;
+  --cast-font-data:       'JetBrains Mono', monospace;
+  --cast-font-prose:      'Inter', system-ui, sans-serif;
+
+  /* ─── Geometry ──────────────────────────────────────────────────── */
+  --cast-radius:          0px;
+  --cast-radius-pill:     9999px;
+  --cast-hex-clip:        polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  --cast-blur:            12px;
+
+  /* ─── Borders ───────────────────────────────────────────────────── */
+  --cast-border-subtle:   rgba(255, 255, 255, 0.05);
+  --cast-border-light:    rgba(255, 255, 255, 0.10);
+
+  /* ─── Navigation ────────────────────────────────────────────────── */
+  --cast-nav-height:      64px;
+  --cast-nav-bg:          rgba(13, 13, 21, 0.60);
+  --cast-active-shadow:   0 -8px 15px -5px rgba(200, 148, 74, 0.25);
+
+  /* ─── Header ────────────────────────────────────────────────────── */
+  --cast-header-height:   64px;
+  --cast-header-bg:       rgba(13, 13, 21, 0.60);
+
+  /* ─── Animations ────────────────────────────────────────────────── */
+  --cast-t-press:         200ms;
+  --cast-t-transition:    150ms ease;
+  --cast-t-glow-pulse:    2.5s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+  --cast-t-breathe:       3s ease-in-out infinite;
+  --cast-t-flow:          6s ease-in-out infinite;
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────── */
+
+@keyframes cast-pulse-shimmer {
+  0%, 100% {
+    border-color: var(--cast-cyan-glow);
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.1);
+  }
+  50% {
+    border-color: var(--cast-cyan-border);
+    box-shadow: 0 0 15px var(--cast-cyan-glow);
+  }
+}
+
+@keyframes cast-breathe {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.02); }
+}
+
+@keyframes cast-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cast-hp-critical {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* ─── Utility Classes ────────────────────────────────────────────── */
+
+.cast-update-pulse {
+  box-shadow: 0 0 10px var(--cast-cyan-glow);
+  border: 1px solid var(--cast-cyan-border);
+  animation: cast-pulse-shimmer var(--cast-t-glow-pulse);
+}
+
+.cast-breathing-glow {
+  animation: cast-breathe var(--cast-t-breathe);
+}
+
+.cast-liquid-flow {
+  background: linear-gradient(270deg, var(--cast-glass), #3a2a12, var(--cast-glass));
+  background-size: 200% 200%;
+  animation: cast-flow var(--cast-t-flow);
+}
+
+.cast-hex-clip {
+  clip-path: var(--cast-hex-clip);
+}
+
+.cast-triangle-clip {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.cast-diamond-clip {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.cast-triangle-marker {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--cast-amber);
+}
+
+.cast-triangle-outline {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid rgba(240, 240, 240, 0.2);
+}
+
+.cast-glass-panel {
+  background-color: rgba(27, 27, 35, 0.60);
+  backdrop-filter: blur(var(--cast-blur));
+}
+
+.cast-trace {
+  background-color: var(--cast-glass);
+}
+
+.cast-no-scrollbar::-webkit-scrollbar { display: none; }
+.cast-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.cast-shell ::-webkit-scrollbar        { width: 4px; }
+.cast-shell ::-webkit-scrollbar-track  { background: transparent; }
+.cast-shell ::-webkit-scrollbar-thumb  { background: rgba(200, 148, 74, 0.27); }

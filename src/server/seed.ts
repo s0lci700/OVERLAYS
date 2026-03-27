@@ -8,6 +8,7 @@
  * Run `bun scripts/migrate-collections.ts` first to create the schema.
  */
 import { pb } from './pb';
+import { createCharacter, getAll } from './data/characters';
 
 export async function seedIfEmpty(): Promise<void> {
   if (!pb.authStore.isValid) {
@@ -19,6 +20,8 @@ export async function seedIfEmpty(): Promise<void> {
 
   // ── Stage 1: Characters (core bootstrap) ───────────────────────────────
   try {
+    // Use getList (not getAll) for the count check — more resilient when stale
+    // records exist from a schema migration (e.g. portrait text→file field change).
     const charCount = (await pb.collection('characters').getList(1, 1)).totalItems;
     if (charCount > 0) {
       console.log('✅ characters: already populated (' + charCount + ' records)');
@@ -26,12 +29,24 @@ export async function seedIfEmpty(): Promise<void> {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const templates: Record<string, unknown>[] = require('../../data/template-characters.json');
       for (const char of templates) {
-        await pb.collection('characters').create(char);
+        // Strip id (PocketBase requires ≥15 chars; template uses short "CH101" aliases)
+        // and strip null values (file fields reject null — omit to leave empty).
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _id, ...rest } = char;
+        const payload = Object.fromEntries(
+          Object.entries(rest).filter(([, v]) => v !== null),
+        );
+        await createCharacter(pb, payload as Parameters<typeof createCharacter>[1]);
       }
       console.log(`✅ characters: seeded ${templates.length} records`);
     }
   } catch (err) {
-    console.error('❌ characters seed failed:', (err as Error).message);
+    const pbErr = err as any;
+    console.error(
+      '❌ characters seed failed:',
+      pbErr.message ?? err,
+      pbErr.response?.data ? JSON.stringify(pbErr.response.data) : '',
+    );
   }
 
   // ── Stage 2: Campaign + sessions (demo context) ────────────────────────
@@ -73,5 +88,7 @@ export async function seedIfEmpty(): Promise<void> {
     console.error('❌ campaign data seed failed:', (err as Error).message);
   }
 
+  // ── Rolls  ─────────────────────────────────
+  
   console.log('━━━ SEEDING COMPLETE ━━━\n');
 }

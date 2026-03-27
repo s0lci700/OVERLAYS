@@ -232,6 +232,14 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 ---
 
+## PocketBase Configuration
+
+**Auto-cancellation disabled:** `pb.autoCancellation(false)` is set globally on the server-side PocketBase singleton (`src/server/pb.ts`) to prevent concurrent socket connections from auto-cancelling each other's requests.
+
+**Pagination:** `src/server/data/characters.getAll()` uses `getList(1, 200)` instead of `getFullList` to avoid the `skipTotal` parameter incompatibility with some PocketBase versions.
+
+---
+
 ## Server URL Configuration
 
 The project now uses `.env` files instead of hardcoding IP addresses:

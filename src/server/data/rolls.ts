@@ -16,7 +16,8 @@ export interface RollRecord {
 }
 
 export async function getAll(pb: PocketBase): Promise<RollRecord[]> {
-  return await pb.collection('rolls').getFullList<RollRecord>({ sort: '-created' });
+  const result = await pb.collection('rolls').getList<RollRecord>(1, 100, { sort: '-created' });
+  return result.items;
 }
 
 export async function logRoll(

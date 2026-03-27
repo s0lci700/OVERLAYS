@@ -1,339 +1,462 @@
-<!--
-  Cast › Players — mobile character sheet for a single player.
-  Route: /players/[id]
+<script lang="ts">
+    import { onMount } from 'svelte';
+	import type { PageData } from './$types';
+	import {
+		computeAbilityModifier,
+		computeSkillTotal,
+		SKILL_ABILITY,
+		ABILITIES,
+		ABILITY_LABELS
+	} from '$lib/utils/character-derive';
 
-  Read-only view. Receives live HP updates via Socket.io (characters store).
-  Mobile-first, one-handed — player holds dice with the other hand.
--->
-<script>
-  import { page } from "$app/state";
-  import { characters, SERVER_URL } from "$lib/services/socket.js";
-  import { resolvePhotoSrc } from "$lib/services/utils.js";
-  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
-  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
-  import "./PlayerSheet.css";
+    onMount(() => {
+        console.log('[PlayerSheet] Mounted with data:', data);
+    });
+	let { data }: { data: PageData } = $props();
+	const character = $derived(data.character);
+    
+	const modifiers = $derived(
+		character
+			? Object.fromEntries(
+					ABILITIES.map((ab) => [ab, computeAbilityModifier(character.ability_scores[ab] ?? 10)])
+				)
+			: {}
+	);
 
-  let characterId = $derived(page.params.id);
-  let character = $derived(($characters ?? []).find(c => c.id === characterId));
+	const allSkills = $derived(
+		character
+			? Object.entries(SKILL_ABILITY).map(([skill, ability]) => {
+                const isProficient = character.skill_proficiencies.includes(skill);
+					const isExpertise = character.expertise.includes(skill);
+					return {
+						skill,
+						ability,
+						isProficient,
+						isExpertise,
+						total: computeSkillTotal(
+							modifiers[ability] ?? 0,
+							isProficient,
+							isExpertise,
+							character.proficiency_bonus
+						)
+					};
+				})
+			: []
+	);
 
-  /* ── Ability score helpers ── */
-  const ABILITIES = [
-    { key: "str", label: "STR", name: "Strength",     tip: "Melee attacks, athletics, carrying capacity" },
-    { key: "dex", label: "DEX", name: "Dexterity",    tip: "Ranged attacks, AC, initiative, stealth" },
-    { key: "con", label: "CON", name: "Constitution",  tip: "Hit points, concentration saves" },
-    { key: "int", label: "INT", name: "Intelligence",  tip: "Arcana, history, investigation" },
-    { key: "wis", label: "WIS", name: "Wisdom",        tip: "Perception, insight, medicine" },
-    { key: "cha", label: "CHA", name: "Charisma",      tip: "Persuasion, deception, intimidation" },
-  ];
+	const signatureSkills = $derived(
+		allSkills
+			.filter((s) => s.isProficient || s.isExpertise)
+			.sort((a, b) => {
+				if (a.isExpertise && !b.isExpertise) return -1;
+				if (!a.isExpertise && b.isExpertise) return 1;
+				return b.total - a.total;
+			})
+			.slice(0, 5)
+	);
 
-  function calcMod(score) {
-    return Math.floor((score - 10) / 2);
-  }
+	function formatMod(n: number): string {
+		return n >= 0 ? `+${n}` : `${n}`;
+	}
 
-  function fmtMod(mod) {
-    return mod >= 0 ? `+${mod}` : `${mod}`;
-  }
-
-  function profBonus(level) {
-    if (level <= 4)  return 2;
-    if (level <= 8)  return 3;
-    if (level <= 12) return 4;
-    if (level <= 16) return 5;
-    return 6;
-  }
-
-  /* ── Derived character data ── */
-  let level = $derived(character?.class_primary?.level ?? 1);
-  let prof = $derived(profBonus(level));
-  let hpPercent = $derived(
-    character ? Math.round((character.hp_current / character.hp_max) * 100) : 100
-  );
-  let hpClass = $derived(
-    hpPercent <= 0 ? "is-down" : hpPercent <= 30 ? "is-critical" : hpPercent <= 60 ? "is-wounded" : ""
-  );
-  let photoSrc = $derived(
-    character ? resolvePhotoSrc(character.photo, SERVER_URL, character.id) : ""
-  );
-
-  /* ── Format equipment item names ── */
-  function fmtItem(raw) {
-    return raw.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  /* ── Format skill names ── */
-  function fmtSkill(raw) {
-    return raw.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-  }
-
-  /* ── Alignment display ── */
-  const ALIGNMENTS = {
-    lg: "Lawful Good", ng: "Neutral Good", cg: "Chaotic Good",
-    ln: "Lawful Neutral", nn: "True Neutral", cn: "Chaotic Neutral",
-    le: "Lawful Evil", ne: "Neutral Evil", ce: "Chaotic Evil",
-  };
+	function formatSkill(skill: string): string {
+		return skill.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+	}
 </script>
 
 {#if character}
-  <div class="player-sheet">
-
-    <!-- ═══ HEADER: Photo + Identity ═══ -->
-    <header class="ps-header">
-      <div class="ps-photo-frame">
-        <img
-          src={photoSrc}
-          alt={character.name}
-          class="ps-photo"
-        />
-      </div>
-      <div class="ps-identity">
-        <h1 class="ps-name">{character.name}</h1>
-        <p class="ps-meta">
-          {character.species?.name ? fmtItem(character.species.name) : ""}
-          {character.class_primary?.name ? fmtItem(character.class_primary.name) : ""}
-          {level}
-        </p>
-        {#if character.alignment}
-          <p class="ps-alignment">{ALIGNMENTS[character.alignment] ?? character.alignment}</p>
-        {/if}
-      </div>
-    </header>
-
-    <!-- ═══ HP BAR ═══ -->
-    <section class="ps-hp-section {hpClass}">
-      <div class="ps-hp-row">
-        <span class="ps-hp-label label-caps">HP</span>
-        <span class="ps-hp-numbers mono-num">
-          {character.hp_current}<span class="ps-hp-sep">/</span>{character.hp_max}
+	<div class="home-canvas">
+    <div class="character-header">
+        <h1 class="character-name">{character.name}</h1>
+        <span class="character-meta">
+            {character.species} {character.class_name} {character.level}
         </span>
-        {#if character.hp_temp > 0}
-          <span class="ps-hp-temp mono-num">+{character.hp_temp} temp</span>
-        {/if}
-      </div>
-      <div class="ps-hp-track">
-        <div
-          class="ps-hp-fill"
-          style="width: {Math.max(0, Math.min(100, hpPercent))}%"
-        ></div>
-      </div>
-    </section>
+    </div>
+		<!-- ── Conditions ──────────────────────────────────────────── -->
+		{#if character.conditions.length > 0}
+			<div class="conditions-row">
+				{#each character.conditions as cond}
+					<span class="condition-pill">{cond.condition_name.toUpperCase()}</span>
+				{/each}
+			</div>
+		{/if}
 
-    <!-- ═══ COMBAT STATS ROW ═══ -->
-    <section class="ps-combat-row">
-      <div class="ps-combat-stat">
-        <span class="ps-combat-value mono-num">{character.armor_class}</span>
-        <span class="ps-combat-label label-caps">AC</span>
-      </div>
-      <div class="ps-combat-stat">
-        <span class="ps-combat-value mono-num">{fmtMod(prof)}</span>
-        <span class="ps-combat-label label-caps">Prof</span>
-      </div>
-      <div class="ps-combat-stat">
-        <span class="ps-combat-value mono-num">{character.speed_walk ?? character.species?.speed_walk ?? 30} ft</span>
-        <span class="ps-combat-label label-caps">Speed</span>
-      </div>
-    </section>
+		<!-- ── Stat Strip ──────────────────────────────────────────── -->
+		<div class="stat-strip">
+			<div class="stat-cell">
+				<span class="stat-value">{character.ac_base}</span>
+				<span class="stat-label">ARMOR</span>
+			</div>
+			<div class="stat-cell">
+				<span class="stat-value">{character.speed}</span>
+				<span class="stat-label">SPEED</span>
+			</div>
+			<div class="stat-cell">
+				<span class="stat-value">{formatMod(modifiers['dex'] ?? 0)}</span>
+				<span class="stat-label">INIT</span>
+			</div>
+			<div class="stat-cell">
+				<span class="stat-value">+{character.proficiency_bonus}</span>
+				<span class="stat-label">PROF</span>
+			</div>
+		</div>
 
-    <!-- ═══ ABILITY SCORES ═══ -->
-    <section class="ps-abilities">
-      <Tooltip.Provider delayDuration={200}>
-        {#each ABILITIES as ab}
-          {@const score = character.ability_scores?.[ab.key] ?? 10}
-          {@const mod = calcMod(score)}
-          {@const isSavingThrow = character.proficiencies?.saving_throws?.includes(ab.key)}
-          <Tooltip.Root>
-            <Tooltip.Trigger class="ps-ability-cell" data-save={isSavingThrow ? "true" : undefined}>
-              <span class="ps-ability-label label-caps">{ab.label}</span>
-              <span class="ps-ability-mod mono-num">{fmtMod(mod)}</span>
-              <span class="ps-ability-score">{score}</span>
-              {#if isSavingThrow}
-                <span class="ps-save-dot" title="Saving throw proficiency"></span>
-              {/if}
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <strong>{ab.name} ({score})</strong><br />
-              Modifier: {fmtMod(mod)}<br />
-              {#if isSavingThrow}
-                Save: {fmtMod(mod + prof)} (proficient)<br />
-              {:else}
-                Save: {fmtMod(mod)}<br />
-              {/if}
-              {ab.tip}
-            </Tooltip.Content>
-          </Tooltip.Root>
-        {/each}
-      </Tooltip.Provider>
-    </section>
+		<!-- ── Ability Scores ──────────────────────────────────────── -->
+		<section class="ability-section">
+			<div class="section-header">
+				<h2 class="section-title">ABILITY SCORES</h2>
+			</div>
+			<div class="ability-grid">
+				{#each ABILITIES as ab}
+					<div class="ability-cell">
+						<span class="ability-label">{ABILITY_LABELS[ab]}</span>
+						<span class="ability-mod">{formatMod(modifiers[ab] ?? 0)}</span>
+						<span class="ability-score">{character.ability_scores[ab] ?? 10}</span>
+					</div>
+				{/each}
+			</div>
+		</section>
 
-    <!-- ═══ CONDITIONS (if any active) ═══ -->
-    {#if character.conditions?.length > 0}
-      <section class="ps-section">
-        <h2 class="ps-section-title label-caps">Conditions</h2>
-        <div class="ps-conditions">
-          {#each character.conditions as cond}
-            <ConditionPill
-              label={fmtItem(cond.condition_name)}
-              variant="condition"
-            />
-          {/each}
-        </div>
-      </section>
-    {/if}
+		<!-- ── Resources ──────────────────────────────────────────── -->
+		{#if character.resources.length > 0}
+			<section class="resources-section">
+				<div class="section-header">
+					<h2 class="section-title">RESOURCES</h2>
+					<span class="section-meta">{character.resources.length} TRACKED</span>
+				</div>
+				<div class="resources-list">
+					{#each character.resources as res}
+						{@const pct =
+							res.pool_max > 0 ? Math.round((res.pool_current / res.pool_max) * 100) : 0}
+						{@const isDepleted = res.pool_current === 0}
+						<div class="resource-row {isDepleted ? 'resource-row--depleted' : ''}">
+							<div class="resource-info">
+								<span class="resource-name">{res.name.toUpperCase()}</span>
+								<span class="resource-reset"
+									>/ {res.reset_on.replace('_', ' ').toUpperCase()} REST</span
+								>
+							</div>
+							<div class="resource-track">
+								<div class="resource-bar" style="width: {pct}%"></div>
+							</div>
+							<span class="resource-count">{res.pool_current}/{res.pool_max}</span>
+						</div>
+					{/each}
+				</div>
+			</section>
+		{/if}
 
-    <!-- ═══ SAVING THROWS ═══ -->
-    <section class="ps-section">
-      <h2 class="ps-section-title label-caps">Saving Throws</h2>
-      <div class="ps-save-grid">
-        {#each ABILITIES as ab}
-          {@const score = character.ability_scores?.[ab.key] ?? 10}
-          {@const mod = calcMod(score)}
-          {@const isProficient = character.proficiencies?.saving_throws?.includes(ab.key)}
-          {@const saveVal = isProficient ? mod + prof : mod}
-          <div class="ps-save-row" class:is-proficient={isProficient}>
-            <span class="ps-prof-marker">{isProficient ? "●" : "○"}</span>
-            <span class="ps-save-label">{ab.label}</span>
-            <span class="ps-save-value mono-num">{fmtMod(saveVal)}</span>
-          </div>
-        {/each}
-      </div>
-    </section>
-
-    <!-- ═══ SKILL PROFICIENCIES ═══ -->
-    {#if character.proficiencies?.skills?.length > 0}
-      <section class="ps-section">
-        <h2 class="ps-section-title label-caps">Skills</h2>
-        <div class="ps-skills">
-          {#each character.proficiencies.skills as skill}
-            <span class="ps-skill-pill">{fmtSkill(skill)}</span>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    <!-- ═══ RESOURCES (spell slots, ki, etc.) ═══ -->
-    {#if character.resources?.length > 0}
-      <section class="ps-section">
-        <h2 class="ps-section-title label-caps">Resources</h2>
-        <div class="ps-resources">
-          {#each character.resources as res}
-            <div class="ps-resource-row">
-              <span class="ps-resource-name">{res.name}</span>
-              <span class="ps-resource-pips">
-                {#each Array(res.pool_max) as _, i}
-                  <span class="ps-pip" class:is-spent={i >= res.pool_current}></span>
-                {/each}
-              </span>
-              <span class="ps-resource-count mono-num">{res.pool_current}/{res.pool_max}</span>
-            </div>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    <!-- ═══ EQUIPMENT ═══ -->
-    {#if character.equipment?.items?.length > 0}
-      <section class="ps-section">
-        <h2 class="ps-section-title label-caps">Equipment</h2>
-        <ul class="ps-equipment">
-          {#each character.equipment.items as item}
-            <li class="ps-equip-item">{fmtItem(item)}</li>
-          {/each}
-        </ul>
-        {#if character.equipment.coins}
-          {@const coins = character.equipment.coins}
-          {#if coins.gp || coins.sp || coins.cp}
-            <p class="ps-coins mono-num">
-              {#if coins.gp}<span class="ps-coin gold">{coins.gp} GP</span>{/if}
-              {#if coins.sp}<span class="ps-coin silver">{coins.sp} SP</span>{/if}
-              {#if coins.cp}<span class="ps-coin copper">{coins.cp} CP</span>{/if}
-            </p>
-          {/if}
-        {/if}
-      </section>
-    {/if}
-
-    <!-- ═══ PROFICIENCIES (armor, weapons, tools) ═══ -->
-    <section class="ps-section">
-      <h2 class="ps-section-title label-caps">Proficiencies</h2>
-      <div class="ps-prof-group">
-        {#if character.proficiencies?.armor?.length > 0}
-          <div class="ps-prof-line">
-            <span class="ps-prof-type label-caps">Armor</span>
-            <span class="ps-prof-list">{character.proficiencies.armor.map(fmtItem).join(", ")}</span>
-          </div>
-        {/if}
-        {#if character.proficiencies?.weapons?.length > 0}
-          <div class="ps-prof-line">
-            <span class="ps-prof-type label-caps">Weapons</span>
-            <span class="ps-prof-list">{character.proficiencies.weapons.map(fmtItem).join(", ")}</span>
-          </div>
-        {/if}
-        {#if character.proficiencies?.tools?.length > 0}
-          <div class="ps-prof-line">
-            <span class="ps-prof-type label-caps">Tools</span>
-            <span class="ps-prof-list">{character.proficiencies.tools.map(fmtItem).join(", ")}</span>
-          </div>
-        {/if}
-        {#if character.languages?.length > 0}
-          <div class="ps-prof-line">
-            <span class="ps-prof-type label-caps">Languages</span>
-            <span class="ps-prof-list">{character.languages.map(fmtItem).join(", ")}</span>
-          </div>
-        {/if}
-      </div>
-    </section>
-
-    <!-- ═══ SPECIES TRAITS ═══ -->
-    {#if character.species?.traits?.length > 0}
-      <section class="ps-section">
-        <h2 class="ps-section-title label-caps">Traits</h2>
-        <div class="ps-skills">
-          {#each character.species.traits as trait}
-            <span class="ps-skill-pill">{fmtItem(trait)}</span>
-          {/each}
-        </div>
-      </section>
-    {/if}
-
-    <!-- ═══ NOTES ═══ -->
-    {#if character.notes}
-      <section class="ps-section ps-notes-section">
-        <h2 class="ps-section-title label-caps">Notes</h2>
-        <div class="ps-notes">
-          {#if character.notes.personality}
-            <div class="ps-note-block">
-              <span class="ps-note-label label-caps">Personality</span>
-              <p class="ps-note-text">{character.notes.personality}</p>
-            </div>
-          {/if}
-          {#if character.notes.ideals}
-            <div class="ps-note-block">
-              <span class="ps-note-label label-caps">Ideals</span>
-              <p class="ps-note-text">{character.notes.ideals}</p>
-            </div>
-          {/if}
-          {#if character.notes.bonds}
-            <div class="ps-note-block">
-              <span class="ps-note-label label-caps">Bonds</span>
-              <p class="ps-note-text">{character.notes.bonds}</p>
-            </div>
-          {/if}
-          {#if character.notes.flaws}
-            <div class="ps-note-block">
-              <span class="ps-note-label label-caps">Flaws</span>
-              <p class="ps-note-text">{character.notes.flaws}</p>
-            </div>
-          {/if}
-        </div>
-      </section>
-    {/if}
-
-  </div>
-
+		<!-- ── Signature Skills ────────────────────────────────────── -->
+		{#if signatureSkills.length > 0}
+			<section class="sig-skills-section">
+				<div class="section-header">
+					<h2 class="section-title">SIGNATURE SKILLS</h2>
+					<span class="section-meta">{signatureSkills.length} PROFICIENT</span>
+				</div>
+				<div class="sig-skills-list">
+					{#each signatureSkills as s}
+						<div class="sig-skill-row {s.isExpertise ? 'sig-skill-row--expertise' : ''}">
+							<span class="sig-skill-total">{formatMod(s.total)}</span>
+							<div class="sig-skill-info">
+								<span class="sig-skill-name">{formatSkill(s.skill)}</span>
+								<span class="sig-skill-ability">{s.ability.toUpperCase()}</span>
+							</div>
+							<div class="sig-skill-markers">
+								{#if s.isExpertise}
+									<span class="cast-triangle-marker"></span>
+									<span class="cast-triangle-marker"></span>
+								{:else if s.isProficient}
+									<span class="cast-triangle-marker"></span>
+								{:else}
+									<span class="cast-triangle-outline"></span>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				</div>
+			</section>
+		{/if}
+	</div>
 {:else}
-
-  <div class="ps-not-found">
-    <p class="ps-not-found-title">Character not found</p>
-    <p class="ps-not-found-id mono-num">{characterId}</p>
-  </div>
-
+	<div class="home-canvas home-canvas--empty">
+		<p class="empty-state">Character not found.</p>
+	</div>
 {/if}
+
+<style>
+	/* ── Canvas ─────────────────────────────────────────────────── */
+	.home-canvas {
+		padding: 1.25rem 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		max-width: 640px;
+		margin: 0 auto;
+	}
+
+	.home-canvas--empty {
+		align-items: center;
+		justify-content: center;
+		min-height: 50vh;
+	}
+
+	.empty-state {
+		font-family: var(--cast-font-chrome);
+		font-size: 12px;
+		color: var(--cast-text-secondary);
+		letter-spacing: 0.1em;
+	}
+
+	/* ── Conditions ─────────────────────────────────────────────── */
+	.conditions-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.condition-pill {
+		padding: 4px 12px;
+		border-radius: var(--cast-radius-pill);
+		font-family: var(--cast-font-chrome);
+		font-size: 10px;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--cast-amber);
+		background: var(--cast-amber-dim);
+		border: 1px solid rgba(200, 148, 74, 0.3);
+	}
+
+	/* ── Stat Strip ─────────────────────────────────────────────── */
+	.stat-strip {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		background: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
+		border: 1px solid var(--cast-border-subtle);
+		border-left: 2px solid var(--cast-amber);
+	}
+
+	.stat-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 0.75rem 0.5rem;
+		gap: 2px;
+		border-right: 1px solid var(--cast-border-subtle);
+	}
+
+	.stat-cell:last-child {
+		border-right: none;
+	}
+
+	.stat-value {
+		font-family: var(--cast-font-data);
+		font-weight: 700;
+		font-size: 1.375rem;
+		letter-spacing: 0.05em;
+		color: var(--cast-amber-pale);
+		line-height: 1;
+	}
+
+	.stat-label {
+		font-family: var(--cast-font-chrome);
+		font-size: 9px;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		color: var(--cast-text-secondary);
+		text-transform: uppercase;
+	}
+
+	/* ── Section Header ─────────────────────────────────────────── */
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border-bottom: 1px solid rgba(200, 148, 74, 0.25);
+		padding-bottom: 4px;
+		margin-bottom: 0.75rem;
+	}
+
+	.section-title {
+		font-family: var(--cast-font-identity);
+		font-weight: 600;
+		font-size: 1.125rem;
+		letter-spacing: -0.02em;
+		color: var(--cast-text-primary);
+		margin: 0;
+	}
+
+	.section-meta {
+		font-family: var(--cast-font-chrome);
+		font-size: 10px;
+		letter-spacing: 0.1em;
+		color: rgba(200, 148, 74, 0.6);
+	}
+
+	/* ── Ability Grid ───────────────────────────────────────────── */
+	.ability-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1px;
+		background-color: var(--cast-border-subtle);
+	}
+
+	.ability-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 0.75rem 0.5rem;
+		gap: 2px;
+		background-color: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
+	}
+
+	.ability-label {
+		font-family: var(--cast-font-chrome);
+		font-size: 9px;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		color: var(--cast-amber);
+		text-transform: uppercase;
+	}
+
+	.ability-mod {
+		font-family: var(--cast-font-data);
+		font-weight: 700;
+		font-size: 1.5rem;
+		letter-spacing: 0.02em;
+		color: var(--cast-text-primary);
+		line-height: 1;
+	}
+
+	.ability-score {
+		font-family: var(--cast-font-data);
+		font-size: 11px;
+		color: var(--cast-text-secondary);
+	}
+
+	/* ── Resources ──────────────────────────────────────────────── */
+	.resources-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.resource-row {
+		display: grid;
+		grid-template-columns: 1fr auto auto;
+		align-items: center;
+		gap: 0.75rem;
+		background: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
+		padding: 0.625rem 0.75rem;
+		border-left: 2px solid var(--cast-amber);
+	}
+
+	.resource-row--depleted {
+		border-left-color: transparent;
+		opacity: 0.5;
+	}
+
+	.resource-info {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+
+	.resource-name {
+		font-family: var(--cast-font-chrome);
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		color: var(--cast-text-primary);
+	}
+
+	.resource-reset {
+		font-family: var(--cast-font-chrome);
+		font-size: 9px;
+		letter-spacing: 0.05em;
+		color: var(--cast-text-secondary);
+	}
+
+	.resource-track {
+		width: 48px;
+		height: 3px;
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	.resource-bar {
+		height: 100%;
+		background: var(--cast-amber);
+		transition: width 300ms ease;
+	}
+
+	.resource-count {
+		font-family: var(--cast-font-data);
+		font-size: 12px;
+		font-weight: 700;
+		color: var(--cast-amber-pale);
+		min-width: 2.5rem;
+		text-align: right;
+	}
+
+	/* ── Signature Skills ───────────────────────────────────────── */
+	.sig-skills-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		background-color: var(--cast-border-subtle);
+	}
+
+	.sig-skill-row {
+		display: grid;
+		grid-template-columns: 3rem 1fr auto;
+		align-items: center;
+		gap: 0.75rem;
+		background: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
+		padding: 0 0.75rem;
+		height: 52px;
+		border-left: 2px solid rgba(200, 148, 74, 0.3);
+	}
+
+	.sig-skill-row--expertise {
+		border-left-color: var(--cast-amber);
+	}
+
+	.sig-skill-total {
+		font-family: var(--cast-font-data);
+		font-weight: 700;
+		font-size: 1.125rem;
+		color: var(--cast-text-primary);
+		text-align: right;
+	}
+
+	.sig-skill-info {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+
+	.sig-skill-name {
+		font-family: var(--cast-font-chrome);
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		color: var(--cast-text-primary);
+	}
+
+	.sig-skill-ability {
+		font-family: var(--cast-font-chrome);
+		font-size: 9px;
+		letter-spacing: 0.05em;
+		color: rgba(186, 201, 204, 0.6);
+	}
+
+	.sig-skill-markers {
+		display: flex;
+		gap: 3px;
+		align-items: center;
+	}
+</style>

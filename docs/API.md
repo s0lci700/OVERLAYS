@@ -55,6 +55,10 @@ All REST endpoints are served by the Bun/Express server at `:3000`. Every mutati
 **Handler:** `listCharacters` in `src/server/handlers/characters.ts`
 **Returns:** `Character[]` — full roster with HP, conditions, resources.
 
+#### `GET /api/characters/:id`
+**Handler:** `getCharacter` in `src/server/handlers/characters.ts`
+**Returns:** `Character` — single character by ID. 404 if not found.
+
 #### `POST /api/characters`
 **Handler:** `createCharacter` in `src/server/handlers/characters.ts`
 **Body:** `{ name: string, player: string, hp_max: number, armor_class?: number, speed_walk?: number, ability_scores?: object, ... }`
