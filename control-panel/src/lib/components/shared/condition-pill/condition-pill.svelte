@@ -36,6 +36,10 @@
           "data-[interactive=true]:hover:bg-[var(--cyan)] data-[interactive=true]:hover:text-[var(--black)]",
         ],
         info: ["bg-transparent border-[var(--grey-dim)] text-[var(--grey)]"],
+        cast: [
+          "bg-[rgba(200,148,74,0.12)] border-[rgba(200,148,74,0.3)] text-[rgba(200,148,74,1)]",
+          "font-[system-ui] font-bold tracking-[0.1em]",
+        ],
       },
     },
     defaultVariants: {

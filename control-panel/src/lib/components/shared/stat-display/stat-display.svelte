@@ -31,6 +31,11 @@
           label: "text-[var(--grey)] text-[0.65rem]",
           value: "text-base text-white",
         },
+        cast: {
+          root: "flex-col items-center gap-0.5 text-center",
+          label: "text-[rgba(186,201,204,0.6)] text-[0.5625rem] font-bold tracking-[0.15em] uppercase font-[system-ui]",
+          value: "text-[1.375rem] font-bold leading-none text-[rgba(228,196,140,1)] font-[JetBrains_Mono,monospace]",
+        },
       },
     },
     defaultVariants: {
