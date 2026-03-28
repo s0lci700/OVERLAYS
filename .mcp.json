@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "gitnexus": {
+      "command": "bunx",
+      "args": ["gitnexus", "mcp"],
+      "cwd": "C:/Users/Sol/Desktop/PITCH/OVERLAYS"
+    },
     "storybook": {
       "type": "http",
       "url": "http://localhost:6006/mcp"

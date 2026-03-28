@@ -146,6 +146,7 @@ Stories are colocated with components as `ComponentName.stories.svelte`.
 
 - `docs/API.md` — REST endpoints + frontend services reference (auto-generated)
 - `docs/ARCHITECTURE.md` — data flows, API routes, design decisions
+- `docs/DATA-FLOW.md` — full PocketBase → server → client flow, SSR vs live paths, key boundaries
 - `docs/SOCKET-EVENTS.md` — complete Socket.io event payloads
 - `docs/DESIGN-SYSTEM.md` — CSS tokens, typography, component style guide
 - `docs/ENVIRONMENT.md` — `.env` setup, IP configuration, Railway deployment

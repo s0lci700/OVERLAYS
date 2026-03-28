@@ -1,0 +1,21 @@
+name: OVERLAYS Project Tools
+version: 0.1.0
+schema: v1
+
+mcpServers:
+  # GitNexus — semantic code graph for this repo (5144 symbols indexed)
+  # Uses locally installed gitnexus@1.3.6 from node_modules (no network fetch).
+  # Requires Node 20 in PATH — run `nvm use 20` in your terminal before starting VSCode/Continue.
+  - name: gitnexus
+    command: bunx
+    args:
+      - gitnexus
+      - mcp
+    cwd: C:/Users/Sol/Desktop/PITCH/OVERLAYS
+    env: {}
+
+  # Storybook MCP — only available when Storybook is running (port 6006)
+  # Start with: bun run storybook (from control-panel/)
+  - name: storybook
+    url: http://localhost:6006/mcp
+    type: http

@@ -1,0 +1,29 @@
+name: OVERLAYS Workspace
+version: 1.0.0
+schema: v1
+
+# Workspace-level Continue config for the OVERLAYS / TableRelay project.
+# Merged with ~/.continue/config.yaml (global). Workspace values take precedence.
+
+mcpServers:
+  # GitNexus — semantic code graph (5144 symbols, 17239 relationships)
+  # Uses locally installed gitnexus@1.3.6 — requires Node 20 in PATH.
+  # Tools available to Qwen:
+  #   gitnexus_query({query: "..."})     — find execution flows by concept
+  #   gitnexus_context({name: "..."})   — callers/callees/processes for a symbol
+  # Resources (via @gitnexus context provider if supported):
+  #   gitnexus://repo/OVERLAYS/context  — codebase overview
+  #   gitnexus://repo/OVERLAYS/clusters — functional areas
+  #   gitnexus://repo/OVERLAYS/process/{name} — step-by-step execution trace
+  - name: gitnexus
+    command: bunx
+    args:
+      - gitnexus
+      - mcp
+    cwd: C:/Users/Sol/Desktop/PITCH/OVERLAYS
+    env: {}
+
+  # Storybook — only when running (bun run storybook from control-panel/)
+  - name: storybook
+    url: http://localhost:6006/mcp
+    type: http

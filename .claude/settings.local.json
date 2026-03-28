@@ -70,7 +70,12 @@
       "Bash(while read:*)",
       "Bash(do echo:*)",
       "Read(//c/Users/Sol/Desktop/PITCH/OVERLAYS/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Read(//c/Users/Sol/**)",
+      "WebSearch"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Sol\\.continue"
     ]
   },
   "enableAllProjectMcpServers": true,
