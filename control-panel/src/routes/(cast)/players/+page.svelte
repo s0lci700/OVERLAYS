@@ -1,21 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
 	import type { CharacterRecord } from '$lib/contracts/records';
-
-	const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
-
-	let characters = $state<CharacterRecord[]>([]);
-	let loading = $state(true);
-
-	onMount(async () => {
-		try {
-			const res = await fetch(`${SERVER_URL}/api/characters`);
-			if (res.ok) characters = await res.json();
-		} catch (e) {
-			console.error('Failed to load characters:', e);
-		} finally {
-			loading = false;
-		}
+	import CastModal from '$lib/components/cast/shared/CastModal.svelte';
+	let { data } : { data: PageData } = $props();
+		
+	let modalOpen = $state(false);
+	$effect(() => {
+  	if (data.notFoundId) modalOpen = true;
 	});
 
 	function hpPercent(c: CharacterRecord) {
@@ -35,25 +26,24 @@
 	/>
 </svelte:head>
 
+<CastModal bind:open={modalOpen} title="Personaje no encontrado">
+  <p>El personaje con <code>ID: {data.notFoundId}</code> que buscas no está registrado en el archivo.</p>
+</CastModal>
+
+
 <div class="roster">
 	<header class="roster-header">
 		<span class="roster-label">SELECCIONAR PERSONAJE</span>
-		{#if !loading}
-			<span class="roster-count">{characters.length} EN PARTIDA</span>
-		{/if}
+		<span class="roster-count">{data.characters.length} EN PARTIDA</span>
 	</header>
 
-	{#if loading}
-		<div class="roster-loading">
-			<span class="loading-text">CARGANDO...</span>
-		</div>
-	{:else if characters.length === 0}
+	{#if data.characters.length === 0}
 		<div class="roster-empty">
 			<span class="empty-text">Sin personajes registrados.</span>
 		</div>
 	{:else}
 		<ul class="roster-list">
-			{#each characters as character (character.id)}
+			{#each data.characters as character (character.id)}
 				<li>
 					<a href="/players/{character.id}" class="character-card" class:is-critical={isCritical(character)}>
 						<div class="card-rail"></div>
@@ -129,20 +119,11 @@
 
 	/* ── States ────────────────────────────────────────── */
 
-	.roster-loading,
 	.roster-empty {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		min-height: 40dvh;
-	}
-
-	.loading-text {
-		font-family: 'JetBrains Mono', monospace;
-		font-size: 0.75rem;
-		letter-spacing: 0.2em;
-		color: rgba(200, 148, 74, 0.5);
-		animation: cast-breathe 1.5s ease-in-out infinite;
 	}
 
 	.empty-text {
@@ -288,18 +269,21 @@
 
 	/* HP bar */
 	.card-hp-track {
-		height: 2px;
+		height: 6px;
 		background: rgba(255, 255, 255, 0.05);
 		margin-left: 1.25rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.02);
 	}
 
 	.card-hp-fill {
 		height: 100%;
-		background: rgba(0, 229, 255, 0.5);
+		background: rgba(0, 229, 255, 0.6);
 		transition: width 400ms ease, background 300ms ease;
+		box-shadow: 0 0 8px rgba(0, 229, 255, 0.15);
 	}
 
 	.card-hp-fill.fill-critical {
-		background: rgba(255, 107, 107, 0.6);
+		background: rgba(255, 107, 107, 0.8);
+		box-shadow: 0 0 12px rgba(255, 107, 107, 0.25);
 	}
 </style>

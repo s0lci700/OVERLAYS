@@ -18,7 +18,7 @@
 -->
 <script>
   import "./app.css";
-  import DiceRoller from "./lib/components/stage/DiceRoller.svelte";
+  import DiceRoller from "lib/components/stage/DiceRoller.svelte";
   import CharacterCard from "./lib/components/stage/CharacterCard.svelte";
   import CharacterCreationForm from "./lib/components/stage/CharacterCreationForm.svelte";
   import CharacterManagement from "./lib/components/stage/CharacterManagement.svelte";

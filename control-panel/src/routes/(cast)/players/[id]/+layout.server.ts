@@ -1,28 +1,26 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect, isHttpError, isRedirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import type { CharacterRecord } from '$lib/contracts/records';
+import { getCharacter } from '$lib/services/character';
 
-// Use the backend Express server (localhost) instead of PocketBase directly.
-// VITE_POCKETBASE_URL points to the network IP which is unreachable from SSR
-// (Node.js fetch → undici → TypeError: fetch failed). The Express server at
-// localhost:3000 is always reachable from SSR on the same machine.
-const SERVER_INTERNAL = import.meta.env.VITE_SERVER_INTERNAL_URL || 'http://localhost:3000';
-
-export const load: LayoutServerLoad = async ({
-	params,
-	fetch
-}): Promise<{ character: CharacterRecord | null }> => {
+export const load: LayoutServerLoad = async ({ params: { id } }): Promise<{ character: CharacterRecord }> => {
 	try {
-		const res = await fetch(`${SERVER_INTERNAL}/api/characters/${params.id}`);
-		if (res.status === 404) error(404, 'Character not found');
-		if (!res.ok) {
-			console.error(`[layout:players/[id]] Express returned ${res.status} for character ${params.id}`);
-			return { character: null };
-		}
-		const character: CharacterRecord = await res.json();
+		const character = await getCharacter(id);
 		return { character };
 	} catch (err) {
-		console.error('[layout:players/[id]] fetch error:', err);
-		return { character: null };
+		// Let SvelteKit redirects pass through unchanged.
+		if (isRedirect(err)) throw err;
+		// NOT_FOUND → send user back to the roster instead of an error page.
+		if (isHttpError(err, 404)) throw redirect(307, `/players?notFound=${id}`);
+		// Any other HttpError (401, 500, etc.) — pass through as-is.
+		if (isHttpError(err)) throw err;
+
+		console.error(`[layout:players/[id]] Unexpected error fetching character ${id}:`, err);
+		throw error(500, { message: 'Internal server error' });
 	}
 };
+	
+
+
+
+	

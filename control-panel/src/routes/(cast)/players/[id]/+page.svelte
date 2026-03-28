@@ -8,12 +8,14 @@
 		ABILITIES,
 		ABILITY_LABELS
 	} from '$lib/utils/character-derive';
+	import { getPortraitUrl } from '$lib/services/pocketbase';
 
     onMount(() => {
         console.log('[PlayerSheet] Mounted with data:', data);
     });
 	let { data }: { data: PageData } = $props();
 	const character = $derived(data.character);
+	const portraitUrl = $derived(character ? getPortraitUrl(character) : null);
     
 	const modifiers = $derived(
 		character
@@ -66,12 +68,19 @@
 
 {#if character}
 	<div class="home-canvas">
-    <div class="character-header">
-        <h1 class="character-name">{character.name}</h1>
-        <span class="character-meta">
-            {character.species} {character.class_name} {character.level}
-        </span>
-    </div>
+		<!-- ── Identity Hero ────────────────────────────────────────── -->
+		<div class="character-hero">
+			<div class="hero-portrait-frame">
+				{#if portraitUrl}
+					<img src={portraitUrl} alt={character.name} class="hero-portrait-img" />
+				{:else}
+					<div class="hero-portrait-placeholder">
+						<span class="material-symbols-outlined">person</span>
+					</div>
+				{/if}
+			</div>
+		</div>
+
 		<!-- ── Conditions ──────────────────────────────────────────── -->
 		{#if character.conditions.length > 0}
 			<div class="conditions-row">
@@ -184,6 +193,40 @@
 {/if}
 
 <style>
+	/* ── Hero ───────────────────────────────────────────────────── */
+	.character-hero {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 0.5rem;
+	}
+
+	.hero-portrait-frame {
+		width: 140px;
+		height: 160px;
+		background: rgba(27, 27, 35, 0.8);
+		backdrop-filter: blur(var(--cast-blur));
+		border: 1px solid rgba(200, 148, 74, 0.2);
+		clip-path: polygon(2% 0%, 98% 0%, 100% 50%, 98% 100%, 2% 100%, 0% 50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.hero-portrait-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.hero-portrait-placeholder {
+		color: rgba(200, 148, 74, 0.2);
+	}
+
+	.hero-portrait-placeholder .material-symbols-outlined {
+		font-size: 4rem;
+	}
+
 	/* ── Canvas ─────────────────────────────────────────────────── */
 	.home-canvas {
 		padding: 1.25rem 1rem;
@@ -244,6 +287,7 @@
 		padding: 0.75rem 0.5rem;
 		gap: 2px;
 		border-right: 1px solid var(--cast-border-subtle);
+		min-height: 48px;
 	}
 
 	.stat-cell:last-child {
@@ -275,7 +319,7 @@
 		align-items: center;
 		border-bottom: 1px solid rgba(200, 148, 74, 0.25);
 		padding-bottom: 4px;
-		margin-bottom: 0.75rem;
+		margin-bottom: 1rem;
 	}
 
 	.section-title {
@@ -306,25 +350,27 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 0.75rem 0.5rem;
+		padding: 1rem 0.5rem;
 		gap: 2px;
 		background-color: rgba(27, 27, 35, 0.6);
 		backdrop-filter: blur(var(--cast-blur));
+		min-height: 64px;
 	}
 
 	.ability-label {
 		font-family: var(--cast-font-chrome);
-		font-size: 9px;
+		font-size: 10px;
 		font-weight: 700;
-		letter-spacing: 0.15em;
+		letter-spacing: 0.2em;
 		color: var(--cast-amber);
 		text-transform: uppercase;
+		margin-bottom: 2px;
 	}
 
 	.ability-mod {
 		font-family: var(--cast-font-data);
 		font-weight: 700;
-		font-size: 1.5rem;
+		font-size: 1.75rem;
 		letter-spacing: 0.02em;
 		color: var(--cast-text-primary);
 		line-height: 1;
@@ -334,6 +380,7 @@
 		font-family: var(--cast-font-data);
 		font-size: 11px;
 		color: var(--cast-text-secondary);
+		opacity: 0.8;
 	}
 
 	/* ── Resources ──────────────────────────────────────────────── */
@@ -352,11 +399,17 @@
 		backdrop-filter: blur(var(--cast-blur));
 		padding: 0.625rem 0.75rem;
 		border-left: 2px solid var(--cast-amber);
+		min-height: 48px;
 	}
 
 	.resource-row--depleted {
 		border-left-color: transparent;
-		opacity: 0.5;
+	}
+
+	.resource-row--depleted .resource-name,
+	.resource-row--depleted .resource-count {
+		color: var(--cast-text-secondary);
+		opacity: 0.6;
 	}
 
 	.resource-info {
@@ -381,15 +434,30 @@
 	}
 
 	.resource-track {
-		width: 48px;
-		height: 3px;
-		background: rgba(255, 255, 255, 0.1);
+		width: 64px;
+		height: 6px;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.05);
 	}
 
 	.resource-bar {
 		height: 100%;
 		background: var(--cast-amber);
 		transition: width 300ms ease;
+		box-shadow: 0 0 8px rgba(200, 148, 74, 0.15);
+		animation: cast-breathing-glow 4s ease-in-out infinite;
+	}
+
+	@keyframes cast-breathing-glow {
+		0%,
+		100% {
+			opacity: 0.8;
+			box-shadow: 0 0 4px rgba(200, 148, 74, 0.1);
+		}
+		50% {
+			opacity: 1;
+			box-shadow: 0 0 12px rgba(200, 148, 74, 0.3);
+		}
 	}
 
 	.resource-count {
@@ -458,5 +526,13 @@
 		display: flex;
 		gap: 3px;
 		align-items: center;
+	}
+
+	/* Tablet/Desktop optimization */
+	@media (min-width: 768px) {
+		.home-canvas {
+			gap: 2rem;
+			padding: 2.5rem 1.5rem;
+		}
 	}
 </style>

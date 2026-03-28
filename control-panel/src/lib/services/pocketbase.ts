@@ -8,6 +8,11 @@ import { ServiceError } from './errors';
 
 //Checks if the PocketBase URL is configured properly in environment variables, throws a ServiceError if not
 function getPocketBaseURL(): string {
+	// In SSR, always use localhost — VITE_POCKETBASE_URL is the LAN IP for
+	// client browsers and is unreachable from the Node.js server process.
+	if (import.meta.env.SSR) {
+		return 'http://127.0.0.1:8090';
+	}
 	const url = import.meta.env.VITE_POCKETBASE_URL;
 	if (!url || typeof url !== 'string' || url.trim() === '') {
 		throw new ServiceError('CONFIG', 'Missing or invalid VITE_POCKETBASE_URL environment variable');

@@ -4,7 +4,7 @@
 <script>
   import "../app.css";
   import { page } from "$app/state";
-  import { characters, socket } from "$lib/services/socket.js";
+  import { characters, socket } from "$lib/services/socket";
   import { resolve } from "$app/paths";
 
   let connected = $state(false);
@@ -105,7 +105,7 @@
     <a
       class="app-sidebar-link"
       class:active={page.url.pathname.startsWith("/dm")}
-      href={resolve("/dm")}
+      href={resolve("/dm",)}
     >
       PANEL DM
     </a>

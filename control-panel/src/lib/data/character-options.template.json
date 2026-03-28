@@ -34,7 +34,8 @@
     { "key": "halfling", "label": "Halfling" },
     { "key": "human", "label": "Human" },
     { "key": "orc", "label": "Orc" },
-    { "key": "tiefling", "label": "Tiefling" }
+    { "key": "tiefling", "label": "Tiefling" },
+    { "key": "warforged", "label": "Warforged" }
   ],
   "sizes": [
     { "key": "small", "label": "Small" },
