@@ -56,6 +56,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [tailwindcss(), sveltekit()],
     logger: createLogger(),
+    resolve: {
+      extensions: ['.svelte.ts', '.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.svelte']
+    },
     server: {
       port: parseInt(env.VITE_PORT || "5173", 10),
       fs: { allow: [path.resolve(__dirname, "..")] }

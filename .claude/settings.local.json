@@ -72,10 +72,12 @@
       "Read(//c/Users/Sol/Desktop/PITCH/OVERLAYS/**)",
       "Bash(done)",
       "Read(//c/Users/Sol/**)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__github__get_file_contents"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Sol\\.continue"
+      "c:\\Users\\Sol\\.continue",
+      "c:\\Users\\Sol\\Desktop\\PITCH\\OVERLAYS\\control-panel\\src\\lib\\services"
     ]
   },
   "enableAllProjectMcpServers": true,

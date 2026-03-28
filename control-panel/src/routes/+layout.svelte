@@ -3,16 +3,34 @@
 -->
 <script>
   import "../app.css";
+  import { onMount } from "svelte";
   import { page } from "$app/state";
-  import { characters, socket } from "$lib/services/socket";
   import { resolve } from "$app/paths";
+  import { listCharacters } from "$lib/services/character";
+  import { socketStatus, connectSocket } from "$lib/services/socket.svelte";
 
-  let connected = $state(false);
+  let connected = $derived(socketStatus.connected);
   let isSidebarOpen = $state(false);
+  let charCount = $state(0);
   let { children } = $props();
 
-  socket.on("connect", () => (connected = true));
-  socket.on("disconnect", () => (connected = false));
+  onMount(async () => {
+    // Determine surface for socket grouping
+    const surface = page.url.pathname.startsWith("/players") ? "cast" : "stage";
+    connectSocket("demo-session", surface);
+
+    try {
+      const chars = await listCharacters();
+      charCount = chars.length;
+          
+      console.log(connected ? "Connected to server" : "Not connected to server");
+    } catch {
+      console.error("Failed to fetch character count");
+      charCount = 0; // Fallback to 0 if PocketBase is unreachable,
+      // PocketBase unreachable client-side — count stays 0
+    }
+  });
+
 
   function toggleSidebar() {
     isSidebarOpen = !isSidebarOpen;
@@ -44,7 +62,7 @@
     </span>
     <div class="header-meta">
       <div class="conn-dot" class:connected></div>
-      <span class="header-count">{$characters.length}</span>
+      <span class="header-count">{charCount}</span>
       <button
         class="header-menu"
         type="button"

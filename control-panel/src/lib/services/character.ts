@@ -1,13 +1,11 @@
 //Imports types from $lib/contracts/records.ts
 // and $lib/contracts/cast.ts
-import { pb } from '$lib/services/pocketbase';
 import type {
 	RecordID,
 	CharacterRecord,
 } from '$lib/contracts/records';
-import { getCharacterRecord } from '$lib/services/pocketbase';
-import { getAll } from '$server/data/characters';
-import { subscribe } from '$lib/services/socket';
+import { getCharacterRecord, listCharacterRecords } from '$lib/services/pocketbase';
+import { subscribe } from '$lib/services/socket.svelte';
 import { error } from '@sveltejs/kit';
 import { ServiceError } from './errors';
 import type { CharacterLiveState } from '$lib/contracts/cast';
@@ -17,7 +15,7 @@ import type { CharacterLiveState } from '$lib/contracts/cast';
 
 export async function listCharacters(): Promise<CharacterRecord[]> {
 	try {
-		return await getAll(pb);
+		return await listCharacterRecords();
 	} catch (err) {
 		if (err instanceof ServiceError) {
 			switch (err.code) {

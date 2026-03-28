@@ -3,7 +3,7 @@
   import { Stepper } from "$lib/components/shared/stepper/index.js";
   import { Button } from "$lib/components/shared/button/index.js";
   import * as Tooltip from "$lib/components/shared/tooltip/index.js";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.svelte.js";
 
   // ──────────────────────────────────────────────────────────────────────────
 
@@ -162,7 +162,7 @@
           {#each Array(resource.pool_max) as _, i (i)}
             {@const filled = i < resource.pool_current}
             <button
-              class="pip pip--{resource.recharge.toLowerCase()} {filled
+              class="pip pip--{resource.reset_on.toLowerCase()} {filled
                 ? 'pip--filled'
                 : 'pip--empty'}"
               onclick={() => togglePip(resource, filled)}

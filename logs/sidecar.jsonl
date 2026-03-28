@@ -21,3 +21,26 @@
 {"event":"hp_updated","ts_abs":1774404194803,"ts_rel":null,"charId":"l1qczsccogq3wcb","charName":"Hector","hp_current":10}
 {"event":"resource_updated","ts_abs":1774404198436,"ts_rel":null,"charId":"hugc2wepas7a81y","resource":{"ability_scores":{"cha":16,"con":12,"dex":14,"int":13,"str":8,"wis":10},"alignment":"ng","armor_class":13,"background":{"feat":"","name":"acolyte","skill_proficiencies":["insight","persuasion"],"tool_proficiency":"musical_instrument"},"campaign_id":"","class_primary":{"level":1,"name":"bard"},"collectionId":"pbc_3298390430","collectionName":"characters","conditions":[{"applied_at":"2026-03-03T01:20:07.266Z","condition_name":"Frightened","id":"E99V2","intensity_level":1},{"applied_at":"2026-03-03T02:53:28.066Z","condition_name":"congelado","id":"E98FW","intensity_level":1}],"created":"2026-03-02 08:21:27.766Z","death_state":null,"entity_type":"","equipment":{"coins":{"cp":0,"gp":0,"sp":0},"items":["leather_armor","rapier","lute","pack_entertainer"],"trinket":""},"hp_current":1,"hp_max":8,"hp_temp":0,"id":"hugc2wepas7a81y","languages":["common","elvish","celestial"],"name":"Luis","photo":"/assets/img/elf.png","player":"Luis","proficiencies":{"armor":["light"],"saving_throws":["dex","cha"],"skills":["insight","persuasion"],"tools":["musical_instrument"],"weapons":["simple"]},"resources":[{"id":"RS201","name":"INSPIRATION","pool_current":0,"pool_max":1,"recharge":"DM"}],"species":{"name":"elf","size":"medium","speed_walk":30,"traits":[]},"speed_walk":30,"turn_state":null,"updated":"2026-03-25 02:03:18.435Z","visible_to_players":""}}
 {"event":"resource_updated","ts_abs":1774404199006,"ts_rel":null,"charId":"hugc2wepas7a81y","resource":{"ability_scores":{"cha":16,"con":12,"dex":14,"int":13,"str":8,"wis":10},"alignment":"ng","armor_class":13,"background":{"feat":"","name":"acolyte","skill_proficiencies":["insight","persuasion"],"tool_proficiency":"musical_instrument"},"campaign_id":"","class_primary":{"level":1,"name":"bard"},"collectionId":"pbc_3298390430","collectionName":"characters","conditions":[{"applied_at":"2026-03-03T01:20:07.266Z","condition_name":"Frightened","id":"E99V2","intensity_level":1},{"applied_at":"2026-03-03T02:53:28.066Z","condition_name":"congelado","id":"E98FW","intensity_level":1}],"created":"2026-03-02 08:21:27.766Z","death_state":null,"entity_type":"","equipment":{"coins":{"cp":0,"gp":0,"sp":0},"items":["leather_armor","rapier","lute","pack_entertainer"],"trinket":""},"hp_current":1,"hp_max":8,"hp_temp":0,"id":"hugc2wepas7a81y","languages":["common","elvish","celestial"],"name":"Luis","photo":"/assets/img/elf.png","player":"Luis","proficiencies":{"armor":["light"],"saving_throws":["dex","cha"],"skills":["insight","persuasion"],"tools":["musical_instrument"],"weapons":["simple"]},"resources":[{"id":"RS201","name":"INSPIRATION","pool_current":0,"pool_max":1,"recharge":"DM"}],"species":{"name":"elf","size":"medium","speed_walk":30,"traits":[]},"speed_walk":30,"turn_state":null,"updated":"2026-03-25 02:03:19.005Z","visible_to_players":""}}
+{"event":"sync_start","ts_abs":1774675933345,"ts_rel":2}
+{"event":"sync_start","ts_abs":1774676753552,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774677117146,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774677603080,"ts_rel":1}
+{"event":"sync_start","ts_abs":1774677739904,"ts_rel":1}
+{"event":"sync_start","ts_abs":1774677863382,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774677867846,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678008482,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678012882,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678089482,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678092459,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678109244,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678113462,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678458958,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678493802,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678497265,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678514522,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678518243,"ts_rel":1}
+{"event":"sync_start","ts_abs":1774678636147,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678709443,"ts_rel":0}
+{"event":"sync_start","ts_abs":1774678774605,"ts_rel":1}
+{"event":"sync_start","ts_abs":1774678797047,"ts_rel":1}
+{"event":"sync_start","ts_abs":1774678880215,"ts_rel":0}

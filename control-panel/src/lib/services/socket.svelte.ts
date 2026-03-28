@@ -78,9 +78,13 @@ function mapSocketError(
 			}
 		}
 	}
+
+	// Fallback: ensure a ServiceError is always returned for unknown signals
+	return new ServiceError('UNKNOWN', 'Unrecognized socket error signal', { context });
 }
 
 const socketURL = assertEnvVariable(import.meta.env.VITE_SERVER_URL);
+export const SERVER_URL = socketURL;
 // Singleton pattern to ensure only one Socket instance is created and shared across the app
 let socket: Socket | null = null;
 
@@ -99,9 +103,8 @@ export const getSocket = (): Socket => {
 
 // Creates the socket with session/surface query params (used by the server for room joining),
 // then connects. Safe to call multiple times — no-op if already connected.
-export function connectSocket(sessionId: string, surface: string): void {
+export function connectSocket(sessionId: string = 'default', surface: string = 'unknown'): void {
 	if (socket?.connected) {
-		console.warn('Socket is already connected, skipping connect() call', { socketId: socket.id });
 		return;
 	}
 	if (!socket) {
@@ -124,6 +127,13 @@ export function disconnectSocket(): void {
 
 function bindSocketListeners(): void {
 	const s = getSocket();
+
+	s.on('connect', () => {
+		const context = { socketId: s.id };
+		console.log('Socket connected successfully', context);
+		socketStatus.connected = true;
+		socketStatus.lastSync = new Date();
+	});
 	//Socket error handling: listens for connection errors and maps them to ServiceError for consistent error handling across the app
 	s.on('connect_error', (error) => {
 		const mapped = mapSocketError({ event: 'connect_error', error }, 'Socket Connect');

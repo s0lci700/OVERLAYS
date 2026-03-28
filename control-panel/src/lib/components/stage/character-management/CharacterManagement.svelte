@@ -12,7 +12,7 @@
   import CharacterPhotoEditor from "./CharacterPhotoEditor.svelte";
   import CharacterProfileForm from "../character-profile-form/CharacterProfileForm.svelte";
   import CharacterInfoPanel from "./CharacterInfoPanel.svelte";
-  import { characters, SERVER_URL } from "$lib/services/socket";
+  import { characters, SERVER_URL } from "$lib/services/socket.js";
   import { Button } from "$lib/components/shared/button/index.js";
   import * as AlertDialog from "$lib/components/shared/alert-dialog";
   import characterOptions from "$lib/data/character-options.template.json";

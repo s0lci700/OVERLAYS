@@ -7,7 +7,7 @@
  */
 
 import { spawn } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { resolve, join } from "path";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -43,8 +43,24 @@ async function main() {
       console.error("❌ pocketbase.exe not found in project root");
       process.exit(1);
     }
-    console.log("▶  Starting PocketBase…");
-    const pb = spawn(PB_EXE, ["serve"], { cwd: ROOT, stdio: "ignore", detached: true });
+
+    // ─── Dynamic Host Detection ───────────────────────────────────────────
+    const PANEL_ENV = join(ROOT, "control-panel", ".env");
+    let pbBind = "127.0.0.1:8090";
+    if (existsSync(PANEL_ENV)) {
+      const envContent = readFileSync(PANEL_ENV, "utf8");
+      const match = envContent.match(/VITE_POCKETBASE_URL=http:\/\/([^:/]+)/);
+      if (match) {
+        const host = match[1];
+        if (host !== "localhost" && host !== "127.0.0.1") {
+          pbBind = `0.0.0.0:8090`; // Bind to all if configured for LAN/Mobile
+        }
+      }
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
+    console.log(`▶  Starting PocketBase on ${pbBind}…`);
+    const pb = spawn(PB_EXE, ["serve", `--http=${pbBind}`], { cwd: ROOT, stdio: "ignore", detached: true });
     pb.unref();
     await waitFor(PB_HEALTH, "PocketBase");
   }

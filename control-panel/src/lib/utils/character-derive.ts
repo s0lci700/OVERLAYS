@@ -6,6 +6,36 @@ export const SKILL_ABILITY: Record<string, string> = {
     deception: 'cha', intimidation: 'cha', performance: 'cha', persuasion: 'cha'
 };
 
+export const SKILL_LABELS: Record<string, string> = {
+    athletics: 'Athletics',
+    acrobatics: 'Acrobatics',
+    sleight_of_hand: 'Sleight of Hand',
+    stealth: 'Stealth',
+    arcana: 'Arcana',
+    history: 'History',
+    investigation: 'Investigation',
+    nature: 'Nature',
+    religion: 'Religion',
+    animal_handling: 'Animal Handling',
+    insight: 'Insight',
+    medicine: 'Medicine',
+    perception: 'Perception',
+    survival: 'Survival',
+    deception: 'Deception',
+    intimidation: 'Intimidation',
+    performance: 'Performance',
+    persuasion: 'Persuasion'
+};
+
+export const SKILLS_BY_ABILITY: Record<string, string[]> = {
+    str: ['athletics'],
+    dex: ['acrobatics', 'sleight_of_hand', 'stealth'],
+    con: [],
+    int: ['arcana', 'history', 'investigation', 'nature', 'religion'],
+    wis: ['animal_handling', 'insight', 'medicine', 'perception', 'survival'],
+    cha: ['deception', 'intimidation', 'performance', 'persuasion']
+};
+
 export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
 export type Ability = typeof ABILITIES[number];
 

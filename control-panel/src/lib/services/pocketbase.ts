@@ -13,9 +13,23 @@ function getPocketBaseURL(): string {
 	if (import.meta.env.SSR) {
 		return 'http://127.0.0.1:8090';
 	}
+
 	const url = import.meta.env.VITE_POCKETBASE_URL;
+
+	// If the browser is running on localhost, prefer talking to local PocketBase
+	// directly to avoid needing the --http=0.0.0.0 binding flag or hitting CORS.
+	if (
+		typeof window !== 'undefined' &&
+		(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+	) {
+		// Only override if the configured URL is pointing to a different IP (LAN mode)
+		if (url && !url.includes('localhost') && !url.includes('127.0.0.1')) {
+			return 'http://127.0.0.1:8090';
+		}
+	}
+
 	if (!url || typeof url !== 'string' || url.trim() === '') {
-		throw new ServiceError('CONFIG', 'Missing or invalid VITE_POCKETBASE_URL environment variable');
+		return 'http://127.0.0.1:8090';
 	}
 	return url;
 }

@@ -5,6 +5,7 @@
   import { page } from "$app/state";
   import { resolve } from "$app/paths";
   import { SERVER_URL } from "$lib/services/socket.js";
+	import { onMount } from "svelte";
 
   let { children } = $props();
 
@@ -22,7 +23,13 @@
     } finally {
       syncing = false;
     }
-  }
+  };
+
+  onMount(() => {
+    handleSync(); // Auto-sync on page load for seamless recording start, can be removed if manual sync is preferred
+    synced = false;
+  });
+
 </script>
 
 {@render children()}

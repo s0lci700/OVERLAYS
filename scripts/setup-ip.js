@@ -135,7 +135,13 @@ function upsertEnvKeys(filePath, updates) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-const mainIP = getLocalIP();
+let mainIP = getLocalIP();
+
+if (process.argv.includes("--local")) {
+  console.log("[setup-ip] --local flag detected, forcing 127.0.0.1");
+  mainIP = "127.0.0.1";
+}
+
 const serverUrl = `http://${mainIP}:${serverPort}`;
 const controlPanelUrl = `http://${mainIP}:${controlPanelPort}`;
 const pocketBaseUrl = `http://${mainIP}:${pocketBasePort}`;

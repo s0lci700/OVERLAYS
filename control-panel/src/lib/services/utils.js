@@ -14,7 +14,7 @@ export function cn(...inputs) {
  */
 export function resolvePhotoSrc(photoPath = '', serverUrl = '', charId = '') {
 	if (!photoPath) {
-		return `${serverUrl}/assets/img/placeholder.png`;
+		return `${serverUrl}/assets/img/dwarf.png`;
 	}
 	if (
 		photoPath.startsWith('http://') ||

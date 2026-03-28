@@ -3,8 +3,7 @@
   import {
     computeAbilityModifier,
     computeSkillTotal,
-    computePassive,
-    ABILITY_LABELS
+    computePassive
   } from '$lib/utils/character-derive';
   import StatDisplay from '$lib/components/shared/stat-display/stat-display.svelte';
 
@@ -102,12 +101,13 @@
     border-left: 2px solid var(--cast-amber);
   }
 
-  :global(.stat-strip > div) {
+  /* Target StatDisplay root divs inside the strip only — narrowly scoped */
+  .stat-strip :global(> div) {
     border-right: 1px solid var(--cast-border-subtle);
     padding: 0.75rem 0.25rem;
   }
 
-  :global(.stat-strip > div:last-child) {
+  .stat-strip :global(> div:last-child) {
     border-right: none;
   }
 </style>
