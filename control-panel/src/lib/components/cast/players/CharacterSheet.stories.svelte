@@ -2,10 +2,11 @@
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import { Shimmer } from "@shimmer-from-structure/svelte";
   import CharacterSheet from "./CharacterSheet.svelte";
+  /** @typedef {import('$lib/contracts/records').CharacterRecord} CharacterRecord */
 
   // ── Fixtures ──────────────────────────────────────────────────
 
-  /** Sir Nabo — canonical TASK-1.2 fixture (Fighter 4, healthy) */
+  /** @type {CharacterRecord} */
   const SIR_NABO = {
     id: "CH101",
     name: "Sir Nabo",

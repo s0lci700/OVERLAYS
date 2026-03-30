@@ -40,15 +40,19 @@
   ];
 </script>
 
-<Sidebar.Root collapsible="offcanvas">
+<Sidebar.Root collapsible="offcanvas" class="grimoire-sidebar">
 
   <!-- Brand header strip -->
   <Sidebar.Header class="sidebar-brand">
-    <span class="sidebar-brand-block">DADOS</span>
-    <span class="sidebar-brand-amp">&amp;</span>
-    <span class="sidebar-brand-script">Risas</span>
+    <div class="brand-wordmark">
+      <span class="brand-block">table</span>
+      <span class="brand-script">Relay</span>
+    </div>
+    <!-- Decorative corner accents -->
+    <div class="sidebar-corner tl"></div>
+    <div class="sidebar-corner tr"></div>
   </Sidebar.Header>
-  <Sidebar.Content>
+  <Sidebar.Content aria-label="Navegación principal">
     <Sidebar.Group>
       <Sidebar.GroupContent>
         <Sidebar.Menu>
@@ -90,102 +94,134 @@
 </Sidebar.Root>
 
 <style>
+  /* ── Sidebar Shell ─────────────────────────────────── */
+  :global(.grimoire-sidebar) {
+    background: var(--black-bg) !important;
+    border-right: 1px solid var(--grey-dim) !important;
+  }
+
   /* ── Brand header ─────────────────────────────────── */
   :global([data-sidebar="header"].sidebar-brand) {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
-    gap: var(--space-2);
-    padding: var(--space-4);
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6) var(--space-4);
     border-bottom: 1px solid var(--grey-dim);
     margin-bottom: var(--space-2);
+    position: relative;
+    background: var(--black-card);
   }
-  :global(.sidebar-brand-block) {
+
+  .brand-wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    z-index: 2;
+  }
+
+  .brand-block {
     font-family: var(--font-display);
-    font-size: 1.5rem;
-    letter-spacing: 0.08em;
+    font-size: 1.75rem;
+    letter-spacing: 0.05em;
     color: var(--red);
+    text-transform: lowercase;
     line-height: 1;
   }
-  :global(.sidebar-brand-amp) {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    color: var(--grey);
-    line-height: 1;
-  }
-  :global(.sidebar-brand-script) {
+
+  .brand-script {
     font-family: var(--font-script);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: var(--cyan);
     line-height: 1;
   }
+
+  /* Decorative corner accents matching CharacterSheet */
+  .sidebar-corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--cast-amber-border);
+    opacity: 0.3;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .sidebar-corner.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .sidebar-corner.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
 
   /* ── Section buttons (STAGE / CAST / AUDIENCE) ─────── */
   :global([data-sidebar="menu-button"]) {
     font-family: var(--font-display);
-    letter-spacing: 0.1em;
-    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    font-size: 0.9rem;
     color: var(--grey);
-    background: var(--black-card);
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--grey-dim);
-    border-radius: var(--radius-md);
-    min-height: 44px;
+    border-radius: var(--radius-sm);
+    min-height: 40px;
+    margin: var(--space-1) 0;
     padding: 0 var(--space-3);
-    box-shadow: var(--shadow-card);
-    transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+    transition: all var(--t-fast);
   }
+  
   :global([data-sidebar="menu-button"]:hover) {
     color: var(--white);
     border-color: var(--grey);
-    background: var(--black-elevated);
-  }
-  :global([data-sidebar="menu-button"][data-active="true"]) {
-    color: var(--cyan);
-    border-color: var(--cyan);
-    background: var(--cyan-dim);
-    box-shadow: var(--shadow-cyan);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   }
 
   :global(.sidebar-section-icon) {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
-    opacity: 0.6;
+    opacity: 0.5;
+    color: var(--cast-amber);
   }
+  
   :global(.sidebar-section-label) {
     flex: 1;
+    font-weight: 500;
   }
+  
   :global(.sidebar-chevron) {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
     flex-shrink: 0;
-    opacity: 0.4;
+    opacity: 0.3;
   }
 
   /* ── Sub-menu connector ────────────────────────────── */
   :global([data-sidebar="menu-sub"]) {
-    margin: var(--space-1) 0 var(--space-2) var(--space-4);
+    margin: 0 0 var(--space-2) var(--space-4);
     padding-left: var(--space-3);
-    border-left: 1px solid var(--grey-dim);
+    border-left: 1px solid rgba(200, 148, 74, 0.15);
   }
 
   /* ── Sub-item links ───────────────────────────────── */
   :global([data-sidebar="menu-sub-button"]) {
-    font-family: var(--font-ui);
-    font-size: 0.825rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--grey);
-    border-radius: var(--radius-sm);
-    min-height: 32px;
+    border-radius: var(--radius-xs);
+    min-height: 30px;
     padding: 0 var(--space-2);
-    transition: color var(--t-fast), background var(--t-fast);
+    transition: all var(--t-fast);
   }
+  
   :global([data-sidebar="menu-sub-button"]:hover) {
-    color: var(--white);
-    background: rgba(255, 255, 255, 0.04);
+    color: var(--cast-amber-pale);
+    background: rgba(200, 148, 74, 0.05);
   }
+  
   :global([data-sidebar="menu-sub-button"][data-active="true"]) {
     color: var(--cyan);
     background: var(--cyan-dim);
+    box-shadow: inset 0 0 10px rgba(0, 212, 232, 0.05);
   }
 
   :global(.sidebar-sub-link) {
@@ -197,7 +233,7 @@
   /* Focus ring */
   :global([data-sidebar="menu-button"]:focus-visible,
           [data-sidebar="menu-sub-button"]:focus-visible) {
-    outline: 2px solid var(--cyan);
+    outline: 2px solid var(--cast-amber);
     outline-offset: 2px;
   }
 </style>

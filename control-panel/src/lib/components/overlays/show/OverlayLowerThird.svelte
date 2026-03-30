@@ -11,41 +11,57 @@
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
   let socket = $state();
-  let visible = $state(preview != null);
-  let characterName = $state(preview?.characterName ?? '');
-  let playerName = $state(preview?.playerName ?? '');
+  let liveVisible = $state(false);
+  let liveCharacterName = $state('');
+  let livePlayerName = $state('');
+
+  const visible = $derived(preview ? true : liveVisible);
+  const characterName = $derived(preview ? (preview.characterName ?? '') : liveCharacterName);
+  const playerName = $derived(preview ? (preview.playerName ?? '') : livePlayerName);
+
   let barEl = $state();
   let hideTimer = null;
 
   $effect(() => {
-    socket = preview ? { on() {} } : createOverlaySocket(serverUrl);
+    const init = preview ? { socket: { on() {}, off() {} } } : createOverlaySocket(serverUrl);
+    socket = init.socket;
   });
 
   onMount(() => {
-    if (preview) setTimeout(() => { visible = true; }, 100);
+    if (preview) {
+      setTimeout(() => {
+        // we don't need to set visible here because it's derived
+      }, 100);
+    }
   });
 
   $effect(() => {
     if (!socket) return;
 
-    const handleLowerThird = async ({ characterName: cn, playerName: pn, duration = 5000 }) => {
+    const handleLowerThird = async ({
+      characterName: cn,
+      playerName: pn,
+      duration = 5000,
+    }) => {
       if (hideTimer) clearTimeout(hideTimer);
-      characterName = cn;
-      playerName = pn;
-      visible = true;
+      liveCharacterName = cn;
+      livePlayerName = pn;
+      liveVisible = true;
       await tick();
       if (barEl) fadeInFromBottom(barEl, 350);
       if (duration > 0) {
         hideTimer = setTimeout(() => {
-          fadeOutToTop(barEl, 300, () => { visible = false; });
+          fadeOutToTop(barEl, 300, () => {
+            liveVisible = false;
+          });
         }, duration);
       }
     };
 
-    socket.on('lower_third', handleLowerThird);
+    socket.on("lower_third", handleLowerThird);
 
     return () => {
-      socket.off('lower_third', handleLowerThird);
+      socket.off("lower_third", handleLowerThird);
     };
   });
 </script>

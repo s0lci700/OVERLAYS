@@ -4,13 +4,15 @@
 
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = "",
+		value,
 		...restProps
 	} = $props();
 </script>
 
 <TabsPrimitive.Content
 	bind:ref
+	{value}
 	data-slot="tabs-content"
 	class={cn("flex-1 outline-none", className)}
 	{...restProps}

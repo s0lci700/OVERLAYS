@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import type { LayoutData } from './$types';
 	import './cast-layer.css';
 
@@ -40,7 +41,7 @@
 <svelte:head>
 	<link
 		rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@600&family=Space+Grotesk:wght@500;700&family=Inter:wght@400&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=JetBrains+Mono:wght@700&family=Noto+Serif:wght@600&family=Space+Grotesk:wght@500;700&display=swap"
 	/>
 	<link
 		rel="stylesheet"
@@ -75,34 +76,42 @@
 		<!-- ── Fixed Bottom Nav ─────────────────────────────────────── -->
 		<nav class="cast-nav-bar">
 			<a
-				href={navBase}
+				href={resolve(navBase, {})}
 				class="cast-nav-tab {activeTab === 'home' ? 'cast-nav-tab--active' : ''}"
+				aria-current={activeTab === 'home' ? 'page' : undefined}
 			>
 				<span class="material-symbols-outlined cast-nav-icon"
+					aria-hidden="true"
 					style={activeTab === 'home' ? 'font-variation-settings: "FILL" 1' : ''}>home</span>
 				<span class="cast-nav-label">HOME</span>
 			</a>
 			<a
-				href="{navBase}/skills"
+				href={resolve(`${navBase}/skills`, {})}
 				class="cast-nav-tab {activeTab === 'skills' ? 'cast-nav-tab--active' : ''}"
+				aria-current={activeTab === 'skills' ? 'page' : undefined}
 			>
 				<span class="material-symbols-outlined cast-nav-icon"
+					aria-hidden="true"
 					style={activeTab === 'skills' ? 'font-variation-settings: "FILL" 1' : ''}>military_tech</span>
 				<span class="cast-nav-label">SKILLS</span>
 			</a>
 			<a
-				href="{navBase}/magic"
+				href={resolve(`${navBase}/magic`, {})}
 				class="cast-nav-tab {activeTab === 'magic' ? 'cast-nav-tab--active' : ''}"
+				aria-current={activeTab === 'magic' ? 'page' : undefined}
 			>
 				<span class="material-symbols-outlined cast-nav-icon"
+					aria-hidden="true"
 					style={activeTab === 'magic' ? 'font-variation-settings: "FILL" 1' : ''}>auto_stories</span>
 				<span class="cast-nav-label">MAGIC</span>
 			</a>
 			<a
-				href="{navBase}/notes"
+				href={resolve(`${navBase}/notes`, {})}
 				class="cast-nav-tab {activeTab === 'notes' ? 'cast-nav-tab--active' : ''}"
+				aria-current={activeTab === 'notes' ? 'page' : undefined}
 			>
 				<span class="material-symbols-outlined cast-nav-icon"
+					aria-hidden="true"
 					style={activeTab === 'notes' ? 'font-variation-settings: "FILL" 1' : ''}>edit_note</span>
 				<span class="cast-nav-label">NOTES</span>
 			</a>
@@ -144,12 +153,14 @@
 		justify-content: space-between;
 		height: 100%;
 		padding: 0 1rem;
+		gap: 0.75rem;
 	}
 
 	.cast-header-identity {
 		display: flex;
 		flex-direction: column;
 		gap: 1px;
+		min-width: 0;
 	}
 
 	.cast-name {
@@ -165,17 +176,21 @@
 
 	.cast-subtitle {
 		font-family: var(--cast-font-chrome);
-		font-size: 10px;
+		font-size: 0.7rem;
 		font-weight: 500;
 		letter-spacing: 0.1em;
 		color: var(--cast-amber);
-		line-height: 1;
+		line-height: 1.2;
 		margin: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.cast-header-vitals {
 		display: flex;
 		align-items: center;
+		flex-shrink: 0;
 		gap: 0.375rem;
 		font-family: var(--cast-font-data);
 		font-weight: 700;

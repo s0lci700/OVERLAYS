@@ -21,26 +21,32 @@
   --purple: #500df5; /* Dice / d20 highlight */
   --purple-dim: rgba(80, 13, 245, 0.12); /* Purple tint for hover/active backgrounds */
   --purple-mid: rgba(80, 13, 245, 0.5); /* Mid-opacity purple for borders */
+  --cast-amber: #C8944A; /* Grimoire gold accent */
+  --cast-amber-dim: rgba(200, 148, 74, 0.12); /* Subtle amber tint */
+  --cast-amber-border: rgba(200, 148, 74, 0.25); /* Amber border */
+  --cast-glass: rgba(13, 13, 21, 0.8); /* Frosted dark surface */
+  --cast-blur: 12px; /* Default backdrop blur depth */
   --hp-healthy: #22c55e; /* HP bar — healthy (>50%) */
   --hp-injured: #f59e0b; /* HP bar — injured (25–50%) */
   --hp-critical: #ff4d6a; /* HP bar — critical (<25%) */
   --hp-healthy-dim: #15803d; /* HP gradient start — healthy */
   --hp-injured-dim: #b45309; /* HP gradient start — injured */
   --hp-critical-dim: #991b1b; /* HP gradient start — critical */
-  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif; /* Headings, labels, brand text */
+  --font-display: "Space Grotesk", system-ui, sans-serif; /* UI chrome and labels */
+  --font-identity: "Noto Serif", Georgia, serif; /* Character and page titles */
   --font-script: "Dancing Script", cursive; /* Brand ampersand (& Risas) */
   --font-mono: "JetBrains Mono", "Courier New", monospace; /* Numbers, HP values, dice results */
   --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* Body text, form elements */
   --space-half: 2px; /* Half-step for tight layouts */
   --space-1: 4px; /* 4px base unit */
-  --space-2: 8px; /* 2x base spacing — tight gaps between related items */
-  --space-3: 12px; /* 3x base spacing — default inline spacing between controls */
-  --space-4: 16px; /* 4x base spacing — default block spacing between components */
-  --space-5: 20px; /* 5x base spacing — roomy gaps for section padding (compact) */
-  --space-6: 24px; /* 6x base spacing — roomy gaps for section padding (comfortable) */
-  --space-8: 32px; /* 8x base spacing — large layout separation */
-  --space-10: 40px; /* 10x base spacing — extra-large layout separation */
-  --space-12: 48px; /* 12x base spacing — maximum gutters and outer page padding */
+  --space-2: 8px; /* 2× base unit */
+  --space-3: 12px; /* 3× base unit */
+  --space-4: 16px; /* 4× base unit */
+  --space-5: 20px; /* 5× base unit */
+  --space-6: 24px; /* 6× base unit */
+  --space-8: 32px; /* 8× base unit */
+  --space-10: 40px; /* 10× base unit */
+  --space-12: 48px; /* 12× base unit */
   --radius-sm: 4px; /* Small — buttons, tags */
   --radius-md: 8px; /* Medium — cards, inputs */
   --radius-lg: 12px; /* Large — modals, panels */

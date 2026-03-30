@@ -3,10 +3,11 @@
 	import { Scrollbar } from "./index.js";
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, viewportRef?: any, class?: any, orientation?: "vertical" | "horizontal" | "both", scrollbarXClasses?: string, scrollbarYClasses?: string, children: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
 		viewportRef = $bindable(null),
-		class: className,
+		class: className = "",
 		orientation = "vertical",
 		scrollbarXClasses = "",
 		scrollbarYClasses = "",

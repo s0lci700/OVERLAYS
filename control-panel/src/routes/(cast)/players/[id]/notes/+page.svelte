@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageData } from '../$types';
 	import { browser } from '$app/environment';
+	import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const character = $derived(data.character);
@@ -31,24 +32,16 @@
 
 {#if character}
 	<div class="notes-canvas">
-		<!-- ── Quest Log (placeholder) ──────────────────────────── -->
-		<section class="notes-section">
-			<div class="notes-section-header">
-				<h2 class="notes-section-title">QUEST LOG</h2>
-				<span class="notes-section-meta">COMING SOON</span>
-			</div>
-			<div class="quest-placeholder">
+		<section class="notes-panel">
+			<CastSectionHeader title="QUEST LOG" meta="COMING SOON" />
+			<div class="quest-placeholder cast-glass-panel">
 				<span class="material-symbols-outlined quest-icon">explore</span>
 				<span class="quest-placeholder-text">Quest tracking coming in Phase 2.</span>
 			</div>
 		</section>
 
-		<!-- ── Scratchpad ────────────────────────────────────────── -->
-		<section class="notes-section">
-			<div class="notes-section-header">
-				<h2 class="notes-section-title">SCRATCHPAD</h2>
-				<span class="save-status">{savedStatus}</span>
-			</div>
+		<section class="notes-panel">
+			<CastSectionHeader title="SCRATCHPAD" meta={savedStatus} />
 			<div class="scratchpad-container">
 				<textarea
 					class="scratchpad"
@@ -63,16 +56,12 @@
 			</div>
 		</section>
 
-		<!-- ── Character Notes (from CharacterRecord) ───────────── -->
 		{#if character.notes && character.notes.length > 0}
-			<section class="notes-section">
-				<div class="notes-section-header">
-					<h2 class="notes-section-title">SESSION NOTES</h2>
-					<span class="notes-section-meta">{character.notes.length} ENTRIES</span>
-				</div>
+			<section class="notes-panel">
+				<CastSectionHeader title="SESSION NOTES" meta={`${character.notes.length} ENTRIES`} />
 				<div class="session-list">
-					{#each character.notes as note, i}
-						<article class="session-entry">
+					{#each character.notes as note, i (`${i}-${note}`)}
+						<article class="session-entry cast-glass-panel">
 							<span class="session-index">#{String(i + 1).padStart(2, '0')}</span>
 							<p class="session-body">{note}</p>
 						</article>
@@ -93,35 +82,10 @@
 		margin: 0 auto;
 	}
 
-	/* ── Section ─────────────────────────────────────────────── */
-	.notes-section {
+	.notes-panel {
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.notes-section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		border-bottom: 1px solid rgba(200, 148, 74, 0.25);
-		padding-bottom: 4px;
-	}
-
-	.notes-section-title {
-		font-family: var(--cast-font-identity);
-		font-weight: 600;
-		font-size: 1.125rem;
-		letter-spacing: -0.02em;
-		color: var(--cast-text-primary);
-		margin: 0;
-	}
-
-	.notes-section-meta {
-		font-family: var(--cast-font-chrome);
-		font-size: 10px;
-		letter-spacing: 0.1em;
-		color: rgba(200, 148, 74, 0.6);
+		gap: 1rem;
 	}
 
 	/* ── Quest Placeholder ─────────────────────────────────── */
@@ -130,10 +94,8 @@
 		align-items: center;
 		gap: 0.75rem;
 		padding: 1rem;
-		background: rgba(27, 27, 35, 0.60);
-		backdrop-filter: blur(var(--cast-blur));
 		border: 1px solid var(--cast-border-subtle);
-		border-left: 2px solid rgba(200, 148, 74, 0.2);
+		border-left: 2px solid rgba(200, 148, 74, 0.3);
 	}
 
 	.quest-icon {
@@ -149,19 +111,12 @@
 	}
 
 	/* ── Scratchpad ──────────────────────────────────────────── */
-	.save-status {
-		font-family: var(--cast-font-chrome);
-		font-size: 9px;
-		font-weight: 700;
-		letter-spacing: 0.15em;
-		color: rgba(200, 148, 74, 0.6);
-		text-transform: uppercase;
-	}
-
 	.scratchpad-container {
 		position: relative;
-		background: var(--cast-bg);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(13, 13, 21, 0.5);
+		border: 1px solid var(--cast-border-light);
+		border-left: 2px solid var(--cast-amber);
+		backdrop-filter: blur(var(--cast-blur));
 	}
 
 	.scratchpad {
@@ -213,10 +168,9 @@
 		display: grid;
 		grid-template-columns: 2.5rem 1fr;
 		gap: 0.75rem;
-		background: rgba(27, 27, 35, 0.40);
-		backdrop-filter: blur(var(--cast-blur));
 		padding: 0.75rem;
-		border-left: 1px solid rgba(200, 148, 74, 0.4);
+		border: 1px solid var(--cast-border-subtle);
+		border-left: 2px solid rgba(200, 148, 74, 0.35);
 	}
 
 	.session-index {
@@ -232,5 +186,12 @@
 		line-height: 1.6;
 		color: rgba(240, 240, 240, 0.7);
 		margin: 0;
+	}
+
+	@media (min-width: 768px) {
+		.notes-canvas {
+			padding: 2.5rem 1.5rem;
+			gap: 2rem;
+		}
 	}
 </style>

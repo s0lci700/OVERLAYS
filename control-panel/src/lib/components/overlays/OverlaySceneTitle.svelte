@@ -17,42 +17,51 @@
 
   let { serverUrl = "http://localhost:3000", preview = null } = $props();
 
-  let title = $state(preview?.title ?? "");
-  let subtitle = $state(preview?.subtitle ?? "");
-  let visible = $state(preview != null);
+  let liveTitle = $state("");
+  let liveSubtitle = $state("");
+  let liveVisible = $state(false);
+
+  const title = $derived(preview ? (preview.title ?? "") : liveTitle);
+  const subtitle = $derived(preview ? (preview.subtitle ?? "") : liveSubtitle);
+  const visible = $derived(preview ? true : liveVisible);
+
   let cardEl = $state();
 
-  if (!preview) {
-  const { socket } = createOverlaySocket(serverUrl);
+  $effect(() => {
+    if (preview) return;
+    const { socket } = createOverlaySocket(serverUrl);
 
-  socket.on("initialData", ({ scene }) => {
-    if (scene) applyScene(scene, false);
+    socket.on("initialData", ({ scene }) => {
+      if (scene) applyScene(scene, false);
+    });
+
+    socket.on("scene_changed", (state) => {
+      applyScene(state, true);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   });
 
-  socket.on("scene_changed", (state) => {
-    applyScene(state, true);
-  });
+  async function applyScene(state, shouldAnimate) {
+    const wasVisible = liveVisible;
+    liveTitle = state.title || "";
+    liveSubtitle = state.subtitle || "";
+    liveVisible = state.visible ?? true;
 
-  } // end if (!preview)
-
-  async function applyScene(state, animate) {
-    const wasVisible = visible;
-    title = state.title || "";
-    subtitle = state.subtitle || "";
-    visible = state.visible ?? true;
-
-    if (!animate) return;
+    if (!shouldAnimate) return;
 
     await tick();
 
-    if (visible && cardEl) {
+    if (liveVisible && cardEl) {
       animate(cardEl, {
         translateY: [-40, 0],
         opacity: [0, 1],
         duration: 700,
         ease: "outExpo",
       });
-    } else if (!visible && wasVisible && cardEl) {
+    } else if (!liveVisible && wasVisible && cardEl) {
       animate(cardEl, {
         translateY: [0, 40],
         opacity: [1, 0],

@@ -22,11 +22,12 @@
 	import SheetPortal from "./sheet-portal.svelte";
 	import SheetOverlay from "./sheet-overlay.svelte";
 	import { cn } from "$lib/services/utils.js";
+	/** @type {{ ref?: any, class?: string, side?: "top" | "bottom" | "left" | "right", portalProps?: any, children?: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = undefined,
 		side = "right",
-		portalProps,
+		portalProps = {},
 		children,
 		...restProps
 	} = $props();

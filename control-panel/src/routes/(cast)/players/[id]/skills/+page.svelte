@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from '../$types';
+	import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
 	import {
 		computeAbilityModifier,
 		computeSkillTotal,
@@ -67,7 +68,7 @@
 	let searchQuery = $state('');
 	let showAll = $state(false);
 
-	const filteredSkills = $derived(() => {
+	const filteredSkills = $derived.by(() => {
 		let skills = allSkills;
 
 		if (activeFilter !== 'ALL') {
@@ -110,90 +111,105 @@
 
 {#if character}
 	<div class="skills-canvas">
-		<!-- ── Search ───────────────────────────────────────────── -->
-		<div class="search-bar">
-			<span class="material-symbols-outlined search-icon">search</span>
-			<input
-				class="search-input"
-				type="text"
-				placeholder="SEARCH SKILLS..."
-				bind:value={searchQuery}
-			/>
-		</div>
+		<section class="skills-controls cast-glass-panel">
+			<CastSectionHeader title="TACTICAL INDEX" meta={`${filteredSkills.length} VISIBLE`} />
 
-		<!-- ── Stat Filter Chips ────────────────────────────────── -->
-		<div class="filter-strip cast-no-scrollbar">
-			{#each STAT_FILTERS as f}
+			<div class="search-bar">
+				<span class="material-symbols-outlined search-icon">search</span>
+				<input
+					class="search-input"
+					type="text"
+					placeholder="SEARCH SKILLS..."
+					bind:value={searchQuery}
+				/>
+			</div>
+
+			<div class="filter-strip cast-no-scrollbar">
+				{#each STAT_FILTERS as f (f)}
+					<button
+						class="filter-chip {activeFilter === f ? 'filter-chip--active' : ''}"
+						onclick={() => {
+							activeFilter = f;
+						}}
+					>
+						{f}
+					</button>
+				{/each}
+			</div>
+
+			<div class="proficiency-legend">
+				<span class="cast-triangle-marker"></span>
+				<span class="legend-label">Proficient</span>
+				<span class="cast-triangle-marker" style="margin-left: 6px"></span>
+				<span class="cast-triangle-marker" style="margin-left: -6px"></span>
+				<span class="legend-label">Expertise</span>
+			</div>
+		</section>
+
+		<section class="skills-panel">
+			<CastSectionHeader title="SKILL LEDGER" meta={activeFilter === 'ALL' ? 'ALL ABILITIES' : activeFilter} />
+
+			<div class="skill-ledger">
+				{#each filteredSkills as s (s.skill)}
+					<div
+						class="skill-row"
+						class:skill-row--featured={s.isProficient || s.isExpertise}
+						data-stat={s.ability.toUpperCase()}
+						data-name={s.skill}
+					>
+						<span
+							class="skill-total {s.isExpertise
+								? 'skill-total--expertise'
+								: s.isProficient
+									? ''
+									: 'skill-total--dim'}">{formatMod(s.total)}</span
+						>
+						<div class="skill-info">
+							<span class="skill-name">{formatSkill(s.skill)}</span>
+							<span class="skill-ability">{s.abilityLabel}</span>
+						</div>
+						<div class="skill-markers">
+							{#if s.isExpertise}
+								<span class="cast-triangle-marker"></span>
+								<span class="cast-triangle-marker"></span>
+							{:else if s.isProficient}
+								<span class="cast-triangle-marker"></span>
+							{:else}
+								<span class="cast-triangle-outline"></span>
+							{/if}
+						</div>
+					</div>
+				{/each}
+
+				{#if filteredSkills.length === 0}
+					<div class="skills-empty">
+						<span>NO SKILLS MATCH</span>
+					</div>
+				{/if}
+			</div>
+
+			{#if hasHiddenSkills}
 				<button
-					class="filter-chip {activeFilter === f ? 'filter-chip--active' : ''}"
-					onclick={() => { activeFilter = f; }}
+					class="show-all-btn"
+					onclick={() => {
+						showAll = true;
+					}}
 				>
-					{f}
+					<span class="material-symbols-outlined" style="font-size: 14px">expand_more</span>
+					SHOW {hiddenCount} MORE NON-PROFICIENT
 				</button>
-			{/each}
-		</div>
-
-		<!-- ── Legend ───────────────────────────────────────────── -->
-		<div class="proficiency-legend">
-			<span class="cast-triangle-marker"></span>
-			<span class="legend-label">Proficient</span>
-			<span class="cast-triangle-marker" style="margin-left: 6px"></span>
-			<span class="cast-triangle-marker" style="margin-left: -6px"></span>
-			<span class="legend-label">Expertise</span>
-		</div>
-
-		<!-- ── Skill Ledger ─────────────────────────────────────── -->
-		<div class="skill-ledger">
-			{#each filteredSkills() as s (s.skill)}
-				<div
-					class="skill-row"
-					data-stat={s.ability.toUpperCase()}
-					data-name={s.skill}
+			{:else if showAll && activeFilter === 'ALL' && !searchQuery.trim()}
+				<button
+					class="show-all-btn"
+					onclick={() => {
+						showAll = false;
+					}}
 				>
-					<span class="skill-total {s.isExpertise ? 'skill-total--expertise' : s.isProficient ? '' : 'skill-total--dim'}"
-						>{formatMod(s.total)}</span>
-					<div class="skill-info">
-						<span class="skill-name">{formatSkill(s.skill)}</span>
-						<span class="skill-ability">{s.abilityLabel}</span>
-					</div>
-					<div class="skill-markers">
-						{#if s.isExpertise}
-							<span class="cast-triangle-marker"></span>
-							<span class="cast-triangle-marker"></span>
-						{:else if s.isProficient}
-							<span class="cast-triangle-marker"></span>
-						{:else}
-							<span class="cast-triangle-outline"></span>
-						{/if}
-					</div>
-				</div>
-			{/each}
-
-			{#if filteredSkills().length === 0}
-				<div class="skills-empty">
-					<span>NO SKILLS MATCH</span>
-				</div>
+					<span class="material-symbols-outlined" style="font-size: 14px">expand_less</span>
+					COLLAPSE TO PROFICIENT ONLY
+				</button>
 			{/if}
-		</div>
-
-		<!-- ── Show All Toggle ──────────────────────────────────── -->
-		{#if hasHiddenSkills}
-			<button
-				class="show-all-btn"
-				onclick={() => { showAll = true; }}
-			>
-				<span class="material-symbols-outlined" style="font-size: 14px">expand_more</span>
-				SHOW {hiddenCount} MORE NON-PROFICIENT
-			</button>
-		{:else if showAll && activeFilter === 'ALL' && !searchQuery.trim()}
-			<button
-				class="show-all-btn"
-				onclick={() => { showAll = false; }}
-			>
-				<span class="material-symbols-outlined" style="font-size: 14px">expand_less</span>
-				COLLAPSE TO PROFICIENT ONLY
-			</button>
-		{/if}
+		</section>
 	</div>
 {:else}
 	<div class="skills-canvas">
@@ -203,12 +219,22 @@
 
 <style>
 	.skills-canvas {
-		padding: 1rem;
+		padding: 1.25rem 1rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: 1.5rem;
 		max-width: 640px;
 		margin: 0 auto;
+	}
+
+	.skills-controls,
+	.skills-panel {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		padding: 1rem;
+		border: 1px solid var(--cast-border-subtle);
+		border-left: 2px solid var(--cast-amber);
 	}
 
 	/* ── Search ───────────────────────────────────────────────── */
@@ -216,8 +242,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
-		background: rgba(27, 27, 35, 0.80);
-		border: 1px solid rgba(200, 148, 74, 0.3);
+		background: rgba(13, 13, 21, 0.45);
+		border: 1px solid rgba(255, 255, 255, 0.08);
 		padding: 0.625rem 1rem;
 	}
 
@@ -259,8 +285,8 @@
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
 		cursor: pointer;
-		border: 1px solid rgba(255, 255, 255, 0.05);
-		background: var(--cast-panel-low);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(13, 13, 21, 0.45);
 		color: var(--cast-text-secondary);
 		transition: all var(--cast-t-press);
 	}
@@ -308,12 +334,18 @@
 		gap: 0.75rem;
 		height: 56px;
 		padding: 0 0.75rem;
-		background: var(--cast-glass);
+		background: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
+		border-left: 2px solid transparent;
 		transition: background var(--cast-t-transition);
 	}
 
 	.skill-row:hover {
 		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.skill-row--featured {
+		border-left-color: var(--cast-amber);
 	}
 
 	.skill-total {
@@ -367,7 +399,8 @@
 		font-size: 11px;
 		letter-spacing: 0.1em;
 		color: var(--cast-text-secondary);
-		background: var(--cast-glass);
+		background: rgba(27, 27, 35, 0.6);
+		backdrop-filter: blur(var(--cast-blur));
 	}
 
 	/* ── Show All ────────────────────────────────────────────── */
@@ -384,7 +417,7 @@
 		letter-spacing: 0.1em;
 		color: rgba(200, 148, 74, 0.6);
 		background: transparent;
-		border: 1px solid rgba(200, 148, 74, 0.15);
+		border: 1px solid rgba(200, 148, 74, 0.2);
 		cursor: pointer;
 		transition: all var(--cast-t-transition);
 	}
@@ -402,5 +435,12 @@
 		letter-spacing: 0.1em;
 		padding: 2rem;
 		text-align: center;
+	}
+
+	@media (min-width: 768px) {
+		.skills-canvas {
+			padding: 2.5rem 1.5rem;
+			gap: 2rem;
+		}
 	}
 </style>

@@ -291,7 +291,7 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .manage-grid-fields {
     grid-template-columns: 1fr;
   }

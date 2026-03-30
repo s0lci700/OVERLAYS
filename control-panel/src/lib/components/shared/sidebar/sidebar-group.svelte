@@ -1,9 +1,10 @@
 <script>
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, class?: any, children?: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = undefined,
 		children,
 		...restProps
 	} = $props();

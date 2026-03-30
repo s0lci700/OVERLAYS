@@ -36,6 +36,9 @@ function getPocketBaseURL(): string {
 //Initializes and exports a singleton PocketBase client instance
 export const pb = new PocketBase(getPocketBaseURL());
 
+// Disable auto-cancellation globally to prevent aborted requests in SSR/concurrent loads
+pb.autoCancellation(false);
+
 //Maps PocketBase errors to our ServiceError format for consistent error handling across the app
 function mapPocketBaseError(
 	error: unknown,
@@ -136,7 +139,10 @@ export async function updateCharacterRecord(
 
 export async function listCharacterRecords(): Promise<CharacterRecord[]> {
 	try {
-		return await pb.collection('characters').getFullList<CharacterRecord>({ sort: 'name' });
+		return await pb.collection('characters').getFullList<CharacterRecord>({
+			sort: 'name',
+			requestKey: null // Disable auto-cancellation for this specific call
+		});
 	} catch (error) {
 		throw mapPocketBaseError(error, 'listCharacterRecords');
 	}

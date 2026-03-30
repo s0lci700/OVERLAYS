@@ -34,6 +34,7 @@
     disabled = false,
     size = 4,
     id = generateId(),
+    "aria-labelledby": ariaLabelledBy = undefined,
   } = $props();
 
   /** Index of the logically focused option (for aria-activedescendant). */
@@ -113,6 +114,7 @@
   role="listbox"
   aria-multiselectable="true"
   aria-disabled={disabled}
+  aria-labelledby={ariaLabelledBy}
   aria-activedescendant={focusedIndex >= 0 ? optionId(focusedIndex) : undefined}
   tabindex={disabled ? -1 : 0}
   style="--ms-rows: {size}"

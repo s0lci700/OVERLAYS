@@ -3,9 +3,10 @@
 	import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, class?: string, level?: 1 | 2 | 3 | 4 | 5 | 6, children?: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = "",
 		level = 3,
 		children,
 		...restProps

@@ -29,9 +29,10 @@
 	import { mergeProps } from "bits-ui";
 	import { useSidebar } from "./context.svelte.js";
 
+	/** @type {{ ref?: any, class?: string, children?: import('svelte').Snippet, child?: import('svelte').Snippet<[any]>, variant?: "default" | "outline", size?: "default" | "sm" | "lg", isActive?: boolean, tooltipContent?: any, tooltipContentProps?: any, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = "",
 		children,
 		child,
 		variant = "default",
@@ -66,7 +67,7 @@
 {/snippet}
 
 {#if !tooltipContent}
-	{@render Button({})}
+	{@render Button({ props: {} })}
 {:else}
 	<Tooltip.Root>
 		<Tooltip.Trigger>

@@ -1,9 +1,13 @@
-<script>
-  import { ConditionPill } from "$lib/components/shared/condition-pill/index.js";
-  import { Stepper } from "$lib/components/shared/stepper/index.js";
-  import { Button } from "$lib/components/shared/button/index.js";
-  import * as Tooltip from "$lib/components/shared/tooltip/index.js";
-  import { SERVER_URL } from "$lib/services/socket.svelte.js";
+<script lang="ts">
+  import { ConditionPill } from "$lib/components/shared/condition-pill/index";
+  import { Stepper } from "$lib/components/shared/stepper/index";
+  import { Button } from "$lib/components/shared/button/index";
+  import * as Tooltip from "$lib/components/shared/tooltip/index";
+  import { SERVER_URL } from "$lib/services/socket.svelte";
+	import { ServiceError } from "$lib/services/errors";
+	import { onMount } from "svelte";
+	import { pb } from "$lib/services/pocketbase";
+	import { getCharacter } from "$lib/services/character";
 
   // ──────────────────────────────────────────────────────────────────────────
 
@@ -28,6 +32,11 @@
 
   /** Amount of HP to apply per damage/heal action (range: 1-999). */
   let amount = $state(5);
+  onMount(() => {
+    // Reset amount to default when character changes
+    getCharacter(character.id);
+    console.log(character);
+  });
 
   // ──────────────────────────────────────────────────────────────────────────
   // Condition Management
@@ -88,28 +97,24 @@
   async function updateHp(type) {
     if (isUpdating) return;
     isUpdating = true;
-    if (navigator.vibrate) navigator.vibrate(40);
-    let newHp =
-      type === "damage"
-        ? character.hp_current - amount
-        : character.hp_current + amount;
-    newHp = Math.max(0, Math.min(newHp, character.hp_max));
+    
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(40);
+    }
+
     try {
-      const response = await fetch(
-        `${SERVER_URL}/api/characters/${character.id}/hp`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hp_current: newHp }),
-        },
-      );
+      const response = await fetch(`${SERVER_URL}/api/characters/${character.id}/hp`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, amount }),
+      });
+
       if (!response.ok) {
-        console.error("Failed to update HP", response.status);
-        showCardError("Error al actualizar HP. Intenta de nuevo.");
+        throw new Error(`Failed to update HP: ${response.status}`);
       }
-    } catch (error) {
-      console.error("Error while updating HP", error);
-      showCardError("Sin conexión. Revisa tu red e intenta de nuevo.");
+    } catch (err) {
+      console.error("[CardActions] HP update failed:", err);
+      showCardError("Error al actualizar HP. Intenta nuevamente.");
     } finally {
       isUpdating = false;
     }

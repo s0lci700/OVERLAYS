@@ -13,14 +13,21 @@
   let socket = $state();
   let getChar = $state();
   let visible = $state(false);
-  let charName = $state(preview?.charName ?? '');
-  let newLevel = $state(preview?.newLevel ?? 1);
-  let className = $state(preview?.className ?? '');
+
+  // Use $state for live values, but initialize with $derived for preview mode
+  let liveCharName = $state('');
+  let liveNewLevel = $state(1);
+  let liveClassName = $state('');
+
+  const charName = $derived(preview ? (preview.charName ?? '') : liveCharName);
+  const newLevel = $derived(preview ? (preview.newLevel ?? 1) : liveNewLevel);
+  const className = $derived(preview ? (preview.className ?? '') : liveClassName);
+
   let cardEl = $state();
   let flashEl;
 
   $effect(() => {
-    const init = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
+    const init = preview ? { socket: { on() {}, off() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
     socket = init.socket;
     getChar = init.getChar;
   });
@@ -34,9 +41,9 @@
 
     const handleLevelUp = async ({ charId, newLevel: lvl, className: cls }) => {
       const char = getChar(charId);
-      charName = char?.name ?? 'Personaje';
-      newLevel = lvl;
-      className = cls;
+      liveCharName = char?.name ?? 'Personaje';
+      liveNewLevel = lvl;
+      liveClassName = cls;
 
       if (flashEl) screenFlash(flashEl, 'rgba(201,162,39,0.4)', 600);
 

@@ -16,6 +16,7 @@ last_updated: 2026-03-25
 | **`../CLAUDE.md`** | Project instructions & conventions | Setting up your environment or starting work |
 | **`../PROJECT.md`** | Four-layer system architecture | Understanding system design (Stage/Cast/Audience) |
 | **`ARCHITECTURE.md`** | Technical data flows & API routes | Building new features or debugging |
+| **`data-flow-interactive.html`** | Interactive visual explorer for PocketBase → server → socket → client paths | You want a fast visual walkthrough instead of only prose |
 | **`API.md`** | REST endpoints + frontend services reference | Calling the API or using a service module |
 | **`SOCKET-EVENTS.md`** | Socket.io event contracts | Working with real-time communication |
 | **`DESIGN-SYSTEM.md`** | Design tokens & component reference | Building UI or styling components |

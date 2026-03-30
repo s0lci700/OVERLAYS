@@ -1,10 +1,10 @@
 ﻿<!--
   Stage › Live layout: bottom nav for in-session operator tabs + SYNC_START button.
 -->
-<script>
+<script lang="ts">
   import { page } from "$app/state";
   import { resolve } from "$app/paths";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket";
 	import { onMount } from "svelte";
 
   let { children } = $props();
@@ -39,16 +39,18 @@
     class="nav-tab"
     class:active={page.url.pathname.includes("/characters")}
     href={resolve("/live/characters", {})}
+    aria-current={page.url.pathname.includes("/characters") ? "page" : undefined}
   >
-    <span class="nav-icon">⚔</span>
+    <span class="nav-icon" aria-hidden="true">⚔</span>
     <span class="nav-label">PERSONAJES</span>
   </a>
   <a
     class="nav-tab"
     class:active={page.url.pathname.includes("/dice")}
     href={resolve("/live/dice", {})}
+    aria-current={page.url.pathname.includes("/dice") ? "page" : undefined}
   >
-    <span class="nav-icon">⬡</span>
+    <span class="nav-icon" aria-hidden="true">⬡</span>
     <span class="nav-label">DADOS</span>
   </a>
   <button
@@ -56,9 +58,11 @@
     class:is-synced={synced}
     onclick={handleSync}
     disabled={syncing}
+    aria-live="polite"
+    aria-label={synced ? "Sincronización completada" : "Sincronizar inicio de grabación"}
     title="Marcar inicio de grabación (SYNC_START)"
   >
-    <span class="sync-icon">{synced ? "✓" : "🎬"}</span>
-    <span class="sync-label">{synced ? "SYNCED" : "SYNC"}</span>
+    <span class="sync-icon" aria-hidden="true">{synced ? "✓" : "🎬"}</span>
+    <span class="sync-label" aria-hidden="true">{synced ? "SYNCED" : "SYNC"}</span>
   </button>
 </nav>

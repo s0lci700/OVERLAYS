@@ -4,6 +4,7 @@
   import AbilityScoresPanel from './AbilityScoresPanel.svelte';
   import SavingThrowsPanel from './SavingThrowsPanel.svelte';
   import SkillsPanel from './SkillsPanel.svelte';
+  import ResourceTracker from './ResourceTracker.svelte';
   import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
   import { ConditionPill } from '$lib/components/shared/condition-pill';
 
@@ -25,7 +26,7 @@
           <img src={portraitUrl} alt={character.name} class="hero-portrait-img" />
         {:else}
           <div class="hero-portrait-placeholder">
-            <span class="material-symbols-outlined">person</span>
+            <span class="material-symbols-outlined" aria-hidden="true">person</span>
           </div>
         {/if}
       </div>
@@ -48,33 +49,7 @@
     <SavingThrowsPanel {character} />
 
     <!-- ── Resources ───────────────────────────────────────────── -->
-    {#if character.resources.length > 0}
-      <section class="resources-section">
-        <CastSectionHeader
-          title="RESOURCES"
-          meta="{character.resources.length} TRACKED"
-        />
-        <div class="resources-list">
-          {#each character.resources as res}
-            {@const pct =
-              res.pool_max > 0 ? Math.round((res.pool_current / res.pool_max) * 100) : 0}
-            {@const isDepleted = res.pool_current === 0}
-            <div class="resource-row" class:resource-row--depleted={isDepleted}>
-              <div class="resource-info">
-                <span class="resource-name">{res.name.toUpperCase()}</span>
-                <span class="resource-reset"
-                  >/ {res.reset_on.replace('_', ' ').toUpperCase()} REST</span
-                >
-              </div>
-              <div class="resource-track">
-                <div class="resource-bar" style="width: {pct}%"></div>
-              </div>
-              <span class="resource-count">{res.pool_current}/{res.pool_max}</span>
-            </div>
-          {/each}
-        </div>
-      </section>
-    {/if}
+    <ResourceTracker {character} readonly={true} />
 
     <!-- ── Full Skill List ─────────────────────────────────────── -->
     <SkillsPanel {character} />
@@ -148,92 +123,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
-
-  /* ── Resources ──────────────────────────────────────────────── */
-  .resources-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .resource-row {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 0.75rem;
-    background: rgba(27, 27, 35, 0.6);
-    backdrop-filter: blur(var(--cast-blur));
-    padding: 0.625rem 0.75rem;
-    border-left: 2px solid var(--cast-amber);
-    min-height: 48px;
-  }
-
-  .resource-row--depleted {
-    border-left-color: transparent;
-  }
-
-  .resource-row--depleted .resource-name,
-  .resource-row--depleted .resource-count {
-    color: var(--cast-text-secondary);
-    opacity: 0.6;
-  }
-
-  .resource-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .resource-name {
-    font-family: var(--cast-font-chrome);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--cast-text-primary);
-  }
-
-  .resource-reset {
-    font-family: var(--cast-font-chrome);
-    font-size: 9px;
-    letter-spacing: 0.05em;
-    color: var(--cast-text-secondary);
-  }
-
-  .resource-track {
-    width: 64px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .resource-bar {
-    height: 100%;
-    background: var(--cast-amber);
-    transition: width 300ms ease;
-    box-shadow: 0 0 8px rgba(200, 148, 74, 0.15);
-    animation: cast-breathing-glow 4s ease-in-out infinite;
-  }
-
-  @keyframes cast-breathing-glow {
-    0%,
-    100% {
-      opacity: 0.8;
-      box-shadow: 0 0 4px rgba(200, 148, 74, 0.1);
-    }
-    50% {
-      opacity: 1;
-      box-shadow: 0 0 12px rgba(200, 148, 74, 0.3);
-    }
-  }
-
-  .resource-count {
-    font-family: var(--cast-font-data);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--cast-amber-pale);
-    min-width: 2.5rem;
-    text-align: right;
   }
 
   /* Tablet/Desktop optimization */

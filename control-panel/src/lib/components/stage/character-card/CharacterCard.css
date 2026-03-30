@@ -1,3 +1,5 @@
+@import "../../shared/hp-bar.css";
+
 /**
  * CharacterCard Component Styles
  * ==============================
@@ -35,71 +37,6 @@
    Uses .card-base and .btn-base from app.css
    ═══════════════════════════════════════════════════ */
 
-/* Exit-transition wrapper inserted by the {#each} loop in +page.svelte.
-   Holds the CSS-columns flow properties so they survive the out: transition.
-   Also anchors the drag handle and provides the draggable target. */
-
-/* .char-card-exit-wrap {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  margin: 0 0 var(--space-3);
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-} */
-
-/* Drag-to-reorder handle — full-width thin strip that forms the card's top edge */
-/* 
-.drag-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 20px;
-  background: var(--black-card);
-  border: 1px solid var(--grey-dim);
-  border-bottom: none;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  color: rgba(136, 136, 136, 0.35);
-  font-size: 0.85rem;
-  cursor: grab;
-  transition:
-    background var(--t-fast),
-    color var(--t-fast),
-    border-color var(--t-fast);
-}
-
-.char-card-exit-wrap:hover .drag-handle {
-  background: var(--black-elevated);
-  color: var(--grey);
-  border-color: var(--grey);
-}
-
-/* Card connects seamlessly to the handle above it */
-
-/*
-.char-card-exit-wrap .char-card {
-  border-top: none;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-.char-card-exit-wrap.is-dragging {
-  z-index: 100;
-}
-
-.char-card-exit-wrap.is-dragging .drag-handle {
-  cursor: grabbing;
-  background: var(--black-elevated);
-  color: var(--white);
-  border-color: var(--grey);
-}
-
-.char-card-exit-wrap.is-dragging .char-card {
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-  border-color: var(--grey);
-} 
-*/
 
 .char-card {
   position: relative;
@@ -179,15 +116,11 @@
 }
 
 .char-card.collapsed {
+  opacity: 0.98;
+  transform: translateY(4px);
   gap: var(--space-3);
   padding-bottom: var(--space-3);
   transition: all ease-out 0.3s;
-}
-
-/* subtle visual when collapsing to reduce perceived jump */
-.char-card.collapsed {
-  opacity: 0.98;
-  transform: translateY(4px);
 }
 
 /* Header block: character identity + live HP numbers. */
@@ -202,8 +135,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--grey-dim);
   background: var(--black-elevated);
@@ -314,8 +247,8 @@
 }
 
 .collapse-toggle {
-  width: 28px;
-  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -341,7 +274,7 @@
 }
 
 .char-body {
-  will-change: height, opacity;
+  will-change: max-height, opacity;
 }
 
 .char-card.collapsed .collapse-icon {
@@ -388,8 +321,6 @@
   overflow: hidden;
   margin-top: var(--space-2);
 }
-
-@import "../../shared/hp-bar.css";
 
 /* CharacterCard adds glows on top of the canonical hp-bar base. */
 .hp-fill.hp--healthy {
@@ -463,8 +394,8 @@
 }
 
 .stepper {
-  width: 32px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-sm);

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from '../$types';
+	import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
 
 	let { data }: { data: PageData } = $props();
 	const character = $derived(data.character);
@@ -7,19 +8,28 @@
 
 {#if character}
 	<div class="magic-canvas">
-		<section class="magic-placeholder">
-			<div class="placeholder-icon">
-				<span class="material-symbols-outlined">auto_stories</span>
-			</div>
-			<h2 class="placeholder-title">Spellbook</h2>
-			<p class="placeholder-body">
-				Spell slot tracking and spellbook coming in Phase 2. Spell data will be sourced from the
-				character's prepared spells list.
-			</p>
-			<div class="placeholder-meta">
-				<span class="meta-chip">PHASE 2</span>
+		<section class="magic-panel cast-glass-panel">
+			<CastSectionHeader title="SPELLBOOK" meta="PHASE 2" />
+
+			<div class="magic-placeholder">
+				<div class="placeholder-icon">
+					<span class="material-symbols-outlined">auto_stories</span>
+				</div>
+				<h2 class="placeholder-title">Arcana Archive Pending</h2>
+				<p class="placeholder-body">
+					Spell slot tracking and spellbook rendering are queued for the next phase. This screen
+					will inherit the same deep-glass spell cards, slot geometry, and lavender-only magic
+					accents defined for the cast layer.
+				</p>
+				<div class="placeholder-meta">
+					<span class="meta-chip">SPELL DATA INTEGRATION NEXT</span>
+				</div>
 			</div>
 		</section>
+	</div>
+{:else}
+	<div class="magic-canvas">
+		<p class="empty-state">Character not found.</p>
 	</div>
 {/if}
 
@@ -33,16 +43,18 @@
 		margin: 0 auto;
 	}
 
+	.magic-panel {
+		padding: 1rem;
+		border: 1px solid var(--cast-border-subtle);
+		border-left: 2px solid rgba(205, 189, 255, 0.55);
+	}
+
 	.magic-placeholder {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 1rem;
-		padding: 3rem 1.5rem;
-		background: rgba(27, 27, 35, 0.60);
-		backdrop-filter: blur(var(--cast-blur));
-		border: 1px solid var(--cast-border-subtle);
-		border-left: 2px solid rgba(205, 189, 255, 0.4);
+		padding: 2.5rem 1.25rem 1.5rem;
 		text-align: center;
 	}
 
@@ -87,5 +99,20 @@
 		color: rgba(205, 189, 255, 0.6);
 		border: 1px solid rgba(205, 189, 255, 0.2);
 		background: rgba(205, 189, 255, 0.05);
+	}
+
+	.empty-state {
+		font-family: var(--cast-font-chrome);
+		font-size: 12px;
+		color: var(--cast-text-secondary);
+		letter-spacing: 0.1em;
+		padding: 2rem;
+		text-align: center;
+	}
+
+	@media (min-width: 768px) {
+		.magic-canvas {
+			padding: 2.5rem 1.5rem;
+		}
 	}
 </style>

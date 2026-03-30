@@ -22,6 +22,11 @@
   --purple: #500df5; /* Dice / d20 highlight */
   --purple-dim: rgba(80, 13, 245, 0.12); /* Purple tint for hover/active backgrounds */
   --purple-mid: rgba(80, 13, 245, 0.5); /* Mid-opacity purple for borders */
+  --cast-amber: #C8944A; /* Grimoire gold accent */
+  --cast-amber-dim: rgba(200, 148, 74, 0.12); /* Subtle amber tint */
+  --cast-amber-border: rgba(200, 148, 74, 0.25); /* Amber border */
+  --cast-glass: rgba(13, 13, 21, 0.8); /* Frosted dark surface */
+  --cast-blur: 12px; /* Default backdrop blur depth */
   --hp-healthy: #22c55e; /* HP bar — healthy (>50%) */
   --hp-injured: #f59e0b; /* HP bar — injured (25–50%) */
   --hp-critical: #ff4d6a; /* HP bar — critical (<25%) */
@@ -31,7 +36,8 @@
   --gradient-healthy: linear-gradient(90deg, #15803d, #22c55e); /* HP bar gradient — healthy (overlay-only shorthand) */
   --gradient-injured: linear-gradient(90deg, #b45309, #f59e0b); /* HP bar gradient — injured (overlay-only shorthand) */
   --gradient-critical: linear-gradient(90deg, #991b1b, #ff4d6a); /* HP bar gradient — critical (overlay-only shorthand) */
-  --font-display: "Bebas Neue", "Impact", "Arial Black", sans-serif; /* Headings, labels, brand text */
+  --font-display: "Space Grotesk", system-ui, sans-serif; /* UI chrome and labels */
+  --font-identity: "Noto Serif", Georgia, serif; /* Character and page titles */
   --font-script: "Dancing Script", cursive; /* Brand ampersand (& Risas) */
   --font-mono: "JetBrains Mono", "Courier New", monospace; /* Numbers, HP values, dice results */
   --font-ui: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; /* Body text, form elements */

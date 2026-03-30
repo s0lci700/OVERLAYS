@@ -8,7 +8,7 @@
 
   import "./InitiativeStrip.css";
   import { resolvePhotoSrc } from "$lib/services/utils.js";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.svelte.js";
 
   let {
     characters,

@@ -5,7 +5,7 @@
 -->
 <script>
   import "$lib/components/cast/dashboard/DashboardCard.css";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.svelte.js";
   import StatDisplay from "$lib/components/shared/stat-display/stat-display.svelte";
   import ConditionPill from "$lib/components/shared/condition-pill/condition-pill.svelte";
 

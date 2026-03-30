@@ -51,10 +51,11 @@
   <h3 class="char-prof-title">Idiomas y proficiencias</h3>
   <div class="char-prof-grid">
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-languages">
         Idiomas{#if languages.length > 0}&nbsp;<span class="selection-count">{languages.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-languages"
         options={languageOptions}
         selected={languages}
         onchange={(v) => (languages = v)}
@@ -64,10 +65,11 @@
     </div>
 
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-rare-langs">
         Idiomas raros{#if rareLanguages.length > 0}&nbsp;<span class="selection-count">{rareLanguages.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-rare-langs"
         options={rareLanguageOptions}
         selected={rareLanguages}
         onchange={(v) => (rareLanguages = v)}
@@ -77,10 +79,11 @@
     </div>
 
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-skills">
         Skills{#if skills.length > 0}&nbsp;<span class="selection-count">{skills.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-skills"
         options={skillOptions}
         selected={skills}
         onchange={(v) => (skills = v)}
@@ -90,10 +93,11 @@
     </div>
 
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-tools">
         Herramientas{#if tools.length > 0}&nbsp;<span class="selection-count">{tools.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-tools"
         options={toolOptions}
         selected={tools}
         onchange={(v) => (tools = v)}
@@ -103,10 +107,11 @@
     </div>
 
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-armor">
         Armadura{#if armor.length > 0}&nbsp;<span class="selection-count">{armor.length}/{armorOptions.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-armor"
         options={armorOptions}
         selected={armor}
         onchange={(v) => (armor = v)}
@@ -116,10 +121,11 @@
     </div>
 
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-weapons">
         Armas{#if weapons.length > 0}&nbsp;<span class="selection-count">{weapons.length}/{weaponOptions.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-weapons"
         options={weaponOptions}
         selected={weapons}
         onchange={(v) => (weapons = v)}
@@ -135,10 +141,11 @@
   <h3 class="char-prof-title">Equipo</h3>
   <div class="char-equip-grid">
     <div class="char-prof-field">
-      <span class="label-caps">
+      <span class="label-caps" id="lbl-items">
         Items{#if items.length > 0}&nbsp;<span class="selection-count">{items.length}</span>{/if}
       </span>
       <MultiSelect
+        aria-labelledby="lbl-items"
         options={itemOptions}
         selected={items}
         onchange={(v) => (items = v)}
@@ -196,7 +203,7 @@
     align-items: start;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     .char-prof-grid,
     .char-equip-grid {
       grid-template-columns: 1fr;

@@ -32,7 +32,7 @@
   // Lightweight spring helper that returns an anime easing string.
   const spring = (_opts = {}) => "spring(1, 80, 10, 0)";
   import { onMount } from "svelte";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.svelte.js";
 
   // ──────────────────────────────────────────────────────────────────────────
   // Props
@@ -97,16 +97,16 @@
       return;
     }
 
-    // Collapse: animate from current height to 0 with a fade-out.
+    // Collapse: animate maxHeight to 0 — avoids layout thrash vs animating height directly.
     if (!isCollapsed) {
       const startHeight = charBodyEl.scrollHeight;
-      charBodyEl.style.height = `${startHeight}px`;
+      charBodyEl.style.maxHeight = `${startHeight}px`;
       charBodyEl.style.opacity = "1";
       charBodyEl.style.overflow = "hidden";
       isCollapsed = true;
 
       animate(charBodyEl, {
-        height: 0,
+        maxHeight: 0,
         duration: 400,
         ease: "inOutCubic",
       });
@@ -118,7 +118,7 @@
         ease: "linear",
         complete: () => {
           charBodyEl.style.display = "none";
-          charBodyEl.style.height = "";
+          charBodyEl.style.maxHeight = "";
           charBodyEl.style.opacity = "";
           charBodyEl.style.overflow = "";
           isVisualCollapsed = true;
@@ -130,13 +130,13 @@
     // Expand: reveal element, then animate from 0 to scrollHeight with a fade-in.
     charBodyEl.style.display = "block";
     const targetHeight = charBodyEl.scrollHeight;
-    charBodyEl.style.height = "0px";
+    charBodyEl.style.maxHeight = "0px";
     charBodyEl.style.opacity = "0";
     charBodyEl.style.overflow = "hidden";
     isCollapsed = false;
 
     animate(charBodyEl, {
-      height: targetHeight,
+      maxHeight: targetHeight,
       opacity: 1,
       duration: 250,
       ease: spring({
@@ -144,7 +144,7 @@
         duration: 300,
       }),
       complete: () => {
-        charBodyEl.style.height = "";
+        charBodyEl.style.maxHeight = "";
         charBodyEl.style.opacity = "";
         charBodyEl.style.overflow = "";
         isVisualCollapsed = false;

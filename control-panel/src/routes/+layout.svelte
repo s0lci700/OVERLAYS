@@ -1,138 +1,133 @@
 <!--
   Root layout: shared app shell, header, and sidebar navigation.
 -->
-<script>
-  import "../app.css";
-  import { onMount } from "svelte";
-  import { page } from "$app/state";
-  import { resolve } from "$app/paths";
-  import { listCharacters } from "$lib/services/character";
-  import { socketStatus, connectSocket } from "$lib/services/socket.svelte";
+<script lang="ts">
+	import '../app.css';
+	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
+	import { Dialog } from 'bits-ui';
+	import { fade, fly } from 'svelte/transition';
+	import type { LayoutData } from './$types';
+	import { socketStatus, connectSocket, socket } from '$lib/services/socket.svelte';
+	// import { socket } from "$lib/services/socket";
+	import { onMount } from 'svelte';
 
-  let connected = $derived(socketStatus.connected);
-  let isSidebarOpen = $state(false);
-  let charCount = $state(0);
-  let { children } = $props();
+	let { children, data }: { children: any; data: LayoutData } = $props();
 
-  onMount(async () => {
-    // Determine surface for socket grouping
-    const surface = page.url.pathname.startsWith("/players") ? "cast" : "stage";
-    connectSocket("demo-session", surface);
+	let connected = $state(socketStatus.connected);
+	let isSidebarOpen = $state(false);
+	let charCount = $derived(data.charCount ?? 0);
 
-    try {
-      const chars = await listCharacters();
-      charCount = chars.length;
-          
-      console.log(connected ? "Connected to server" : "Not connected to server");
-    } catch {
-      console.error("Failed to fetch character count");
-      charCount = 0; // Fallback to 0 if PocketBase is unreachable,
-      // PocketBase unreachable client-side — count stays 0
+	let isOverview = $derived(page.url.pathname.startsWith('/overview'));
+	let isSetup = $derived(page.url.pathname.startsWith('/setup'));
+	let isDM = $derived(page.url.pathname.startsWith('/dm'));
+	let isPlayers = $derived(page.url.pathname.startsWith('/players'));
+
+	const navLinks = $derived([
+		{ href: '/setup/create', label: 'Gestión de personajes', active: isSetup },
+		{ href: '/overview', label: 'Dashboard', active: isOverview },
+		{ href: '/dm', label: 'Panel DM', active: isDM },
+		{ href: '/players', label: 'Ficha Jugador', active: isPlayers }
+	]);
+	onMount(() => {
+    connectSocket("session-testing", "stage");
+		console.log('Socket status on mount:', socketStatus.connected ? 'connected' : 'disconnected');  
+    if (socketStatus.lastSync) {
+      console.log('Last sync time on mount:', socketStatus.lastSync.toLocaleTimeString());
     }
-  });
-
-
-  function toggleSidebar() {
-    isSidebarOpen = !isSidebarOpen;
-  }
-
-  let isOverview = $derived(page.url.pathname.startsWith("/overview"));
-  let isSetup = $derived(page.url.pathname.startsWith("/setup"));
-  let isDM = $derived(page.url.pathname.startsWith("/dm"));
-  let isPlayers = $derived(page.url.pathname.startsWith("/players"));
+	});
 </script>
 
 <div class="app-shell">
-  <a class="skip-to-content" href="#main-content">Saltar al contenido</a>
-  <header class="app-header">
-    <div class="brand-wordmark">
-      <span class="brand-block">ESDH</span>
-      <span class="brand-script">TTRPG</span>
-    </div>
-    <span class="page-title">
-      {isOverview
-        ? "DASHBOARD EN VIVO"
-        : isSetup
-          ? "GESTIÓN DE PERSONAJES"
-          : isDM
-            ? "PANEL DM"
-            : isPlayers
-              ? "FICHA DE PERSONAJE"
-              : "PANEL DE CONTROL"}
-    </span>
-    <div class="header-meta">
-      <div class="conn-dot" class:connected></div>
-      <span class="header-count">{charCount}</span>
-      <button
-        class="header-menu"
-        type="button"
-        aria-label="Abrir navegación"
-        onclick={toggleSidebar}
-      >
-        ☰
-      </button>
-    </div>
-  </header>
+	<a class="skip-to-content" href="#main-content">Saltar al contenido</a>
 
-  <main class="app-main" id="main-content">
-    {@render children()}
-  </main>
+	<header class="app-header">
+		<div class="brand-wordmark">
+			<span class="brand-block">table</span>
+			<span class="brand-script">Relay</span>
+		</div>
 
-  {#if isSidebarOpen}
-    <button
-      class="sidebar-backdrop"
-      type="button"
-      aria-label="Cerrar navegación"
-      onclick={toggleSidebar}
-    ></button>
-  {/if}
+		<span class="page-title">
+			{isOverview
+				? 'DASHBOARD EN VIVO'
+				: isSetup
+					? 'GESTIÓN DE PERSONAJES'
+					: isDM
+						? 'PANEL DM'
+						: isPlayers
+							? 'FICHA DE PERSONAJE'
+							: 'PANEL DE CONTROL'}
+		</span>
 
-  <aside class="app-sidebar" class:open={isSidebarOpen}>
-    <div class="app-sidebar-head">
-      <h2 class="app-sidebar-title">NAVEGACIÓN</h2>
-      <button
-        class="app-sidebar-close"
-        type="button"
-        aria-label="Cerrar navegación"
-        onclick={toggleSidebar}
-      >
-        ✕
-      </button>
-    </div>
-    <a
-      class="app-sidebar-link"
-      class:active={page.url.pathname.startsWith("/live")}
-      href={resolve("/live/characters")}
-    >
-      WIP
-    </a>
-    <a
-      class="app-sidebar-link"
-      class:active={page.url.pathname.startsWith("/setup")}
-      href={resolve("/setup/create")}
-    >
-      Gestion de personajes
-    </a>
-    <a
-      class="app-sidebar-link"
-      class:active={page.url.pathname.startsWith("/overview")}
-      href={resolve("/overview")}
-    >
-      DASHBOARD
-    </a>
-    <a
-      class="app-sidebar-link"
-      class:active={page.url.pathname.startsWith("/dm")}
-      href={resolve("/dm",)}
-    >
-      PANEL DM
-    </a>
-    <a
-      class="app-sidebar-link"
-      class:active={page.url.pathname.startsWith("/players")}
-      href={resolve("/players")}
-    >
-      PANEL JUGADORES
-    </a>
-  </aside>
+		<div class="header-meta">
+			<div class="conn-dot" class:connected={socketStatus.connected}></div>
+			<span class="header-count">{charCount}</span>
+			
+			<Dialog.Root bind:open={isSidebarOpen}>
+				<Dialog.Trigger class="header-menu" aria-label="Abrir navegación">☰</Dialog.Trigger>
+
+				<Dialog.Portal>
+					<Dialog.Overlay
+						transition={fade}
+						transitionConfig={{ duration: 200 }}
+						class="sidebar-backdrop"
+					/>
+
+					<Dialog.Content
+						transition={fly}
+						transitionConfig={{ x: -320, duration: 300, opacity: 1 }}
+						class="app-sidebar open"
+					>
+						<div class="app-sidebar-head">
+							<Dialog.Title class="app-sidebar-title">NAVEGACIÓN</Dialog.Title>
+							<Dialog.Close class="app-sidebar-close" aria-label="Cerrar navegación">
+								✕
+							</Dialog.Close>
+						</div>
+
+						<nav class="app-sidebar-nav">
+							{#each navLinks as link}
+								<a
+									class="app-sidebar-link"
+									class:active={link.active}
+									href={resolve(link.href, {})}
+									onclick={() => (isSidebarOpen = false)}
+								>
+									{link.label.toUpperCase()}
+								</a>
+							{/each}
+						</nav>
+
+						<div class="app-sidebar-footer">
+							{#if socketStatus.lastSync}
+								<div class="sidebar-sync">
+									Sincronizado: {socketStatus.lastSync.toLocaleTimeString()}
+								</div>
+							{/if}
+							<span class="label-caps">TTRPG Production System v1.0</span>
+						</div>
+					</Dialog.Content>
+				</Dialog.Portal>
+			</Dialog.Root>
+		</div>
+	</header>
+
+	<main class="app-main" id="main-content">
+		{@render children()}
+	</main>
 </div>
+
+<style>
+	.app-sidebar-nav {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-3);
+	}
+
+	.app-sidebar-footer {
+		margin-top: auto;
+		padding-top: var(--space-4);
+		border-top: 1px solid var(--cast-amber-border);
+		text-align: center;
+	}
+</style>

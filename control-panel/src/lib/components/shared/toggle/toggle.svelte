@@ -27,10 +27,11 @@
 	import { Toggle as TogglePrimitive } from "bits-ui";
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, pressed?: boolean, class?: string, variant?: "default" | "outline", size?: "default" | "sm" | "lg", [key: string]: any }} */
 	let {
 		ref = $bindable(null),
 		pressed = $bindable(false),
-		class: className,
+		class: className = "",
 		size = "default",
 		variant = "default",
 		...restProps

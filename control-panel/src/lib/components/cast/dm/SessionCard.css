@@ -1,3 +1,5 @@
+@import "../../shared/hp-bar.css";
+
 /**
  * SessionCard Component Styles
  * ============================
@@ -146,8 +148,6 @@
   overflow: hidden;
   margin-top: var(--space-1);
 }
-
-@import "../../shared/hp-bar.css";
 
 /* ═══════════════════════════════════════════════
    HP NUMBERS

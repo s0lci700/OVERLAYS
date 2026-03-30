@@ -25,8 +25,13 @@
     getFormValuesFromCharacter,
   } from "$lib/services/character-form.js";
 
-  let { character, SERVER_URL, characterOptions, onProfileSaved, onLevelUp } =
-    $props();
+  let {
+    character,
+    SERVER_URL,
+    characterOptions,
+    onProfileSaved = () => {},
+    onLevelUp = () => {},
+  } = $props();
 
   const optionSets = parseOptionSets(characterOptions);
   const labelOf = buildLabelMap(optionSets);

@@ -2,9 +2,10 @@
 	import { ScrollArea as ScrollAreaPrimitive } from "bits-ui";
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, class?: any, orientation?: "vertical" | "horizontal", children?: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = "",
 		orientation = "vertical",
 		children,
 		...restProps

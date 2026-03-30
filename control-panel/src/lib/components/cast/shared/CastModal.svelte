@@ -28,6 +28,7 @@
     class="cast-modal-panel"
     {showCloseButton}
     aria-labelledby="modal-title"
+    portalProps={{}}
   >
     <div class="cast-modal-rail"></div>
     <header class="cast-modal-head">

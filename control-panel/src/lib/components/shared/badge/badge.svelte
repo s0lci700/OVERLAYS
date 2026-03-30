@@ -23,10 +23,11 @@
 <script>
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, href?: string, class?: string, variant?: "default" | "secondary" | "destructive" | "outline", children?: import('svelte').Snippet, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		href,
-		class: className,
+		href = undefined,
+		class: className = "",
 		variant = "default",
 		children,
 		...restProps

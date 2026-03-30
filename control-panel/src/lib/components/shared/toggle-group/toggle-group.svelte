@@ -15,13 +15,15 @@
 	import { ToggleGroup as ToggleGroupPrimitive } from "bits-ui";
 	import { cn } from "$lib/services/utils.js";
 
+	/** @type {{ ref?: any, value?: any, class?: string, size?: "default" | "sm" | "lg", spacing?: number, variant?: "default" | "outline", type?: "single" | "multiple", [key: string]: any }} */
 	let {
 		ref = $bindable(null),
 		value = $bindable(),
-		class: className,
+		class: className = "",
 		size = "default",
 		spacing = 0,
 		variant = "default",
+		type = "single",
 		...restProps
 	} = $props();
 
@@ -39,6 +41,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 <ToggleGroupPrimitive.Root
 	bind:value={value}
 	bind:ref
+	{type}
 	data-slot="toggle-group"
 	data-variant={variant}
 	data-size={size}

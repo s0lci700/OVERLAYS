@@ -1,6 +1,9 @@
-import { io, type Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
+import { writable } from 'svelte/store';
 import type { EventPayloadMap } from '$lib/contracts/events';
+import type { CharacterRecord } from '$lib/contracts/records';
 import { ServiceError } from './errors';
+
 
 // Validates that the VITE_SERVER_URL environment variable is set and returns it, otherwise throws a ServiceError
 function assertEnvVariable(env: string): string {
@@ -80,18 +83,25 @@ function mapSocketError(
 	}
 
 	// Fallback: ensure a ServiceError is always returned for unknown signals
-	return new ServiceError('UNKNOWN', 'Unrecognized socket error signal', { context });
+	// return new ServiceError('UNKNOWN', 'Unrecognized socket error signal', { context });
 }
 
 const socketURL = assertEnvVariable(import.meta.env.VITE_SERVER_URL);
 export const SERVER_URL = socketURL;
 // Singleton pattern to ensure only one Socket instance is created and shared across the app
-let socket: Socket | null = null;
+export let socket: Socket | null = null;
 
 export const socketStatus = $state({
 	connected: false,
 	lastSync: null as Date | null
 });
+
+//export const isConnected = $derived(socketStatus.connected);
+
+// Use Svelte stores for cross-component singletons that are still accessed via $store syntax.
+// export const characters = writable<CharacterRecord[]>([]);
+export const characters = writable<CharacterRecord[]>([]);
+export const lastRoll = writable<any>(null);
 
 // Returns the singleton Socket instance — throws if connectSocket() has not been called yet
 export const getSocket = (): Socket => {
@@ -101,10 +111,13 @@ export const getSocket = (): Socket => {
 	return socket;
 };
 
+
+
 // Creates the socket with session/surface query params (used by the server for room joining),
 // then connects. Safe to call multiple times — no-op if already connected.
-export function connectSocket(sessionId: string = 'default', surface: string = 'unknown'): void {
+export function connectSocket(sessionId: string, surface: string): void {
 	if (socket?.connected) {
+		console.warn('Socket is already connected, skipping connect() call', { socketId: socket.id });
 		return;
 	}
 	if (!socket) {
@@ -127,13 +140,6 @@ export function disconnectSocket(): void {
 
 function bindSocketListeners(): void {
 	const s = getSocket();
-
-	s.on('connect', () => {
-		const context = { socketId: s.id };
-		console.log('Socket connected successfully', context);
-		socketStatus.connected = true;
-		socketStatus.lastSync = new Date();
-	});
 	//Socket error handling: listens for connection errors and maps them to ServiceError for consistent error handling across the app
 	s.on('connect_error', (error) => {
 		const mapped = mapSocketError({ event: 'connect_error', error }, 'Socket Connect');
@@ -179,6 +185,34 @@ function bindSocketListeners(): void {
 			cause: error
 		});
 		console.error('[Socket] Unexpected error event', mapped);
+	});
+
+	// ── Data Sync Handlers ─────────────────────────────────────
+
+	s.on('initialData', (data: { characters: CharacterRecord[] }) => {
+		console.log('[Socket] Initial data received', { count: data.characters.length });
+		characters.set(data.characters);
+		socketStatus.lastSync = new Date();
+	});
+
+	s.on('character_updated', ({ character }: { character: CharacterRecord }) => {
+		characters.update((chars) => chars.map((c) => (c.id === character.id ? character : c)));
+	});
+
+	s.on('hp_updated', ({ character }: { character: CharacterRecord }) => {
+		characters.update((chars) => chars.map((c) => (c.id === character.id ? character : c)));
+	});
+
+	s.on('character_created', ({ character }: { character: CharacterRecord }) => {
+		characters.update((chars) => [...chars, character]);
+	});
+
+	s.on('character_deleted', ({ charId }: { charId: string }) => {
+		characters.update((chars) => chars.filter((c) => c.id !== charId));
+	});
+
+	s.on('dice_rolled', (data: any) => {
+		lastRoll.set(data);
 	});
 }
 

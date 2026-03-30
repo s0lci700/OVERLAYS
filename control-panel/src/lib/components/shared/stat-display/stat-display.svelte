@@ -33,8 +33,8 @@
         },
         cast: {
           root: "flex-col items-center gap-0.5 text-center",
-          label: "text-[rgba(186,201,204,0.6)] text-[0.5625rem] font-bold tracking-[0.15em] uppercase font-[system-ui]",
-          value: "text-[1.375rem] font-bold leading-none text-[rgba(228,196,140,1)] font-[JetBrains_Mono,monospace]",
+          label: "text-[var(--cast-text-secondary)] text-[0.7rem] font-bold tracking-[0.15em] uppercase font-chrome",
+          value: "text-[1.375rem] font-bold leading-none text-[var(--cast-amber-pale)] font-mono",
         },
       },
     },
@@ -56,7 +56,12 @@
   const styles = $derived(statDisplayVariants({ variant: /** @type {any} */ (variant) }));
 </script>
 
-<div class={cn(styles.root(), className)} {...restProps}>
-  <span class={styles.label()}>{label}</span>
-  <span class={styles.value()}>{value}</span>
+<div 
+  class={cn(styles.root(), className)} 
+  role="group" 
+  aria-label="{label}: {value}"
+  {...restProps}
+>
+  <span class={styles.label()} aria-hidden="true">{label}</span>
+  <span class={styles.value()} aria-hidden="true">{value}</span>
 </div>

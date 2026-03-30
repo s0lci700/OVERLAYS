@@ -18,7 +18,7 @@
   import { resolvePhotoSrc } from "$lib/services/utils.js";
   import { untrack } from "svelte";
 
-  /** @type {{ id: string, photo?: string, name: string }} */
+  /** @type {{ character: { id: string, photo?: string, name: string }, SERVER_URL: string, PHOTO_OPTIONS: any[], onPhotoSaved?: (id: string, url: string) => void }} */
   let { character, SERVER_URL, PHOTO_OPTIONS, onPhotoSaved } = $props();
 
   // ── Helpers ───────────────────────────────────────────────────────
@@ -122,6 +122,7 @@
     class="photo-modal-card card-base"
     showCloseButton={false}
     aria-labelledby={`photo-modal-title-${character.id}`}
+    portalProps={{}}
   >
     <header class="photo-modal-head">
       <h3 id={`photo-modal-title-${character.id}`} class="photo-modal-title">

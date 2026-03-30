@@ -77,10 +77,10 @@
   </label>
 
   <!-- Nivel -->
-  <div class="char-options-field">
+  <label class="char-options-field">
     <span class="label-caps">Nivel</span>
     <Input type="number" min="1" max="20" bind:value={classLevel} />
-  </div>
+  </label>
 
   <!-- Background -->
   <label class="char-options-field">
@@ -159,7 +159,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     .char-options-grid {
       grid-template-columns: 1fr;
     }

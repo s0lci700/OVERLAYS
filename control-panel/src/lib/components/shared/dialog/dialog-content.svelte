@@ -4,10 +4,11 @@
 	import XIcon from "@lucide/svelte/icons/x";
 	import * as Dialog from "./index.js";
 	import { cn } from "$lib/services/utils.js";
+	/** @type {{ ref?: any, class?: any, portalProps?: any, children?: import('svelte').Snippet, showCloseButton?: boolean, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
-		portalProps,
+		class: className = undefined,
+		portalProps = {},
 		children,
 		showCloseButton = true,
 		...restProps

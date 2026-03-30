@@ -158,6 +158,7 @@
 .cast-no-scrollbar::-webkit-scrollbar { display: none; }
 .cast-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.cast-shell ::-webkit-scrollbar        { width: 4px; }
+.cast-shell ::-webkit-scrollbar        { width: 6px; }
 .cast-shell ::-webkit-scrollbar-track  { background: transparent; }
-.cast-shell ::-webkit-scrollbar-thumb  { background: rgba(200, 148, 74, 0.27); }
+.cast-shell ::-webkit-scrollbar-thumb  { background: rgba(200, 148, 74, 0.25); border-radius: 999px; transition: background 0.2s; }
+.cast-shell ::-webkit-scrollbar-thumb:hover { background: rgba(200, 148, 74, 0.5); }

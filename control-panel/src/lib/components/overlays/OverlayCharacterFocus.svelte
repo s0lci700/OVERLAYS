@@ -29,55 +29,75 @@
     if (sib) sib.style.display = '';
   }
 
-  let char = $state(preview ?? null);
+  let liveChar = $state(null);
+  const char = $derived(preview ? preview : liveChar);
   let panelEl = $state();
 
-  if (!preview) {
-  const { socket } = createOverlaySocket(serverUrl);
+  $effect(() => {
+    if (preview) return;
+    const { socket } = createOverlaySocket(serverUrl);
 
-  socket.on("initialData", ({ focusedChar }) => {
-    if (focusedChar) char = focusedChar;
+    socket.on("initialData", ({ focusedChar }) => {
+      if (focusedChar) liveChar = focusedChar;
+    });
+
+    socket.on("character_focused", async ({ character }) => {
+      liveChar = character;
+      await tick();
+      if (panelEl) {
+        animate(panelEl, {
+          translateX: [-340, 0],
+          opacity: [0, 1],
+          duration: 700,
+          ease: "outExpo",
+        });
+      }
+    });
+
+    socket.on("character_unfocused", () => {
+      if (panelEl) {
+        animate(panelEl, {
+          translateX: [0, -340],
+          opacity: [1, 0],
+          duration: 500,
+          ease: "inExpo",
+          onComplete: () => {
+            liveChar = null;
+          },
+        });
+      } else {
+        liveChar = null;
+      }
+    });
+
+    socket.on("hp_updated", ({ character }) => {
+      if (liveChar && liveChar.id === character.id) liveChar = character;
+    });
+
+    socket.on("condition_added", ({ charId, condition }) => {
+      if (liveChar && liveChar.id === charId) {
+        liveChar = {
+          ...liveChar,
+          conditions: [...(liveChar.conditions || []), condition],
+        };
+      }
+    });
+
+    socket.on("condition_removed", ({ charId, conditionId }) => {
+      if (liveChar && liveChar.id === charId) {
+        liveChar = {
+          ...liveChar,
+          conditions: (liveChar.conditions || []).filter(
+            (c) => c.id !== conditionId,
+          ),
+        };
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   });
-
-  socket.on("character_focused", async ({ character }) => {
-    char = character;
-    await tick();
-    if (panelEl) {
-      animate(panelEl, { translateX: [-340, 0], opacity: [0, 1], duration: 700, ease: "outExpo" });
-    }
-  });
-
-  socket.on("character_unfocused", () => {
-    if (panelEl) {
-      animate(panelEl, {
-        translateX: [0, -340],
-        opacity: [1, 0],
-        duration: 500,
-        ease: "inExpo",
-        onComplete: () => { char = null; },
-      });
-    } else {
-      char = null;
-    }
-  });
-
-  socket.on("hp_updated", ({ character }) => {
-    if (char && char.id === character.id) char = character;
-  });
-
-  socket.on("condition_added", ({ charId, condition }) => {
-    if (char && char.id === charId) {
-      char = { ...char, conditions: [...(char.conditions || []), condition] };
-    }
-  });
-
-  socket.on("condition_removed", ({ charId, conditionId }) => {
-    if (char && char.id === charId) {
-      char = { ...char, conditions: (char.conditions || []).filter((c) => c.id !== conditionId) };
-    }
-  });
-
-  } // end if (!preview)
 
   function hpPct(c) {
     if (!c || !c.hp_max) return 0;
@@ -171,10 +191,10 @@
     top: 50%;
     left: 40px;
     transform: translateY(-50%);
-    width: 320px;
+    width: min(320px, 90vw);
     background: rgba(0, 0, 0, 0.92);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.6);
   }
@@ -197,8 +217,8 @@
   }
 
   .focus-initials {
-    color: #fff;
-    font-family: "Bebas Neue", sans-serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 64px;
     line-height: 1;
     letter-spacing: 0.05em;
@@ -215,8 +235,8 @@
   }
 
   .focus-name {
-    color: #fff;
-    font-family: "Bebas Neue", sans-serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 36px;
     font-weight: normal;
     letter-spacing: 0.06em;
@@ -225,8 +245,8 @@
   }
 
   .focus-class {
-    color: #00d4e8;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--cyan);
+    font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -235,7 +255,7 @@
   }
 
   .focus-player {
-    color: #666;
+    color: var(--grey);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -251,20 +271,20 @@
   .focus-hp-bar {
     background: rgba(30, 30, 30, 0.9);
     height: 10px;
-    border-radius: 999px;
+    border-radius: 0;
     overflow: hidden;
   }
 
   .focus-hp-fill {
     height: 100%;
-    border-radius: 999px;
+    border-radius: 0;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .focus-hp-fill.healthy { background: linear-gradient(90deg, #16a34a, #22c55e); }
-  .focus-hp-fill.injured { background: linear-gradient(90deg, #b45309, #f59e0b); }
+  .focus-hp-fill.healthy { background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy)); }
+  .focus-hp-fill.injured { background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured)); }
   .focus-hp-fill.critical {
-    background: linear-gradient(90deg, #be123c, #ff4d6a);
+    background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
     animation: pulse 1.5s ease-in-out infinite;
   }
 
@@ -274,8 +294,8 @@
   }
 
   .focus-hp-text {
-    color: rgba(255, 255, 255, 0.7);
-    font-family: "JetBrains Mono", monospace;
+    color: var(--grey);
+    font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
     text-align: right;
@@ -292,8 +312,8 @@
     background: rgba(255, 77, 106, 0.15);
     border: 1px solid rgba(255, 77, 106, 0.6);
     border-radius: 999px;
-    color: #ff4d6a;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--red);
+    font-family: var(--font-mono);
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
@@ -314,21 +334,21 @@
     gap: 2px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
+    border-radius: 0;
     padding: 6px 10px;
     min-width: 44px;
   }
 
   .stat-val {
-    color: #fff;
-    font-family: "Bebas Neue", sans-serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 20px;
     line-height: 1;
   }
 
   .stat-label {
-    color: #555;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--grey);
+    font-family: var(--font-mono);
     font-size: 8px;
     font-weight: 700;
     letter-spacing: 0.12em;

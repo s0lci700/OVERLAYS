@@ -1,28 +1,65 @@
-<script>
-  import { characters, SERVER_URL } from "$lib/services/socket.js";
-  import { get } from "svelte/store";
+<script lang="ts">
+  import { connectSocket, getSocket, SERVER_URL } from "$lib/services/socket.svelte.ts";
+  import type { PageData } from "./$types";
   import InitiativeStrip from "$lib/components/cast/dm/InitiativeStrip.svelte";
   import SessionCard from "$lib/components/cast/dm/SessionCard.svelte";
   import SessionBar from "$lib/components/cast/dm/SessionBar.svelte";
 
-  // ── Initiative state ─────────────────────────────────────────
-  let combatants   = $state([]);   // [{character, roll}] sorted DESC
-  let activeIndex  = $state(0);
-  let round        = $state(1);
-  let inCombat     = $state(false);
+  let { data }: { data: PageData } = $props();
 
-  // ── Action state ─────────────────────────────────────────────
-  let pendingAction = $state(null);  // "damage"|"heal"|"condition"|"rest"|null
-  let pendingTarget = $state(null);  // charId string | null
+  // ── Character state — seeded from SSR, kept live via socket ──
+  let characters = $state(data.characters ?? []);
 
-  // ── Derived ──────────────────────────────────────────────────
+  // ── Initiative state ──────────────────────────────────────────
+  let combatants  = $state<{ character: any; roll: number }[]>([]);
+  let activeIndex = $state(0);
+  let round       = $state(1);
+  let inCombat    = $state(false);
+
+  // ── Action state ──────────────────────────────────────────────
+  let pendingAction = $state<string | null>(null);
+  let pendingTarget = $state<string | null>(null);
+
+  // ── Socket — connect and keep characters in sync ──────────────
+  $effect(() => {
+    connectSocket('default', 'dm');
+    const socket = getSocket();
+
+    socket.on('initialData', ({ characters: chars }) => {
+      characters = chars;
+    });
+    socket.on('hp_updated', ({ character }) => {
+      characters = characters.map((c) => c.id === character.id ? character : c);
+    });
+    socket.on('character_updated', ({ character }) => {
+      characters = characters.map((c) => c.id === character.id ? character : c);
+    });
+    socket.on('condition_added', ({ charId, condition }) => {
+      characters = characters.map((c) =>
+        c.id === charId ? { ...c, conditions: [...(c.conditions ?? []), condition] } : c
+      );
+    });
+    socket.on('condition_removed', ({ charId, conditionId }) => {
+      characters = characters.map((c) =>
+        c.id === charId
+          ? { ...c, conditions: (c.conditions ?? []).filter((cond: any) => cond.id !== conditionId) }
+          : c
+      );
+    });
+
+    return () => {
+      socket.off('initialData');
+      socket.off('hp_updated');
+      socket.off('character_updated');
+      socket.off('condition_added');
+      socket.off('condition_removed');
+    };
+  });
 
   // ── Initiative handlers ───────────────────────────────────────
-  function handleStart(rollsArray) {
-    const charMap = Object.fromEntries(
-      (get(characters) ?? []).map((c) => [c.id, c])
-    );
-    const dexMod = (c) => Math.floor(((c.stats?.dex ?? 10) - 10) / 2);
+  function handleStart(rollsArray: { charId: string; roll: number }[]) {
+    const charMap = Object.fromEntries(characters.map((c) => [c.id, c]));
+    const dexMod = (c: any) => Math.floor(((c.stats?.dex ?? 10) - 10) / 2);
 
     combatants = rollsArray
       .map(({ charId, roll }) => ({ character: charMap[charId], roll }))
@@ -44,7 +81,7 @@
   }
 
   // ── Action handlers ───────────────────────────────────────────
-  function handleAction(type) {
+  function handleAction(type: string) {
     pendingAction = type;
     pendingTarget = null;
   }
@@ -54,31 +91,27 @@
     pendingTarget = null;
   }
 
-  function handleSelectTarget(charId) {
+  function handleSelectTarget(charId: string) {
     if (pendingAction) pendingTarget = charId;
   }
 
-  async function handleConfirm({ action, targetId, value }) {
+  async function handleConfirm({ action, targetId, value }: { action: string; targetId: string; value: any }) {
     try {
       if (action === "damage" || action === "heal") {
         const amount = Number(value);
         if (!Number.isFinite(amount) || amount <= 0) return;
 
-        const char = (get(characters) ?? []).find((c) => c.id === targetId);
+        const char = characters.find((c) => c.id === targetId);
         if (!char) return;
 
         const delta = action === "damage" ? -amount : amount;
-        const hp_current = Math.min(
-          Math.max(char.hp_current + delta, 0),
-          char.hp_max
-        );
+        const hp_current = Math.min(Math.max(char.hp_current + delta, 0), char.hp_max);
 
         await fetch(`${SERVER_URL}/api/characters/${targetId}/hp`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ hp_current }),
         });
-
       } else if (action === "condition") {
         const condition_name = String(value ?? "").trim();
         if (!condition_name) return;
@@ -88,7 +121,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ condition_name }),
         });
-
       } else if (action === "rest") {
         await fetch(`${SERVER_URL}/api/characters/${targetId}/rest`, {
           method: "POST",
@@ -107,7 +139,7 @@
 
 <div class="session-page">
   <InitiativeStrip
-    characters={$characters ?? []}
+    characters={characters ?? []}
     {combatants}
     {activeIndex}
     {round}
@@ -116,7 +148,7 @@
   />
 
   <div class="session-cards">
-    {#each $characters ?? [] as character (character.id)}
+    {#each characters ?? [] as character (character.id)}
       <SessionCard
         {character}
         isActive={inCombat && combatants[activeIndex]?.character.id === character.id}

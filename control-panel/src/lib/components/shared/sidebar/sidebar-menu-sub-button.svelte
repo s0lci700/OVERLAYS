@@ -1,10 +1,11 @@
 <script>
 	import { cn } from "$lib/services/utils.js";
+	/** @type {{ ref?: any, children?: import('svelte').Snippet, child?: import('svelte').Snippet<[any]>, class?: string, size?: "sm" | "md", isActive?: boolean, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
 		children,
 		child,
-		class: className,
+		class: className = "",
 		size = "md",
 		isActive = false,
 		...restProps

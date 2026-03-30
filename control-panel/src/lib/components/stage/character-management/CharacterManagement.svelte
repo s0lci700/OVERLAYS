@@ -25,6 +25,7 @@
   ];
 
   // ── Option lookups (for CharacterInfoPanel label resolution) ───────
+  /** @type {Record<string, any>} */
   const optionSets = characterOptions || {};
   const classOptions = optionSets.classes || [];
   const speciesOptions = optionSets.species || [];
@@ -88,7 +89,7 @@
     </h2>
   </div>
 
-  <div class="characters-grid" class:grid-three={$characters.length > 2}>
+  <div class="characters-grid">
     {#each $characters as character (character.id)}
       <article class="manage-card card-base" data-char-id={character.id}>
         <!-- Card header: photo (owned by CharacterPhotoEditor), identity, toggle -->

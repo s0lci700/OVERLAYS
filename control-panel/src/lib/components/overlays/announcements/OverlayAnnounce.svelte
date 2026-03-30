@@ -12,11 +12,17 @@
   let { serverUrl = 'http://localhost:3000', preview = null } = $props();
 
   let socket = $state();
-  let visible = $state(preview != null);
-  let type = $state(preview?.type ?? 'custom');
-  let title = $state(preview?.title ?? '');
-  let body = $state(preview?.body ?? '');
-  let image = $state(preview?.image ?? null);
+  let liveVisible = $state(false);
+  let liveType = $state('custom');
+  let liveTitle = $state('');
+  let liveBody = $state('');
+  let liveImage = $state(null);
+
+  const visible = $derived(preview ? true : liveVisible);
+  const type = $derived(preview ? (preview.type ?? 'custom') : liveType);
+  const title = $derived(preview ? (preview.title ?? '') : liveTitle);
+  const body = $derived(preview ? (preview.body ?? '') : liveBody);
+  const image = $derived(preview ? (preview.image ?? null) : liveImage);
 
   let cardEl = $state();
   let bodyEl = $state();
@@ -32,7 +38,8 @@
 
   $effect(() => {
     // Re-initialize socket when serverUrl or preview changes
-    socket = preview ? { on() {} } : createOverlaySocket(serverUrl);
+    const init = preview ? { socket: { on() {}, off() {} } } : createOverlaySocket(serverUrl);
+    socket = init.socket;
   });
 
   $effect(() => {
@@ -41,21 +48,21 @@
     const handleAnnounce = async (data) => {
       if (hideTimer) clearTimeout(hideTimer);
 
-      type  = data.type ?? 'custom';
-      title = data.title ?? '';
-      body  = data.body ?? '';
-      image = data.image ?? null;
+      liveType  = data.type ?? 'custom';
+      liveTitle = data.title ?? '';
+      liveBody  = data.body ?? '';
+      liveImage = data.image ?? null;
 
-      const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.custom;
+      const cfg = TYPE_CONFIG[liveType] ?? TYPE_CONFIG.custom;
       const duration = data.duration ?? cfg.defaultDuration;
 
-      visible = true;
+      liveVisible = true;
       await tick();
 
       if (cardEl) slideInFromLeft(cardEl);
 
-      if (type === 'knowledge' && bodyEl && body) {
-        await typewriterReveal(bodyEl, body);
+      if (liveType === 'knowledge' && bodyEl && liveBody) {
+        await typewriterReveal(bodyEl, liveBody);
       }
 
       if (duration > 0) {
@@ -71,8 +78,8 @@
   });
 
   async function dismiss() {
-    if (!cardEl) { visible = false; return; }
-    slideOutToLeft(cardEl, 400, () => { visible = false; });
+    if (!cardEl) { liveVisible = false; return; }
+    slideOutToLeft(cardEl, 400, () => { liveVisible = false; });
   }
 
   onDestroy(() => { if (hideTimer) clearTimeout(hideTimer); });

@@ -36,55 +36,68 @@
   let flashTimers = {};
 
   // ── Socket setup (skipped in Storybook when mockCharacters is provided) ─────
-  if (!mockCharacters) {
-  const { socket } = createOverlaySocket(serverUrl);
+  $effect(() => {
+    if (mockCharacters) return;
 
-  socket.on("connect", () => showStatus("✓ Conectado"));
-  socket.on("disconnect", () => showStatus("✗ Desconectado"));
-  socket.on("connect_error", () => showStatus("✗ Error de conexión"));
+    const { socket } = createOverlaySocket(serverUrl);
 
-  socket.on("initialData", ({ characters: chars }) => {
-    characters = chars;
-  });
+    socket.on("connect", () => showStatus("✓ Conectado"));
+    socket.on("disconnect", () => showStatus("✗ Desconectado"));
+    socket.on("connect_error", () => showStatus("✗ Error de conexión"));
 
-  socket.on("hp_updated", ({ character }) => {
-    const prev = characters.find((c) => c.id === character.id);
-    const delta = character.hp_current - (prev?.hp_current ?? character.hp_current);
-    characters = characters.map((c) => (c.id === character.id ? character : c));
-    showStatus(`${character.name}: ${character.hp_current} HP`);
-    // Heal flash: triggered when healed more than 30% of max HP
-    if (delta > 0 && character.hp_max > 0 && delta / character.hp_max > 0.3) {
-      const el = document.querySelector(`[data-char-id="${character.id}"] .hp-bar-fill`);
-      if (el) {
-        el.classList.add('heal-flash');
-        setTimeout(() => el.classList.remove('heal-flash'), 800);
+    socket.on("initialData", ({ characters: chars }) => {
+      characters = chars;
+    });
+
+    socket.on("hp_updated", ({ character }) => {
+      const prev = characters.find((c) => c.id === character.id);
+      const delta =
+        character.hp_current - (prev?.hp_current ?? character.hp_current);
+      characters = characters.map((c) => (c.id === character.id ? character : c));
+      showStatus(`${character.name}: ${character.hp_current} HP`);
+      // Heal flash: triggered when healed more than 30% of max HP
+      if (delta > 0 && character.hp_max > 0 && delta / character.hp_max > 0.3) {
+        const el = document.querySelector(
+          `[data-char-id="${character.id}"] .hp-bar-fill`,
+        );
+        if (el) {
+          el.classList.add("heal-flash");
+          setTimeout(() => el.classList.remove("heal-flash"), 800);
+        }
       }
-    }
-  });
+    });
 
-  socket.on("character_updated", ({ character }) => {
-    characters = characters.map((c) => (c.id === character.id ? character : c));
-  });
+    socket.on("character_updated", ({ character }) => {
+      characters = characters.map((c) => (c.id === character.id ? character : c));
+    });
 
-  socket.on("condition_added", ({ charId, condition }) => {
-    characters = characters.map((c) =>
-      c.id === charId
-        ? { ...c, conditions: [...(c.conditions || []), condition] }
-        : c
-    );
-    flashCard(charId);
-    showStatus(`${condition.condition_name} → ${charId}`);
-  });
+    socket.on("condition_added", ({ charId, condition }) => {
+      characters = characters.map((c) =>
+        c.id === charId
+          ? { ...c, conditions: [...(c.conditions || []), condition] }
+          : c,
+      );
+      flashCard(charId);
+      showStatus(`${condition.condition_name} → ${charId}`);
+    });
 
-  socket.on("condition_removed", ({ charId, conditionId }) => {
-    characters = characters.map((c) =>
-      c.id === charId
-        ? { ...c, conditions: (c.conditions || []).filter((cond) => cond.id !== conditionId) }
-        : c
-    );
-  });
+    socket.on("condition_removed", ({ charId, conditionId }) => {
+      characters = characters.map((c) =>
+        c.id === charId
+          ? {
+              ...c,
+              conditions: (c.conditions || []).filter(
+                (cond) => cond.id !== conditionId,
+              ),
+            }
+          : c,
+      );
+    });
 
-  } // end if (!mockCharacters)
+    return () => {
+      socket.disconnect();
+    };
+  });
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function showStatus(msg) {
@@ -216,9 +229,9 @@
   .character-hp {
     background: rgba(0, 0, 0, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
+    border-radius: 0;
     padding: 14px 16px;
-    min-width: 380px;
+    min-width: min(380px, 90vw);
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.6);
     transition: background 0.5s ease;
   }
@@ -245,12 +258,11 @@
     min-width: 0;
   }
 
-  /* Avatar */
+  /* Avatar — hex clip per design standard */
   .char-avatar {
     width: 52px;
     height: 52px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     background: rgba(40, 40, 40, 0.9);
     flex-shrink: 0;
     overflow: hidden;
@@ -267,8 +279,8 @@
   }
 
   .char-avatar-initials {
-    color: #fff;
-    font-family: "Bebas Neue", sans-serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 20px;
     line-height: 1;
     letter-spacing: 0.05em;
@@ -276,8 +288,8 @@
 
   /* Character info */
   .char-name {
-    color: #fff;
-    font-family: "Bebas Neue", sans-serif;
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 26px;
     font-weight: normal;
     letter-spacing: 0.04em;
@@ -290,8 +302,8 @@
   }
 
   .char-class {
-    color: #00d4e8;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--cyan);
+    font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -306,22 +318,23 @@
   }
 
   .char-player {
-    color: #888;
+    color: var(--grey);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
 
+  /* AC badge — amber chrome per luminous economy rule */
   .ac-badge {
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    background: rgba(80, 13, 245, 0.2);
-    border: 1px solid rgba(80, 13, 245, 0.5);
-    border-radius: 4px;
+    background: rgba(200, 148, 74, 0.15);
+    border: 1px solid rgba(200, 148, 74, 0.4);
+    border-radius: 0;
     padding: 1px 6px;
-    color: rgba(180, 150, 255, 1);
-    font-family: "JetBrains Mono", monospace;
+    color: #C8944A;
+    font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -332,7 +345,7 @@
   .hp-bar-container {
     background: rgba(30, 30, 30, 0.9);
     height: 14px;
-    border-radius: 999px;
+    border-radius: 0;
     overflow: hidden;
     position: relative;
   }
@@ -340,23 +353,23 @@
   .hp-bar-fill {
     height: 100%;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-    border-radius: 999px;
+    border-radius: 0;
     position: relative;
     z-index: 1;
   }
 
   .hp-bar-fill.healthy {
-    background: linear-gradient(90deg, #16a34a, #22c55e);
+    background: linear-gradient(90deg, var(--hp-healthy-dim), var(--hp-healthy));
     box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
   }
 
   .hp-bar-fill.injured {
-    background: linear-gradient(90deg, #b45309, #f59e0b);
+    background: linear-gradient(90deg, var(--hp-injured-dim), var(--hp-injured));
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
   }
 
   .hp-bar-fill.critical {
-    background: linear-gradient(90deg, #be123c, #ff4d6a);
+    background: linear-gradient(90deg, var(--hp-critical-dim), var(--hp-critical));
     box-shadow: 0 0 8px rgba(255, 77, 106, 0.5);
     animation: pulse 1.5s ease-in-out infinite;
   }
@@ -367,7 +380,7 @@
     top: 0;
     height: 100%;
     background: rgba(255, 255, 255, 0.32);
-    border-radius: 0 999px 999px 0;
+    border-radius: 0;
     z-index: 2;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -379,8 +392,8 @@
 
   /* HP text */
   .hp-text {
-    color: #fff;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--white);
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 700;
     margin-top: 6px;
@@ -407,8 +420,8 @@
     background: rgba(255, 77, 106, 0.15);
     border: 1px solid rgba(255, 77, 106, 0.6);
     border-radius: 999px;
-    color: #ff4d6a;
-    font-family: "JetBrains Mono", monospace;
+    color: var(--red);
+    font-family: var(--font-mono);
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
@@ -423,11 +436,11 @@
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.9);
-    color: #00d4e8;
+    color: var(--cyan);
     padding: 10px 20px;
-    border-radius: 4px;
+    border-radius: 0;
     border: 1px solid rgba(0, 212, 232, 0.4);
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 16px;
     pointer-events: none;
     animation: fadeInOut 2s ease forwards;

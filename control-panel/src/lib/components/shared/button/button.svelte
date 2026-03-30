@@ -57,7 +57,7 @@
     bind:this={ref}
     data-slot="button"
     class={cn(buttonVariants({ variant: /** @type {any} */ (variant), size: /** @type {any} */ (size) }), className)}
-    href={resolve(href)}
+    href={resolve(href, {})}
     aria-disabled={disabled}
     role={disabled ? "link" : undefined}
     tabindex={disabled ? -1 : undefined}

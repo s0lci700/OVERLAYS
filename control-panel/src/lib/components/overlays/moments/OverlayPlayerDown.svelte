@@ -12,21 +12,28 @@
 
   let socket = $state();
   let getChar = $state();
-  let visible = $state(false);
-  let charName = $state(preview?.charName ?? '');
-  let isDead = $state(preview?.isDead ?? false);
+  let liveVisible = $state(false);
+  let liveCharName = $state('');
+  let liveIsDead = $state(false);
+
+  const visible = $derived(preview ? true : liveVisible);
+  const charName = $derived(preview ? (preview.charName ?? '') : liveCharName);
+  const isDead = $derived(preview ? (preview.isDead ?? false) : liveIsDead);
+
   let cardEl = $state();
   let flashEl;
   let hideTimer = null;
 
   $effect(() => {
-    const init = preview ? { socket: { on() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
+    const init = preview ? { socket: { on() {}, off() {} }, getChar: () => null } : createOverlaySocket(serverUrl);
     socket = init.socket;
     getChar = init.getChar;
   });
 
   onMount(() => {
-    if (preview) setTimeout(() => { visible = true; }, 100);
+    if (preview) {
+      // preview is true by derived
+    }
   });
 
   $effect(() => {
@@ -35,18 +42,18 @@
     const handlePlayerDown = async ({ charId, isDead: dead }) => {
       if (hideTimer) clearTimeout(hideTimer);
       const char = getChar(charId);
-      charName = char?.name ?? 'Personaje';
-      isDead = dead;
+      liveCharName = char?.name ?? 'Personaje';
+      liveIsDead = dead;
 
       if (flashEl) screenFlash(flashEl, dead ? 'rgba(0,0,0,0.85)' : 'rgba(255,77,106,0.5)');
 
-      visible = true;
+      liveVisible = true;
       await tick();
       if (cardEl) fadeInFromBottom(cardEl, 500);
 
       hideTimer = setTimeout(() => {
-        fadeOutToTop(cardEl, 400, () => { visible = false; });
-      }, isDead ? 8000 : 5000);
+        fadeOutToTop(cardEl, 400, () => { liveVisible = false; });
+      }, dead ? 8000 : 5000);
     };
 
     socket.on('player_down', handlePlayerDown);

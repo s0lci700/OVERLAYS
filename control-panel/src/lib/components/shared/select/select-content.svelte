@@ -4,11 +4,12 @@
 	import SelectScrollUpButton from "./select-scroll-up-button.svelte";
 	import SelectScrollDownButton from "./select-scroll-down-button.svelte";
 	import { cn } from "$lib/services/utils.js";
+	/** @type {{ ref?: any, class?: any, sideOffset?: number, portalProps?: any, children?: import('svelte').Snippet, preventScroll?: boolean, [key: string]: any }} */
 	let {
 		ref = $bindable(null),
-		class: className,
+		class: className = undefined,
 		sideOffset = 4,
-		portalProps,
+		portalProps = {},
 		children,
 		preventScroll = true,
 		...restProps

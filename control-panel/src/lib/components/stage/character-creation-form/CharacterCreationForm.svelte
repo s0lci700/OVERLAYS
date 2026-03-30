@@ -27,7 +27,8 @@
     getDefaultFormValues,
   } from "$lib/services/character-form.js";
 
-  const optionSets = parseOptionSets(characterOptions);
+  const { meta, ...rawOptions } = characterOptions;
+  const optionSets = parseOptionSets(rawOptions);
   const labelOf = buildLabelMap(optionSets);
 
   // Form field state — initialised from defaults, reset after successful submit.

@@ -37,8 +37,8 @@
         ],
         info: ["bg-transparent border-[var(--grey-dim)] text-[var(--grey)]"],
         cast: [
-          "bg-[rgba(200,148,74,0.12)] border-[rgba(200,148,74,0.3)] text-[rgba(200,148,74,1)]",
-          "font-[system-ui] font-bold tracking-[0.1em]",
+          "bg-[var(--cast-amber-dim)] border-[var(--cast-amber-border)] text-[var(--cast-amber)]",
+          "font-chrome font-bold tracking-[0.1em]",
         ],
       },
     },
@@ -60,20 +60,17 @@
 </script>
 
 {#if interactive}
-  <span
-    role="button"
-    tabindex="0"
+  <button
     class={cn(
       conditionPillVariants({ variant: /** @type {any} */ (variant) }),
       className,
     )}
     data-interactive="true"
     onclick={() => onRemove()}
-    onkeydown={(e) => e.key === "Enter" && onRemove()}
     {...restProps}
   >
     {label} <span aria-hidden="true">×</span>
-  </span>
+  </button>
 {:else}
   <span
     class={cn(

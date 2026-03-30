@@ -5,7 +5,7 @@
    */
   import { onMount } from "svelte";
   import DiceRoller from "./DiceRoller.svelte";
-  import { lastRoll } from "$lib/services/socket.js";
+  import { lastRoll } from "$lib/services/socket.svelte.js";
 
   let { result, sides, modifier, rollResult, charId, characterName } = $props();
 

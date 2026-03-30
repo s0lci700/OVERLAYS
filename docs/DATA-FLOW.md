@@ -3,188 +3,569 @@ title: Data Flow
 type: architecture
 source_files:
   - server.ts
+  - src/server/router.ts
+  - src/server/pb.ts
   - src/server/data/characters.ts
+  - src/server/data/rolls.ts
   - src/server/handlers/characters.ts
+  - src/server/handlers/rolls.ts
+  - src/server/handlers/misc.ts
+  - src/server/handlers/overlay.ts
   - src/server/socket/index.ts
   - src/server/socket/rooms.ts
-  - src/server/pb.ts
   - control-panel/src/lib/services/pocketbase.ts
-  - control-panel/src/lib/services/character.ts
-  - control-panel/src/lib/services/socket.ts
-last_updated: 2026-03-27
+  - control-panel/src/lib/services/socket.js
+  - control-panel/src/lib/services/socket.svelte.ts
+  - control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts
+  - control-panel/src/routes/(cast)/players/[id]/+layout.server.ts
+last_updated: 2026-03-28
 ---
 
 # Data Flow
 
-How data moves from PocketBase through the server and into every connected client.
+Canonical reference for how persisted data, live events, and frontend state move through the system.
 
-There are **two paths**: SSR (page load) and live Socket.io (ongoing state). Most UI runs on the live path.
+The short version:
+
+- **PocketBase is the persistence layer**
+- **The Bun server is the runtime orchestrator**
+- **Socket.io is the live fan-out channel**
+- **Clients mostly listen; Stage writes through REST**
+
+There is no single universal path. The repo currently uses **three distinct paths**:
+
+1. **SSR / direct PocketBase reads** for some Cast pages
+2. **REST → PocketBase → Socket.io broadcast** for authoritative live mutations
+3. **Socket.io subscription** for live replication into Stage and overlay UIs
 
 ---
 
-## Cluster map (from GitNexus)
+## System Model
 
-| Cluster | Symbols | Cohesion | Location |
-|---|---|---|---|
-| `Data` | 14 | 87% | `src/server/data/` |
-| `Handlers` | 29 | 82% | `src/server/handlers/` |
-| `Server` | 16 | 61% | `src/server/socket/`, `src/server/pb.ts` |
-| `Services` | 51 | 80% | `control-panel/src/lib/services/` |
-| `Components` | 42 | 87% | `control-panel/src/lib/components/` |
-
----
-
-## Path 1 — SSR (page navigation)
-
-Used by `(cast)/players/[id]` and any route with a `+layout.server.ts` or `+page.server.ts`.
-The Node.js SSR process talks directly to PocketBase — **not** through the Express server.
-
-```
-Browser navigates to /players/[id]
+```text
+PocketBase (:8090, SQLite)
+  ↑ persisted reads/writes
   │
-  ▼  (SvelteKit SSR, Node.js process)
-+layout.server.ts
-  → getCharacter(id)                      control-panel/src/lib/services/character.ts
-    → getCharacterRecord(id)              control-panel/src/lib/services/pocketbase.ts:91
-      → assertNonEmptyString(id)          validates ID is non-empty
-      → pb.collection('characters')
-           .getOne(id)                    → PocketBase :8090 (127.0.0.1 — never LAN IP)
-      ← CharacterRecord
-      on error → mapPocketBaseError()     pocketbase.ts:20  ← PB error → ServiceError
-    ← CharacterRecord | throws ServiceError
-  ← on ServiceError(NOT_FOUND) → throw error(404)   ← ServiceError → HttpError boundary
-  ← on ServiceError(other)     → throw error(500)
-← { character } passed to +page.svelte as load data
+  │
+Bun server (:3000)
+  - Express REST API
+  - PocketBase admin-auth singleton
+  - Socket.io server
+  - in-memory scene/encounter state
+  │
+  ├─ REST responses to Stage / operator clients
+  └─ Socket.io broadcasts to all connected clients
+       │
+       ├─ Stage store: control-panel/src/lib/services/socket.js
+       ├─ Typed client socket: control-panel/src/lib/services/socket.svelte.ts
+       └─ Overlay socket helper: control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts
 ```
 
-**Why `127.0.0.1` and not the LAN IP?**
-`VITE_POCKETBASE_URL` is set to the LAN IP by `bun run setup-ip` — correct for browsers,
-but unreachable from the Node.js server process. `pocketbase.ts` detects `import.meta.env.SSR`
-and substitutes `http://127.0.0.1:8090` for server-side calls.
+Important current boundary:
 
-**Error translation chain:**
-```
-PocketBase SDK error (ClientResponseError)
-  → mapPocketBaseError()     → ServiceError  (pocketbase.ts)
-  → getCharacter()           → HttpError     (character.ts — the conversion boundary)
-  → +layout.server.ts        → isHttpError() guards; 404 → redirect to /players
-```
-`instanceof ServiceError` checks in load functions are always dead code — `getCharacter()`
-converts them to `HttpError` before they propagate.
+- **Clients do not currently send mutation events over Socket.io.**
+- `src/server/socket/events/*.ts` are Phase 2 stubs only.
+- Real writes happen via **HTTP handlers** in `src/server/handlers/`.
 
 ---
 
-## Path 2 — Live state (Socket.io)
+## Authority Rules
 
-Used by Stage, Cast/DM, Cast/Players, Commons, and all Audience overlays.
-Data arrives via `initialData` on connect, then updates arrive as discrete events.
+### Persisted authority
 
-### Server startup
+`PocketBase` stores the durable record for:
 
-```
-server.ts → main()
-  → connectToPocketBase()               src/server/pb.ts
-  → seedIfEmpty()
-  → initSocket(io)                      src/server/socket/index.ts:17
-      → initRooms(io)                   src/server/socket/rooms.ts
-      → registerSessionEvents(socket)   src/server/socket/events/session.ts
-      → registerCharacterEvents(socket) src/server/socket/events/character.ts
-      → registerCombatEvents(socket)    src/server/socket/events/combat.ts
-```
+- characters
+- rolls
+- portrait/file references
+- resources and conditions inside character records
 
-### On every new socket connection
+If the server restarts, this is the source that survives.
 
-```
-io.on('connection', socket)             src/server/socket/index.ts
-  → ensureAuth()                        ← verifies PocketBase token is still valid
-  → characterModule.getAll(pb)          src/server/data/characters.ts:18
-      → pb.collection('characters').getList()  → PocketBase
-  → socket.emit('initialData', {
-        characters,                     ← full roster at connection time
-        encounter,                      ← getEncounterState()
-        scene,                          ← getSceneState()
-        focusedChar                     ← getFocusedChar()
-    })
-```
+### Runtime authority
 
-### On a write operation (example: HP update)
+The Bun server owns:
 
-```
-Stage UI
-  → PATCH /api/characters/:id/hp        (REST to Express :3000)
-      ↓
-  updateHp handler                      src/server/handlers/characters.ts:65
-    → validate req.body.hp_current
-    → characterModule.updateHp(pb, id, val)
-        → findById(pb, id)              src/server/data/characters.ts
-        → clamp(hp_current, 0, hp_max)  ← business logic lives in data layer
-        → pb.collection('characters').update(id, { hp_current: clamped })
-        ← CharacterRecord
-    → broadcast('hp_updated', { character, hp_current })
-        → logEvent(event, payload)      src/server/socket/rooms.ts:30 ← JSONL sidecar log
-        → io.emit(event, payload)       ← pushes to ALL connected sockets
-    ← HTTP 200 { character }            back to the calling client (Stage only)
-```
+- who gets the initial snapshot on connect
+- which live event is emitted after a mutation
+- in-memory `scene` state
+- in-memory `encounter` state
+- sidecar logging in `logs/sidecar.jsonl`
 
-**`broadcast` at `rooms.ts:41` is the single emit point for the entire system.**
-GitNexus found 21 incoming callers — every handler that mutates state routes through it:
+### UI authority
 
-| Handler category | Events emitted |
-|---|---|
-| Characters | `character_created`, `hp_updated`, `character_updated`, `condition_added`, `condition_removed`, `character_deleted`, `resource_updated`, `rest_taken` |
-| Encounter | `encounter_started`, `turn_advanced`, `encounter_ended` |
-| Overlay triggers | `announce`, `level_up`, `player_down`, `lower_third` |
-| Scene / misc | `scene_changed`, `character_focused`, `sync_start` |
-| Rolls | `dice_rolled` |
+Clients own only local presentation state:
 
-### Client receives the broadcast
+- selection mode
+- animation state
+- expanded/collapsed UI
+- temporary view-only derivations
 
-```
-socket.ts singleton (Stage / Cast routes)
-  socket.on('initialData')    → writes full character array to $characters store
-  socket.on('hp_updated')     → finds character by id, mutates hp_current in place
-  socket.on('condition_added')→ pushes to character.conditions array
-  ...
-
-Svelte components
-  {#each $characters as character} → rerenders automatically on any store mutation
-```
-
-Overlay routes use a **separate** `overlaySocket.svelte.ts` singleton
-(`control-panel/src/lib/components/overlays/shared/`). It connects to the same
-server and receives the same broadcasts, but **never emits anything**. This is enforced
-by the architecture — overlays have no write paths at all.
+They should not be treated as canonical for game state.
 
 ---
 
-## Key boundaries
+## Path A: SSR / Direct PocketBase Read
 
-| Boundary | File | What crosses it |
-|---|---|---|
-| PB SDK → ServiceError | `pocketbase.ts:mapPocketBaseError` | Every client-side PB call |
-| ServiceError → HttpError | `character.ts:getCharacter` | SSR load functions |
-| REST → Socket.io | `rooms.ts:broadcast` | Every server-side write |
-| SSR URL vs browser URL | `pocketbase.ts:getPocketBaseURL` | `import.meta.env.SSR` check |
-| Write surface vs listen-only | Socket singleton split | Stage/Cast write; Audience/Commons never do |
+This path is used for Cast player pages that render stable data on navigation.
+
+Current example:
+
+- [control-panel/src/routes/(cast)/players/[id]/+layout.server.ts](../control-panel/src/routes/(cast)/players/%5Bid%5D/+layout.server.ts)
+
+Flow:
+
+```text
+Browser requests /players/[id]
+  ↓
+SvelteKit server load (+layout.server.ts)
+  ↓
+getCharacter(id)
+  control-panel/src/lib/services/character.ts
+  ↓
+getCharacterRecord(id)
+  control-panel/src/lib/services/pocketbase.ts
+  ↓
+pb.collection('characters').getOne(id)
+  ↓
+PocketBase returns CharacterRecord
+  ↓
+SvelteKit passes { character } into route tree
+```
+
+### Why this bypasses the Bun server
+
+SvelteKit SSR is already running on the server side, so it can talk to PocketBase directly.
+
+That means:
+
+- this path does **not** go through `src/server/router.ts`
+- this path does **not** emit Socket.io
+- this path is for **initial/stable render**, not live orchestration
+
+### PocketBase URL behavior
+
+`control-panel/src/lib/services/pocketbase.ts` switches URLs based on environment:
+
+- SSR uses `http://127.0.0.1:8090`
+- browser uses `VITE_POCKETBASE_URL` unless localhost override logic kicks in
+
+This is an important detail because the LAN IP is correct for browsers but not always for the local Node SSR process.
 
 ---
 
-## What static analysis cannot see
+## Path B: Initial Socket Hydration
 
-GitNexus traces static call edges. Two things are invisible to it:
+Every live client starts with a socket connection snapshot.
 
-1. **Socket event listeners** — `socket.on('hp_updated', handler)` is a runtime string match.
-   The graph shows `broadcast` emitting but cannot trace what receives it on the client.
-2. **PocketBase realtime** — PB has a built-in realtime subscription API. This project does
-   **not** use it. All live updates come from the Socket.io broadcast after a REST write, not
-   from PocketBase pushing changes.
+Server entry:
+
+- [server.ts](../server.ts)
+- [src/server/socket/index.ts](../src/server/socket/index.ts)
+
+Flow:
+
+```text
+server.ts
+  ↓
+connectToPocketBase()
+  src/server/pb.ts
+  ↓
+initSocket(io)
+  src/server/socket/index.ts
+
+On each new socket connection:
+  ↓
+ensureAuth()
+  ↓
+characterModule.getAll(pb)
+  src/server/data/characters.ts
+  ↓
+socket.emit('initialData', {
+  characters,
+  encounter,
+  scene,
+  focusedChar
+})
+```
+
+### What `initialData` contains today
+
+Current shape from `src/server/socket/index.ts`:
+
+```ts
+{
+  characters,
+  encounter,
+  scene,
+  focusedChar
+}
+```
+
+In the error fallback path, the server also emits `rolls: []`, but successful hydration currently does not include rolls there.
+
+### Who consumes `initialData`
+
+1. `control-panel/src/lib/services/socket.js`
+   - populates the Stage `characters` store
+
+2. `control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts`
+   - seeds overlay-local `characters`
+   - builds an in-memory `charMap`
+
+This is the reconnect safety net for live surfaces.
+
+---
+
+## Path C: Authoritative Mutation Flow
+
+This is the most important live path in the repo.
+
+The pattern is:
+
+```text
+Client action
+  ↓
+fetch() to Bun REST API
+  ↓
+Express handler validates request
+  ↓
+data module writes to PocketBase
+  ↓
+handler calls broadcast(...)
+  ↓
+Socket.io emits to all connected clients
+  ↓
+client stores/helpers update local reactive state
+```
+
+### Example: HP update
+
+Client example:
+
+- Stage characters page calls `fetch(`${SERVER_URL}/api/characters/${id}/hp`, { method: 'PUT' ... })`
+
+Server flow:
+
+```text
+PUT /api/characters/:id/hp
+  ↓
+src/server/handlers/characters.ts:updateHp
+  ↓
+characterModule.updateHp(pb, charId, hp_current)
+  src/server/data/characters.ts
+  ↓
+findById(pb, id)
+  ↓
+clamp hp_current between 0 and hp_max
+  ↓
+pb.collection('characters').update(id, { hp_current: clamped })
+  ↓
+broadcast('hp_updated', { character, hp_current })
+  src/server/socket/rooms.ts
+  ↓
+io.emit('hp_updated', payload)
+```
+
+Client replication:
+
+- `control-panel/src/lib/services/socket.js`
+  replaces the matching character in the Stage store
+- `control-panel/src/lib/derived/overviewStore.js`
+  logs the event to history
+- overlay components listening for `hp_updated`
+  update their own reactive state
+
+### Example: condition add
+
+```text
+POST /api/characters/:id/conditions
+  ↓
+handlers/characters.ts:addCondition
+  ↓
+data/characters.ts:addCondition
+  ↓
+PocketBase character update
+  ↓
+broadcast('condition_added', { charId, condition })
+```
+
+### Example: resource update
+
+```text
+PUT /api/characters/:id/resources/:rid
+  ↓
+handlers/characters.ts:updateResource
+  ↓
+data/characters.ts:updateResource
+  ↓
+PocketBase character update
+  ↓
+broadcast('resource_updated', { charId, resource })
+```
+
+### Example: rest
+
+```text
+POST /api/characters/:id/rest
+  ↓
+handlers/characters.ts:restoreResources
+  ↓
+data/characters.ts:restoreResources
+  ↓
+PocketBase character update
+  ↓
+broadcast('rest_taken', { charId, type, restored, character })
+```
+
+### Example: dice roll
+
+```text
+POST /api/rolls
+  ↓
+handlers/rolls.ts:logRoll
+  ↓
+characterModule.getCharacterName(pb, charId)
+  ↓
+rollsModule.logRoll(pb, payload)
+  src/server/data/rolls.ts
+  ↓
+PocketBase create in rolls collection
+  ↓
+broadcast('dice_rolled', rollRecord)
+```
+
+### Example: non-PocketBase live events
+
+Not every broadcast is backed by PocketBase writes.
+
+These handlers mostly emit runtime events only:
+
+- `src/server/handlers/overlay.ts`
+  - `announce`
+  - `level_up`
+  - `player_down`
+  - `lower_third`
+- `src/server/handlers/misc.ts`
+  - `sync_start`
+  - `scene_changed`
+  - `character_focused`
+  - `character_unfocused`
+
+For these events, the server is the authority and PocketBase may not be involved at all.
+
+---
+
+## The Broadcast Hub
+
+All server fan-out goes through:
+
+- [src/server/socket/rooms.ts](../src/server/socket/rooms.ts)
+
+Current behavior:
+
+```ts
+export function broadcast(event, data = {}) {
+  _io.emit(event, data);
+  logEvent(event, summary);
+}
+```
+
+What this means today:
+
+- broadcasts are **global**, not room-scoped
+- every connected client receives the event
+- every broadcast is mirrored into `logs/sidecar.jsonl`
+
+Room-aware delivery is planned, but not implemented yet.
+
+---
+
+## Client Consumption Paths
+
+The repo currently has more than one client-side socket consumer.
+
+### 1. Legacy Stage store
+
+File:
+
+- [control-panel/src/lib/services/socket.js](../control-panel/src/lib/services/socket.js)
+
+Used by Stage pages and related components.
+
+Behavior:
+
+- owns singleton `socket`
+- owns writable `characters` store
+- owns writable `lastRoll` store
+- listens for:
+  - `initialData`
+  - `hp_updated`
+  - `character_created`
+  - `character_updated`
+  - `condition_added`
+  - `condition_removed`
+  - `resource_updated`
+  - `rest_taken`
+  - `character_deleted`
+  - `dice_rolled`
+
+This is the main live replication path for Stage.
+
+### 2. Overlay socket helper
+
+File:
+
+- [control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts](../control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts)
+
+Behavior:
+
+- creates a socket per overlay bootstrap
+- listens to `initialData`, `character_updated`, `hp_updated`
+- exposes:
+  - `socket`
+  - `characters`
+  - `getChar(id)`
+
+This path is intentionally listen-only.
+
+### 3. Typed socket client
+
+File:
+
+- [control-panel/src/lib/services/socket.svelte.ts](../control-panel/src/lib/services/socket.svelte.ts)
+
+Status:
+
+- exists as the typed/client abstraction
+- supports `connectSocket`, `subscribe`, `emit`
+- uses `EventPayloadMap` from `contracts/events.ts`
+
+Important caveat:
+
+- the wire format emitted by the server is currently **snake_case**
+- `contracts/events.ts` still describes mostly **camelCase / forward-looking** event names
+
+Treat `socket.svelte.ts` as infrastructure in progress, not the exact source of truth for current wire events.
+
+---
+
+## PocketBase-Specific Notes
+
+### Server-side PocketBase singleton
+
+File:
+
+- [src/server/pb.ts](../src/server/pb.ts)
+
+Key behaviors:
+
+- authenticates as PocketBase superuser on boot
+- refreshes auth periodically
+- calls `pb.autoCancellation(false)`
+
+That last setting is important because concurrent server requests and socket hydration should not cancel each other.
+
+### Data modules own business logic
+
+Files:
+
+- `src/server/data/characters.ts`
+- `src/server/data/rolls.ts`
+
+These modules are intentionally thin but still own important rules:
+
+- HP clamping
+- resource clamping
+- rest restoration behavior
+- condition ID creation
+- record lookup / null handling
+
+Handlers should validate request shape and choose status codes.
+Data modules should own persistence behavior and write rules.
+
+---
+
+## Current Realities and Exceptions
+
+### No incoming socket mutations yet
+
+Files in `src/server/socket/events/` are stubs.
+
+So although the project uses Socket.io heavily, it is currently being used for:
+
+- connection hydration
+- server-to-client replication
+- server-to-client moment/show events
+
+It is **not** currently used for:
+
+- client-originated authoritative writes
+- room/session-scoped command routing
+
+### PocketBase realtime is not used
+
+PocketBase has its own realtime subscription mechanism, but this repo does not rely on it for live UI replication.
+
+Live updates come from:
+
+```text
+REST write
+  → PocketBase persistence
+  → server broadcast
+  → Socket.io listeners
+```
+
+### Some frontend code still talks to PocketBase directly
+
+The repo has both:
+
+- **server-mediated authoritative writes** via REST
+- **direct PocketBase reads/writes** in frontend service modules
+
+For documentation and architecture reasoning, treat the REST path as the canonical live gameplay mutation path, and direct PocketBase usage as a separate service capability that is not the main realtime orchestration path.
+
+### Cast player sheet is currently baseline-first
+
+The Cast player route loads from PocketBase through SvelteKit server load first.
+Its live socket overlay path is still partial / planned compared with Stage and Audience.
+
+---
+
+## Practical Debugging Map
+
+If data looks wrong, check the system in this order:
+
+1. **PocketBase record wrong**
+   - inspect `characters` / `rolls` collections
+   - inspect `src/server/data/*.ts`
+
+2. **REST mutation succeeds but clients do not update**
+   - inspect handler in `src/server/handlers/*.ts`
+   - confirm it calls `broadcast(...)`
+
+3. **Broadcast emitted but one surface stays stale**
+   - inspect the relevant client listener:
+     - `socket.js`
+     - `overlaySocket.svelte.ts`
+     - route/component-local listener
+
+4. **Reconnect gives empty state**
+   - inspect `src/server/socket/index.ts`
+   - inspect `ensureAuth()` in `src/server/pb.ts`
+
+5. **Types look correct but runtime events do not match**
+   - check `docs/SOCKET-EVENTS.md`
+   - do not assume `contracts/events.ts` matches current snake_case wire names
 
 ---
 
 ## References
 
-- `docs/SOCKET-EVENTS.md` — complete payload shapes for every Socket.io event
-- `docs/API.md` — all REST endpoints
-- `docs/ARCHITECTURE.md` — system overview and surface map
-- `src/server/socket/rooms.ts` — `broadcast()` implementation
-- `control-panel/src/lib/services/pocketbase.ts` — SSR URL logic and error translation
+- [docs/ARCHITECTURE.md](./ARCHITECTURE.md)
+- [docs/SOCKET-EVENTS.md](./SOCKET-EVENTS.md)
+- [docs/SERVER-VS-FRONTEND.md](./SERVER-VS-FRONTEND.md)
+- [server.ts](../server.ts)
+- [src/server/socket/rooms.ts](../src/server/socket/rooms.ts)
+- [control-panel/src/lib/services/pocketbase.ts](../control-panel/src/lib/services/pocketbase.ts)
+- [control-panel/src/lib/services/socket.js](../control-panel/src/lib/services/socket.js)

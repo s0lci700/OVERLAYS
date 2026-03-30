@@ -1,13 +1,3 @@
-﻿<!--
-  Root index route: redirect to Stage › Live › Characters.
+<!--
+  Root index route: Redirects to /live/characters (handled by +page.server.ts).
 -->
-<script>
-  import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
-  import { resolve } from "$app/paths";
-  const liveCharacters = resolve("/live/characters");
-
-  onMount(() => {
-    goto(liveCharacters);
-  });
-</script>

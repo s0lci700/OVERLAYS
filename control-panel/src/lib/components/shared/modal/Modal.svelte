@@ -28,6 +28,7 @@
     class="cp-modal-card card-base"
     {showCloseButton}
     aria-labelledby="modal-title"
+    portalProps={{}}
   >
     <header class="cp-modal-head">
       {#if title}

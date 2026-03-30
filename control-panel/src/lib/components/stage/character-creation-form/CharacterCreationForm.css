@@ -12,8 +12,6 @@
 /* Root container: relies on shared card layout from .card-base and adds vertical rhythm. */
 .character-create {
   width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
   gap: var(--space-3);
 }
 
@@ -61,7 +59,7 @@
   gap: var(--space-2);
   align-items: start;
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .identity-group {
     grid-template-areas: "f-name" "f-player";
     grid-template-columns: 1fr;
@@ -77,7 +75,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .stats-grid {
     grid-template-areas: "f-hp" "f-ac" "f-vel";
     grid-template-columns: 1fr;
@@ -350,16 +348,23 @@
 .photo-section-container {
   display: grid;
   grid-template-areas: "preview trigger trigger";
+  grid-template-columns: auto 1fr;
   gap: var(--space-2);
   justify-content: center;
   align-items: center;
 }
-.ph-el-1 {
-  grid-area: trigger;
-  aspect-ratio: 3/1;
-  max-height: 10vh;
-} /* EDITAR
-   FOTO button */
+
+@media (max-width: 768px) {
+  .photo-section-container {
+    grid-template-areas: "trigger" "preview";
+    grid-template-columns: 1fr;
+  }
+  
+  .ph-el-1 {
+    aspect-ratio: auto;
+    min-height: 44px;
+  }
+}
 .ph-el-2 {
   grid-area: preview;
   align-self: center;

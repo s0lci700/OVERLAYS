@@ -5,7 +5,7 @@
   import { page } from "$app/state";
   import { resolve } from "$app/paths";
   let { children } = $props();
-  const createForm = resolve(`/setup/create`);
+  const createForm = resolve(`/setup/create`, {});
 </script>
 
 {@render children()}
@@ -22,7 +22,7 @@
   <a
     class="nav-tab"
     class:active={page.url.pathname === "/setup/manage"}
-    href={resolve("/setup/manage")}
+    href={resolve("/setup/manage", {})}
   >
     <span class="nav-icon">⛭</span>
     <span class="nav-label">GESTIONAR</span>
