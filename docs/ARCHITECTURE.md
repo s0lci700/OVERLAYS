@@ -2,7 +2,7 @@
 title: Architecture Guide
 type: architecture
 source_files: [src/server/, src/server/data/characters.ts, src/server/data/rolls.ts, control-panel/src/lib/]
-last_updated: 2026-03-25
+last_updated: 2026-03-30
 ---
 
 # Architecture Guide
@@ -138,6 +138,7 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 | `lib/services/router.js`                 | Routing helpers                                            | route/hash helpers                                                                    |
 | `lib/components/stage/*`                 | Stage UI components                                        | CharacterCard, DiceRoller, CharacterManagement, forms                                 |
 | `lib/components/cast/dm/*`               | DM panel components                                        | InitiativeStrip, SessionCard, SessionBar                                              |
+| `lib/components/cast/players/*`          | Player character sheet components                          | CharacterSheet, ResourceTracker (TASK-1.4 ✅)                                         |
 | `lib/components/overlays/*`              | Audience overlays                                          | OverlayHP, OverlayDice, OverlayConditions, OverlayTurnOrder, OverlaySceneTitle, etc.  |
 | `lib/components/overlays/shared/`        | Overlay socket factory                                     | `createOverlaySocket` (`overlaySocket.svelte.ts`)                                     |
 | `lib/components/shared/*`                | Shared UI primitives                                       | button, dialog, tooltip, form, condition-pill, etc.                                   |

@@ -2,7 +2,7 @@
 title: Documentation Index
 type: reference
 source_files: []
-last_updated: 2026-03-25
+last_updated: 2026-03-30
 ---
 
 # Documentation Index
@@ -17,6 +17,8 @@ last_updated: 2026-03-25
 | **`../PROJECT.md`** | Four-layer system architecture | Understanding system design (Stage/Cast/Audience) |
 | **`ARCHITECTURE.md`** | Technical data flows & API routes | Building new features or debugging |
 | **`data-flow-interactive.html`** | Interactive visual explorer for PocketBase → server → socket → client paths | You want a fast visual walkthrough instead of only prose |
+| **`SERVER-VS-FRONTEND.md`** | Layer boundary reference — what runs where, who owns what | Debugging SSR vs client confusion |
+| **`FIXES-TASK-1.3.md`** | Post-implementation fixes log for TASK-1.3 | Understanding why certain patterns exist in the services layer |
 | **`API.md`** | REST endpoints + frontend services reference | Calling the API or using a service module |
 | **`SOCKET-EVENTS.md`** | Socket.io event contracts | Working with real-time communication |
 | **`DESIGN-SYSTEM.md`** | Design tokens & component reference | Building UI or styling components |

@@ -30,7 +30,7 @@ The Dungeon Master. Runs on a tablet or laptop at the table, visible only to the
 - Should never require leaving the current view to get something adjacent
 
 ### Current state
-Reference prototype exists (`dm-session-panel.html` at repo root). Not connected to the live system. Needs to be rebuilt as a proper SvelteKit route with Socket.io integration.
+Live and operational. `(cast)/dm/+page.svelte` renders the full DM panel: InitiativeStrip, SessionCards, SessionBar. Connected to Socket.io via `socket.svelte.ts`. Server-side data loaded via `+page.server.ts`.
 
 ### Target route
 ```
@@ -59,7 +59,7 @@ Each player, on their own phone, during a session.
 - Personal — each player sees only their own character (routed by character ID)
 
 ### Current state
-Not built. This is the highest-priority new build before Session 0.
+🚧 In Progress (Phase 1). Route scaffold, character data loading, and sheet UI sections (header, ability scores, saves, skills, resource tracker) are built — TASK-1.1 through TASK-1.4 done. Conditions display (TASK-1.5) and live socket overlay (TASK-1.6) still pending.
 
 ### Target route
 ```
@@ -80,9 +80,13 @@ Not built. This is the highest-priority new build before Session 0.
 
 | File | Notes |
 |---|---|
-| `dm-session-panel.html` | DM prototype — reference only, not production |
-| `control-panel/src/lib/services/socket.js` | Socket.io client + shared stores — Cast will use same connection |
-| `control-panel/src/lib/DashboardCard.svelte` | Read-only character tile — may be reused in Cast views |
+| `control-panel/src/routes/(cast)/dm/+page.svelte` | DM panel — InitiativeStrip + SessionCards |
+| `control-panel/src/routes/(cast)/dm/+page.server.ts` | Server-side character data loader |
+| `control-panel/src/routes/(cast)/players/[id]/+layout.svelte` | Player sheet layout — loads character record |
+| `control-panel/src/lib/components/cast/dm/InitiativeStrip.svelte` | Turn tracker |
+| `control-panel/src/lib/components/cast/dm/SessionCard.svelte` | Per-character DM card |
+| `control-panel/src/lib/components/cast/players/CharacterSheet.svelte` | Main character sheet component |
+| `control-panel/src/lib/components/cast/players/ResourceTracker.svelte` | Pool resource tracker (spell slots, rage, etc.) |
 
 ---
 

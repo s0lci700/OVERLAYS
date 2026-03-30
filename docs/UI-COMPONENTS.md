@@ -2,7 +2,7 @@
 title: UI Components Reference
 type: reference
 source_files: [control-panel/src/lib/components/shared/, control-panel/src/app.css, design/tokens.json]
-last_updated: 2026-03-25
+last_updated: 2026-03-30
 ---
 
 # UI Components Reference
@@ -289,6 +289,44 @@ Used inside `Modal`. Depends on `modal.css` for `.cp-modal-card` and `.photo-pre
 
 ---
 
+### `cast/players/CharacterSheet.svelte`
+
+**Root element:** `<div class="character-sheet">`
+Full mobile-first character sheet. Tabs: Overview (ability scores, saves), Skills, Magic, Notes.
+
+**Component tree:**
+```
+CharacterSheet
+├── ResourceTracker[]   ← cast/players/ResourceTracker.svelte
+└── ConditionPill[]     ← shared/condition-pill
+```
+
+---
+
+### `cast/players/ResourceTracker.svelte`
+
+Pool-based resource tracker for class features (Rage, Spell Slots, Second Wind, etc.).
+
+| Prop | Type | Notes |
+|---|---|---|
+| `resources` | `ResourceSlot[]` | Array of pool resources from character record |
+
+**`ResourceSlot` shape:**
+```typescript
+{ id, name, pool_max, pool_current, reset_on: 'long_rest' | 'short_rest' | 'turn' | 'dm' }
+```
+
+| CSS class | What it does |
+|---|---|
+| `.resource-tracker` | Container for all resource slots |
+| `.resource-slot` | Individual resource row |
+| `.pip` | Filled/empty pool indicator, color-coded by `reset_on` type |
+| `.recharge-label` | Recharge type badge (Long / Short / Turn / DM) |
+
+**Storybook:** `ResourceTracker.stories.svelte` — 4 variants: full rage, depleted slots, mixed, empty.
+
+---
+
 ### `cast/dm/SessionCard.svelte` + `SessionCard.css`
 
 **Root element:** `<article class="session-card">`
@@ -461,10 +499,13 @@ control-panel/src/
     │   ├── PhotoSourcePicker.svelte ← PhotoSourcePicker.css + modal.css
     │   └── CardActions.svelte
     └── cast/
-        └── dm/
-            ├── SessionCard.svelte   ← SessionCard.css
-            ├── SessionBar.svelte    ← SessionBar.css
-            └── InitiativeStrip.svelte ← InitiativeStrip.css
+        ├── dm/
+        │   ├── SessionCard.svelte   ← SessionCard.css
+        │   ├── SessionBar.svelte    ← SessionBar.css
+        │   └── InitiativeStrip.svelte ← InitiativeStrip.css
+        └── players/
+            ├── CharacterSheet.svelte
+            └── ResourceTracker.svelte
 
 design/tokens.json                   ← canonical token source (edit here)
 ```

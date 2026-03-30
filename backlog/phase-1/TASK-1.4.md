@@ -2,17 +2,17 @@
 id: TASK-1.4
 title: Build resource tracker component
 phase: 1
-status: Planned
+status: Done
 points: 5
 surface: Cast/Players
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec81ceb5e0f1ca2761d8db
-last_synced: 2026-03-25
+last_synced: 2026-03-30
 ---
 
 # TASK-1.4 — Build resource tracker component
 
-**Status:** 📋 Planned · **Points:** 5 · **Surface:** 📱 Cast/Players
+**Status:** ✅ Done · **Points:** 5 · **Surface:** 📱 Cast/Players
 
 > Build a pool-based resource tracker component for class features (Rage, Spell Slots, Action Surge, etc.) that displays `pool_current / pool_max` with `reset_on` recharge type.
 

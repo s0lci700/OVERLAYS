@@ -2,7 +2,7 @@
 title: Project Index
 type: reference
 source_files: []
-last_updated: 2026-03-25
+last_updated: 2026-03-30
 ---
 
 # Project Index
@@ -55,7 +55,11 @@ last_updated: 2026-03-25
 | `/setup/manage` | `routes/(stage)/setup/manage/+page.svelte` | Stage |
 | `/overview` | `routes/(stage)/overview/+page.svelte` | Stage |
 | `/dm` | `routes/(cast)/dm/+page.svelte` | Cast/DM |
-| `/players/[id]` | `routes/(cast)/players/[id]/+page.svelte` | Cast/Players |
+| `/dm` (server) | `routes/(cast)/dm/+page.server.ts` | Cast/DM — server-side character loader |
+| `/players/[id]` | `routes/(cast)/players/[id]/+layout.svelte` | Cast/Players — character record loader |
+| `/players/[id]/*` | sub-routes: skills, magic, notes | Cast/Players — sheet tabs |
+| `/live/characters` (server) | `routes/(stage)/live/characters/+page.server.ts` | Stage — server-side data loader |
+| `/` (root) | `routes/+layout.server.ts`, `routes/+page.server.ts` | App shell server-side loaders |
 | `/persistent/hp` | `routes/(audience)/persistent/hp/+page.svelte` | Audience |
 | `/persistent/conditions` | `routes/(audience)/persistent/conditions/+page.svelte` | Audience |
 | `/persistent/turn-order` | `routes/(audience)/persistent/turn-order/+page.svelte` | Audience |
@@ -105,8 +109,8 @@ last_updated: 2026-03-25
 | Directory | Components |
 | --------- | ---------- |
 | `stage/` | `CharacterCard`, `DiceRoller`, `CharacterCreationForm`, `CharacterManagement`, `CharacterProfileForm`, `MultiSelect`, `PhotoSourcePicker`, `AssetsGallery` |
-| `cast/dm/` | `InitiativeStrip`, `SessionCard`, `SessionBar`, `DMPanel` |
-| `cast/player-sheet/` | Player sheet components |
+| `cast/dm/` | `InitiativeStrip`, `SessionCard`, `SessionBar` |
+| `cast/players/` | `CharacterSheet`, `ResourceTracker` |
 | `overlays/` | `OverlayHP`, `OverlayDice`, `OverlayConditions`, `OverlayTurnOrder`, `OverlayCharacterFocus`, `OverlaySceneTitle`, `OverlayAnnounce`, `OverlayLevelUp`, `OverlayPlayerDown`, `OverlayLowerThird`, `OverlayStats`, `OverlayBreak`, `OverlayRecordingBadge` |
 | `overlays/shared/` | `overlaySocket.svelte.ts` — socket factory for OBS overlay routes |
 | `shared/` | `button`, `badge`, `dialog`, `tooltip`, `condition-pill`, `stat-display`, `stepper`, `read-only-field`, `selection-pill-list`, and others |

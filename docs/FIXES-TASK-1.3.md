@@ -1,3 +1,10 @@
+---
+title: Post-Implementation Fixes (TASK-1.3)
+type: reference
+source_files: [control-panel/src/lib/services/socket.svelte.ts, control-panel/src/routes/(cast)/players/]
+last_updated: 2026-03-28
+---
+
 # Post-Implementation Fixes (TASK-1.3)
 
 This document tracks the issues identified and resolved after the initial build of the Character Sheet UI components.
