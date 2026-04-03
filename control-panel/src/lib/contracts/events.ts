@@ -55,7 +55,9 @@ export interface ResourceUpdatedPayload {
 export interface CombatStartedPayload {
     encounterId: string;
     round: number;
-    initiativeOrder: Array<{ characterId: string; initiative: number }>;
+    initiativeOrder: Array<{ 
+        characterId: string; 
+        initiative: number }>;
 }
 
 export interface TurnAdvancedPayload {
