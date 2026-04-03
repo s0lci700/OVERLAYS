@@ -195,23 +195,23 @@ function bindSocketListeners(): void {
 		socketStatus.lastSync = new Date();
 	});
 
-	s.on('character_updated', ({ character }: { character: CharacterRecord }) => {
+	s.on('characterUpdated', ({ character }: { character: CharacterRecord }) => {
 		characters.update((chars) => chars.map((c) => (c.id === character.id ? character : c)));
 	});
 
-	s.on('hp_updated', ({ character }: { character: CharacterRecord }) => {
+	s.on('hpUpdated', ({ character }: { character: CharacterRecord }) => {
 		characters.update((chars) => chars.map((c) => (c.id === character.id ? character : c)));
 	});
 
-	s.on('character_created', ({ character }: { character: CharacterRecord }) => {
+	s.on('characterCreated', ({ character }: { character: CharacterRecord }) => {
 		characters.update((chars) => [...chars, character]);
 	});
 
-	s.on('character_deleted', ({ charId }: { charId: string }) => {
+	s.on('characterDeleted', ({ charId }: { charId: string }) => {
 		characters.update((chars) => chars.filter((c) => c.id !== charId));
 	});
 
-	s.on('dice_rolled', (data: any) => {
+	s.on('diceRolled', (data: any) => {
 		lastRoll.set(data);
 	});
 }

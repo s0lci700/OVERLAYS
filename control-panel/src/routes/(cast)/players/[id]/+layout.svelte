@@ -3,11 +3,14 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import type { LayoutData } from './$types';
+	import { characters } from '$lib/services/socket.svelte';
 	import './cast-layer.css';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
-	const character = $derived(data.character);
+	const character = $derived(
+		$characters.find((c) => c.id === data.character.id) ?? data.character
+	);
 
 	const navBase = $derived(character ? `/players/${character.id}` : '/players');
 
