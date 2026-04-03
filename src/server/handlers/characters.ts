@@ -25,7 +25,7 @@ export async function listCharacters(req: Request, res: Response): Promise<void>
 export async function getCharacter(req: Request, res: Response): Promise<void> {
   const { id } = req.params;
   try {
-    const char = await characterModule.findById(pb, id);
+    const char = await characterModule.findById(pb, id as string);
     if (!char) { res.status(404).json({ error: 'Character not found.' }); return; }
     res.status(200).json(char);
   } catch (err) {
@@ -71,7 +71,7 @@ export async function createCharacter(req: Request, res: Response): Promise<void
     portrait, notes,
   });
 
-  broadcast('character_created', { character });
+  broadcast('characterCreated', { character });
   res.status(201).json(character);
 }
 
@@ -89,7 +89,7 @@ export async function updateHp(req: Request, res: Response): Promise<void> {
     throw err;
   }
   if (!character) { res.status(404).json({ error: 'Character not found' }); return; }
-  broadcast('hp_updated', { character, hp_current: character.hp_current });
+  broadcast('hpUpdated', { character, hp_current: character.hp_current });
   res.status(200).json(character);
 }
 
@@ -109,7 +109,7 @@ export async function updatePhoto(req: Request, res: Response): Promise<void> {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
-  broadcast('character_updated', { character });
+  broadcast('characterUpdated', { character });
   res.status(200).json(character);
 }
 
@@ -160,7 +160,7 @@ export async function updateCharacter(req: Request, res: Response): Promise<void
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
-  broadcast('character_updated', { character });
+  broadcast('characterUpdated', { character });
   res.status(200).json(character);
 }
 
@@ -182,7 +182,7 @@ export async function addCondition(req: Request, res: Response): Promise<void> {
   }
   if (!character) { res.status(404).json({ error: 'Character not found' }); return; }
   const condition = character.conditions[character.conditions.length - 1];
-  broadcast('condition_added', { charId: id, condition });
+  broadcast('conditionAdded', { charId: id, condition });
   console.log(`Condition added: ${condition_name} → ${id}`);
   res.status(201).json(condition);
 }
@@ -199,7 +199,7 @@ export async function removeCondition(req: Request, res: Response): Promise<void
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character or condition not found' }); return; }
     throw err;
   }
-  broadcast('condition_removed', { charId: id, conditionId: condId });
+  broadcast('conditionRemoved', { charId: id, conditionId: condId });
   console.log(`Condition removed: ${condId} from ${id}`);
   res.status(200).json({ ok: true });
 }
@@ -212,7 +212,7 @@ export async function deleteCharacter(req: Request, res: Response): Promise<void
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
-  broadcast('character_deleted', { charId: id });
+  broadcast('characterDeleted', { charId: id });
   console.log(`Character deleted: ${id}`);
   res.status(200).json({ ok: true });
 }
@@ -237,7 +237,7 @@ export async function updateResource(req: Request, res: Response): Promise<void>
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character or resource not found' }); return; }
     throw err;
   }
-  broadcast('resource_updated', { charId: id, resource });
+  broadcast('resourceUpdated', { charId: id, resource });
   res.status(200).json(resource);
 }
 
@@ -255,7 +255,7 @@ export async function restoreResources(req: Request, res: Response): Promise<voi
     throw err;
   }
   if (!result) { res.status(404).json({ error: 'Character not found' }); return; }
-  broadcast('rest_taken', { charId: id, type, restored: result.restored, character: result.character });
+  broadcast('restTaken', { charId: id, type, restored: result.restored, character: result.character });
   console.log(`Rest taken: ${type} → ${id}, restored: ${result.restored.join(', ')}`);
   res.status(200).json({ restored: result.restored });
 }
@@ -277,7 +277,7 @@ export async function batchUpdateHp(req: Request, res: Response): Promise<void> 
         const character = await characterModule.updateHp(pb, charId, hp_current);
         if (character) {
           results.push(character);
-          broadcast('hp_updated', { character, hp_current: character.hp_current });
+          broadcast('hpUpdated', { character, hp_current: character.hp_current });
         } else {
           errors.push({ charId, error: 'Character not found' });
         }
