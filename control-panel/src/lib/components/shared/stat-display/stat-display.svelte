@@ -48,6 +48,7 @@
   let {
     label,
     value,
+    icon = undefined,
     variant = "inline",
     class: className = '',
     ...restProps
@@ -63,5 +64,25 @@
   {...restProps}
 >
   <span class={styles.label()} aria-hidden="true">{label}</span>
-  <span class={styles.value()} aria-hidden="true">{value}</span>
+  <div class={cn("flex items-center gap-1.5", styles.value())}>
+    {#if icon}
+      <span class="stat-icon" aria-hidden="true">{@html icon}</span>
+    {/if}
+    <span aria-hidden="true">{value}</span>
+  </div>
 </div>
+
+<style>
+  .stat-icon {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+  }
+  .stat-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    fill: none;
+  }
+</style>

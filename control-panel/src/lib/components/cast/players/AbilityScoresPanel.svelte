@@ -6,6 +6,8 @@
     ABILITY_LABELS
   } from '$lib/utils/character-derive';
   import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
+  import * as Tooltip from '$lib/components/shared/tooltip/index';
+  import { ABILITY_TOOLTIPS } from '$lib/data/tooltips';
 
   let {
     character
@@ -25,15 +27,28 @@
 <section class="ability-section">
   <CastSectionHeader title="ABILITY SCORES" />
 
-  <div class="ability-grid">
-    {#each ABILITIES as ab}
-      <div class="ability-cell">
-        <span class="ability-label">{ABILITY_LABELS[ab]}</span>
-        <span class="ability-mod">{formatMod(modifiers[ab])}</span>
-        <span class="ability-score">{character.ability_scores[ab] ?? 10}</span>
-      </div>
-    {/each}
-  </div>
+  <Tooltip.Provider delayDuration={200}>
+    <div class="ability-grid">
+      {#each ABILITIES as ab (ab)}
+        {@const tip = ABILITY_TOOLTIPS[ab]}
+        <Tooltip.Root>
+          <Tooltip.Trigger class="ability-cell">
+            <span class="ability-label">{ABILITY_LABELS[ab]}</span>
+            <span class="ability-mod">{formatMod(modifiers[ab])}</span>
+            <span class="ability-score">{character.ability_scores[ab] ?? 10}</span>
+          </Tooltip.Trigger>
+          {#if tip}
+            <Tooltip.Content
+              class="!bg-[#1b1b23] !text-[#f0f0f0] !rounded-none border border-[rgba(255,255,255,0.08)] max-w-[200px] !px-3 !py-2"
+            >
+              <p class="tip-name">{tip.name}</p>
+              <p class="tip-desc">{tip.description}</p>
+            </Tooltip.Content>
+          {/if}
+        </Tooltip.Root>
+      {/each}
+    </div>
+  </Tooltip.Provider>
 </section>
 
 <style>
@@ -44,7 +59,8 @@
     background-color: var(--cast-border-subtle);
   }
 
-  .ability-cell {
+  /* Trigger renders as <button> — reset and apply cell styles */
+  :global(.ability-cell) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -53,6 +69,9 @@
     background-color: rgba(27, 27, 35, 0.6);
     backdrop-filter: blur(var(--cast-blur));
     min-height: 64px;
+    width: 100%;
+    border: none;
+    cursor: default;
   }
 
   .ability-label {
