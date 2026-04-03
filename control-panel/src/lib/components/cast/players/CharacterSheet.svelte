@@ -6,7 +6,7 @@
   import SkillsPanel from './SkillsPanel.svelte';
   import ResourceTracker from './ResourceTracker.svelte';
   import CastSectionHeader from '$lib/components/cast/shared/CastSectionHeader.svelte';
-  import { ConditionPill } from '$lib/components/shared/condition-pill';
+  import ConditionsPanel from './ConditionsPanel.svelte';
 
   let {
     character,
@@ -36,13 +36,7 @@
     <CharacterHeader {character} />
 
     <!-- ── Conditions ──────────────────────────────────────────── -->
-    {#if character.conditions.length > 0}
-      <div class="conditions-row">
-        {#each character.conditions as cond}
-          <ConditionPill variant="cast" label={cond.condition_name.toUpperCase()} />
-        {/each}
-      </div>
-    {/if}
+    <ConditionsPanel {character} />
 
     <!-- ── Core Panels ─────────────────────────────────────────── -->
     <AbilityScoresPanel {character} />
@@ -116,13 +110,6 @@
     font-size: 12px;
     color: var(--cast-text-secondary);
     letter-spacing: 0.1em;
-  }
-
-  /* ── Conditions ─────────────────────────────────────────────── */
-  .conditions-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
   }
 
   /* Tablet/Desktop optimization */
