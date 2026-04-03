@@ -97,16 +97,19 @@
   async function updateHp(type) {
     if (isUpdating) return;
     isUpdating = true;
-    
+
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(40);
     }
+
+    const delta = type === 'damage' ? -amount : amount;
+    const hp_current = Math.max(0, Math.min(character.hp_current + delta, character.hp_max));
 
     try {
       const response = await fetch(`${SERVER_URL}/api/characters/${character.id}/hp`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, amount }),
+        body: JSON.stringify({ hp_current }),
       });
 
       if (!response.ok) {

@@ -6,10 +6,10 @@
 <script>
   import "$lib/components/cast/dashboard/Dashboard.css";
   import DashboardCard from "$lib/components/stage/DashboardCard.svelte";
-  // import { characters } from "$lib/services/socket.svelte.js";
+  import { characters } from "$lib/services/socket.svelte";
   import { history } from "$lib/derived/overviewStore.js";
-  import { listCharacterRecords } from "$lib/services/pocketbase";
-  let characters = $state(listCharacterRecords());
+  // import { listCharacterRecords } from "$lib/services/pocketbase";
+  // let characters = $derived(listCharacterRecords());
   const MAX_ACTION_LOG = 10;
   const MAX_ROLL_LOG = 10;
 
