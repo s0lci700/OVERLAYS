@@ -2,7 +2,7 @@
 title: Project Index
 type: reference
 source_files: []
-last_updated: 2026-03-30
+last_updated: 2026-04-03
 ---
 
 # Project Index
@@ -119,7 +119,8 @@ last_updated: 2026-03-30
 
 | File | Purpose |
 | ---- | ------- |
-| `overviewStore.js` | Activity history + computed dashboard state |
+| `overviewStore.js` | Activity history + computed dashboard state for the operator overview dashboard |
+| `stage.svelte.ts` | Stage session store — `activeRoster`, `selectedCharacterId`, `sessionContext`, `recentMutations`; exports `mutateHp`, `addCondition`, `removeCondition`, `updateResource`, `selectCharacter`, `initializeRoster`, `getCharacterList`, `getSelectedCharacter`, `getSessionContext` |
 
 ## Storybook (`.storybook/`)
 
@@ -134,7 +135,8 @@ Stories are colocated with components as `ComponentName.stories.svelte`.
 
 ## Core flows
 
-- **HP update:** `CharacterCard` → `PUT /api/characters/:id/hp` → `hp_updated` event → all clients
+- **HP update (Phase 2+):** `stage.svelte.ts mutateHp()` → local `$state` update (0ms) → `socket.emit('hpUpdated')` (~1ms) → REST `PUT /api/characters/:id/hp` (background) → PocketBase persist
+- **HP update (legacy):** `CharacterCard` → `PUT /api/characters/:id/hp` → `hp_updated` event → all clients
 - **Dice roll:** `DiceRoller` → `POST /api/rolls` → `dice_rolled` event → all clients
 - **Overlays:** listen-only; never send requests; socket via `createOverlaySocket(serverUrl)`
 

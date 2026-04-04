@@ -2,17 +2,17 @@
 id: TASK-1.7
 title: Story coverage audit — Cast/Players
 phase: 1
-status: Planned
+status: Done
 points: 2
 surface: DX
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec81caabb0c80e88a02af1
-last_synced: 2026-03-25
+last_synced: 2026-04-03
 ---
 
 # TASK-1.7 — Story coverage audit — Cast/Players
 
-**Status:** 📋 Planned · **Points:** 2 · **Surface:** 🔧 DX
+**Status:** ✅ Done · **Points:** 2 · **Surface:** 🔧 DX
 
 > End-of-phase coverage check. Stories are written inline with each component during Phase 1. This task audits that all Cast/Players components have complete story coverage: default, edge cases, loading, error. Fill any gaps.
 

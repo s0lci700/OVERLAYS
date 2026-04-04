@@ -2,17 +2,17 @@
 id: TASK-1.5
 title: Build conditions/status display component
 phase: 1
-status: Planned
+status: Done
 points: 5
 surface: Cast/Players
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec816cbdf2c1b35bf37d7f
-last_synced: 2026-03-25
+last_synced: 2026-04-03
 ---
 
 # TASK-1.5 — Build conditions/status display component
 
-**Status:** 📋 Planned · **Points:** 5 · **Surface:** 📱 Cast/Players
+**Status:** ✅ Done · **Points:** 5 · **Surface:** 📱 Cast/Players
 
 > Build an active conditions list that displays current conditions with intensity level, using the `condition-pill` component from Phase 0.
 

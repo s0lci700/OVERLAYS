@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- gitnexus:start -->
 # GitNexus MCP
 
-This project is indexed by GitNexus as **OVERLAYS** (5144 symbols, 17239 relationships, 300 execution flows).
+This project is indexed by GitNexus as **OVERLAYS** (2821 symbols, 6268 relationships, 177 execution flows).
 
 ## Always Start Here
 
@@ -37,24 +37,6 @@ This project is indexed by GitNexus as **OVERLAYS** (5144 symbols, 17239 relatio
 | Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
 | Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
-
-### Windows Setup (v1.3.6 Workaround)
-
-**Issue:** GitNexus v1.4.9+ fails on Windows with native module errors (tree-sitter ABI mismatch, @ladybugdb/core ERR_DLOPEN_FAILED).
-
-**Solution:** This project pins `gitnexus@1.3.6` in `package.json` with `kuzu` as an explicit runtime dependency.
-
-**To run gitnexus commands:**
-
-```powershell
-nvm use 20                  # Ensure Node v20.19.0 (v20 LTS recommended)
-bunx gitnexus analyze       # Index the repository
-bunx gitnexus mcp           # Start GitNexus MCP server for editor integration
-```
-
-> **Note:** kuzu's postinstall script must complete during `bun install`. If `bunx gitnexus` fails with "Cannot find module 'kuzu/index.mjs'", run: `cd node_modules/kuzu && node install.js && cd../..` to restore the prebuilt binary.
-
-**Why v1.3.6?** v1.4.9 upgraded tree-sitter (0.21→0.25.0) and added @ladybugdb/core, both of which require prebuilt binaries matching the exact Node ABI. Windows prebuilds are unavailable, so builds fail. v1.3.6 uses kuzu natively and works reliably on Node 20.
 
 <!-- gitnexus:end -->
 

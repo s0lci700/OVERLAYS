@@ -2,19 +2,19 @@
 id: phase-1
 title: Phase 1 — Player Sheet
 milestone: Session 0 LAN Test
-status: In Progress
+status: Done
 points_total: 33
-points_done: 21
+points_done: 33
 tasks_total: 7
-tasks_done: 4
-notion_url: https://www.notion.so/31eb63b6f5ec8138bc31d91a3fa4a4ab
-last_synced: 2026-03-30
+tasks_done: 7
+notion_url: https://www.notion.so/31eb63b6f5ec81588bd4ee4eb3e1ece5
+last_synced: 2026-04-03
 ---
 
-# Phase 1 — Player Sheet 🚧
+# Phase 1 — Player Sheet ✅
 
 **Milestone:** Session 0 LAN Test
-**Progress:** 4 of 7 tasks done · 21 of 33 pts
+**Progress:** 7 of 7 tasks done · 33 of 33 pts
 
 ## Goal
 
@@ -44,6 +44,6 @@ TASK-1.1 → TASK-1.2 → TASK-1.3
 | [TASK-1.2](TASK-1.2.md) | Build record-driven character page | ✅ Done | 8 |
 | [TASK-1.3](TASK-1.3.md) | Build sheet sections — header, abilities, saves, skills | ✅ Done | 3 |
 | [TASK-1.4](TASK-1.4.md) | Build resource tracker component | ✅ Done | 5 |
-| [TASK-1.5](TASK-1.5.md) | Build conditions/status display component | 📋 Planned | 5 |
-| [TASK-1.6](TASK-1.6.md) | Wire live state socket overlay — HP, conditions | 📋 Planned | 5 |
-| [TASK-1.7](TASK-1.7.md) | Story coverage audit — Cast/Players | 📋 Planned | 2 |
+| [TASK-1.5](TASK-1.5.md) | Build conditions/status display component | ✅ Done | 5 |
+| [TASK-1.6](TASK-1.6.md) | Wire live state socket overlay — HP, conditions | ✅ Done | 5 |
+| [TASK-1.7](TASK-1.7.md) | Story coverage audit — Cast/Players | ✅ Done | 2 |

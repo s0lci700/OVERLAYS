@@ -1,15 +1,17 @@
 ---
 title: Socket.io Event Reference
 type: reference
-source_files: [src/server/handlers/, src/server/socket/]
-last_updated: 2026-03-25
+source_files: [src/server/handlers/, src/server/socket/, control-panel/src/lib/contracts/events.ts]
+last_updated: 2026-04-03
 ---
 
 # Socket.io Event Reference
 
 > Complete reference for all Socket.io events in DADOS & RISAS.
 >
-> **Note on event naming:** Server emits use `snake_case` (e.g. `hp_updated`). The TypeScript contract file `$lib/contracts/events.ts` currently defines `camelCase` constants (`hpUpdated`, `conditionAdded`). These do **not** match the server — treat `events.ts` as a forward-looking contract, not the current wire format. Components should listen for the snake_case names shown in this document.
+> **Event naming — camelCase is the wire format:** `$lib/contracts/events.ts` defines camelCase constants (`hpUpdated`, `conditionAdded`, `conditionRemoved`, `resourceUpdated`) and `socket.svelte.ts` subscribes using the same camelCase names. The server's `socket/rooms.ts` `broadcast()` function also uses camelCase. Any older `snake_case` names (`hp_updated`, `condition_added`) are legacy REST-era names from before TASK-2.4 — **do not use them for new code.**
+>
+> **Phase 2 socket-first mutations:** `stage.svelte.ts` emits directly from the client (`hpUpdated`, `conditionAdded`, `conditionRemoved`, `resourceUpdated`). The server needs relay handlers to fan these out to all other clients. Until relay handlers exist, only the emitting client sees instant updates.
 
 ---
 

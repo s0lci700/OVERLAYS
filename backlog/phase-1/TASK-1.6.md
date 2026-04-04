@@ -2,17 +2,17 @@
 id: TASK-1.6
 title: Wire live state socket overlay — HP, conditions
 phase: 1
-status: Planned
+status: Done
 points: 5
 surface: Cast/Players
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec81449adee532800a9a0c
-last_synced: 2026-03-25
+last_synced: 2026-04-03
 ---
 
 # TASK-1.6 — Wire live state socket overlay — HP, conditions
 
-**Status:** 📋 Planned · **Points:** 5 · **Surface:** 📱 Cast/Players
+**Status:** ✅ Done · **Points:** 5 · **Surface:** 📱 Cast/Players
 
 > Subscribe to `hp_updated` and `condition_added/removed` socket events via the `character.ts` service so the player sheet reflects live state changes from the Stage operator without a page reload.
 

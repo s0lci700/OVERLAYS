@@ -2,7 +2,7 @@
 title: Task Backlog
 type: reference
 notion_db: https://www.notion.so/b4ce9e26-ed9e-41ba-b63a-80074a0aed97
-last_synced: 2026-03-30
+last_synced: 2026-04-03
 ---
 
 # Task Backlog
@@ -18,8 +18,8 @@ One file per task, grouped by phase. Synced from the [Notion Roadmap database](h
 | Phase | Folder | Milestone | Status | Progress |
 |-------|--------|-----------|--------|----------|
 | [Phase 0 — Foundation & DX](phase-0/_phase.md) | `phase-0/` | Session 0 LAN Test | ✅ Complete | 9/9 · 35 pts |
-| [Phase 1 — Player Sheet](phase-1/_phase.md) | `phase-1/` | Session 0 LAN Test | 🚧 In Progress | 4/7 · 21/33 pts |
-| Phase 2 — Stage Controls | `phase-2/` | Session 0 LAN Test | 📋 Planned | — |
+| [Phase 1 — Player Sheet](phase-1/_phase.md) | `phase-1/` | Session 0 LAN Test | ✅ Complete | 7/7 · 33 pts |
+| [Phase 2 — Stage Controls](phase-2/_phase.md) | `phase-2/` | Session 0 LAN Test | 🚧 In Progress | 0/5 · 0/29 pts |
 | Phase 3 — Commons | `phase-3/` | Session 0 LAN Test | 📋 Planned | — |
 | Phase 4 — Cast/DM Panel | `phase-4/` | Pilot Demo | 📋 Planned | — |
 | Phase 5 — Audience Overlays | `phase-5/` | Pilot Demo | 📋 Planned | — |
@@ -42,7 +42,7 @@ One file per task, grouped by phase. Synced from the [Notion Roadmap database](h
 | [TASK-0.8](phase-0/TASK-0.8.md) | Decompose server.js into modular structure | ✅ Done | 3 | 🏗 Foundation |
 | [TASK-0.9](phase-0/TASK-0.9.md) | Broadcast adapter interface + MockAdapter | ✅ Done | 2 | 🏗 Foundation |
 
-## Phase 1 — Player Sheet 🚧
+## Phase 1 — Player Sheet ✅
 
 | ID | Title | Status | Pts | Surface |
 |----|-------|--------|-----|---------|
@@ -50,6 +50,16 @@ One file per task, grouped by phase. Synced from the [Notion Roadmap database](h
 | [TASK-1.2](phase-1/TASK-1.2.md) | Build record-driven character page | ✅ Done | 8 | 📱 Cast/Players |
 | [TASK-1.3](phase-1/TASK-1.3.md) | Build sheet sections — header, abilities, saves, skills | ✅ Done | 3 | 📱 Cast/Players |
 | [TASK-1.4](phase-1/TASK-1.4.md) | Build resource tracker component | ✅ Done | 5 | 📱 Cast/Players |
-| [TASK-1.5](phase-1/TASK-1.5.md) | Build conditions/status display component | 📋 Planned | 5 | 📱 Cast/Players |
-| [TASK-1.6](phase-1/TASK-1.6.md) | Wire live state socket overlay — HP, conditions | 📋 Planned | 5 | 📱 Cast/Players |
-| [TASK-1.7](phase-1/TASK-1.7.md) | Story coverage audit — Cast/Players | 📋 Planned | 2 | 🔧 DX |
+| [TASK-1.5](phase-1/TASK-1.5.md) | Build conditions/status display component | ✅ Done | 5 | 📱 Cast/Players |
+| [TASK-1.6](phase-1/TASK-1.6.md) | Wire live state socket overlay — HP, conditions | ✅ Done | 5 | 📱 Cast/Players |
+| [TASK-1.7](phase-1/TASK-1.7.md) | Story coverage audit — Cast/Players | ✅ Done | 2 | 🔧 DX |
+
+## Phase 2 — Stage Controls 🚧
+
+| ID | Title | Status | Pts | Surface |
+|----|-------|--------|-----|---------|
+| [TASK-2.1](phase-2/TASK-2.1.md) | Build Live Characters route | 🚧 In Progress | 5 | 🎮 Stage |
+| [TASK-2.2](phase-2/TASK-2.2.md) | Build Dice Route — physical dice intake | 📋 Planned | 8 | 🎮 Stage |
+| [TASK-2.3](phase-2/TASK-2.3.md) | Build Reveal/Content Queue route | 📋 Planned | 8 | 🎮 Stage |
+| [TASK-2.4](phase-2/TASK-2.4.md) | Stage stores + socket event architecture | 🚧 In Progress | 5 | 🎮 Stage |
+| [TASK-2.5](phase-2/TASK-2.5.md) | Session package importer / stageQueue store | 📋 Planned | 3 | 🎮 Stage |
