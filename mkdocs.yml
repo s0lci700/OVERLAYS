@@ -30,3 +30,6 @@ nav:
 
 plugins:
   - search
+  - exclude:
+      glob:
+        - done/**
