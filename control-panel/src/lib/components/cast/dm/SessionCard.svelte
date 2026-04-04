@@ -2,6 +2,7 @@
   import "./SessionCard.css";
   import { resolvePhotoSrc } from "$lib/services/utils.js";
   import { SERVER_URL } from "$lib/services/socket.svelte.js";
+  import { HP_THRESHOLDS } from "$lib/contracts/stage.js";
 
   let {
     character,
@@ -13,15 +14,15 @@
 
   const hpPercent = $derived((character.hp_current / character.hp_max) * 100);
   const hpClass = $derived(
-    hpPercent > 60 ? "hp--healthy" : hpPercent > 30 ? "hp--injured" : "hp--critical",
+    hpPercent > HP_THRESHOLDS.HEALTHY ? "hp--healthy" : hpPercent > HP_THRESHOLDS.INJURED ? "hp--injured" : "hp--critical",
   );
   const classLabel = $derived(
-    character.class_primary?.name
-      ? `${character.class_primary.name} L${character.class_primary.level}`
+    character.class_name
+      ? `${character.class_name} L${character.level}`
       : "",
   );
   const photoSrc = $derived(
-    resolvePhotoSrc(character.photo, SERVER_URL, character.id),
+    resolvePhotoSrc(character.portrait, SERVER_URL, character.id),
   );
 </script>
 

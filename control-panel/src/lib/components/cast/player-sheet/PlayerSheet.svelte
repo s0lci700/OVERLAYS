@@ -48,7 +48,7 @@
     hpPercent <= 0 ? "is-down" : hpPercent <= 30 ? "is-critical" : hpPercent <= 60 ? "is-wounded" : ""
   );
   let photoSrc = $derived(
-    character ? resolvePhotoSrc(character.photo, SERVER_URL, character.id) : ""
+    character ? resolvePhotoSrc(character.portrait, SERVER_URL, character.id) : ""
   );
 
   /* ── Format helpers ── */

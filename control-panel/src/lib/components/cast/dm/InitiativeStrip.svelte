@@ -48,7 +48,7 @@
         >
           <img
             class="is-token-photo"
-            src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
+            src={resolvePhotoSrc(character.portrait, SERVER_URL, character.id)}
             alt={character.name}
             loading="lazy"
           />
@@ -71,7 +71,7 @@
         <li class="is-roll-row">
           <img
             class="is-roll-photo"
-            src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
+            src={resolvePhotoSrc(character.portrait, SERVER_URL, character.id)}
             alt={character.name}
             loading="lazy"
           />
