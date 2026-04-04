@@ -78,7 +78,7 @@
 
     // Avatar
     const char = characterMap[data.charId];
-    const photo = char?.photo ? serverUrl + char.photo : null;
+    const photo = char?.portrait ? serverUrl + char.portrait : null;
     avatarPhoto = photo;
     avatarInitialsText = initials(data.characterName);
 

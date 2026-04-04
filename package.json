@@ -8,7 +8,8 @@
     "build": "tsc --noEmit",
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "migrate-collections": "bun scripts/migrate-collections.ts"
+    "migrate-collections": "bun scripts/migrate-collections.ts",
+    "optimize-assets": "bun scripts/optimize-assets.ts"
   },
   "dependencies": {
     "@_davideast/stitch-mcp": "^0.5.1",
@@ -27,6 +28,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.1",
     "shadcn": "^4.1.1",
+    "sharp": "^0.34.5",
     "typescript": "^6.0.2"
   }
 }

@@ -20,7 +20,10 @@ export default [
   prettier,
   ...svelte.configs.prettier,
   {
-    languageOptions: { globals: { ...globals.browser, ...globals.node } }
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: {
+      "no-unused-vars": ["error", { varsIgnorePattern: "^_", argsIgnorePattern: "^_" }]
+    }
   },
 
   {

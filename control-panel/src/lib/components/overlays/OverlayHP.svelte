@@ -17,6 +17,7 @@
   import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
   import { getConditionClasses } from '$lib/components/overlays/shared/conditionEffects.js';
   import '$lib/components/overlays/overlays.css';
+  import { HP_THRESHOLDS } from '$lib/contracts/stage.js';
 
   let { serverUrl = "http://localhost:3000", mockCharacters = null } = $props();
 
@@ -123,8 +124,8 @@
   }
 
   function hpClass(pct) {
-    if (pct > 60) return "healthy";
-    if (pct > 30) return "injured";
+    if (pct > HP_THRESHOLDS.HEALTHY) return "healthy";
+    if (pct > HP_THRESHOLDS.INJURED) return "injured";
     return "critical";
   }
 
@@ -162,9 +163,9 @@
     <div class="character-hp" data-char-id={char.id}>
       <div class="card-header">
         <div class="char-avatar">
-          {#if char.photo}
+          {#if char.portrait}
             <img
-              src="{serverUrl}{char.photo}"
+              src="{serverUrl}{char.portrait}"
               alt={char.name}
               onerror={handleImageError}
             />
@@ -262,7 +263,7 @@
   .char-avatar {
     width: 52px;
     height: 52px;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    clip-path: var(--hex-clip-img);
     background: rgba(40, 40, 40, 0.9);
     flex-shrink: 0;
     overflow: hidden;

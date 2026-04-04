@@ -111,9 +111,9 @@
           class:is-past={i < currentTurnIndex}
         >
           <div class="token-avatar">
-            {#if p.photo}
+            {#if p.portrait}
               <img
-                src="{serverUrl}{p.photo}"
+                src="{serverUrl}{p.portrait}"
                 alt={p.name}
                 onerror={handleImageError}
               />

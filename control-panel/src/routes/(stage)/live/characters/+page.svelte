@@ -5,11 +5,16 @@
 	import CharacterCard from '$lib/components/stage/character-card/CharacterCard.svelte';
 	import type { PageData } from './$types';
 	import { characters } from '$lib/services/socket.svelte';
+	import { initializeRoster } from '$lib/derived/stage.svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	// Use the reactive socket store for live updates; fall back to SSR snapshot until socket hydrates.
 	let chars = $derived($characters.length > 0 ? $characters : data.characters);
+
+	// Keep the stage roster in sync with the socket store. Runs once on mount,
+	// then re-runs whenever the socket store updates (new character, deletion, etc.).
+	$effect(() => { initializeRoster(chars); });
 </script>
 
 <svelte:boundary>
@@ -18,7 +23,7 @@
 		<p>No hay personajes cargados.</p>
 	{:else}
 		{#each chars as character (character.id)}
-			<CharacterCard {character} />
+			<CharacterCard {data} {character} />
 		{/each}
 	{/if}
 	</div>

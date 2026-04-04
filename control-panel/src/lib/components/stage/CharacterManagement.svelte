@@ -145,7 +145,7 @@
     const charId = character.id;
     if (photoSourceById[charId] !== undefined) return;
 
-    const currentPhoto = character.photo || "";
+    const currentPhoto = character.portrait || "";
     const source = inferSource(currentPhoto);
 
     photoSourceById = { ...photoSourceById, [charId]: source };
@@ -614,7 +614,7 @@
             >
               <img
                 class="manage-photo"
-                src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
+                src={resolvePhotoSrc(character.portrait, SERVER_URL, character.id)}
                 alt={character.name}
               />
               <span class="manage-photo-hint">Editar foto</span>

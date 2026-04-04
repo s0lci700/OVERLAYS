@@ -11,7 +11,7 @@
 		(c) => c.id === data.character.id) ?? data.character);
 	const portraitUrl = $derived(character ? getPortraitUrl(character) : null);
 	onMount(() => {
-		console.log('[PlayerSheet] Mounted with data:', data);
+		console.debug('[PlayerSheet] Mounted with data:', data);
 	});
 </script>
 

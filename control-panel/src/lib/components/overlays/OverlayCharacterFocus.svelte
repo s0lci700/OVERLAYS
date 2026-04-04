@@ -129,9 +129,9 @@
   {@const pct = hpPct(char)}
   <div class="focus-panel" bind:this={panelEl}>
     <div class="focus-photo">
-      {#if char.photo}
+      {#if char.portrait}
         <img
-          src="{serverUrl}{char.photo}"
+          src="{serverUrl}{char.portrait}"
           alt={char.name}
           onerror={handleImageError}
         />

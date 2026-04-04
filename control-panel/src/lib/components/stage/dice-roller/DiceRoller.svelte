@@ -71,7 +71,7 @@
       modifier: modifier,
       sides: diceType,
     };
-    console.log("Sending payload:", payload);
+    console.debug('[DiceRoller] Sending payload:', payload);
 
     const response = await fetch(`${SERVER_URL}/api/rolls`, {
       method: "POST",

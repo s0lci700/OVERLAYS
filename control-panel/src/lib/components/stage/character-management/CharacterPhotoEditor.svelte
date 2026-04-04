@@ -6,7 +6,7 @@
   owns the Dialog + PhotoSourcePicker modal internally.
 
   Props:
-    character   – the character object (needs .id, .photo, .name)
+    character   – the character object (needs .id, .portrait, .name)
     SERVER_URL  – base URL for API calls
     PHOTO_OPTIONS – preset photo options array
     onPhotoSaved – optional callback(id, newUrl) after successful save
@@ -20,6 +20,7 @@
 
   /** @type {{ character: { id: string, photo?: string, name: string }, SERVER_URL: string, PHOTO_OPTIONS: any[], onPhotoSaved?: (id: string, url: string) => void }} */
   let { character, SERVER_URL, PHOTO_OPTIONS, onPhotoSaved } = $props();
+  // Note: character.portrait is the PocketBase field name (not .photo)
 
   // ── Helpers ───────────────────────────────────────────────────────
   function inferSource(photoValue) {
@@ -34,7 +35,7 @@
   // untrack() explicitly opts out of reactivity tracking — intentional here
   // because we want the form to initialize from the persisted value on mount,
   // not re-sync on every socket update.
-  const _photo0 = untrack(() => character.photo) || "";
+  const _photo0 = untrack(() => character.portrait) || "";
   const _source0 = inferSource(_photo0);
 
   // ── Internal state ────────────────────────────────────────────────
@@ -105,7 +106,7 @@
 >
   <img
     class="manage-photo"
-    src={resolvePhotoSrc(character.photo, SERVER_URL, character.id)}
+    src={resolvePhotoSrc(character.portrait, SERVER_URL, character.id)}
     alt={character.name}
   />
   <span class="manage-photo-hint">Editar foto</span>

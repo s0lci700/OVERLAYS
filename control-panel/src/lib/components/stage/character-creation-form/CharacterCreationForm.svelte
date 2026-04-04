@@ -18,7 +18,7 @@
   import { Button } from "$lib/components/shared/button/index.js";
   import { Input } from "$lib/components/shared/input/index.js";
   import { Label } from "$lib/components/shared/label/index.js";
-  import { SERVER_URL } from "$lib/services/socket.js";
+  import { SERVER_URL } from "$lib/services/socket.svelte.js";
   import characterOptions from "$lib/data/character-options.template.json";
   import {
     parseOptionSets,
@@ -145,7 +145,7 @@
       });
 
       const resolvedPhoto = getResolvedPhotoValue();
-      if (resolvedPhoto) payload.photo = resolvedPhoto;
+      if (resolvedPhoto) payload.portrait = resolvedPhoto;
 
       const response = await fetch(`${SERVER_URL}/api/characters`, {
         method: "POST",
