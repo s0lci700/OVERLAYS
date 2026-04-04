@@ -35,18 +35,18 @@
   const hitDieIcon = $derived(getDieSVG(hitDieType));
 
   const stats = $derived([
-    { key: 'armor', label: 'ARMOR', value: character.ac_base,                    icon: undefined },
-    { key: 'speed', label: 'SPEED', value: character.speed,                      icon: undefined },
-    { key: 'init',  label: 'INIT',  value: formatMod(dexMod),                   icon: undefined },
-    { key: 'prof',  label: 'PROF',  value: formatMod(character.proficiency_bonus), icon: undefined },
-    { key: 'hd',    label: 'HitDice', value: hitDice,                           icon: hitDieIcon.svg.raw },
+    { key: 'armor', label: 'CA',    value: character.ac_base,                    icon: undefined },
+    { key: 'speed', label: 'VEL',   value: character.speed,                      icon: undefined },
+    { key: 'init',  label: 'INI',   value: formatMod(dexMod),                   icon: undefined },
+    { key: 'prof',  label: 'BON',   value: formatMod(character.proficiency_bonus), icon: undefined },
+    { key: 'hd',    label: 'DADOS', value: hitDice,                           icon: hitDieIcon.svg.raw },
   ]);
 </script>
 
 <div class="character-identity">
   <div class="identity-top">
     <h1 class="character-name">{character.name}</h1>
-    <span class="level-badge">LVL {character.level}</span>
+    <span class="level-badge">NIV {character.level}</span>
   </div>
   <div class="species-line">
     {character.species} · {character.class_name}

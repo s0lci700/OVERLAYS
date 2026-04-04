@@ -30,7 +30,7 @@
 </script>
 
 <section class="saving-throws-section">
-  <CastSectionHeader title="SAVING THROWS" />
+  <CastSectionHeader title="SALVACIONES" />
 
   <Tooltip.Provider delayDuration={200}>
     <div class="saves-list">

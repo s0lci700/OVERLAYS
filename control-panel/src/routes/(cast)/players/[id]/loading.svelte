@@ -79,7 +79,7 @@
 		background: rgba(27, 27, 35, 0.8);
 		backdrop-filter: blur(var(--cast-blur));
 		border: 1px solid rgba(200, 148, 74, 0.2);
-		clip-path: polygon(2% 0%, 98% 0%, 100% 50%, 98% 100%, 2% 100%, 0% 50%);
+		clip-path: var(--hex-clip-lg);
 		display: flex;
 		align-items: center;
 		justify-content: center;

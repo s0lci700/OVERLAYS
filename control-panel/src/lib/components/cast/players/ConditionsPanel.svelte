@@ -10,8 +10,8 @@
 	const activeCount = $derived(character?.conditions?.length ?? 0);
 </script>
 
-<section class="conditions-panel" aria-label="Active conditions">
-	<CastSectionHeader title="CONDITIONS" meta={activeCount > 0 ? `${activeCount} ACTIVE` : 'NONE'} />
+<section class="conditions-panel" aria-label="Condiciones activas">
+	<CastSectionHeader title="CONDICIONES" meta={activeCount > 0 ? `${activeCount} ACTIVAS` : 'NINGUNA'} />
 	<div class="conditions-container">
 		{#if activeCount === 0}
 			<p class="empty-state">Sin condiciones activas</p>

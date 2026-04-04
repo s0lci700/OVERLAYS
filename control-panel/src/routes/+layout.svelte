@@ -9,12 +9,10 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { LayoutData } from './$types';
 	import { socketStatus, connectSocket, socket } from '$lib/services/socket.svelte';
-	// import { socket } from "$lib/services/socket";
 	import { onMount } from 'svelte';
 
 	let { children, data }: { children: any; data: LayoutData } = $props();
 
-	let connected = $state(socketStatus.connected);
 	let isSidebarOpen = $state(false);
 	let charCount = $derived(data.charCount ?? 0);
 
@@ -25,15 +23,16 @@
 
 	const navLinks = $derived([
 		{ href: '/setup/create', label: 'Gestión de personajes', active: isSetup },
-		{ href: '/overview', label: 'Dashboard', active: isOverview },
-		{ href: '/dm', label: 'Panel DM', active: isDM },
-		{ href: '/players', label: 'Ficha Jugador', active: isPlayers }
+		{ href: '/overview', label: 'Tablero de control', active: isOverview },
+		{ href: '/dm', label: 'Panel del director', active: isDM },
+		{ href: '/players', label: 'Ficha de personaje', active: isPlayers },
+		{ href: '/live', label: 'Mesa de producción', active: page.url.pathname.startsWith('/stage') },
 	]);
 	onMount(() => {
     connectSocket("session-testing", "stage");
-		console.log('Socket status on mount:', socketStatus.connected ? 'connected' : 'disconnected');  
+		console.debug('[Layout] Socket status on mount:', socketStatus.connected ? 'connected' : 'disconnected');
     if (socketStatus.lastSync) {
-      console.log('Last sync time on mount:', socketStatus.lastSync.toLocaleTimeString());
+      console.debug('[Layout] Last sync time on mount:', socketStatus.lastSync.toLocaleTimeString());
     }
 	});
 </script>
@@ -42,26 +41,40 @@
 	<a class="skip-to-content" href="#main-content">Saltar al contenido</a>
 
 	<header class="app-header">
-		<div class="brand-wordmark">
+		<div style="gap:0;" class="brand-wordmark">
 			<span class="brand-block">table</span>
-			<span class="brand-script">Relay</span>
+			<span class="brand-block" style="text-transform: capitalize;">Relay</span>
 		</div>
 
+		<!-- This can be refactored in a better way -->
 		<span class="page-title">
 			{isOverview
-				? 'DASHBOARD EN VIVO'
+				? 'ESTADO DEL GRUPO'
 				: isSetup
 					? 'GESTIÓN DE PERSONAJES'
 					: isDM
-						? 'PANEL DM'
+						? 'PANEL DEL DIRECTOR'
 						: isPlayers
 							? 'FICHA DE PERSONAJE'
-							: 'PANEL DE CONTROL'}
+							: 'MESA DE PRODUCCIÓN'}
 		</span>
 
+		<nav class="desktop-nav">
+			{#each navLinks as link}
+				<a
+					class="desktop-nav-link"
+					class:active={link.active}
+					href={resolve(link.href, {})}
+				>
+					{link.label}
+				</a>
+			{/each}
+		</nav>
+
 		<div class="header-meta">
-			<div class="conn-dot" class:connected={socketStatus.connected}></div>
-			<span class="header-count">{charCount}</span>
+			<div class="header-status" title={socketStatus.connected ? 'Conectado' : 'Desconectado'}>
+				<div class="conn-dot" class:connected={socketStatus.connected}></div>
+			</div>
 			
 			<Dialog.Root bind:open={isSidebarOpen}>
 				<Dialog.Trigger class="header-menu" aria-label="Abrir navegación">☰</Dialog.Trigger>
@@ -99,11 +112,14 @@
 						</nav>
 
 						<div class="app-sidebar-footer">
-							{#if socketStatus.lastSync}
-								<div class="sidebar-sync">
-									Sincronizado: {socketStatus.lastSync.toLocaleTimeString()}
-								</div>
-							{/if}
+							<div class="sidebar-meta">
+								<span class="label-caps">Personajes: {charCount}</span>
+								{#if socketStatus.lastSync}
+									<div class="sidebar-sync">
+										Sincronizado: {socketStatus.lastSync.toLocaleTimeString()}
+									</div>
+								{/if}
+							</div>
 							<span class="label-caps">TTRPG Production System v1.0</span>
 						</div>
 					</Dialog.Content>
@@ -118,6 +134,71 @@
 </div>
 
 <style>
+	.header-status {
+		display: flex;
+		align-items: center;
+		padding: 0 var(--space-2);
+		height: 100%;
+	}
+
+	.desktop-nav {
+		display: none;
+		gap: var(--space-2);
+		margin: 0 var(--space-4);
+		flex: 1;
+		justify-content: center;
+	}
+
+	.desktop-nav-link {
+		font-family: var(--font-display);
+		font-size: 0.8rem;
+		letter-spacing: 0.08em;
+		color: var(--grey);
+		text-transform: uppercase;
+		transition: all var(--t-fast);
+		position: relative;
+		padding: var(--space-2) var(--space-4);
+		white-space: nowrap;
+		border: 1px solid transparent;
+	}
+
+	.desktop-nav-link:hover {
+		color: var(--white);
+		background: rgba(255, 255, 255, 0.05);
+		border-color: var(--grey-dim);
+	}
+
+	.desktop-nav-link.active {
+		color: var(--white);
+		background: var(--cast-amber-dim);
+		border-color: var(--cast-amber-border);
+		box-shadow: inset 0 0 15px var(--cast-amber-glow);
+	}
+
+	@media (max-width: 1024px) {
+		.desktop-nav {
+			display: none;
+		}
+		.header-menu {
+			display: none;
+		}
+		.page-title {
+			display: block;
+			font-size: 1.25rem;
+			max-width: 200px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.page-title {
+			font-size: 1.1rem;
+			max-width: 160px;
+		}
+	}
+
 	.app-sidebar-nav {
 		display: flex;
 		flex-direction: column;
@@ -129,5 +210,15 @@
 		padding-top: var(--space-4);
 		border-top: 1px solid var(--cast-amber-border);
 		text-align: center;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
+	}
+
+	.sidebar-meta {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		opacity: 0.8;
 	}
 </style>

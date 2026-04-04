@@ -25,7 +25,7 @@
 </script>
 
 <section class="ability-section">
-  <CastSectionHeader title="ABILITY SCORES" />
+  <CastSectionHeader title="ATRIBUTOS" />
 
   <Tooltip.Provider delayDuration={200}>
     <div class="ability-grid">

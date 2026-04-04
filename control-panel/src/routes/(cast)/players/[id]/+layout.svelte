@@ -5,6 +5,7 @@
 	import type { LayoutData } from './$types';
 	import { characters } from '$lib/services/socket.svelte';
 	import './cast-layer.css';
+	import { HP_THRESHOLDS } from '$lib/contracts/stage.js';
 
 	let { data, children }: { data: LayoutData; children: Snippet } = $props();
 
@@ -28,14 +29,14 @@
 		character ? Math.round((character.hp_current / character.hp_max) * 100) : 0
 	);
 
-	const isCritical = $derived(hpPercent <= 25);
+	const isCritical = $derived(hpPercent <= HP_THRESHOLDS.INJURED);
 
 	function formatHp(c: NonNullable<typeof character>) {
 		return `${c.hp_current}/${c.hp_max}`;
 	}
 
 	function formatSubtitle(c: NonNullable<typeof character>) {
-		const parts = [`LVL ${c.level}`, c.species.toUpperCase(), c.class_name.toUpperCase()];
+		const parts = [`NIV ${c.level}`, c.species.toUpperCase(), c.class_name.toUpperCase()];
 		if (c.subclass_name) parts.push(c.subclass_name.toUpperCase());
 		return parts.join(' ');
 	}
@@ -63,10 +64,10 @@
 				</div>
 				<div class="cast-header-vitals">
 					<span class="cast-vitals-hp {isCritical ? 'cast-vitals-hp--critical' : ''}">
-						HP {formatHp(character)}
+						VIT {formatHp(character)}
 					</span>
 					<span class="cast-vitals-sep">|</span>
-					<span class="cast-vitals-ac">AC {character.ac_base}</span>
+					<span class="cast-vitals-ac">CA {character.ac_base}</span>
 				</div>
 			</div>
 		</header>
@@ -86,7 +87,7 @@
 				<span class="material-symbols-outlined cast-nav-icon"
 					aria-hidden="true"
 					style={activeTab === 'home' ? 'font-variation-settings: "FILL" 1' : ''}>home</span>
-				<span class="cast-nav-label">HOME</span>
+				<span class="cast-nav-label">INICIO</span>
 			</a>
 			<a
 				href={resolve(`${navBase}/skills`, {})}
@@ -96,7 +97,7 @@
 				<span class="material-symbols-outlined cast-nav-icon"
 					aria-hidden="true"
 					style={activeTab === 'skills' ? 'font-variation-settings: "FILL" 1' : ''}>military_tech</span>
-				<span class="cast-nav-label">SKILLS</span>
+				<span class="cast-nav-label">HABILIDADES</span>
 			</a>
 			<a
 				href={resolve(`${navBase}/magic`, {})}
@@ -106,7 +107,7 @@
 				<span class="material-symbols-outlined cast-nav-icon"
 					aria-hidden="true"
 					style={activeTab === 'magic' ? 'font-variation-settings: "FILL" 1' : ''}>auto_stories</span>
-				<span class="cast-nav-label">MAGIC</span>
+				<span class="cast-nav-label">MAGIA</span>
 			</a>
 			<a
 				href={resolve(`${navBase}/notes`, {})}
@@ -116,7 +117,7 @@
 				<span class="material-symbols-outlined cast-nav-icon"
 					aria-hidden="true"
 					style={activeTab === 'notes' ? 'font-variation-settings: "FILL" 1' : ''}>edit_note</span>
-				<span class="cast-nav-label">NOTES</span>
+				<span class="cast-nav-label">NOTAS</span>
 			</a>
 		</nav>
 	{:else}

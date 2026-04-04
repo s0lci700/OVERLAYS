@@ -7,24 +7,24 @@ export const SKILL_ABILITY: Record<string, string> = {
 };
 
 export const SKILL_LABELS: Record<string, string> = {
-    athletics: 'Athletics',
-    acrobatics: 'Acrobatics',
-    sleight_of_hand: 'Sleight of Hand',
-    stealth: 'Stealth',
-    arcana: 'Arcana',
-    history: 'History',
-    investigation: 'Investigation',
-    nature: 'Nature',
-    religion: 'Religion',
-    animal_handling: 'Animal Handling',
-    insight: 'Insight',
-    medicine: 'Medicine',
-    perception: 'Perception',
-    survival: 'Survival',
-    deception: 'Deception',
-    intimidation: 'Intimidation',
-    performance: 'Performance',
-    persuasion: 'Persuasion'
+    athletics: 'Atletismo',
+    acrobatics: 'Acrobacias',
+    sleight_of_hand: 'Juego de Manos',
+    stealth: 'Sigilo',
+    arcana: 'Arcanos',
+    history: 'Historia',
+    investigation: 'Investigación',
+    nature: 'Naturaleza',
+    religion: 'Religión',
+    animal_handling: 'Trato con Animales',
+    insight: 'Perspicacia',
+    medicine: 'Medicina',
+    perception: 'Percepción',
+    survival: 'Supervivencia',
+    deception: 'Engaño',
+    intimidation: 'Intimidación',
+    performance: 'Interpretación',
+    persuasion: 'Persuasión'
 };
 
 export const SKILLS_BY_ABILITY: Record<string, string[]> = {
@@ -40,7 +40,7 @@ export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const;
 export type Ability = typeof ABILITIES[number];
 
 export const ABILITY_LABELS: Record<string, string> = {
-		str: 'STR', dex: 'DEX', con: 'CON', int: 'INT', wis: 'WIS', cha: 'CHA'
+		str: 'FUE', dex: 'DES', con: 'CON', int: 'INT', wis: 'SAB', cha: 'CAR'
 	};
 
 
