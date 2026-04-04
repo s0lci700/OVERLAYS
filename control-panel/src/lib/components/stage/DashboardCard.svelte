@@ -16,19 +16,19 @@
   ];
 
   const abilityList = [
-    { key: "str", label: "STR" },
-    { key: "dex", label: "DEX" },
+    { key: "str", label: "FUE" },
+    { key: "dex", label: "DES" },
     { key: "con", label: "CON" },
     { key: "int", label: "INT" },
-    { key: "wis", label: "WIS" },
-    { key: "cha", label: "CHA" },
+    { key: "wis", label: "SAB" },
+    { key: "cha", label: "CAR" },
   ];
 
   const rechargeLabels = {
     SHORT_REST: "descanso corto",
     LONG_REST: "descanso largo",
     TURN: "turno",
-    DM: "DM",
+    DM: "narrador",
   };
 
   let { character } = $props();
@@ -61,25 +61,25 @@
   function formatText(value) {
     if (typeof value === "string") {
       const trimmed = value.trim();
-      return trimmed ? trimmed : "no definida";
+      return trimmed ? trimmed : "no definido";
     }
-    return "no definida";
+    return "no definido";
   }
 
   function formatNumber(value) {
-    return Number.isFinite(value) ? String(value) : "no definida";
+    return Number.isFinite(value) ? String(value) : "no definido";
   }
 
   function formatHp(current, max) {
     if (!Number.isFinite(current) || !Number.isFinite(max)) {
-      return "no definida";
+      return "no definido";
     }
     return `${current}/${max}`;
   }
 
   function formatCondition(condition) {
     const name = formatText(condition?.condition_name);
-    if (name === "no definida") return name;
+    if (name === "no definido") return name;
 
     if (Number.isFinite(condition?.intensity_level)) {
       return `${name} · nivel ${condition.intensity_level}`;
@@ -88,18 +88,18 @@
   }
 
   function formatResourceCount(resource) {
-    if (!resource) return "no definida";
+    if (!resource) return "no definido";
     if (
       !Number.isFinite(resource.pool_current) ||
       !Number.isFinite(resource.pool_max)
     ) {
-      return "no definida";
+      return "no definido";
     }
     return `${resource.pool_current}/${resource.pool_max}`;
   }
 
   function formatRecharge(recharge) {
-    return rechargeLabels[recharge] || "no definida";
+    return rechargeLabels[recharge] || "no definido";
   }
 
   function getSafeName() {
@@ -111,74 +111,76 @@
 
 <article class="dashboard-card card-base">
   <header class="dash-card-header">
-    <img
-      class="dash-photo"
-      src={resolvePhotoSrc(character?.photo || "")}
-      alt={`Foto de ${getSafeName()}`}
-      loading="lazy"
-    />
+    <div class="dash-photo-hex">
+      <img
+        class="dash-photo"
+        src={resolvePhotoSrc(character?.portrait || "")}
+        alt={`Foto de ${getSafeName()}`}
+        loading="lazy"
+      />
+    </div>
     <div class="dash-identity">
       <div class="dash-name-row">
         <span class="dash-name">{formatText(character?.name)}</span>
         <span class="dash-id">#{formatText(character?.id)}</span>
       </div>
-      <span class="dash-player">Jugador: {formatText(character?.player)}</span>
+      <span class="dash-player">JUGADOR: {formatText(character?.player)}</span>
       <div class="dash-vitals">
         <StatDisplay
-          label="HP"
+          label="VIT"
           value={formatHp(character?.hp_current, character?.hp_max)}
-          variant="inline"
+          variant="cast"
         />
         <StatDisplay
-          label="Temp"
+          label="TMP"
           value={formatNumber(character?.hp_temp)}
-          variant="inline"
+          variant="cast"
         />
         <StatDisplay
-          label="AC"
+          label="CA"
           value={formatNumber(character?.armor_class)}
-          variant="inline"
+          variant="cast"
         />
         <StatDisplay
-          label="Vel"
+          label="VEL"
           value={formatNumber(character?.speed_walk)}
-          variant="inline"
+          variant="cast"
         />
       </div>
     </div>
   </header>
 
   <section class="dash-section">
-    <h3 class="dash-section-title">ATRIBUTOS</h3>
+    <h3 class="dash-section-title">ATRIBUTOS BASE</h3>
     <div class="dash-ability-grid">
       {#each abilityList as ability (ability.key)}
         <StatDisplay
           label={ability.label}
           value={formatNumber(character?.ability_scores?.[ability.key])}
-          variant="cell"
+          variant="cast"
         />
       {/each}
     </div>
   </section>
 
   <section class="dash-section">
-    <h3 class="dash-section-title">CONDICIONES</h3>
+    <h3 class="dash-section-title">CONDICIONES ACTIVAS</h3>
     {#if Array.isArray(character?.conditions) && character.conditions.length}
       <div class="dash-pill-row">
         {#each character.conditions as condition (condition.id)}
           <ConditionPill
             label={formatCondition(condition)}
-            variant="condition"
+            variant="cast"
           />
         {/each}
       </div>
     {:else}
-      <p class="dash-empty">no definida</p>
+      <p class="dash-empty">Ninguna condición activa</p>
     {/if}
   </section>
 
   <section class="dash-section">
-    <h3 class="dash-section-title">RECURSOS</h3>
+    <h3 class="dash-section-title">RECURSOS DE CLASE</h3>
     {#if Array.isArray(character?.resources) && character.resources.length}
       <div class="dash-resource-grid">
         {#each character.resources as resource (resource.id)}
@@ -190,13 +192,13 @@
               {formatResourceCount(resource)}
             </span>
             <span class="dash-resource-recharge">
-              {formatRecharge(resource?.recharge)}
+              REC: {formatRecharge(resource?.recharge)}
             </span>
           </div>
         {/each}
       </div>
     {:else}
-      <p class="dash-empty">no definida</p>
+      <p class="dash-empty">Sin recursos definidos</p>
     {/if}
   </section>
 </article>

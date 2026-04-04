@@ -1,7 +1,8 @@
 /**
  * DashboardCard Styles
  * ====================
- * Monitor-first layout with large type and dense information blocks.
+ * Monitor-first layout with high-density, "Digital Grimoire" aesthetic.
+ * Adheres to TableRelay Flagship design standards.
  */
 
 .dashboard-card {
@@ -9,24 +10,25 @@
   overflow: hidden;
   gap: var(--space-4);
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.02),
-    rgba(80, 13, 245, 0.12)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  transition: border-color var(--t-normal), background var(--t-normal);
 }
 
-.dashboard-card::after {
+.dashboard-card:hover {
+  border-color: var(--cast-amber-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dashboard-card::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at 80% 0%,
-    rgba(0, 212, 232, 0.08),
-    transparent 55%
-  );
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cast-amber-border), transparent);
+  opacity: 0.3;
 }
 
 .dash-card-header {
@@ -37,19 +39,29 @@
   z-index: 1;
 }
 
-.dash-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: var(--radius-lg);
-  object-fit: cover;
-  border: 2px solid var(--grey-dim);
+.dash-photo-hex {
+  width: 100px;
+  height: 100px;
+  background: var(--cast-amber-border);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.dash-photo {
+  width: 94%;
+  height: 94%;
+  object-fit: cover;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: var(--black);
 }
 
 .dash-identity {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex: 1;
   min-width: 0;
 }
@@ -58,58 +70,43 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .dash-name {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 1.75rem;
+  color: var(--cast-amber);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1;
 }
 
 .dash-id {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  color: var(--grey);
+  font-size: 0.8rem;
+  color: var(--grey-dim);
 }
 
 .dash-player {
-  font-size: 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
   color: var(--grey);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .dash-vitals {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-2);
-}
-
-.dash-vital {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
   padding: var(--space-2);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dash-vital-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--grey);
-}
-
-.dash-vital-value {
-  font-size: 1.1rem;
-  color: var(--white);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--grey-dim);
+  clip-path: var(--hex-clip-lg);
 }
 
 .dash-section {
@@ -118,40 +115,32 @@
   gap: var(--space-2);
   position: relative;
   z-index: 1;
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .dash-section-title {
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.18em;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--cyan);
+  color: var(--grey);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dash-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--grey-dim), transparent);
 }
 
 .dash-ability-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--space-2);
-}
-
-.dash-ability {
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dash-ability-label {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: var(--grey);
-}
-
-.dash-ability-value {
-  font-size: 1rem;
 }
 
 .dash-pill-row {
@@ -160,91 +149,69 @@
   gap: var(--space-2);
 }
 
-.dash-pill {
-  padding: 6px 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 212, 232, 0.35);
-  color: var(--cyan);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: rgba(0, 212, 232, 0.08);
-}
-
 .dash-resource-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
 }
 
 .dash-resource {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 4px var(--space-2);
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--grey-dim);
-  border-radius: var(--radius-md);
-  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  background: rgba(200, 148, 74, 0.05);
+  border: 1px solid var(--cast-amber-border);
+  padding: var(--space-2) var(--space-3);
+  position: relative;
 }
 
 .dash-resource-name {
+  font-family: var(--font-display);
   font-size: 0.85rem;
+  color: var(--white);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
 }
 
 .dash-resource-count {
-  font-size: 1rem;
-  text-align: right;
+  font-size: 1.25rem;
+  color: var(--cast-amber);
+  font-weight: 700;
 }
 
 .dash-resource-recharge {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--grey);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
 }
 
 .dash-empty {
-  font-size: 0.85rem;
-  color: var(--grey);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--grey-dim);
+  font-style: italic;
+  letter-spacing: 0.05em;
 }
 
-@media (max-width: 1200px) {
-  .dash-photo {
-    width: 96px;
-    height: 96px;
+@media (max-width: 1400px) {
+  .dash-ability-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
+}
 
-  .dash-name {
-    font-size: 1.6rem;
-  }
-
+@media (max-width: 1024px) {
   .dash-vitals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    clip-path: none;
+    border-radius: var(--radius-sm);
   }
-}
-
-@media (max-width: 900px) {
-  .dash-card-header {
-    flex-direction: column;
-    align-items: flex-start;
+  
+  .dash-photo-hex {
+    width: 80px;
+    height: 80px;
   }
-
-  .dash-photo {
-    width: 120px;
-    height: 120px;
-  }
-
-  .dash-name-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .dash-resource-grid {
-    grid-template-columns: 1fr;
+  
+  .dash-name {
+    font-size: 1.5rem;
   }
 }

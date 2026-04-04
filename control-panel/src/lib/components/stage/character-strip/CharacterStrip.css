@@ -1,0 +1,57 @@
+/**
+ * CharacterStrip Styles
+ * ====================
+ * Main vertical sidebar for character management.
+ */
+
+.char-strip {
+  width: clamp(300px, 20vw, 360px);
+  flex-shrink: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--black-elevated);
+  border-right: 1px solid var(--grey-dim);
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .char-strip {
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--grey-dim);
+  }
+}
+
+.strip-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3); /* Rhythmic gap */
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+/* Hide scrollbar but allow scroll */
+.strip-cards::-webkit-scrollbar {
+  width: 4px;
+}
+
+.strip-cards::-webkit-scrollbar-thumb {
+  background: var(--grey-dim);
+  border-radius: var(--radius-pill);
+}
+
+.strip-empty {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--grey-dim);
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-top: var(--space-12);
+  text-transform: uppercase;
+}

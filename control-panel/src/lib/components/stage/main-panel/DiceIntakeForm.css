@@ -1,0 +1,217 @@
+/**
+ * DiceIntakeForm Styles
+ * ====================
+ * Operator dice input console.
+ * Adheres to TableRelay Flagship design standards.
+ */
+
+.dice-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 520px;
+  width: 100%;
+}
+
+.dice-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dice-form__field--sm {
+  flex: 1;
+}
+
+.dice-form__row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.dice-form__label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--cast-amber);
+  text-transform: uppercase;
+}
+
+.dice-form__select {
+  height: 44px;
+  background: var(--black-elevated);
+  border: 1px solid var(--grey-dim);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 var(--space-3);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+
+.dice-form__select:focus {
+  border-color: var(--cast-amber);
+}
+
+.dice-form__input {
+  height: 44px;
+  background: var(--black-elevated);
+  border: 1px solid var(--grey-dim);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: textfield;
+  transition: border-color var(--t-fast);
+}
+
+.dice-form__input::-webkit-outer-spin-button,
+.dice-form__input::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.dice-form__input:focus {
+  border-color: var(--cast-amber);
+}
+
+.die-group {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.die-btn {
+  height: 44px;
+  min-width: 56px;
+  padding: 0 var(--space-3);
+  background: var(--black-elevated);
+  border: 1px solid var(--grey-dim);
+  color: var(--grey);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+}
+
+.die-btn:hover {
+  border-color: var(--cast-amber);
+  color: var(--white);
+}
+
+.die-btn.is-active {
+  background: var(--cast-amber-dim);
+  border-color: var(--cast-amber);
+  color: var(--white);
+  box-shadow: 0 0 15px var(--cast-amber-glow);
+}
+
+.dice-form__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  background: rgba(200, 148, 74, 0.05);
+  border: 1px solid var(--cast-amber-border);
+  position: relative;
+}
+
+.dice-form__total::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--cast-amber);
+}
+
+.dice-form__total-label {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--cast-amber);
+}
+
+.dice-form__total-value {
+  font-family: var(--font-mono);
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dice-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dice-form__error {
+  color: var(--red);
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  background: rgba(255, 77, 106, 0.1);
+  padding: var(--space-2);
+  border: 1px solid var(--red);
+}
+
+.dice-form__submit {
+  height: 52px;
+  background: var(--cast-amber);
+  border: none;
+  color: var(--black);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  clip-path: var(--hex-clip-md);
+  margin-top: var(--space-2);
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .dice-form__submit {
+    clip-path: none;
+    border-radius: var(--radius-sm);
+  }
+  .dice-form__row {
+    flex-wrap: wrap;
+  }
+  .dice-form__field--sm {
+    min-width: 40%;
+  }
+}
+
+.dice-form__submit:hover:not(:disabled) {
+  background: var(--white);
+  transform: translateY(-1px);
+}
+
+.dice-form__submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.dice-form__submit:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  clip-path: none;
+  border: 1px solid var(--grey-dim);
+  background: transparent;
+  color: var(--grey);
+}

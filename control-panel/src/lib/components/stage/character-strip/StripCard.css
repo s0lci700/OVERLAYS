@@ -1,0 +1,316 @@
+/**
+ * StripCard Styles
+ * ================
+ * Operator-optimized character card for the Stage Strip.
+ * Adheres to TableRelay Flagship design standards.
+ */
+
+.strip-card {
+  position: relative;
+  background: var(--black-card);
+  border: 1px solid var(--grey-dim);
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+
+.strip-card:hover {
+  border-color: var(--cast-amber-border);
+}
+
+.strip-card.is-expanded {
+  border-color: var(--cast-amber);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.strip-card.is-critical {
+  border-left: 2px solid var(--red);
+}
+
+.hit-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.strip-card__compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  min-height: 56px;
+}
+
+.strip-card__photo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  clip-path: var(--cast-hex-clip, polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%));
+  background: var(--black);
+  border: 1px solid var(--cast-amber-border);
+  flex-shrink: 0;
+}
+
+.strip-card__identity {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.strip-card__name {
+  font-family: var(--font-identity);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.strip-card__hp-nums {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-card__hp-nums .hp-cur {
+  color: var(--cast-amber);
+}
+
+.strip-card__hp-nums .hp-cur.is-critical {
+  color: var(--red);
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+.strip-card__hp-nums .hp-sep {
+  color: var(--grey-dim);
+  margin: 0 2px;
+}
+
+.strip-card__hp-nums .hp-max {
+  color: var(--grey-dim);
+  font-size: 11px;
+}
+
+.strip-card__expand-btn {
+  background: transparent;
+  border: none;
+  color: var(--grey-dim);
+  font-size: 14px;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+  flex-shrink: 0;
+}
+
+.strip-card__expand-btn:hover {
+  color: var(--cast-amber);
+  background: var(--cast-amber-dim);
+}
+
+.strip-card__expand-btn:active {
+  transform: scale(0.9);
+}
+
+.strip-card.is-dead {
+  filter: grayscale(0.8) contrast(0.8);
+  opacity: 0.8;
+}
+
+.strip-card.is-dead .strip-card__photo {
+  border-color: var(--grey-dim);
+}
+
+.death-marker {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  background: var(--red);
+  color: var(--white);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  z-index: 5;
+  box-shadow: 0 0 10px rgba(255, 77, 106, 0.5);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hp-track {
+  height: 4px;
+  background: var(--grey-dim);
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.hp-ghost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+.hp-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--cast-amber);
+  box-shadow: 0 0 10px var(--cast-amber-glow);
+  position: relative;
+  z-index: 2;
+}
+
+.critical-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+}
+
+.critical-flash--dmg {
+  background: radial-gradient(circle, var(--red) 0%, transparent 70%);
+}
+
+.critical-flash--heal {
+  background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+}
+
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.shake {
+  animation: shake 0.1s ease-in-out 0s 3;
+}
+
+.hp-fill.hp--critical {
+  background: var(--red);
+  box-shadow: 0 0 10px rgba(255, 77, 106, 0.4);
+}
+
+.strip-card__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px var(--space-3);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.strip-card__expanded {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--grey-dim);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.strip-card__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.btn-dmg,
+.btn-heal {
+  height: 36px;
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+}
+
+.btn-dmg {
+  background: rgba(255, 77, 106, 0.1);
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+
+.btn-dmg:hover {
+  background: var(--red);
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.btn-heal {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+}
+
+.btn-heal:hover {
+  background: var(--cyan);
+  color: var(--black);
+  transform: translateY(-1px);
+}
+
+.btn-dmg:active,
+.btn-heal:active {
+  transform: scale(0.96);
+}
+
+.strip-card__conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.btn-add-condition {
+  height: 26px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  border: 1px solid var(--grey-dim);
+  color: var(--grey);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  clip-path: var(--hex-clip-sm);
+}
+
+.btn-add-condition:hover {
+  border-color: var(--cast-amber);
+  color: var(--cast-amber);
+  background: var(--cast-amber-dim);
+  transform: translateY(-1px);
+}
+
+.btn-add-condition:active {
+  transform: scale(0.96);
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

@@ -6,6 +6,7 @@
 <script>
   import "$lib/components/cast/dashboard/Dashboard.css";
   import DashboardCard from "$lib/components/stage/DashboardCard.svelte";
+  import MysticalEmptyState from "$lib/components/cast/shared/MysticalEmptyState.svelte";
   import { characters } from "$lib/services/socket.svelte";
   import { history } from "$lib/derived/overviewStore.js";
   // import { listCharacterRecords } from "$lib/services/pocketbase";
@@ -41,19 +42,19 @@
 
 <section class="dashboard-shell">
   <header class="dashboard-header">
-    <h1 class="dashboard-title">Dashboard de personajes</h1>
+    <h1 class="dashboard-title">ESTADO GLOBAL DEL GRUPO</h1>
     <p class="dashboard-subtitle">
-      Vista en vivo para mesa o pantalla principal. Campos vacios muestran "no
-      definida".
+      Monitoreo en vivo de personajes y actividad reciente. Los campos sin valor se muestran como "no definidos".
     </p>
   </header>
 
   {#if $characters.length === 0}
-    <div class="dashboard-empty">
-      <p class="dashboard-empty-title">Sin personajes activos</p>
-      <p class="dashboard-empty-subtitle">
-        Crea personajes desde el panel de control o espera la sincronizacion.
-      </p>
+    <div class="dashboard-empty-container">
+      <MysticalEmptyState 
+        title="EL TABLERO ESTÁ VACÍO" 
+        message="Inicia la sesión desde el panel de control o espera la sincronización de las almas."
+        icon="history_edu"
+      />
     </div>
   {:else}
     <div class="dashboard-grid">
@@ -66,7 +67,7 @@
   <section class="dashboard-meta">
     <div class="dashboard-log" aria-live="polite">
       <div class="dashboard-log-head">
-        <h2 class="dashboard-log-title">Últimas acciones</h2>
+        <h2 class="dashboard-log-title">HISTORIAL DE ACCIONES</h2>
       </div>
       <ul class="dashboard-log-list">
         {#each actionHistory as entry (entry.timestamp)}
@@ -88,7 +89,7 @@
 
     <div class="dashboard-log" aria-live="polite">
       <div class="dashboard-log-head">
-        <h2 class="dashboard-log-title">Últimos dados</h2>
+        <h2 class="dashboard-log-title">ÚLTIMAS TIRADAS</h2>
       </div>
       <ul class="dashboard-log-list">
         {#each rollHistory as entry (entry.timestamp)}
