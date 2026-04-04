@@ -9,13 +9,10 @@ export function cn(...inputs) {
  * Resolve a photo path to a full URL or data URL
  * @param {string} photoPath - The photo path from character data
  * @param {string} serverUrl - Base server URL for relative paths
- * @param {string} charId - Character ID for fallback generation
- * @returns {string} Full URL or data URL for the photo
+ * @returns {string | null} Full URL, or null if no photo path provided
  */
-export function resolvePhotoSrc(photoPath = '', serverUrl = '', charId = '') {
-	if (!photoPath) {
-		return `${serverUrl}/assets/img/dwarf.png`;
-	}
+export function resolvePhotoSrc(photoPath = '', serverUrl = '') {
+	if (!photoPath) return null;
 	if (
 		photoPath.startsWith('http://') ||
 		photoPath.startsWith('https://') ||
@@ -29,5 +26,3 @@ export function resolvePhotoSrc(photoPath = '', serverUrl = '', charId = '') {
 	}
 	return `${serverUrl}/${photoPath.replace(/^\/+/, '')}`;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any

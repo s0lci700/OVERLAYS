@@ -40,7 +40,7 @@
     variants: {
       size: {
         sm: {
-          button: "w-8 h-8 text-xl",
+          button: "w-11 h-11 text-xl",
           input: "w-12 text-lg",
         },
         lg: {

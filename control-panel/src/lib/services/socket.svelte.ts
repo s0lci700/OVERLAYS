@@ -82,8 +82,8 @@ function mapSocketError(
 		}
 	}
 
-	// Fallback: ensure a ServiceError is always returned for unknown signals
-	// return new ServiceError('UNKNOWN', 'Unrecognized socket error signal', { context });
+	// Fallback — should be unreachable; included so TypeScript enforces exhaustive switch above
+	throw new ServiceError('UNKNOWN', 'Unrecognized socket error signal', { context });
 }
 
 const socketURL = assertEnvVariable(import.meta.env.VITE_SERVER_URL);
@@ -96,10 +96,7 @@ export const socketStatus = $state({
 	lastSync: null as Date | null
 });
 
-//export const isConnected = $derived(socketStatus.connected);
-
 // Use Svelte stores for cross-component singletons that are still accessed via $store syntax.
-// export const characters = writable<CharacterRecord[]>([]);
 export const characters = writable<CharacterRecord[]>([]);
 export const lastRoll = writable<any>(null);
 
@@ -172,7 +169,7 @@ function bindSocketListeners(): void {
 	// Logs successful socket connection with the socket ID for debugging purposes
 	s.on('connect', () => {
 		const context = { socketId: s.id };
-		console.log('Socket connected successfully', context);
+		console.debug('[Socket] Connected', context);
 		socketStatus.connected = true;
 		socketStatus.lastSync = new Date();
 	});
@@ -190,7 +187,7 @@ function bindSocketListeners(): void {
 	// ── Data Sync Handlers ─────────────────────────────────────
 
 	s.on('initialData', (data: { characters: CharacterRecord[] }) => {
-		console.log('[Socket] Initial data received', { count: data.characters.length });
+		console.debug('[Socket] Initial data received', { count: data.characters.length });
 		characters.set(data.characters);
 		socketStatus.lastSync = new Date();
 	});

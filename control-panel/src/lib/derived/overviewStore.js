@@ -16,7 +16,7 @@
  */
 
 import { writable, derived } from "svelte/store";
-import { socket } from "../services/socket.js";
+import { socket } from "../services/socket.svelte.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Store Definitions
@@ -114,90 +114,61 @@ function recordHistory(entry) {
  *
  * Payload: { character: { id, name, hp_current, hp_max, ... }, hp_current }
  */
-socket.on("hp_updated", ({ character, hp_current }) => {
-  recordHistory({
-    type: "hp",
-    label: `${character.name} HP`,
-    value: `${hp_current}/${character.hp_max}`,
-    detail: "Health updated",
+if (socket) {
+  socket.on("hp_updated", ({ character, hp_current }) => {
+    recordHistory({
+      type: "hp",
+      label: `${character.name} HP`,
+      value: `${hp_current}/${character.hp_max}`,
+      detail: "Health updated",
+    });
   });
-});
 
-/**
- * Logs resource pool changes (spell slots, action economy, etc.) to history.
- * Triggered when a character spends or recovers a resource.
- *
- * Payload: { charId, resource: { id, name, pool_current, pool_max, ... } }
- */
-socket.on("resource_updated", ({ charId, resource }) => {
-  recordHistory({
-    type: "resource",
-    label: `Character ${charId} resource`,
-    value: `${resource.pool_current}/${resource.pool_max}`,
-    detail: `Updated ${resource.name}`,
+  socket.on("resource_updated", ({ charId, resource }) => {
+    recordHistory({
+      type: "resource",
+      label: `Character ${charId} resource`,
+      value: `${resource.pool_current}/${resource.pool_max}`,
+      detail: `Updated ${resource.name}`,
+    });
   });
-});
 
-/**
- * Logs condition additions (status effects) to history.
- * Triggered when a condition is applied to a character.
- *
- * Payload: { charId, condition: { id, condition_name, ... } }
- */
-socket.on("condition_added", ({ charId, condition }) => {
-  recordHistory({
-    type: "condition",
-    label: "Condition added",
-    value: condition.condition_name,
-    detail: charId,
+  socket.on("condition_added", ({ charId, condition }) => {
+    recordHistory({
+      type: "condition",
+      label: "Condition added",
+      value: condition.condition_name,
+      detail: charId,
+    });
   });
-});
 
-/**
- * Logs condition removals to history.
- * Triggered when a condition is removed from a character.
- *
- * Payload: { charId, conditionId }
- */
-socket.on("condition_removed", ({ charId, conditionId }) => {
-  recordHistory({
-    type: "condition",
-    label: "Condition removed",
-    value: conditionId,
-    detail: charId,
+  socket.on("condition_removed", ({ charId, conditionId }) => {
+    recordHistory({
+      type: "condition",
+      label: "Condition removed",
+      value: conditionId,
+      detail: charId,
+    });
   });
-});
 
-/**
- * Logs rest events (short/long rest) to history.
- * Triggered when a character takes a rest and resources are restored.
- *
- * Payload: { charId, type: 'short' | 'long' }
- */
-socket.on("rest_taken", ({ charId, type }) => {
-  recordHistory({
-    type: "rest",
-    label: `Rest (${type})`,
-    value: charId,
-    detail: "Resources restored",
+  socket.on("rest_taken", ({ charId, type }) => {
+    recordHistory({
+      type: "rest",
+      label: `Rest (${type})`,
+      value: charId,
+      detail: "Resources restored",
+    });
   });
-});
 
-/**
- * Logs dice rolls to history.
- * Triggered when any character rolls dice from the stage.
- * Displays character name, final result, and roll breakdown.
- *
- * Payload: { charId, characterName, result, modifier, rollResult, sides }
- */
-socket.on("dice_rolled", (payload) => {
-  recordHistory({
-    type: "roll",
-    label: `${payload.characterName || payload.charId} rolled`,
-    value: `${payload.rollResult}`,
-    detail: `d${payload.sides} + ${payload.modifier ?? 0}`,
+  socket.on("dice_rolled", (payload) => {
+    recordHistory({
+      type: "roll",
+      label: `${payload.characterName || payload.charId} rolled`,
+      value: `${payload.rollResult}`,
+      detail: `d${payload.sides} + ${payload.modifier ?? 0}`,
+    });
   });
-});
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Exports

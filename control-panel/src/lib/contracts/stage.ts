@@ -4,6 +4,12 @@ Owned by: Stage
 Mirrored to: Commons + Audience (payload-specific transforms)
 */
 
+/** HP percentage thresholds shared across Stage, Cast, and Overlay surfaces. */
+export const HP_THRESHOLDS = {
+  HEALTHY: 60, // > 60% → healthy (green)
+  INJURED: 30, // > 30% → injured (yellow), ≤ 30% → critical (red)
+} as const;
+
 export type PayloadKind = 'reveal_queue' 
 | 'hp_mutation' | 'condition_mutation' | 'combat_control'
 
