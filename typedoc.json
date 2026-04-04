@@ -1,0 +1,21 @@
+{
+  "name": "TableRelay API",
+  "entryPoints": [
+    "server.ts",
+    "src/server/handlers/characters.ts",
+    "src/server/handlers/rolls.ts",
+    "src/server/handlers/encounter.ts",
+    "src/server/handlers/misc.ts",
+    "src/server/handlers/overlay.ts",
+    "src/server/data/characters.ts",
+    "src/server/data/rolls.ts",
+    "src/server/data/id.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "skipErrorChecking": true,
+  "logLevel": "Warn"
+}
