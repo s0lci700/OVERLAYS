@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Build standalone executable
-        run: bun build --compile server.js --outfile ${{ matrix.output }}
+        run: bun build --compile server.ts --outfile ${{ matrix.output }}
 
       - name: Rename artifact for upload
         shell: bash

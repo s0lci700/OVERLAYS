@@ -1,28 +1,25 @@
-# Workflow name
-name: "Chromatic Publish"
+name: Chromatic Publish
 
-# Event for the workflow
 on: push
 
-# List of jobs
 jobs:
-  test:
-    # Operating System
+  chromatic:
     runs-on: ubuntu-latest
-    # Job steps
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: control-panel
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
         with:
-          node-version: 20
-          cache: "yarn"
-      - run: yarn
-      #👇 Adds Chromatic as a step in the workflow
-      - uses: chromaui/action@latest
-        # Options required for Chromatic's GitHub Action
-        with:
-          #👇 Chromatic projectToken,
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          workingDir: control-panel
