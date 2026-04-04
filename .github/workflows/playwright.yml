@@ -32,7 +32,7 @@ jobs:
         run: bunx playwright install --with-deps chromium
 
       - name: Start Express server
-        run: bun server.js > /tmp/server.log 2>&1 &
+        run: bun server.ts > /tmp/server.log 2>&1 &
         env:
           PORT: 3000
 
