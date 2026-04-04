@@ -63,6 +63,13 @@
   --input: var(--black-elevated);
   --ring: var(--cast-amber);
   --radius: var(--radius-md);
+
+  /* Hex-clip shape tokens */
+  --hex-clip-sm: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+  --hex-clip-md: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+  --hex-clip-lg: polygon(2% 0%, 98% 0%, 100% 50%, 98% 100%, 2% 100%, 0% 50%);
+  --hex-clip-img: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  
   /* Sidebar tokens — mapped to brand palette */
   --sidebar: var(--black-elevated);
   --sidebar-foreground: var(--white);
@@ -211,10 +218,12 @@ input[type="number"],
   color: var(--cast-amber);
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--cast-amber);
-  border-radius: var(--radius-md);
+  border-radius: 0;
+  clip-path: var(--hex-clip-md);
   font-size: 0.9rem;
   letter-spacing: 0.05em;
   text-decoration: none;
+  box-shadow: 0 0 15px var(--cast-amber-glow);
 }
 
 .skip-to-content:focus {
