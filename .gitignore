@@ -21,6 +21,7 @@ tests-log/
 dist/
 build/
 out/
+site/
 
 # control-panel build outputs
 control-panel/build/

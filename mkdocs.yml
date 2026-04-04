@@ -1,0 +1,32 @@
+site_name: TableRelay Docs
+repo_url: https://github.com/s0lci700/OVERLAYS
+repo_name: s0lci700/OVERLAYS
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Home: INDEX.md
+  - API: API.md
+  - Architecture: ARCHITECTURE.md
+  - Data Flow:
+      - Overview: DATA-FLOW.md
+      - Interactive: data-flow-interactive.html
+  - Design System: DESIGN-SYSTEM.md
+  - UI Components: UI-COMPONENTS.md
+  - Theming: THEMING.md
+  - Environment: ENVIRONMENT.md
+  - Server vs Frontend: SERVER-VS-FRONTEND.md
+  - Socket Events: SOCKET-EVENTS.md
+
+plugins:
+  - search
