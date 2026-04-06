@@ -5,153 +5,501 @@
   Operator selects character, die type, count, modifier, then logs the result.
 -->
 <script lang="ts">
-  import './DiceIntakeForm.css';
-  import { characters } from '$lib/services/socket.svelte';
-  import { SERVER_URL } from '$lib/services/socket.svelte.js';
-  import HelpBeacon from '../shared/HelpBeacon.svelte';
+	import './DiceIntakeForm.css';
+	import { characters, socketStatus, SERVER_URL } from '$lib/services/socket.svelte';
+	import { resolvePhotoSrc } from '$lib/services/utils.js';
+	import dwarfFallback from '$lib/assets/img/dwarf.webp';
+	import type { RollType } from '$lib/contracts';
+	import HelpBeacon from '../shared/HelpBeacon.svelte';
+	import { CharacterRadio } from '$lib/components/shared/character-radio/index';
+	import { browser } from '$app/environment';
+	import { tick, onMount } from 'svelte';
+	import { DIE_RAW, type dieType } from '$lib/assets/dice/die';
+	import { gsap } from 'gsap';
+	import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
+	import { makeWheelHandler } from '$lib/utils/utils';
 
-  type DieSides = 4 | 6 | 8 | 10 | 12 | 20;
-  const DIE_OPTIONS: DieSides[] = [4, 6, 8, 10, 12, 20];
+	gsap.registerPlugin(MorphSVGPlugin);
 
-  let selectedCharId = $state('');
-  let selectedDie = $state<DieSides>(20);
-  let count = $state(1);
-  let result = $state<number | null>(null);
-  let modifier = $state(0);
-  let isSubmitting = $state(false);
-  let errorMessage = $state("");
+	// Submit button SVG morphing
+	// viewBox 0 0 400 52 — preserveAspectRatio="none" stretches to fill flex width
+	// Both paths share 6 vertices in identical winding order so MorphSVG maps them 1-to-1.
+	// RECT keeps B (0,26) and J (400,26) as fixed anchors — corner points just slide outward.
+	const RECT_PATH = 'M0,0 L400,0 L400,26 L400,52 L0,52 L0,26 Z';
+	const HEX_PATH  = 'M20,0 L380,0 L400,26 L380,52 L20,52 L0,26 Z';
+	const COLOR_AMBER = '#C8944A';
+	const COLOR_BLACK = '#000000';
+	const COLOR_GREY  = '#888888';
 
-  const total = $derived(result !== null ? result + modifier : null);
+	let submitPath    = $state<SVGPathElement | null>(null);
+	let submitLabel   = $state<HTMLElement | null>(null);
+	let totalEl       = $state<HTMLElement | null>(null);
+	let totalValueEl  = $state<HTMLElement | null>(null);
+	let shouldRenderTotal = $state(false);
 
-  // Default to first character when roster loads
-  $effect(() => {
-    if (selectedCharId === '' && $characters.length > 0) {
-      selectedCharId = $characters[0]?.id ?? '';
-    }
-  });
+	onMount(() => {
+		if (submitPath) {
+			submitPath.setAttribute('d', RECT_PATH);
+			gsap.set(submitPath, { fill: 'rgba(136,136,136,0.12)' });
+		}
+		if (submitLabel) gsap.set(submitLabel, { color: COLOR_GREY });
+	});
 
-  async function handleSubmit() {
-    if (result === null || !selectedCharId || isSubmitting) return;
-    isSubmitting = true;
-    errorMessage = "";
-    try {
-      const response = await fetch(`${SERVER_URL}/api/rolls`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          charId: selectedCharId,
-          result: total,
-          modifier,
-          sides: selectedDie,
-          count,
-        }),
-      });
-      if (!response.ok) throw new Error("Error en el servidor");
-      result = null;
-    } catch (err) {
-      errorMessage = "No se pudo registrar la tirada. Verifica la conexión.";
-      console.error(err);
-    } finally {
-      isSubmitting = false;
-    }
-  }
+	// Track previous total to detect direction of transition
+	let prevTotal: number | null = null;
+
+	$effect(() => {
+		const current = total;
+
+		if (current !== null && prevTotal === null) {
+			// ── Forward: result appeared ─────────────────────────────
+			shouldRenderTotal = true;
+			tick().then(() => {
+				const tl = gsap.timeline();
+				if (totalEl) {
+					tl.fromTo(totalEl,
+						{ opacity: 0, y: 6 },
+						{ opacity: 1, y: 0, duration: 0.2, ease: 'power3.out' }
+					);
+				}
+				if (submitPath) {
+					tl.to(submitPath, {
+						morphSVG: HEX_PATH,
+						duration: 0.38,
+						ease: 'expo.out'
+					}, '<0.06')
+					.to(submitPath, { fill: COLOR_AMBER, duration: 0.22 }, '<');
+				}
+				if (submitLabel) {
+					tl.to(submitLabel, { color: COLOR_BLACK, duration: 0.22 }, '<');
+				}
+			});
+
+		} else if (current === null && prevTotal !== null) {
+			// ── Reverse: result cleared ──────────────────────────────
+			// Bail early if elements aren't mounted
+			if (!submitPath && !totalEl) {
+				shouldRenderTotal = false;
+				prevTotal = current;
+				return;
+			}
+
+			const tl = gsap.timeline({
+				onComplete: () => { shouldRenderTotal = false; }
+			});
+
+			if (totalEl) {
+				// Fade only — no y movement; translate causes the div to "clip" within its layout box
+				tl.to(totalEl, { opacity: 0, duration: 0.15, ease: 'power2.in' });
+			}
+			if (submitPath) {
+				tl.to(submitPath, {
+					morphSVG: RECT_PATH,
+					duration: 0.3,
+					ease: 'power3.inOut'
+				}, totalEl ? '<0.05' : 0)
+				.to(submitPath, { fill: 'rgba(136,136,136,0.12)', duration: 0.18 }, '<');
+			}
+			if (submitLabel) {
+				tl.to(submitLabel, { color: COLOR_GREY, duration: 0.18 }, '<');
+			}
+
+		} else if (current !== null && prevTotal !== null && current !== prevTotal) {
+			// ── Update: total changed while visible (modifier / count tweak) ──
+			if (totalValueEl) {
+				gsap.fromTo(totalValueEl,
+					{ scale: 1.2 },
+					{ scale: 1, duration: 0.22, ease: 'expo.out' }
+				);
+			}
+		}
+
+		prevTotal = current;
+	});
+
+	const DIE_OUTER_POINTS: Record<dieType, string> = {
+		d4: '256,48 48,400 464,400',
+		d6: '256,80 436,184 436,392 256,496 76,392 76,184',
+		d8: '256,48 464,256 256,464 48,256',
+		d10: '256,32 464,224 256,480 48,224',
+		d12: '256,32 388,75 469,187 469,325 388,437 256,480 124,437 43,325 43,187 124,75',
+		d20: '256,32 448,144 448,368 256,480 64,368 64,144'
+	};
+
+	function pointsToPath(points: string): string {
+		const nums = points.trim().split(/[\s,]+/);
+		const pairs: string[] = [];
+		for (let i = 0; i < nums.length - 1; i += 2) pairs.push(`${nums[i]} ${nums[i + 1]}`);
+		return 'M' + pairs.join(' L') + ' Z';
+	}
+
+	const DIE_OUTER_PATHS: Record<dieType, string> = Object.fromEntries(
+		Object.entries(DIE_OUTER_POINTS).map(([k, pts]) => [k, pointsToPath(pts)])
+	) as Record<dieType, string>;
+
+	function parseInnerDiePath(raw: string): string {
+		const doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
+		const children = [...doc.querySelector('svg')!.children].slice(1); // skip outer shape
+		return children
+			.map((el) => {
+				const tag = el.tagName.toLowerCase();
+				if (tag === 'line') {
+					return `M${el.getAttribute('x1')} ${el.getAttribute('y1')} L${el.getAttribute('x2')} ${el.getAttribute('y2')}`;
+				}
+				if (tag === 'polyline' || tag === 'polygon') {
+					const nums = el
+						.getAttribute('points')!
+						.trim()
+						.split(/[\s,]+/);
+					const pairs: string[] = [];
+					for (let i = 0; i < nums.length - 1; i += 2) pairs.push(`${nums[i]} ${nums[i + 1]}`);
+					return 'M' + pairs.join(' L') + (tag === 'polygon' ? ' Z' : '');
+				}
+				return '';
+			})
+			.filter(Boolean)
+			.join(' ');
+	}
+
+	const DIE_INNER_PATHS: Record<dieType, string> | null = browser
+		? (Object.fromEntries(
+				Object.entries(DIE_RAW).map(([k, raw]) => [k, parseInnerDiePath(raw)])
+			) as Record<dieType, string>)
+		: null;
+
+	let outerShape = $state<SVGPathElement | null>(null);
+	let prevDie = $state<dieType | null>(null);
+
+	$effect(() => {
+		if (!outerShape) return;
+		const dieKey = `d${selectedDie}` as dieType;
+		if (prevDie === null) {
+			outerShape.setAttribute('d', DIE_OUTER_PATHS[dieKey]);
+			prevDie = dieKey;
+			return;
+		}
+		if (dieKey === prevDie) return;
+		gsap.to(outerShape, {
+			morphSVG: DIE_OUTER_PATHS[dieKey],
+			duration: 0.5,
+			ease: 'elastic.inOut(1, 0.5)'
+		});
+		prevDie = dieKey;
+	});
+
+	let innerLines = $state<SVGPathElement | null>(null);
+	let prevInnerDie = $state<dieType | null>(null);
+
+	$effect(() => {
+		if (!innerLines || !DIE_INNER_PATHS) return;
+		const dieKey = `d${selectedDie}` as dieType;
+		if (prevInnerDie === null) {
+			innerLines.setAttribute('d', DIE_INNER_PATHS[dieKey]);
+			prevInnerDie = dieKey;
+			return;
+		}
+		if (dieKey === prevInnerDie) return;
+		gsap.to(innerLines, {
+			morphSVG: DIE_INNER_PATHS[dieKey],
+			duration: 0.5,
+			ease: 'elastic.inOut(.8, 0.5)'
+		});
+		prevInnerDie = dieKey;
+	});
+
+	type DieSides = 4 | 6 | 8 | 10 | 12 | 20;
+	const DIE_OPTIONS: DieSides[] = [4, 6, 8, 10, 12, 20];
+
+	const ROLL_TYPE_OPTIONS: RollType[] = [
+		'ability_check',
+		'saving_throw',
+		'attack_roll',
+		'death_save',
+		'skill_check',
+		'initiative_roll'
+	];
+
+	let selectedRollType = $state<RollType>('ability_check');
+	let selectedCharId = $state('');
+	let selectedDie = $state<DieSides>(20);
+
+	const selectedChar = $derived($characters.find(c => c.id === selectedCharId) ?? null);
+	const selectedPhoto = $derived(resolvePhotoSrc(selectedChar?.portrait, SERVER_URL) ?? dwarfFallback);
+	let dice = $state({
+		count: 1,
+		result: null as number | null,
+		modifier: 0
+	});
+	// let count = $state(1);
+	// let result = $state<number | null>(null);
+	// let modifier = $state(0);
+	let isSubmitting = $state(false);
+	let errorMessage = $state('');
+
+	const total = $derived(dice.result !== null ? dice.result + dice.modifier : null);
+
+	const handleCountWheel = makeWheelHandler(
+		() => dice.count,
+		(v) => (dice.count = v),
+		1,
+		20
+	);
+	const handleModifierWheel = makeWheelHandler(
+		() => dice.modifier,
+		(v) => (dice.modifier = v),
+		1,
+		20
+	);
+	const handleResultWheel = makeWheelHandler(
+		() => dice.result ?? 0,
+		(v) => (dice.result = v),
+		0,
+		20,
+		(v) => ((v == 0) ? dice.result = null : dice.result = v)
+	);
+
+	// function handleWheel(e: WheelEvent, key: 'count' | 'modifier' | 'result') {
+	// 	e.preventDefault();
+	// 	if (key === 'result') {
+	// 		dice[key] = boundValue(dice[key] - Math.sign(e.deltaY), 0, 20);
+	// 		if (dice[key] === 0) dice[key] = null; // allow scrolling down to clear the result
+	// 	} else {
+	// 		dice[key] = boundValue(dice[key] - Math.sign(e.deltaY), 1, 20);
+	// 	}
+	// }
+
+	// function boundValue(value: number, min: number, max: number): number {
+	// 	return Math.max(min, Math.min(max, value));
+	// }
+
+	// Default to first character when roster loads
+	$effect(() => {
+		if (selectedCharId === '' && $characters.length > 0) {
+			selectedCharId = $characters[0]?.id ?? '';
+		}
+	});
+
+	async function handleSubmit() {
+		if (dice.result === null || !selectedCharId || isSubmitting) return;
+		isSubmitting = true;
+		errorMessage = '';
+		try {
+			const response = await fetch(`${SERVER_URL}/api/rolls`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(
+					{
+						charId: selectedCharId,
+						result: total,
+						rollType: selectedRollType,
+						modifier: dice.modifier,
+						sides: selectedDie,
+						count: dice.count
+					}
+					//  as DiceResultPayload
+				)
+			});
+			if (!response.ok) throw new Error('Error en el servidor');
+			// Brief amber burst before the reset animation takes over
+			if (submitPath) {
+				await gsap.to(submitPath, { fill: '#E8A85A', duration: 0.1, yoyo: true, repeat: 1, ease: 'none' });
+			}
+			dice.result = null;
+		} catch (err) {
+			errorMessage = 'No se pudo registrar la tirada. Verifica la conexión.';
+			console.error(err);
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
-<form class="dice-form" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-  <!-- Character selector -->
-  <div class="dice-form__field">
-    <label class="dice-form__label" for="dice-char">PERSONAJE</label>
-    <select class="dice-form__select" id="dice-char" bind:value={selectedCharId}>
-      {#each $characters as char (char.id)}
-        <option value={char.id}>{char.name}</option>
-      {/each}
-      {#if $characters.length === 0}
-        <option value="">Sin personajes</option>
-      {/if}
-    </select>
-  </div>
+<form
+	class="dice-form"
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+>
+	<!-- Top row: character selector + portrait -->
+	<div class="dice-form__top">
+		<div class="dice-form__field">
+			<span class="dice-form__label">PERSONAJE</span>
+			<CharacterRadio characters={$characters} bind:value={selectedCharId} />
+		</div>
+		<div class="dice-form__field dice-form__field--portrait">
+			<!-- Spacer keeps portrait top flush with the radio cards below the label -->
+			<span class="dice-form__label" aria-hidden="true" style="visibility:hidden;">&nbsp;</span>
+			<div class="dice-form__portrait" aria-hidden="true">
+				<img
+					class="dice-form__portrait-img"
+					src={selectedPhoto}
+					alt={selectedChar?.name ?? ''}
+					width="200"
+					height="200"
+				/>
+			</div>
+		</div>
+	</div>
 
-  <!-- Die type selector -->
-  <div class="dice-form__field">
-    <div style="position:relative; display:inline-block; width:fit-content;">
-      <span class="dice-form__label" id="die-group-label">DADO SELECCIONADO</span>
-      <HelpBeacon 
-        id="dice_onboard" 
-        message="Selecciona un personaje y el dado lanzado, luego ingresa el resultado para enviarlo a los gráficos."
-        position="top-right"
-      />
-    </div>
-    <div class="die-group" role="radiogroup" aria-labelledby="die-group-label">
-      {#each DIE_OPTIONS as die (die)}
-        <button
-          type="button"
-          class="die-btn"
-          class:is-active={selectedDie === die}
-          role="radio"
-          aria-checked={selectedDie === die}
-          onclick={() => (selectedDie = die)}
-        >
-          D{die}
-        </button>
-      {/each}
-    </div>
-  </div>
+	<!-- Roll configuration: die type + roll type are one question ("what are you rolling?") -->
+	<div class="dice-form__selector-group">
+		<!-- Die type selector -->
+		<div class="dice-form__field">
+			<div style="position:relative; display:inline-block; width:fit-content;">
+				<span class="dice-form__label" id="die-group-label">DADO SELECCIONADO</span>
+				<HelpBeacon
+					id="dice_onboard"
+					message="Selecciona un personaje y el dado lanzado, luego ingresa el resultado para enviarlo a los gráficos."
+					position="top-right"
+				/>
+			</div>
+			<div class="die-group" role="radiogroup" aria-labelledby="die-group-label">
+				{#each DIE_OPTIONS as die (die)}
+					<button
+						type="button"
+						class="die-btn"
+						class:is-active={selectedDie === die}
+						role="radio"
+						aria-checked={selectedDie === die}
+						onclick={() => (selectedDie = die)}
+					>
+						D{die}
+					</button>
+				{/each}
+			</div>
+		</div>
 
-  <!-- Count, Result, Modifier inputs -->
-  <div class="dice-form__row">
-    <div class="dice-form__field dice-form__field--sm">
-      <label class="dice-form__label" for="dice-count" title="Número de dados a lanzar">NÚM. DADOS</label>
-      <input
-        class="dice-form__input"
-        id="dice-count"
-        type="number"
-        min={1}
-        max={20}
-        bind:value={count}
-      />
-    </div>
-    <div class="dice-form__field dice-form__field--sm">
-      <label class="dice-form__label" for="dice-result" title="Suma total de los valores naturales del dado">SUMA DADOS</label>
-      <input
-        class="dice-form__input"
-        id="dice-result"
-        type="number"
-        min={1}
-        placeholder="—"
-        bind:value={result}
-      />
-    </div>
-    <div class="dice-form__field dice-form__field--sm">
-      <label class="dice-form__label" for="dice-modifier" title="Bono o penalizador aplicado al resultado">MODIFICADOR</label>
-      <input
-        class="dice-form__input"
-        id="dice-modifier"
-        type="number"
-        bind:value={modifier}
-      />
-    </div>
-  </div>
+		<!-- Roll type selector -->
+		<div class="dice-form__field">
+			<div style="position:relative; display:inline-block; width:fit-content;">
+				<span class="dice-form__label" id="roll-type-label">TIPO DE TIRADA</span>
+				<HelpBeacon
+					id="roll_type_onboard"
+					message="Selecciona el tipo de tirada para categorizarla en los gráficos. Por ejemplo, una tirada de daño podría mostrarse con un estilo diferente a una tirada de habilidad."
+					position="top-right"
+				/>
+			</div>
+			<div class="die-group" role="radiogroup" aria-labelledby="roll-type-label">
+				{#each ROLL_TYPE_OPTIONS as rollType (rollType)}
+					<button
+						type="button"
+						class="die-btn"
+						class:is-active={selectedRollType === rollType}
+						role="radio"
+						aria-checked={selectedRollType === rollType}
+						onclick={() => (selectedRollType = rollType)}
+					>
+						{rollType.replace(/_/g, ' ').toUpperCase()}
+					</button>
+				{/each}
+			</div>
+		</div>
+	</div>
 
-  <!-- Total display -->
-  {#if total !== null}
-    <div class="dice-form__total" title="Resultado final (Suma + Modificador)">
-      <span class="dice-form__total-label">TOTAL FINAL</span>
-      <span class="dice-form__total-value">{total}</span>
-    </div>
-  {/if}
+	<!-- Count, Result, Modifier inputs — section break signals "now enter the actual roll" -->
+	<div class="dice-form__row">
+		<div onwheel={handleCountWheel} class="dice-form__field dice-form__field--sm">
+			<label class="dice-form__label" for="dice-count" title="Número de dados a lanzar"
+				>NÚM. DADOS</label
+			>
+			<input
+				class="dice-form__input"
+				id="dice-count"
+				type="number"
+				min={1}
+				max={20}
+				bind:value={dice.count}
+			/>
+		</div>
+		<div
+			onwheel={handleResultWheel}
+			class="dice-form__field dice-form__field--sm dice-form__field--result"
+		>
+			<label
+				class="dice-form__label"
+				for="dice-result"
+				title="Suma total de los valores naturales del dado">SUMA DADOS</label
+			>
+			<input
+				class="dice-form__input"
+				id="dice-result"
+				type="number"
+				min={1}
+				placeholder="—"
+				bind:value={dice.result}
+			/>
+		</div>
+		<div onwheel={handleModifierWheel} class="dice-form__field dice-form__field--sm">
+			<label
+				class="dice-form__label"
+				for="dice-modifier"
+				title="Bono o penalizador aplicado al resultado">MODIFICADOR</label
+			>
+			<input class="dice-form__input" id="dice-modifier" type="number" bind:value={dice.modifier} />
+		</div>
+	</div>
 
-  <!-- Submit -->
-  <div class="dice-form__actions">
-    {#if errorMessage}
-      <p class="dice-form__error" role="alert">{errorMessage}</p>
-    {/if}
-    <button
-      class="dice-form__submit"
-      type="submit"
-      disabled={result === null || isSubmitting}
-      aria-label="Registrar y mostrar tirada en pantalla"
-    >
-      {isSubmitting ? 'REGISTRANDO...' : 'LANZAR A PANTALLA'}
-    </button>
-  </div>
+	<!-- Total display — rendered by GSAP, not Svelte transition -->
+	{#if shouldRenderTotal}
+		<div
+			bind:this={totalEl}
+			class="dice-form__total"
+			title="Resultado final (Suma + Modificador)"
+		>
+			<span class="dice-form__total-label">TOTAL FINAL</span>
+			<span bind:this={totalValueEl} class="dice-form__total-value">{total}</span>
+		</div>
+	{/if}
+
+	<!-- Submit -->
+	<div class="dice-form__actions">
+		{#if errorMessage}
+			<p class="dice-form__error" role="alert">{errorMessage}</p>
+		{/if}
+		<div class="dice-form__submit-row">
+			<button
+				class="dice-form__submit"
+				class:is-submitting={isSubmitting}
+				type="submit"
+				disabled={dice.result === null || isSubmitting}
+				aria-label="Registrar y mostrar tirada en pantalla"
+			>
+				<svg
+					class="submit-svg"
+					viewBox="0 0 400 52"
+					preserveAspectRatio="none"
+					aria-hidden="true"
+				>
+					<path bind:this={submitPath} />
+				</svg>
+				<!-- Label + die icon as a centered inline unit -->
+				<span class="submit-content">
+					<span bind:this={submitLabel} class="submit-label">
+						{isSubmitting ? 'REGISTRANDO...' : 'LANZAR A PANTALLA'}
+					</span>
+					<div class="submit-die" aria-hidden="true">
+						<svg
+							viewBox="0 0 512 512"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="32"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							style="width:100%; height:100%;"
+						>
+							<path bind:this={outerShape} style="will-change: d;" />
+							<path bind:this={innerLines} style="will-change: d;" />
+						</svg>
+					</div>
+				</span>
+			</button>
+			<span
+				class="conn-dot"
+				class:conn-dot--connected={socketStatus.connected}
+				aria-label={socketStatus.connected ? 'Servidor conectado' : 'Servidor desconectado'}
+				title={socketStatus.connected ? 'Servidor conectado' : 'Servidor desconectado'}
+			></span>
+		</div>
+	</div>
 </form>

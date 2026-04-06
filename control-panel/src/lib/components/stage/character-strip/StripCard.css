@@ -8,7 +8,7 @@
 .strip-card {
   position: relative;
   background: var(--black-card);
-  border: 1px solid var(--grey-dim);
+  border: 2px solid var(--grey-dim);
   transition: border-color var(--t-fast), transform var(--t-fast);
 }
 
@@ -18,7 +18,7 @@
 
 .strip-card.is-expanded {
   border-color: var(--cast-amber);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--white) 2%, transparent);
 }
 
 .strip-card.is-critical {
@@ -31,7 +31,7 @@
   background: var(--red);
   opacity: 0;
   pointer-events: none;
-  z-index: 10;
+  z-index: var(--z-card-flash, 10);
 }
 
 .strip-card__compact {
@@ -39,7 +39,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
-  min-height: 56px;
+  min-height: 52px;
 }
 
 .strip-card__photo {
@@ -56,17 +56,17 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
 .strip-card__name {
-  font-family: var(--font-identity);
-  font-size: 15px;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
   color: var(--white);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -143,10 +143,14 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 12px;
-  z-index: 5;
-  box-shadow: 0 0 10px rgba(255, 77, 106, 0.5);
+  z-index: var(--z-card-marker, 5);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--red) 50%, transparent);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.death-marker::after {
+  content: '💀';
+  font-size: 12px;
 }
 
 .hp-track {
@@ -219,7 +223,7 @@
   align-items: center;
   gap: var(--space-1);
   padding: 4px var(--space-3);
-  background: rgba(0, 0, 0, 0.2);
+  background: color-mix(in srgb, var(--black) 80%, transparent);
 }
 
 .strip-card__expanded {
@@ -228,7 +232,7 @@
   flex-direction: column;
   gap: var(--space-3);
   border-top: 1px solid var(--grey-dim);
-  background: rgba(0, 0, 0, 0.3);
+  background: color-mix(in srgb, var(--black) 70%, transparent);
 }
 
 .strip-card__controls {
@@ -237,45 +241,13 @@
   gap: var(--space-3);
 }
 
-.btn-dmg,
-.btn-heal {
-  height: 36px;
+.strip-card__divider {
+  display: none;
+}
+
+/* Layout override: HoldButtons in the card controls fill available space */
+.strip-card__controls .hold-btn {
   flex: 1;
-  font-family: var(--font-display);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--t-fast);
-  clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
-}
-
-.btn-dmg {
-  background: rgba(255, 77, 106, 0.1);
-  border: 1px solid var(--red);
-  color: var(--red);
-}
-
-.btn-dmg:hover {
-  background: var(--red);
-  color: var(--white);
-  transform: translateY(-1px);
-}
-
-.btn-heal {
-  background: rgba(0, 229, 255, 0.1);
-  border: 1px solid var(--cyan);
-  color: var(--cyan);
-}
-
-.btn-heal:hover {
-  background: var(--cyan);
-  color: var(--black);
-  transform: translateY(-1px);
-}
-
-.btn-dmg:active,
-.btn-heal:active {
-  transform: scale(0.96);
 }
 
 .strip-card__conditions {
@@ -313,4 +285,15 @@
 @keyframes pulse-red {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-fill,
+  .hp-ghost { transition: none; }
+  .hp--critical { animation: none; }
+  .shake { animation: none; }
+  .death-marker { animation: none; }
+  .hit-flash,
+  .critical-flash { transition: none; }
 }

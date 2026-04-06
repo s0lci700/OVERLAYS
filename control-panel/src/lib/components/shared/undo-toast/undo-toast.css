@@ -1,0 +1,50 @@
+/**
+ * UndoToast Styles
+ * ================
+ * Inline toast for confirming reversible actions (HP damage/heal, bulk mutations).
+ * Appears within the component that triggered the action, not as a global overlay.
+ */
+
+.undo-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--black-card);
+  border: 1px solid var(--cast-amber-border);
+}
+
+.undo-toast__label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+  text-transform: uppercase;
+}
+
+.undo-toast__btn {
+  height: 24px;
+  padding: 0 var(--space-3);
+  background: color-mix(in srgb, var(--cyan) 10%, transparent);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  clip-path: var(--hex-clip-sm);
+  flex-shrink: 0;
+}
+
+.undo-toast__btn:hover {
+  background: var(--cyan);
+  color: var(--black);
+}
+
+.undo-toast__btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}

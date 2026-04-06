@@ -3,52 +3,107 @@
   ===========
   Bulk DMG/HEAL controls at the top of the character strip.
   Applies HP delta to every character in the active roster simultaneously.
+  Hold-to-confirm prevents accidental bulk mutations.
 -->
 <script lang="ts">
   import type { CharacterRecord } from '$lib/contracts/records';
   import { Stepper } from '$lib/components/shared/stepper/index';
+  import { HoldButton } from '$lib/components/shared/hold-button/index';
+  import { UndoToast } from '$lib/components/shared/undo-toast/index';
   import { mutateHp } from '$lib/derived/stage.svelte';
+  import { makeWheelHandler } from '$lib/utils/utils';
 
   let { characters }: { characters: CharacterRecord[] } = $props();
 
   let dmgAmount = $state(1);
   let healAmount = $state(1);
 
+  const dmgWheelHandler = makeWheelHandler(
+    () => dmgAmount,
+    (newVal) => (dmgAmount = newVal),
+    1, 999
+  );
+
+  const healWheelHandler = makeWheelHandler(
+    () => healAmount,
+    (newVal) => (healAmount = newVal),
+    1, 999
+  );
+  
+
+  type Snapshot = { id: string; hp: number }[];
+  let toast = $state<{ label: string; snapshot: Snapshot } | null>(null);
+  let toastTimeout: ReturnType<typeof setTimeout> | null = null;
+
   function applyAll(delta: number) {
     for (const char of characters) {
       mutateHp(char.id, { delta });
     }
   }
+
+  function showToast(label: string, snapshot: Snapshot) {
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toast = { label, snapshot };
+    toastTimeout = setTimeout(clearToast, 3000);
+  }
+
+  function clearToast() {
+    toast = null;
+    toastTimeout = null;
+  }
+
+  function undoApplyAll() {
+    if (!toast) return;
+    for (const snap of toast.snapshot) {
+      const char = characters.find(c => c.id === snap.id);
+      if (char) mutateHp(snap.id, { delta: snap.hp - char.hp_current });
+    }
+    clearToast();
+  }
 </script>
 
 <header class="strip-header">
-  <div class="strip-header__row">
-    <div class="strip-header__meta">
-      <span class="strip-header__label">DAÑO GLOBAL</span>
-      <button 
-        class="btn-dmg-all" 
-        onclick={() => applyAll(-dmgAmount)}
-        aria-label={`Aplicar ${dmgAmount} de daño a todos los personajes`}
-      >
-        DAÑO
-      </button>
+  <div class="strip-header__group">
+    <span class="strip-header__label">DAÑO GLOBAL</span>
+    <div class="strip-header__controls">
+      <HoldButton
+        variant="dmg"
+        label="DAÑO"
+        holdDuration={800}
+        style="width:88px;"
+        onConfirm={() => {
+          const snapshot: Snapshot = characters.map(c => ({ id: c.id, hp: c.hp_current }));
+          applyAll(-dmgAmount);
+          showToast('Daño aplicado a todos', snapshot);
+        }}
+        ariaLabel={`Mantener para aplicar ${dmgAmount} de daño a todos los personajes`}
+      />
+      <Stepper onwheel={dmgWheelHandler} bind:value={dmgAmount} min={1} max={999} size="sm" />
     </div>
-    <Stepper bind:value={dmgAmount} min={1} max={999} size="sm" />
   </div>
 
-  <div class="strip-header__row">
-    <div class="strip-header__meta">
-      <span class="strip-header__label">SANACIÓN G.</span>
-      <button 
-        class="btn-heal-all" 
-        onclick={() => applyAll(healAmount)}
-        aria-label={`Aplicar ${healAmount} de sanación a todos los personajes`}
-      >
-        CURAR
-      </button>
+  <div class="strip-header__group">
+    <span class="strip-header__label">SANACIÓN GLOBAL</span>
+    <div class="strip-header__controls">
+      <HoldButton
+        variant="heal"
+        label="CURAR"
+        holdDuration={800}
+        style="width:88px;"
+        onConfirm={() => {
+          const snapshot: Snapshot = characters.map(c => ({ id: c.id, hp: c.hp_current }));
+          applyAll(healAmount);
+          showToast('Sanación aplicada a todos', snapshot);
+        }}
+        ariaLabel={`Mantener para aplicar ${healAmount} de sanación a todos los personajes`}
+      />
+      <Stepper onwheel={healWheelHandler} bind:value={healAmount} min={1} max={999} size="sm" />
     </div>
-    <Stepper bind:value={healAmount} min={1} max={999} size="sm" />
   </div>
+
+  {#if toast}
+    <UndoToast label={toast.label} onUndo={undoApplyAll} />
+  {/if}
 </header>
 
 <style>
@@ -58,82 +113,29 @@
     background: var(--black-elevated);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-3);
     flex-shrink: 0;
+    position: relative;
   }
 
-  .strip-header__row {
+  .strip-header__group {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     gap: var(--space-2);
   }
 
-  .strip-header__meta {
+  .strip-header__controls {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+    align-items: center;
+    gap: var(--space-3);
   }
 
   .strip-header__label {
     font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--cast-amber);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    opacity: 0.8;
-  }
-
-  .btn-dmg-all,
-  .btn-heal-all {
-    width: 80px;
-    height: 32px;
-    background: transparent;
-    font-family: var(--font-display);
     font-size: 11px;
     font-weight: 700;
-    cursor: pointer;
-    transition: all var(--t-fast);
-    flex-shrink: 0;
-    clip-path: var(--hex-clip-sm);
-  }
-
-  .btn-dmg-all {
-    border: 1px solid var(--red);
-    color: var(--red);
-    background: rgba(255, 77, 106, 0.05);
-  }
-
-  .btn-dmg-all:hover {
-    background: var(--red);
-    color: var(--white);
-    transform: translateY(-1px);
-  }
-
-  .btn-dmg-all:active {
-    transform: scale(0.96);
-  }
-
-  .btn-heal-all {
-    border: 1px solid var(--cyan);
-    color: var(--cyan);
-    background: rgba(0, 229, 255, 0.05);
-  }
-
-  .btn-heal-all:hover {
-    background: var(--cyan);
-    color: var(--black);
-    transform: translateY(-1px);
-  }
-
-  .btn-heal-all:active {
-    transform: scale(0.96);
-  }
-
-  .btn-dmg-all:focus-visible,
-  .btn-heal-all:focus-visible {
-    outline: 2px solid var(--cyan);
-    outline-offset: 2px;
+    color: var(--cast-amber);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 </style>

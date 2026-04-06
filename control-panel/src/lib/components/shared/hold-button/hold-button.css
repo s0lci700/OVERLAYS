@@ -1,0 +1,85 @@
+/**
+ * HoldButton Styles
+ * =================
+ * Hold-to-confirm button with a fill animation that tracks hold progress.
+ * Width/flex is intentionally NOT set here — the parent controls sizing.
+ *
+ * Variants: --dmg (red), --heal (cyan)
+ */
+
+.hold-btn {
+  height: 44px;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color var(--t-fast), background var(--t-fast);
+  clip-path: var(--hex-clip-sm);
+}
+
+/* Hold progress fill — grows left-to-right via CSS custom property */
+.hold-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--hold-progress, 0%);
+  pointer-events: none;
+  transition: none;
+}
+
+/* dmg variant */
+.hold-btn--dmg {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+
+.hold-btn--dmg::before {
+  background: var(--red);
+  opacity: 0.35;
+}
+
+.hold-btn--dmg:hover:not(:disabled) {
+  color: var(--white);
+  background: color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+/* heal variant */
+.hold-btn--heal {
+  background: color-mix(in srgb, var(--cyan) 10%, transparent);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+}
+
+.hold-btn--heal::before {
+  background: var(--cyan);
+  opacity: 0.25;
+}
+
+.hold-btn--heal:hover:not(:disabled) {
+  color: var(--white);
+  background: color-mix(in srgb, var(--cyan) 20%, transparent);
+}
+
+/* States */
+.hold-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.hold-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.hold-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}

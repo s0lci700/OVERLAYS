@@ -6,212 +6,364 @@
  */
 
 .dice-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  max-width: 520px;
-  width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-6);
+	max-width: 800px;
+	width: 100%;
+}
+
+/* Top row: character picker + portrait side by side */
+.dice-form__top {
+	display: flex;
+	gap: var(--space-4);
+	align-items: flex-start;
+}
+
+.dice-form__top .dice-form__field {
+	flex: 1;
+	min-width: 0;
+}
+
+/* Half the width of the MODIFICADOR column, anchored to the right */
+.dice-form__field--portrait {
+	flex: 0 0 calc((100% - 2 * var(--space-3)) / 6);
+}
+
+.dice-form__portrait {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 1;
+	border: 1px solid var(--grey-dim);
+	background: var(--black-elevated);
+	overflow: hidden;
+}
+
+.dice-form__portrait-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top center;
+	display: block;
+}
+
+
+@media (max-width: 600px) {
+	.dice-form__top {
+		flex-direction: column;
+	}
+	.dice-form__portrait {
+		aspect-ratio: 16 / 9;
+	}
 }
 
 .dice-form__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
 }
 
 .dice-form__field--sm {
-  flex: 1;
+	flex: 1;
 }
 
+/* Die + roll-type grouped as one "what are you rolling?" zone */
+.dice-form__selector-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+/* Section break: signals "now enter the actual roll result" */
 .dice-form__row {
-  display: flex;
-  gap: var(--space-3);
+	display: flex;
+	gap: var(--space-3);
+	padding-top: var(--space-5);
+	border-top: 1px solid var(--grey-dim);
+}
+
+/* SUMA DADOS is the primary input — the actual die result */
+.dice-form__field--result .dice-form__input {
+	height: 52px;
+	font-size: 22px;
+	border-color: var(--cast-amber-border);
 }
 
 .dice-form__label {
-  font-family: var(--font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--cast-amber);
-  text-transform: uppercase;
+	font-family: var(--font-display);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	color: var(--cast-amber);
+	text-transform: uppercase;
 }
 
-.dice-form__select {
-  height: 44px;
-  background: var(--black-elevated);
-  border: 1px solid var(--grey-dim);
-  color: var(--white);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 0 var(--space-3);
-  cursor: pointer;
-  outline: none;
-  transition: border-color var(--t-fast);
-}
-
-.dice-form__select:focus {
-  border-color: var(--cast-amber);
-}
 
 .dice-form__input {
-  height: 44px;
-  background: var(--black-elevated);
-  border: 1px solid var(--grey-dim);
-  color: var(--white);
-  font-family: var(--font-mono);
-  font-size: 18px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  outline: none;
-  width: 100%;
-  box-sizing: border-box;
-  appearance: textfield;
-  transition: border-color var(--t-fast);
+	height: 44px;
+	background: var(--black-elevated);
+	border: 1px solid var(--grey-dim);
+	color: var(--white);
+	font-family: var(--font-mono);
+	font-size: 18px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+	appearance: textfield;
+	transition: border-color var(--t-fast);
 }
 
 .dice-form__input::-webkit-outer-spin-button,
 .dice-form__input::-webkit-inner-spin-button {
-  appearance: none;
+	appearance: none;
 }
 
 .dice-form__input:focus {
-  border-color: var(--cast-amber);
+	border-color: var(--cast-amber);
+	box-shadow: 0 0 0 2px var(--cast-amber-glow);
+}
+
+/* SUMA DADOS gets an extra halo — it's the most important input */
+.dice-form__field--result .dice-form__input:focus {
+	box-shadow: 0 0 0 3px var(--cast-amber-glow), 0 0 18px color-mix(in srgb, var(--cast-amber) 12%, transparent);
 }
 
 .die-group {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+	display: flex;
+	gap: var(--space-2);
+	flex-wrap: wrap;
+	align-items: center;
 }
 
+
 .die-btn {
-  height: 44px;
-  min-width: 56px;
-  padding: 0 var(--space-3);
-  background: var(--black-elevated);
-  border: 1px solid var(--grey-dim);
-  color: var(--grey);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--t-fast);
-  clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+	height: 44px;
+	min-width: 56px;
+	padding: 0 var(--space-3);
+	background: var(--black-elevated);
+	border: 1px solid var(--grey-dim);
+	color: var(--grey);
+	font-family: var(--font-display);
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast), box-shadow var(--t-fast);
+	clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
 }
 
 .die-btn:hover {
-  border-color: var(--cast-amber);
-  color: var(--white);
+	border-color: var(--cast-amber);
+	color: var(--white);
+}
+
+.die-btn:active {
+	transform: scale(0.93);
+}
+
+.die-btn:focus-visible {
+	outline: 2px solid var(--cyan);
+	outline-offset: 3px;
 }
 
 .die-btn.is-active {
-  background: var(--cast-amber-dim);
-  border-color: var(--cast-amber);
-  color: var(--white);
-  box-shadow: 0 0 15px var(--cast-amber-glow);
+	background: var(--cast-amber-dim);
+	border-color: var(--cast-amber);
+	color: var(--white);
+	box-shadow: 0 0 15px var(--cast-amber-glow);
+	animation: die-select-pop 0.22s ease-out;
+}
+
+@keyframes die-select-pop {
+	0%   { transform: scale(1); }
+	45%  { transform: scale(1.1); }
+	100% { transform: scale(1); }
 }
 
 .dice-form__total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4) var(--space-5);
-  background: rgba(200, 148, 74, 0.05);
-  border: 1px solid var(--cast-amber-border);
-  position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-4) var(--space-5);
+	background: var(--cast-amber-dim);
+	border: 1px solid var(--cast-amber-border);
+	position: relative;
 }
 
 .dice-form__total::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--cast-amber);
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 4px;
+	background: var(--cast-amber);
 }
 
 .dice-form__total-label {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--cast-amber);
+	font-family: var(--font-display);
+	font-size: 14px;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	color: var(--cast-amber);
 }
 
 .dice-form__total-value {
-  font-family: var(--font-mono);
-  font-size: 44px;
-  font-weight: 700;
-  color: var(--white);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+	font-family: var(--font-mono);
+	font-size: 44px;
+	font-weight: 700;
+	color: var(--white);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
 }
 
 .dice-form__actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.dice-form__submit-row {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+}
+
+.conn-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--red);
+	flex-shrink: 0;
+	transition: background var(--t-normal), box-shadow var(--t-normal);
+}
+
+.conn-dot.conn-dot--connected {
+	background: var(--cyan);
+	box-shadow: 0 0 6px color-mix(in srgb, var(--cyan) 60%, transparent);
 }
 
 .dice-form__error {
-  color: var(--red);
-  font-family: var(--font-display);
-  font-size: 12px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-align: center;
-  background: rgba(255, 77, 106, 0.1);
-  padding: var(--space-2);
-  border: 1px solid var(--red);
+	color: var(--red);
+	font-family: var(--font-display);
+	font-size: 12px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	text-align: center;
+	background: rgba(255, 77, 106, 0.1);
+	padding: var(--space-2);
+	border: 1px solid var(--red);
+	animation: error-shake 0.35s ease-out;
 }
 
+@keyframes error-shake {
+	0%, 100% { transform: translateX(0); }
+	20%       { transform: translateX(-5px); }
+	40%       { transform: translateX(5px); }
+	60%       { transform: translateX(-3px); }
+	80%       { transform: translateX(3px); }
+}
+/* Submit button — shape and colors driven by GSAP MorphSVG */
 .dice-form__submit {
-  height: 52px;
-  background: var(--cast-amber);
-  border: none;
-  color: var(--black);
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: all var(--t-fast);
-  clip-path: var(--hex-clip-md);
-  margin-top: var(--space-2);
-  width: 100%;
+	height: 52px;
+	flex: 1;
+	margin-top: var(--space-2);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
 }
 
-@media (max-width: 480px) {
-  .dice-form__submit {
-    clip-path: none;
-    border-radius: var(--radius-sm);
-  }
-  .dice-form__row {
-    flex-wrap: wrap;
-  }
-  .dice-form__field--sm {
-    min-width: 40%;
-  }
+.submit-svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
 }
 
-.dice-form__submit:hover:not(:disabled) {
-  background: var(--white);
-  transform: translateY(-1px);
+/* Label + die icon grouped as a centered inline unit */
+.submit-content {
+	position: relative;
+	z-index: 1;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	pointer-events: none;
 }
 
-.dice-form__submit:active:not(:disabled) {
-  transform: translateY(1px);
+.submit-label {
+	font-family: var(--font-display);
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	/* color controlled by GSAP */
+}
+
+.submit-die {
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
+	color: rgba(0, 0, 0, 0.3);
+	transition: color var(--t-fast);
+}
+
+.dice-form__submit:disabled .submit-die {
+	color: rgba(136, 136, 136, 0.15);
 }
 
 .dice-form__submit:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  clip-path: none;
-  border: 1px solid var(--grey-dim);
-  background: transparent;
-  color: var(--grey);
+	cursor: not-allowed;
+}
+
+.dice-form__submit:hover:not(:disabled) {
+	filter: brightness(1.12);
+	transform: translateY(-1px);
+}
+
+.dice-form__submit:active:not(:disabled) {
+	filter: none;
+	transform: translateY(1px);
+}
+
+@media (max-width: 480px) {
+	.dice-form__row {
+		flex-wrap: wrap;
+	}
+	.dice-form__field--sm {
+		min-width: 40%;
+	}
+}
+
+/* Die icon spin while form is submitting */
+.dice-form__submit.is-submitting .submit-die {
+	animation: die-spin 0.5s linear infinite;
+}
+
+@keyframes die-spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	.die-btn,
+	.die-btn.is-active,
+	.dice-form__input,
+	.submit-die,
+	.conn-dot {
+		transition: none;
+		animation: none;
+	}
+	.dice-form__error {
+		animation: none;
+	}
+	.dice-form__submit.is-submitting .submit-die {
+		animation: none;
+	}
 }

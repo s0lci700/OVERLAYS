@@ -27,7 +27,7 @@
  * (CharacterCard.css, DiceRoller.css).
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Space+Grotesk:wght@400;700&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Noto+Serif:wght@400;700&family=Space+Grotesk:wght@400;700&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 /* Generated design tokens — source of truth is design/tokens.json */
@@ -415,6 +415,24 @@ a {
 }
 
 /* ═══════════════════════════════════════════════════
+   RESPONSIVE VISIBILITY UTILITIES
+   ═══════════════════════════════════════════════════ */
+
+/* Hidden on desktop (1400px+), visible on mobile/tablet */
+@media (min-width: 1400px) {
+  .is-desktop-hidden {
+    display: none !important;
+  }
+}
+
+/* Hidden on mobile/tablet (<1400px), visible on desktop */
+@media (max-width: 1399px) {
+  .is-desktop-only {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
    APP SHELL LAYOUT
    ═══════════════════════════════════════════════════ */
 .app-shell {
@@ -436,7 +454,7 @@ a {
   border-bottom: 1px solid var(--grey-dim);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 10;
 }
 
 .brand-wordmark {
@@ -536,8 +554,8 @@ a {
 .app-main {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-4);
-  padding-bottom: calc(var(--space-4) + 68px);
+  padding: var(--space-2);
+  /* padding-bottom: calc(var(--space-4) + 68px); */
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -707,6 +725,13 @@ a {
   left: 0;
   width: min(320px, 85vw);
   height: 100dvh;
+  z-index: var(--z-sidebar);
+  pointer-events: none;
+}
+
+.app-sidebar-inner {
+  width: 100%;
+  height: 100%;
   background: var(--cast-glass);
   backdrop-filter: blur(var(--cast-blur));
   border-right: 1px solid var(--cast-amber-border);
@@ -714,14 +739,9 @@ a {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  transform: translateX(-102%);
-  transition: transform var(--t-normal);
-  z-index: var(--z-sidebar);
   overflow-y: auto;
-}
-
-.app-sidebar.open {
-  transform: translateX(0);
+  pointer-events: auto;
+  will-change: transform;
 }
 
 .app-sidebar-head {
@@ -769,6 +789,8 @@ a {
   text-decoration: none;
   clip-path: polygon(4% 0%, 96% 0%, 100% 50%, 96% 100%, 4% 100%, 0% 50%);
   transition: all var(--t-fast);
+  position: relative;
+  overflow: hidden;
 }
 
 .app-sidebar-link.active {
@@ -776,10 +798,17 @@ a {
   border-color: var(--cast-amber);
   background: var(--cast-amber-dim);
   box-shadow: 0 0 15px var(--cast-amber-glow);
+  animation: breathing-glow 4s ease-in-out infinite;
 }
 
 .app-sidebar-link:not(.active):hover {
   color: var(--white);
   border-color: var(--cast-amber-border);
   background: rgba(200, 148, 74, 0.08);
+  transform: scale(1.02);
+}
+
+@keyframes breathing-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--cast-amber-glow); border-color: var(--cast-amber-border); }
+  50% { box-shadow: 0 0 20px var(--cast-amber-glow); border-color: var(--cast-amber); }
 }
