@@ -21,16 +21,22 @@
 <style>
   .stage-hud {
     display: flex;
-    height: 100vh;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     overflow: hidden;
     background: var(--black);
+    z-index: 10;
   }
 
   @media (max-width: 768px) {
     .stage-hud {
+      position: static;
       flex-direction: column;
       height: auto;
-      min-height: 100vh;
+      min-height: calc(100dvh - 64px);
       overflow: visible;
     }
   }

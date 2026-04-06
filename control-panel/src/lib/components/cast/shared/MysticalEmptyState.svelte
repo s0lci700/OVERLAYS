@@ -29,10 +29,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: var(--space-12) var(--space-6);
     text-align: center;
-    gap: 1rem;
+    gap: var(--space-4);
     animation: fadeIn var(--t-normal) ease-out;
+    overflow: hidden;
   }
 
   .rune-container {
@@ -42,7 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
   }
 
   .rune-icon {
@@ -63,7 +64,7 @@
 
   .empty-title {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 24px;
     letter-spacing: 0.1em;
     color: var(--cast-amber);
     text-transform: uppercase;
@@ -117,5 +118,11 @@
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rune-icon { animation: none; opacity: 0.6; }
+    .rune-glow { animation: none; opacity: 0.3; }
+    .mystical-empty { animation: none; }
   }
 </style>

@@ -1,0 +1,362 @@
+# TASK-1.4 — Build Resource Tracker Component
+
+## Task ID
+
+`TASK-1.4`
+
+## Title
+
+Build ResourceTracker component for character resources (hit dice, spell slots, class features)
+
+## User Story
+
+As a **player**, I want to **track my character's limited resources (hit dice, spell slots, class features like Second Wind) and see current vs. maximum values** so that **I know how many uses I have left and can plan my actions during combat**.
+
+## Background / Context
+
+Character resources are tracked in the `resources` JSON field of the `characters` PocketBase record. This field contains all character-specific limited-use abilities:
+
+**Example `resources` JSON:**
+
+```json
+{
+  "hit_dice": { "current": 4, "max": 4, "die": "d10" },
+  "second_wind": { "current": 1, "max": 1 },
+  "action_surge": { "current": 1, "max": 1 },
+  "spell_slots": {
+    "level_1": { "current": 4, "max": 4 },
+    "level_2": { "current": 3, "max": 3 }
+  }
+}
+```
+
+The ResourceTracker component displays these resources in a visual, easy-to-scan format. Depending on permissions:
+
+- **Players** see their resources but cannot modify (read-only display)
+- **DMs** and **Stage operators** can increment/decrement (future: socket-driven mutations)
+
+This task focuses on the **read-only player view**. Increment/decrement buttons may be added in TASK-1.6 or later when socket-driven mutations are implemented.
+
+## Acceptance Criteria
+
+- [ ]  **ResourceTracker.svelte** component created and:
+    - Accepts `character` prop (full record with `resources` JSON field)
+    - Displays all resources found in `character.resources` object
+    - No hardcoded resource list; iterates over whatever is in the JSON
+    - Renders gracefully if `resources` is null or empty
+- [ ]  **Resource display format** for each resource:
+    - Shows resource name (e.g., "Hit Dice", "Action Surge", "Spell Slots (1st Level)")
+    - Shows current / max value (e.g., "4 / 4")
+    - For Hit Dice, also shows die type (e.g., "d10" → "4 / 4 (d10)")
+    - For Spell Slots, groups by spell level and displays each level separately
+    - Uses visual indicators (circles, bars, or boxes) for remaining uses (optional but recommended)
+- [ ]  **Visual design**:
+    - Responsive layout: stacks vertically on mobile, may use columns on tablet+
+    - Clear spacing and visual hierarchy
+    - Color coding optional (e.g., green for full, yellow for partial, red for depleted)
+    - Accessible semantic HTML
+- [ ]  **Spell Slots organization** (if present in resources):
+    - Spell slots grouped under a "Spell Slots" section or expandable list
+    - Each slot level (1st through 9th) displayed as separate row
+    - Sorted by spell level (ascending)
+    - Format: "1st Level: 4 / 4", "2nd Level: 3 / 3", etc.
+    - Only display spell levels with non-zero max
+- [ ]  **Exported props**:
+    - `character` (required): full character record
+    - `readonly` (optional, default true): if true, no increment/decrement buttons; if false, shows buttons (for future mutations)
+- [ ]  **Handling edge cases**:
+    - If a resource has `current > max`, display as-is with visual warning or different color
+    - If a resource is depleted (`current === 0`), still display with visual indicator (e.g., grayed out)
+    - If `resources` field is missing or null, render "No resources tracked" message
+- [ ]  **Storybook stories** created:
+    - Default story with Sir Nabo fixture (full resources)
+    - Story with mixed resources (some depleted, some partial)
+    - Story with empty resources
+    - Story with only spell slots
+    - All stories render cleanly at 375px, 768px, 1920px viewports
+
+## Technical Notes
+
+### Component Template Example
+
+```
+<script lang="ts">
+  import type { Character } from '$lib/types/characters';
+
+  export let character: Character;
+  export let readonly: boolean = true;
+
+  $: resources = character.resources || {};
+  $: spellSlots = resources.spell_slots || {};
+  $: otherResources = Object.entries(resources).filter(([key]) => key !== 'spell_slots');
+</script>
+
+<section class="resource-tracker">
+  <h2>Resources</h2>
+
+  {#if Object.keys(resources).length === 0}
+    <p class="empty">No resources tracked</p>
+  {:else}
+    <!-- Non-spell-slot resources -->
+    {#each otherResources as [key, resource]}
+      <div class="resource-item">
+        <div class="resource-label">
+          <h3>{formatResourceName(key)}</h3>
+          {#if resource.die}
+            <span class="die-type">({resource.die})</span>
+          {/if}
+        </div>
+        <div class="resource-value">
+          <span class={`current ${resource.current === 0 ? 'depleted' : ''}`}>
+            {resource.current}
+          </span>
+          <span class="separator">/</span>
+          <span class="max">{resource.max}</span>
+        </div>
+        {#if !readonly}
+          <div class="actions">
+            <button on:click={() => decrement(key)}>−</button>
+            <button on:click={() => increment(key)}>+</button>
+          </div>
+        {/if}
+      </div>
+    {/each}
+
+    <!-- Spell Slots -->
+    {#if Object.keys(spellSlots).length > 0}
+      <div class="spell-slots-section">
+        <h3>Spell Slots</h3>
+        {#each Object.entries(spellSlots) as [level, slot]}
+          <div class="resource-item">
+            <div class="resource-label">{formatSpellLevel(level)}</div>
+            <div class="resource-value">
+              {slot.current} / {slot.max}
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  {/if}
+</section>
+
+<style>
+  .resource-tracker {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .resource-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .resource-label {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .die-type {
+    font-size: 0.875rem;
+    color: var(--color-secondary);
+  }
+
+  .resource-value {
+    font-weight: bold;
+    font-size: 1.125rem;
+  }
+
+  .current.depleted {
+    color: var(--color-warning);
+  }
+
+  .separator {
+    margin: 0 0.25rem;
+    color: var(--color-secondary);
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .actions button {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .spell-slots-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-border);
+  }
+</style>
+```
+
+### Resource Name Formatting
+
+Create a utility function to convert snake_case resource keys to display names:
+
+```jsx
+// src/lib/utils/resource-format.js
+export function formatResourceName(key: string): string {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+    // "hit_dice" → "Hit Dice"
+    // "second_wind" → "Second Wind"
+}
+
+export function formatSpellLevel(level: string): string {
+  const levelNum = parseInt(level.replace('level_', ''));
+  const ordinals = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th'];
+  return `${ordinals[levelNum] || levelNum} Level`;
+}
+```
+
+### Spell Slots Sorting
+
+Sort spell slots by level number:
+
+```jsx
+$: sortedSpellSlots = Object.entries(spellSlots)
+  .sort(([keyA], [keyB]) => {
+    const levelA = parseInt(keyA.replace('level_', ''));
+    const levelB = parseInt(keyB.replace('level_', ''));
+    return levelA - levelB;
+  });
+```
+
+### Visual Indicators (Optional)
+
+Display dots or circles to visualize remaining uses:
+
+```
+{#each Array(resource.max) as _, i}
+  <span class={`indicator ${i < resource.current ? 'used' : 'available'}`} />
+{/each}
+```
+
+CSS:
+
+```css
+.indicator {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.25rem;
+}
+
+.indicator.used {
+  background-color: var(--color-primary);
+}
+
+.indicator.available {
+  background-color: var(--color-secondary-lighter);
+}
+```
+
+### Mock Fixture
+
+Use Sir Nabo fixture with resources:
+
+```jsx
+const SIR_NABO = {
+  // ... other fields
+  resources: {
+    hit_dice: { current: 4, max: 4, die: 'd10' },
+    second_wind: { current: 1, max: 1 },
+    action_surge: { current: 1, max: 1 }
+  }
+};
+
+// For spell-casting character (e.g., Wizard):
+const WIZARD_FIXTURE = {
+  // ... other fields
+  resources: {
+    hit_dice: { current: 2, max: 2, die: 'd6' },
+    spell_slots: {
+      level_1: { current: 4, max: 4 },
+      level_2: { current: 2, max: 3 },
+      level_3: { current: 0, max: 2 }
+    }
+  }
+};
+```
+
+### Future: Mutations (Not in Scope)
+
+Increment/decrement buttons are stubbed with `readonly` prop. In TASK-1.6 or later, these will emit [Socket.io](http://Socket.io) events:
+
+```jsx
+function increment(resourceKey: string) {
+  // Future: emit socket event 'resource_increment' with { character_id, resource_key }
+}
+```
+
+### Edge Cases
+
+- **current > max**: Display as-is; add visual warning (e.g., orange text). This can happen if spellcasting is temporarily boosted.
+- **Negative current**: Unlikely but gracefully handle (display as-is, may indicate debt or error state).
+- **Missing `die` field**: Spell slots and some features don't have a die; omit this field from display.
+- **Nested spell slots**: Spell Slots are nested under `spell_slots` key; special handling to flatten and display correctly.
+
+### Responsive Layout
+
+```css
+@media (max-width: 640px) {
+  .resource-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 641px) {
+  .resource-item {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  /* Optional: multi-column layout for many resources */
+  .resource-tracker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+```
+
+## Architecture References
+
+- **Character Model**: `resources` JSON field in `characters` collection (TASK-1.1)
+- **Derived Values**: Unlike ability modifiers, resources are stored directly in DB (no derivation needed)
+- [**Socket.io](http://Socket.io) Events**: `src/lib/contracts/events.js` (future resource_increment, resource_decrement events)
+- **Storybook for Svelte**: https://storybook.js.org/docs/svelte/get-started/install
+
+## Story Points
+
+**5 points**
+
+Justification: Component is relatively straightforward (display JSON field with formatting logic). Main complexity is handling nested spell slots, edge cases (depleted resources, overage), and responsive layout. Moderate scope compared to derivation-heavy components.
+
+## Dependencies
+
+- **TASK-1.2** (character record, types) must be complete
+- **Blocked by**: None
+- **Blocks**: TASK-1.6 (socket overlay, mutations), Commons wallboard
+
+## Notes for Assignee
+
+- Start with non-spell-slot resources (simpler); then add spell slots section
+- Create formatResourceName and formatSpellLevel utility functions early for reusability
+- Use Storybook to design and iterate on visual layout before integrating into page
+- Test with characters that have 0, partial, full, and over-max resources
+- Consider accessibility: ensure color alone does not indicate state (use text labels, badges, or icons)
+- Don't attempt to implement increment/decrement mutations yet; stub those for TASK-1.6
+- Validate that spell slots are sorted by level number, not alphabetically

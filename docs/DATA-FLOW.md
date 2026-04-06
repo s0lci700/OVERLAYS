@@ -18,7 +18,7 @@ source_files:
   - control-panel/src/lib/services/socket.svelte.ts
   - control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts
   - control-panel/src/routes/(cast)/players/[id]/+layout.server.ts
-last_updated: 2026-03-28
+last_updated: 2026-04-04
 ---
 
 # Data Flow

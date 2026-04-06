@@ -73,6 +73,13 @@ Always start services in this order:
 
 ---
 
+## 🎨 Design Concepts & Future Ideas
+
+- **Advanced Dice Visuals:** Use Blender-rendered dice outlines (all faces) converted to SVGs for complex animations.
+- **Morphing Loader:** Create a loading icon featuring various die shapes (d20, d12, etc.) morphing into one another.
+
+---
+
 ## 📁 Key File Map
 
 -   `server.ts`: Backend entry point (Express + Socket.io).

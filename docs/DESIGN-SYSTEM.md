@@ -2,7 +2,7 @@
 title: Design System
 type: design
 source_files: [design/tokens.json, control-panel/src/app.css, control-panel/src/lib/components/overlays/overlays.css]
-last_updated: 2026-03-25
+last_updated: 2026-04-04
 ---
 
 # Dados & Risas — Design System

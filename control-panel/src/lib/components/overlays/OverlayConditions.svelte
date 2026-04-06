@@ -20,6 +20,7 @@
 <script>
   import { createOverlaySocket } from './shared/overlaySocket.svelte.js';
   import { animate, utils } from "animejs";
+  import AlchemicalIcon from '../shared/AlchemicalIcon.svelte';
 
   let { serverUrl = "http://localhost:3000", mockCharacters = null } = $props();
 
@@ -178,7 +179,7 @@
         <div class="row-char-name">{entry.name}</div>
         <div class="row-badges">
           {#each entry.conditions as cond (cond.id)}
-            <span class="cond-badge">{cond.condition_name}</span>
+            <AlchemicalIcon condition={cond} size="sm" />
           {/each}
           {#each depletedResources(entry) as res (res.id)}
             <span class="depleted-badge">{res.name} ✗</span>
@@ -243,7 +244,7 @@
   .row-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 12px;
     align-items: center;
   }
 

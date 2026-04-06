@@ -2,7 +2,7 @@
 title: Architecture Guide
 type: architecture
 source_files: [src/server/, src/server/data/characters.ts, src/server/data/rolls.ts, control-panel/src/lib/]
-last_updated: 2026-03-30
+last_updated: 2026-04-04
 ---
 
 # Architecture Guide
@@ -15,41 +15,68 @@ Fast lookup: see [docs/INDEX.md](docs/INDEX.md).
 
 ## System Overview
 
-```
-┌─────────────────────────────┐
-│   Phone / Tablet / Desktop  │
-│   Control Panel (Svelte 5)  │
-│   :5173                     │
-└──────────┬──────────────────┘
-           │  REST (fetch)
-           │  + Socket.io client
-           ▼
-┌─────────────────────────────┐
-│   Node.js Server            │
-│   Express + Socket.io       │
-│   :3000                     │
-│                             │
-│   src/server/data/characters.ts │ ← PocketBase character CRUD
-│   src/server/data/rolls.ts     │ ← PocketBase roll history
-└──────┬───────────┬──────────┘
-       │           │  Socket.io broadcast
-       │           │  (all events → all clients)
-       ▼     ┌─────┴─────┐
-┌──────────┐ ▼           ▼
-│PocketBase│ ┌──────────┐ ┌──────────┐
-│ :8090    │ │ HP       │ │ Dice     │
-│ (SQLite) │ │ Overlay  │ │ Overlay  │
-└──────────┘ │ (OBS)    │ │ (OBS)    │
-             └──────────┘ └──────────┘
+```mermaid
+flowchart TD
+    subgraph Clients["Client Surfaces (SvelteKit :5173)"]
+        Stage["🎛️ Stage\n/live · /setup · /overview\nOperator — write authority"]
+        DM["🐉 Cast/DM\n/dm\nTablet companion"]
+        Players["🧙 Cast/Players\n/players/[id]\nCharacter sheets"]
+        Commons["📺 Commons\n/session-display\nRoom wallboard"]
+        Audience["🎬 Audience\n/persistent/* · /moments/*\nOBS Browser Sources"]
+    end
+
+    subgraph Server["Bun Server (Express + Socket.io :3000)"]
+        Router["router.ts\n20 REST routes"]
+        Handlers["handlers/\ncharacters · encounter\nrolls · overlay · misc"]
+        SocketRooms["socket/rooms.ts\nbroadcast() → io.emit()"]
+        State["state/\nencounter · scene"]
+        DataLayer["data/\ncharacters.ts · rolls.ts"]
+    end
+
+    PB[("PocketBase\n:8090 SQLite")]
+
+    Stage -->|REST fetch| Router
+    DM -->|REST fetch| Router
+    Players -->|REST fetch| Router
+    Router --> Handlers
+    Handlers --> DataLayer
+    DataLayer <-->|SDK| PB
+    Handlers --> State
+    Handlers -->|"broadcast(event, payload)"| SocketRooms
+
+    SocketRooms -->|Socket.io emit| Stage
+    SocketRooms -->|Socket.io emit| DM
+    SocketRooms -->|Socket.io emit| Players
+    SocketRooms -->|Socket.io emit| Commons
+    SocketRooms -->|Socket.io emit| Audience
+
+    Audience -.->|"listen-only\n(no REST)"| SocketRooms
+    Commons -.->|"listen-only\n(no REST)"| SocketRooms
 ```
 
-Every client connects to the same Socket.io server. When the control panel
-sends a REST request (e.g., PUT HP), the server writes to PocketBase,
-responds to the caller, and broadcasts a Socket.io event to **all** clients
-(including overlays). Overlays never send requests — they only listen.
+Every client connects to the same Socket.io server. When a write-capable surface (Stage, Cast/DM, Cast/Players) sends a REST request, the server writes to PocketBase, responds to the caller, then broadcasts a Socket.io event to **all** connected clients. Audience overlays and Commons **never send REST requests** — they are listen-only.
 
-PocketBase runs as a separate process (`.\pocketbase.exe serve`) and must
-be started before the Node.js server.
+PocketBase runs as a separate process (`.\pocketbase.exe serve`) and must be started before the Node server.
+
+---
+
+## Functional Areas
+
+| Surface | Route group | Users | Authority | Key components |
+| --- | --- | --- | --- | --- |
+| **Stage** | `(stage)` | Operators | Primary write — HP, conditions, resources, dice, setup | CharacterCard, DiceRoller, CharacterManagement, CharacterCreationForm |
+| **Cast/DM** | `(cast)/dm` | DM | Encounter management, scene control, NPC reference | InitiativeStrip, SessionBar, SessionCard |
+| **Cast/Players** | `(cast)/players/[id]` | Players | Character sheet — read + safe field writes | CharacterSheet, ResourceTracker, PlayerHeader |
+| **Commons** | `(commons)` | Whole room | Passive wallboard, no controls | (session-display — Phase 3) |
+| **Audience** | `(audience)` | OBS/vMix | Payload-driven overlays, listen-only | OverlayHP, OverlayDice, OverlayConditions, OverlayTurnOrder, OverlayCharacterFocus, OverlaySceneTitle, moments/*, show/* |
+
+### Backend clusters (from knowledge graph)
+
+| Cluster | Symbols | Cohesion | What it contains |
+| --- | --- | --- | --- |
+| **Handlers** | 29 | 81% | All REST handler functions — `updateHp`, `batchUpdateHp`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `createCharacter`, `nextTurn`, `levelUp`, `changeScene`, `focusCharacter`, `logRoll` |
+| **Data** | 18 | 88% | PocketBase CRUD layer — `findById`, `updateHp`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter`, `logRoll`, `createShortId` |
+| **Services** (frontend) | ~15 OVERLAYS | 86% | `bindSocketListeners`, `addCondition`, `removeCondition`, `getCharacter`, `listActiveCharacters`, `ServiceError` |
 
 ---
 
@@ -214,6 +241,64 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
      ├── services/socket.js → updates lastRoll store → DiceRoller shows result with animation
      ├── derived/overviewStore.js → logs to activity history
      └── OverlayDice.svelte → dice moment animation + auto-hide
+```
+
+## Data Flow: Encounter / Turn Progression
+
+```
+1. DM taps "Start Encounter" on InitiativeStrip
+     ↓
+2. fetch POST /api/encounter/start { participants: [...] }
+     ↓
+3. handlers/encounter.ts startEncounter → setEncounterState({ active: true, round: 1, ... })
+     ↓
+4. broadcast("encounter_started", { encounter }) → all clients
+     ├── InitiativeStrip → renders turn order, highlights active combatant
+     └── OverlayTurnOrder.svelte → shows live turn-order bar
+
+5. DM taps "Next Turn" →
+     fetch POST /api/encounter/next
+     → handlers/encounter.ts nextTurn → advances index / increments round
+     → broadcast("turn_advanced", { encounter })
+     ├── InitiativeStrip re-renders active combatant
+     └── OverlayTurnOrder updates highlight
+
+6. DM taps "End Encounter" →
+     fetch POST /api/encounter/end
+     → setEncounterState({ active: false })
+     → broadcast("encounter_ended", {})
+```
+
+## Data Flow: Overlay Moment Trigger (Level-Up / Player Down)
+
+```
+1. Operator taps "Level Up" in Stage surface
+     ↓
+2. fetch POST /api/level-up { characterId, newLevel }
+     ↓
+3. handlers/overlay.ts levelUp → broadcast("level_up", { character, newLevel })
+     ↓
+4. OverlayLevelUp.svelte receives "level_up":
+     → anime.js entrance animation plays
+     → auto-hides after 5s via $effect cleanup
+     (No PocketBase write — moment overlays are fire-and-forget)
+```
+
+## Data Flow: Scene Change + Character Focus
+
+```
+1. Operator selects scene on Stage or DM changes scene on /dm
+     ↓
+2. fetch PUT /api/scene { scene: "combat" }
+     → handlers/misc.ts changeScene → setSceneState({ scene })
+     → broadcast("scene_changed", { scene })
+     └── OverlaySceneTitle.svelte animates scene title in/out
+
+3. Operator selects "Focus character" →
+     fetch PUT /api/character-focus { characterId }
+     → handlers/misc.ts focusCharacter → setFocusedChar(characterId)
+     → broadcast("character_focused", { characterId })
+     └── OverlayCharacterFocus.svelte transitions to focused character portrait
 ```
 
 ---

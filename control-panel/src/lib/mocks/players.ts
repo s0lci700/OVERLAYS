@@ -38,7 +38,18 @@ export const player_sheet_kael = Object.freeze({
     tools: ['playing_cards'],
   },
   conditions: [
-    { id: 'cond1', condition_name: 'Envenenado', intensity_level: 1 },
+    { id: 'cond1', condition_name: 'Envenenado', intensity_level: 2 },
+    { 
+      id: 'cond_custom', 
+      condition_name: 'Arcane Burn', 
+      intensity_level: 1,
+      asset: {
+        id: 'a1',
+        condition_name: 'Arcane Burn',
+        image_url: 'https://placehold.co/100x100/000000/FFF?text=Fire',
+        is_generated: true
+      }
+    },
   ],
   resources: [
     { id: 'r1', name: 'Action Surge', pool_current: 1, pool_max: 1, recharge: 'SHORT_REST' },

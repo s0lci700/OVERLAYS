@@ -8,6 +8,8 @@ import { broadcast } from '../socket/rooms';
 
 import * as characterModule from '../data/characters';
 
+import * as actions from '../actions/characters';
+
 const SHORT_ID_RE = /^[A-Z0-9]{5}$/i;
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -83,13 +85,12 @@ export async function updateHp(req: Request, res: Response): Promise<void> {
   }
   let character;
   try {
-    character = await characterModule.updateHp(pb, charId, hp_current);
+    character = await actions.updateHp(pb, broadcast, charId, hp_current);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
   if (!character) { res.status(404).json({ error: 'Character not found' }); return; }
-  broadcast('hpUpdated', { character, hp_current: character.hp_current });
   res.status(200).json(character);
 }
 
@@ -175,14 +176,13 @@ export async function addCondition(req: Request, res: Response): Promise<void> {
   }
   let character;
   try {
-    character = await characterModule.addCondition(pb, id, { condition_name, intensity_level });
+    character = await actions.addCondition(pb, broadcast, id, { condition_name, intensity_level });
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
   if (!character) { res.status(404).json({ error: 'Character not found' }); return; }
   const condition = character.conditions[character.conditions.length - 1];
-  broadcast('conditionAdded', { charId: id, condition });
   console.log(`Condition added: ${condition_name} → ${id}`);
   res.status(201).json(condition);
 }
@@ -190,6 +190,15 @@ export async function addCondition(req: Request, res: Response): Promise<void> {
 export async function removeCondition(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
   const condId = req.params.condId as string;
+  // Note: REST handler still uses condId directly if available, 
+  // but if it only had the name, it could use actions.removeCondition.
+  // Since REST API provides condId, we use characterModule directly for now
+  // but let's see if we should use the action for consistency.
+  // Actually, characterModule.removeCondition is what we want here because we have the ID.
+  // Wait, if I want DRY broadcast, I should have an action that takes condId too.
+  // For now, I'll stick to the plan of actions for the OVERLAP between REST and Socket.
+  // Socket uses NAME. REST uses ID.
+  
   if (!SHORT_ID_RE.test(condId)) {
     res.status(400).json({ error: 'condId must be 5 chars' }); return;
   }
@@ -274,10 +283,9 @@ export async function batchUpdateHp(req: Request, res: Response): Promise<void> 
       if (charId == null || charId === '') { errors.push({ charId, error: 'charId required' }); return; }
       if (typeof hp_current !== 'number' || !Number.isFinite(hp_current)) { errors.push({ charId, error: 'hp_current must be a finite number' }); return; }
       try {
-        const character = await characterModule.updateHp(pb, charId, hp_current);
+        const character = await actions.updateHp(pb, broadcast, charId, hp_current);
         if (character) {
           results.push(character);
-          broadcast('hpUpdated', { character, hp_current: character.hp_current });
         } else {
           errors.push({ charId, error: 'Character not found' });
         }

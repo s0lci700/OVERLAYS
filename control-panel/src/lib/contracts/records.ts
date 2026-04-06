@@ -5,11 +5,19 @@ Mirrored to: Stage, Cast (DM/Players), and summaries to Commons/Audience via API
 */
 export type RecordID = string; // Unique identifier for a record in PocketBase
 
+export interface ConditionAsset {
+  id: string;
+  condition_name: string;
+  image_url: string; // URL to the charcoal/sketch SVG or PNG
+  is_generated: boolean; // True if created by Imagen, False if from the "Root" library
+}
+
 export interface Condition {
   id: string;
   condition_name: string;
   intensity_level: number;
   applied_at: string; // ISO 8601
+  asset?: ConditionAsset; // Linked asset for the "Digital Grimoire" aesthetic
 }
 
 export interface ResourceSlot {

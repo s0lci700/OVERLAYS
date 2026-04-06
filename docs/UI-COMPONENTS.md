@@ -2,7 +2,7 @@
 title: UI Components Reference
 type: reference
 source_files: [control-panel/src/lib/components/shared/, control-panel/src/app.css, design/tokens.json]
-last_updated: 2026-03-30
+last_updated: 2026-04-04
 ---
 
 # UI Components Reference
@@ -153,6 +153,237 @@ Modal.svelte
 | `dialog-portal.svelte` | Renders into `<body>` (teleport) |
 | `dialog-trigger.svelte` | The button that opens the dialog |
 | `dialog-close.svelte` | The ✕ close button |
+
+---
+
+### `alert-dialog/` files
+Destructive-confirmation variant of Dialog — requires explicit cancel/confirm actions; cannot be dismissed by clicking the backdrop.
+
+| Prop | Type | Default |
+|---|---|---|
+| `open` | `boolean` (bindable) | `false` |
+
+| File | Role |
+|---|---|
+| `alert-dialog.svelte` | `bits-ui` `AlertDialog.Root` wrapper; bindable `open` |
+| `alert-dialog-content.svelte` | Centered modal card (`fixed top-[50%] left-[50%]`, `z-50`, `fade-in/zoom-in` animations) |
+| `alert-dialog-overlay.svelte` | Dark backdrop (teleported to `<body>`) |
+| `alert-dialog-header.svelte` | Flex column wrapper for title + description |
+| `alert-dialog-footer.svelte` | Flex row wrapper for cancel + action buttons |
+| `alert-dialog-title.svelte` | Bold heading (`data-slot="alert-dialog-title"`) |
+| `alert-dialog-description.svelte` | Muted body text (`data-slot="alert-dialog-description"`) |
+| `alert-dialog-action.svelte` | Primary confirm button (destructive styling) |
+| `alert-dialog-cancel.svelte` | Cancel button (outline styling) |
+
+---
+
+### `accordion/accordion.svelte`
+**Primitive:** `bits-ui` `Accordion.Root`
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `value` | bindable (string or string[]) | — |
+| `type` | `"single"` \| `"multiple"` | — |
+
+`data-slot="accordion"` on root. Sub-components: `accordion-item.svelte`, `accordion-trigger.svelte`, `accordion-content.svelte`.
+
+---
+
+### `checkbox/checkbox.svelte`
+**Primitive:** `bits-ui` `Checkbox.Root` — 16×16px bordered square, `rounded-[4px]`.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `checked` | `boolean` (bindable) | `false` |
+| `indeterminate` | `boolean` (bindable) | `false` |
+| `class` | `string` | — |
+
+States: unchecked (border only), checked (primary bg + `CheckIcon`), indeterminate (`MinusIcon`). Focus ring: `ring-[3px]`.
+
+---
+
+### `collapsible/collapsible.svelte`
+**Primitive:** `bits-ui` `Collapsible.Root` — thin wrapper with bindable `open`.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `open` | `boolean` (bindable) | `false` |
+
+`data-slot="collapsible"` on root. Sub-components: `collapsible-trigger.svelte` (`data-slot="collapsible-trigger"`), `collapsible-content.svelte`.
+
+---
+
+### `radio-group/radio-group.svelte`
+**Primitive:** `bits-ui` `RadioGroup.Root` — `grid gap-3` layout.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `value` | `string` (bindable) | `""` |
+| `class` | `string` | — |
+
+`data-slot="radio-group"`. Sub-component: `radio-group-item.svelte` — 16×16px circle, filled dot when checked (`CircleIcon fill-primary`).
+
+---
+
+### `scroll-area/scroll-area.svelte`
+**Primitive:** `bits-ui` `ScrollArea.Root` — `relative` container with managed scrollbars.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `viewportRef` | bindable | `null` |
+| `orientation` | `"vertical"` \| `"horizontal"` \| `"both"` | `"vertical"` |
+| `scrollbarXClasses` | `string` | `""` |
+| `scrollbarYClasses` | `string` | `""` |
+
+Renders `Scrollbar` sub-components based on `orientation`. Corner handled by `ScrollAreaPrimitive.Corner`.
+
+---
+
+### `select/select.svelte`
+**Primitive:** `bits-ui` `Select.Root`
+
+| Prop | Type | Default |
+|---|---|---|
+| `open` | `boolean` (bindable) | — |
+| `value` | bindable | — |
+| `type` | `"single"` \| `"multiple"` | — |
+
+Sub-components: `select-trigger.svelte` (the visible button), `select-item.svelte` (each option), `select-group.svelte` + `select-group-heading.svelte`, `select-label.svelte`, `select-separator.svelte`, `select-portal.svelte`.
+
+---
+
+### `separator/separator.svelte`
+**Primitive:** `bits-ui` `Separator.Root` — 1px rule.
+
+`data-[orientation=horizontal]`: `h-px w-full` · `data-[orientation=vertical]`: `min-h-full w-px`
+
+Pass `orientation` via `restProps`. Token: `bg-border`.
+
+---
+
+### `sheet/sheet.svelte`
+**Primitive:** `bits-ui` `Dialog` used as a slide-in panel (Sheet). Bindable `open`.
+
+| File | Role |
+|---|---|
+| `sheet.svelte` | Dialog.Root wrapper, bindable `open` |
+| `sheet-trigger.svelte` | Button to open |
+| `sheet-portal.svelte` | Teleports to `<body>` |
+| `sheet-close.svelte` | Close button |
+| `sheet-header.svelte` | Title + description slot |
+| `sheet-footer.svelte` | Action buttons slot |
+
+Sheet content/overlay/side positioning is handled in `sheet-portal.svelte`. No built-in `content.svelte` — compose manually via `portal`.
+
+---
+
+### `skeleton/skeleton.svelte`
+Loading placeholder. `bg-accent animate-pulse rounded-md` — bind size via `class` or `style`.
+
+| Prop | Type |
+|---|---|
+| `ref` | bindable |
+| `class` | `string` |
+
+---
+
+### `sonner/sonner.svelte`
+Toast notification renderer — wraps `svelte-sonner` `Toaster`.
+
+- Mode-aware: reads `mode-watcher` theme → passes `light` or `dark` to Toaster
+- Tokens: `--color-popover` (bg), `--color-border` (border)
+- Custom icon snippets for all 5 states: `loading`, `success`, `error`, `info`, `warning`
+
+No props — mount once at the app root (e.g. `+layout.svelte`). Trigger toasts via `import { toast } from 'svelte-sonner'`.
+
+---
+
+### `tabs/tabs.svelte`
+**Primitive:** `bits-ui` `Tabs.Root` — `flex flex-col gap-2` layout.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `value` | `string` (bindable) | `""` |
+| `class` | `string` | — |
+
+Sub-components: `tabs-list.svelte` (flex row container), `tabs-trigger.svelte` (individual tab button), `tabs-content.svelte` (panel shown when tab is active).
+
+---
+
+### `textarea/textarea.svelte`
+Native `<textarea>` with shared styling. `field-sizing-content` (auto-height), `min-h-16`, `rounded-md`.
+
+| Prop | Type | Default |
+|---|---|---|
+| `ref` | bindable | `null` |
+| `value` | `string` (bindable) | — |
+| `class` | `string` | — |
+
+`data-slot="textarea"`. Passes all native textarea attributes via `...restProps`.
+
+---
+
+### `toggle/toggle.svelte`
+**Primitive:** `bits-ui` `Toggle.Root` — `tv()` styled, tracks `pressed` state.
+
+| Prop | Values | Default |
+|---|---|---|
+| `variant` | `default` · `outline` | `default` |
+| `size` | `default` (h-9) · `sm` (h-8) · `lg` (h-10) | `default` |
+| `pressed` | `boolean` (bindable) | `false` |
+
+`data-[state=on]` → `bg-accent text-accent-foreground`. Exports `toggleVariants` for use in `toggle-group-item.svelte`.
+
+---
+
+### `toggle-group/` (no root file — use `toggle-group-item.svelte`)
+Group of mutually-exclusive or multi-select toggle buttons. Context provided by `toggle-group.svelte` (Svelte context module).
+
+`toggle-group-item.svelte` — inherits `variant`, `size`, `spacing` from group context. `spacing=0` produces a connected pill strip (rounded only on first/last, no inner borders).
+
+---
+
+### `sidebar/` (composite system)
+Full sidebar layout system with cookie-persisted open/closed state and keyboard shortcut.
+
+| File | Role |
+|---|---|
+| `sidebar-provider.svelte` | Root context + `--sidebar-width` CSS vars + `Tooltip.Provider` wrapper; bindable `open`; persists state via cookie |
+| `sidebar-inset.svelte` | Main content area beside sidebar |
+| `sidebar-rail.svelte` | Narrow collapse/expand rail |
+| `sidebar-trigger.svelte` | Button to toggle sidebar |
+| `sidebar-footer.svelte` | Bottom section of sidebar |
+| `sidebar-input.svelte` | Search/filter input inside sidebar |
+| `sidebar-separator.svelte` | Divider between sidebar sections |
+| `sidebar-group-action.svelte` | Action button on a sidebar group header |
+| `sidebar-menu-button.svelte` | Individual menu item button |
+| `sidebar-menu-action.svelte` | Secondary action on a menu item (e.g. "…" button) |
+| `sidebar-menu-badge.svelte` | Badge count on a menu item |
+| `sidebar-menu-skeleton.svelte` | Loading skeleton for menu items |
+
+CSS vars: `--sidebar-width` (default from `constants.js`), `--sidebar-width-icon` (collapsed icon-only width).
+
+---
+
+### `form/` (sveltekit-superforms integration)
+Form field primitives for use with `sveltekit-superforms` + `formsnap`.
+
+| File | Role |
+|---|---|
+| `form-field.svelte` | `formsnap` `Field` wrapper — provides form context |
+| `form-element-field.svelte` | `ElementField` for checkbox/radio arrays |
+| `form-fieldset.svelte` | `Fieldset` for grouped fields |
+| `form-label.svelte` | `Control`-aware label (auto-links to input id) |
+| `form-legend.svelte` | Legend for fieldset |
+| `form-description.svelte` | Helper text below input |
+| `form-field-errors.svelte` | Validation error messages |
+| `form-button.svelte` | Submit button with loading state |
 
 ---
 
@@ -477,7 +708,7 @@ control-panel/src/
 ├── generated-tokens.css             ← AUTO-GENERATED from design/tokens.json
 ├── overlays.css                     ← overlay condition effects
 └── lib/components/
-    ├── ui/                          ← primitives (tv() styled)
+    ├── shared/                      ← headless primitives (bits-ui + tv() styled)
     │   ├── button/button.svelte
     │   ├── input/input.svelte
     │   ├── label/label.svelte
@@ -490,7 +721,25 @@ control-panel/src/
     │   ├── pills/LevelPill.svelte   ← Pills.css
     │   ├── pills/SelectionPills.svelte
     │   ├── modal/Modal.svelte       ← modal.css + card-base
-    │   └── dialog/                  ← bits-ui wrappers + Tailwind positioning
+    │   ├── accordion/               ← bits-ui Accordion
+    │   ├── alert-dialog/            ← bits-ui AlertDialog
+    │   ├── checkbox/checkbox.svelte ← bits-ui Checkbox
+    │   ├── collapsible/             ← bits-ui Collapsible
+    │   ├── dialog/                  ← bits-ui Dialog + Tailwind positioning
+    │   ├── form/                    ← formsnap field primitives
+    │   ├── radio-group/             ← bits-ui RadioGroup
+    │   ├── scroll-area/             ← bits-ui ScrollArea
+    │   ├── select/                  ← bits-ui Select
+    │   ├── separator/separator.svelte ← bits-ui Separator
+    │   ├── sheet/                   ← bits-ui Dialog as slide panel
+    │   ├── sidebar/                 ← full sidebar system with cookie state
+    │   ├── skeleton/skeleton.svelte ← animate-pulse placeholder
+    │   ├── sonner/sonner.svelte     ← svelte-sonner Toaster
+    │   ├── tabs/                    ← bits-ui Tabs
+    │   ├── textarea/textarea.svelte ← native textarea, field-sizing-content
+    │   ├── toggle/toggle.svelte     ← bits-ui Toggle (tv() variants)
+    │   ├── toggle-group/            ← bits-ui ToggleGroup
+    │   └── tooltip/                 ← bits-ui Tooltip
     ├── stage/                       ← control panel business components
     │   ├── CharacterCard.svelte     ← CharacterCard.css
     │   ├── DiceRoller.svelte        ← DiceRoller.css

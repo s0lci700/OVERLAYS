@@ -1,71 +1,30 @@
-<script module>
-  /**
-   * ConditionPill
-   * =============
-   * Displays a D&D status condition as a styled pill badge.
-   *
-   * Variants:
-   *   - "condition" (default) — red, used for active status effects (Envenenado, Aturdido, etc.)
-   *   - "tag"                 — cyan, used for selection preview badges
-   *   - "info"               — grey, used for read-only / dashboard display
-   *
-   * When `interactive` is true, the pill renders as a <button> with a × and
-   * calls `onRemove` on click. Set to false (default) for display-only spans.
-   */
-  import { tv } from "tailwind-variants";
-  import { cn } from "$lib/services/utils.js";
+<!--
+  ConditionPill
+  =============
+  Displays a D&D status condition as a hex-clipped badge.
 
-  export const conditionPillVariants = tv({
-    base: [
-      "inline-flex items-center gap-1",
-      "px-2 py-0.5",
-      "rounded-full border",
-      "font-display text-xs tracking-wider uppercase",
-      "transition-colors duration-150",
-    ],
-    variants: {
-      variant: {
-        condition: [
-          "bg-[rgba(255,77,106,0.12)] border-[var(--red)] text-[var(--red)]",
-          "data-[interactive=true]:cursor-pointer",
-          "data-[interactive=true]:hover:bg-[var(--red)] data-[interactive=true]:hover:text-white",
-        ],
-        tag: [
-          "bg-[rgba(0,212,232,0.08)] border-[var(--cyan)] text-[var(--cyan)]",
-          "data-[interactive=true]:cursor-pointer",
-          "data-[interactive=true]:hover:bg-[var(--cyan)] data-[interactive=true]:hover:text-[var(--black)]",
-        ],
-        info: ["bg-transparent border-[var(--grey-dim)] text-[var(--grey)]"],
-        cast: [
-          "bg-[var(--cast-amber-dim)] border-[var(--cast-amber-border)] text-[var(--cast-amber)]",
-          "font-chrome font-bold tracking-[0.1em]",
-        ],
-      },
-    },
-    defaultVariants: {
-      variant: "condition",
-    },
-  });
-</script>
+  Variants:
+    - "condition" (default) — red, active status effects (Envenenado, Aturdido…)
+    - "tag"                 — cyan, selection preview badges
+    - "info"               — grey, read-only / dashboard display
+    - "cast"               — amber, Cast surface
 
+  When `interactive` is true, renders as <button> with × and calls onRemove on click.
+-->
 <script>
   let {
     label,
-    variant = "condition",
+    variant = 'condition',
     interactive = false,
     onRemove = () => {},
-    class: className = "",
+    class: className = '',
     ...restProps
   } = $props();
 </script>
 
 {#if interactive}
   <button
-    class={cn(
-      conditionPillVariants({ variant: /** @type {any} */ (variant) }),
-      className,
-    )}
-    data-interactive="true"
+    class="condition-pill condition-pill--{variant} {className}"
     onclick={() => onRemove()}
     {...restProps}
   >
@@ -73,13 +32,83 @@
   </button>
 {:else}
   <span
-    class={cn(
-      conditionPillVariants({ variant: /** @type {any} */ (variant) }),
-      className,
-    )}
-    data-interactive="false"
+    class="condition-pill condition-pill--{variant} {className}"
     {...restProps}
   >
     {label}
   </span>
 {/if}
+
+<style>
+  .condition-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: 26px;
+    padding: 0 var(--space-3);
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid;
+    clip-path: var(--hex-clip-sm);
+    transition: background var(--t-fast), color var(--t-fast);
+    line-height: 1;
+  }
+
+  /* Variants */
+  .condition-pill--condition {
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .condition-pill--tag {
+    background: color-mix(in srgb, var(--cyan) 10%, transparent);
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .condition-pill--info {
+    background: transparent;
+    border-color: var(--grey-dim);
+    color: var(--grey);
+  }
+
+  .condition-pill--cast {
+    background: var(--cast-amber-dim);
+    border-color: var(--cast-amber-border);
+    color: var(--cast-amber);
+    letter-spacing: 0.1em;
+  }
+
+  /* Interactive states */
+  button.condition-pill {
+    cursor: pointer;
+  }
+
+  button.condition-pill--condition:hover {
+    background: var(--red);
+    color: var(--white);
+  }
+
+  button.condition-pill--tag:hover {
+    background: var(--cyan);
+    color: var(--black);
+  }
+
+  button.condition-pill--info:hover {
+    background: var(--grey-dim);
+    color: var(--white);
+  }
+
+  button.condition-pill--cast:hover {
+    background: var(--cast-amber);
+    color: var(--black);
+  }
+
+  button.condition-pill:active {
+    transform: scale(0.96);
+  }
+</style>

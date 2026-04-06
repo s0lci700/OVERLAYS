@@ -7,7 +7,7 @@
   import QueueItemCard from './QueueItemCard.svelte';
   import MysticalEmptyState from '$lib/components/cast/shared/MysticalEmptyState.svelte';
   import StageGuide from '../shared/StageGuide.svelte';
-  import { slide, fade } from 'svelte/transition';
+  import { slide, fade, fly } from 'svelte/transition';
 
   let {
     items = [],
@@ -34,8 +34,11 @@
       />
     </div>
   {:else}
-    {#each items as item (item.id)}
-      <div transition:slide={{ duration: 250 }}>
+    {#each items as item, i (item.id)}
+      <div 
+        out:slide={{ duration: 250 }}
+        in:fly={{ y: 10, duration: 300, delay: Math.min(i * 50, 500), opacity: 0 }}
+      >
         <QueueItemCard {item} onConfirm={handleConfirm} />
       </div>
     {/each}

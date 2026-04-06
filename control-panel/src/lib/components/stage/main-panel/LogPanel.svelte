@@ -8,7 +8,7 @@
   import { history } from '$lib/derived/overviewStore.js';
   import MysticalEmptyState from '$lib/components/cast/shared/MysticalEmptyState.svelte';
   import { flip } from 'svelte/animate';
-  import { slide, fade } from 'svelte/transition';
+  import { slide, fade, fly } from 'svelte/transition';
 
   function formatTime(timestamp: number): string {
     const d = new Date(timestamp);
@@ -22,11 +22,11 @@
     roll: 'var(--purple)',
     condition: 'var(--cyan)',
     resource: 'var(--grey)',
-    rest: 'var(--hp-healthy, #22c55e)',
+    rest: 'var(--hp-healthy)',
   };
 </script>
 
-<div class="log-panel">
+<div class="log-panel" style="content-visibility: auto; contain-intrinsic-size: auto 40px; contain: layout;">
   {#if $history.length === 0}
     <div in:fade={{ duration: 200, delay: 100 }}>
       <MysticalEmptyState 
@@ -36,12 +36,12 @@
       />
     </div>
   {:else}
-    <ul class="log-list" aria-label="Historial de actividad">
-      {#each [...$history].reverse() as entry (entry.timestamp)}
+    <ul class="log-list" aria-label="Historial de actividad" style="contain: content;">
+      {#each [...$history].reverse() as entry, i (entry.timestamp)}
         <li 
           class="log-entry"
           animate:flip={{ duration: 300 }}
-          in:slide={{ duration: 250, axis: 'y' }}
+          in:fly={{ y: 10, duration: 300, delay: Math.min(i * 50, 500), opacity: 0 }}
         >
           <span class="log-entry__time">{formatTime(entry.timestamp)}</span>
           <span
@@ -64,6 +64,8 @@
   .log-panel {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 1000px;
   }
 
   .log-list {

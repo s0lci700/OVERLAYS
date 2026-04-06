@@ -2,7 +2,7 @@
 title: Server vs Frontend — Layer Reference
 type: architecture
 source_files: [src/server/, control-panel/src/lib/services/]
-last_updated: 2026-03-26
+last_updated: 2026-04-04
 ---
 
 # Server vs Frontend — Layer Reference

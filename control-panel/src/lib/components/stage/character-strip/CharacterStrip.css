@@ -7,7 +7,7 @@
 .char-strip {
   width: clamp(300px, 20vw, 360px);
   flex-shrink: 0;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--black-elevated);
@@ -31,9 +31,11 @@
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3); /* Rhythmic gap */
+  gap: var(--space-3);
+  /* Optimization: Only render cards near the viewport */
   content-visibility: auto;
-  contain-intrinsic-size: 1px 500px;
+  contain-intrinsic-size: auto 80px;
+  contain: content;
 }
 
 /* Hide scrollbar but allow scroll */

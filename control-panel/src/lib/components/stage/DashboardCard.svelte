@@ -25,10 +25,10 @@
   ];
 
   const rechargeLabels = {
-    SHORT_REST: "descanso corto",
-    LONG_REST: "descanso largo",
-    TURN: "turno",
-    DM: "narrador",
+    short_rest: "descanso corto",
+    long_rest: "descanso largo",
+    turn: "turno",
+    dm: "narrador",
   };
 
   let { character } = $props();
@@ -107,9 +107,23 @@
       typeof character?.name === "string" ? character.name.trim() : "";
     return name || "personaje";
   }
+
+  let hpRatio = $derived((character?.hp_current || 0) / (character?.hp_max || 1));
+  let hpStatus = $derived(
+    character?.hp_current <= 0 ? "dead" :
+    hpRatio < 0.25 ? "critical" :
+    hpRatio < 0.5 ? "injured" : "healthy"
+  );
+
+  const statusLabels = {
+    dead: "CAÍDO",
+    critical: "CRITICAL",
+    injured: "HERIDO",
+    healthy: "SANO"
+  };
 </script>
 
-<article class="dashboard-card card-base">
+<article class="dashboard-card card-base" data-hp-status={hpStatus}>
   <header class="dash-card-header">
     <div class="dash-photo-hex">
       <img
@@ -122,83 +136,95 @@
     <div class="dash-identity">
       <div class="dash-name-row">
         <span class="dash-name">{formatText(character?.name)}</span>
+        <span class="dash-class-level">{formatText(character?.species)} {formatText(character?.class_name)} {formatNumber(character?.level)}</span>
+      </div>
+      <div class="dash-sub-identity">
+        <span class="dash-player">JUGADOR: {formatText(character?.player)}</span>
         <span class="dash-id">#{formatText(character?.id)}</span>
       </div>
-      <span class="dash-player">JUGADOR: {formatText(character?.player)}</span>
+      
       <div class="dash-vitals">
-        <StatDisplay
-          label="VIT"
-          value={formatHp(character?.hp_current, character?.hp_max)}
-          variant="cast"
-        />
-        <StatDisplay
-          label="TMP"
-          value={formatNumber(character?.hp_temp)}
-          variant="cast"
-        />
-        <StatDisplay
-          label="CA"
-          value={formatNumber(character?.armor_class)}
-          variant="cast"
-        />
-        <StatDisplay
-          label="VEL"
-          value={formatNumber(character?.speed_walk)}
-          variant="cast"
-        />
+        <div 
+          class="dash-vital-main" 
+          class:is-critical={hpStatus === 'critical' || hpStatus === 'dead'} 
+          data-status={hpStatus}
+        >
+          <StatDisplay
+            label="VIT"
+            value={formatHp(character?.hp_current, character?.hp_max)}
+            variant="cast"
+          />
+          {#if hpStatus === 'dead' || hpStatus === 'critical'}
+            <span class="dash-status-badge">{statusLabels[hpStatus]}</span>
+          {/if}
+        </div>
+        <div class="dash-vital-secondary">          <StatDisplay
+            label="TMP"
+            value={formatNumber(character?.hp_temp)}
+            variant="cast"
+          />
+          <StatDisplay
+            label="CA"
+            value={formatNumber(character?.ac_base)}
+            variant="cast"
+          />
+          <StatDisplay
+            label="VEL"
+            value={formatNumber(character?.speed)}
+            variant="cast"
+          />
+        </div>
       </div>
     </div>
   </header>
 
   <section class="dash-section">
     <h3 class="dash-section-title">ATRIBUTOS BASE</h3>
-    <div class="dash-ability-grid">
+    <div class="dash-ability-bolder">
       {#each abilityList as ability (ability.key)}
-        <StatDisplay
-          label={ability.label}
-          value={formatNumber(character?.ability_scores?.[ability.key])}
-          variant="cast"
-        />
+        <div class="ability-item">
+          <span class="ability-label">{ability.label}</span>
+          <span class="ability-value mono-num">
+            {formatNumber(character?.ability_scores?.[ability.key])}
+          </span>
+          <span class="ability-ghost" aria-hidden="true">{ability.label}</span>
+        </div>
       {/each}
     </div>
   </section>
 
   <section class="dash-section">
-    <h3 class="dash-section-title">CONDICIONES ACTIVAS</h3>
-    {#if Array.isArray(character?.conditions) && character.conditions.length}
-      <div class="dash-pill-row">
-        {#each character.conditions as condition (condition.id)}
-          <ConditionPill
-            label={formatCondition(condition)}
-            variant="cast"
-          />
-        {/each}
-      </div>
-    {:else}
-      <p class="dash-empty">Ninguna condición activa</p>
-    {/if}
-  </section>
-
-  <section class="dash-section">
-    <h3 class="dash-section-title">RECURSOS DE CLASE</h3>
-    {#if Array.isArray(character?.resources) && character.resources.length}
-      <div class="dash-resource-grid">
-        {#each character.resources as resource (resource.id)}
-          <div class="dash-resource">
-            <span class="dash-resource-name">
-              {formatText(resource?.name)}
-            </span>
-            <span class="dash-resource-count mono-num">
-              {formatResourceCount(resource)}
-            </span>
-            <span class="dash-resource-recharge">
-              REC: {formatRecharge(resource?.recharge)}
-            </span>
+    <h3 class="dash-section-title">RECURSOS & CONDICIONES</h3>
+    <div class="dash-dual-grid">
+      <div class="dash-resources-col">
+        {#if Array.isArray(character?.resources) && character.resources.length}
+          <div class="dash-resource-stack">
+            {#each character.resources as resource (resource.id)}
+              <div class="dash-resource-inline">
+                <span class="dash-resource-name">{formatText(resource?.name)}</span>
+                <span class="dash-resource-val mono-num">{formatResourceCount(resource)}</span>
+              </div>
+            {/each}
           </div>
-        {/each}
+        {:else}
+          <p class="dash-empty">Sin recursos de clase</p>
+        {/if}
       </div>
-    {:else}
-      <p class="dash-empty">Sin recursos definidos</p>
-    {/if}
+      
+      <div class="dash-conditions-col">
+        {#if Array.isArray(character?.conditions) && character.conditions.length}
+          <div class="dash-pill-row">
+            {#each character.conditions as condition (condition.id)}
+              <ConditionPill
+                label={formatCondition(condition)}
+                variant="cast"
+              />
+            {/each}
+          </div>
+        {:else}
+          <p class="dash-empty">Estado normal</p>
+        {/if}
+      </div>
+    </div>
   </section>
 </article>
