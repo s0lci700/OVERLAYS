@@ -18,7 +18,7 @@
   let activeTab = $state<'queue' | 'dice' | 'log' | 'combat'>('dice');
 
   // Resizing logic
-  let sidebarNode: HTMLElement | null = $state(null);
+  let sidebarNode = $state<HTMLElement | null>(null);
   let queueFlex = $state(40); // 40% height for queue
   let isDragging = $state(false);
   
