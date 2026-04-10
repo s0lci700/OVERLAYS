@@ -2,8 +2,9 @@
   CharacterProfileForm
   ====================
   Edit form for a single character's profile data.
-  Owns all field state and the profile-save API call.
-  Rendered by the parent only when isEditing is true.
+  Fields match the flat PocketBase `characters` schema exactly.
+  Removed: background, alignment, languages, equipment, speciesSize —
+  those fields do not exist in PocketBase.
 
   Props:
     character        – full character object (used for initial state only)
@@ -12,34 +13,40 @@
     onProfileSaved   – optional callback(id, updatedFields)
     onLevelUp        – optional callback(id) after level-up save
 -->
-<script>
-  import CharacterOptionsFields from "../character-form-fields/CharacterOptionsFields.svelte";
-  import CharacterProficienciesFields from "../character-form-fields/CharacterProficienciesFields.svelte";
+<script lang="ts">
+  import MultiSelect from "../multi-select/MultiSelect.svelte";
+  import SelectionPills from "$lib/components/shared/pills/SelectionPills.svelte";
+  import "$lib/components/shared/pills/Pills.css";
   import { Button } from "$lib/components/shared/button/index.js";
   import { Input } from "$lib/components/shared/input/index.js";
   import { Label } from "$lib/components/shared/label/index.js";
+  import characterOptions from "$lib/data/character-options.template.json";
   import {
     parseOptionSets,
     buildLabelMap,
     buildCharacterPayload,
     getFormValuesFromCharacter,
-  } from "$lib/services/character-form.js";
+    PHOTO_OPTIONS,
+  } from "$lib/services/character-form.ts";
+  import PhotoSourcePicker from "../photo-source-picker/PhotoSourcePicker.svelte";
+  import { untrack } from "svelte";
 
   let {
     character,
     SERVER_URL,
-    characterOptions,
     onProfileSaved = () => {},
     onLevelUp = () => {},
+  }: {
+    character: import("$lib/contracts/records").CharacterRecord;
+    SERVER_URL: string;
+    onProfileSaved?: (id: string, payload: unknown) => void;
+    onLevelUp?: (id: string) => void;
   } = $props();
 
-  const optionSets = parseOptionSets(characterOptions);
+  const { meta: _meta, ...rawOptions } = characterOptions;
+  const optionSets = parseOptionSets(rawOptions);
   const labelOf = buildLabelMap(optionSets);
-  const rareLanguageKeys = new Set(
-    (optionSets.rareLanguageOptions || []).map((o) => o.key),
-  );
 
-  // Initialise form state from the character prop (edit mode).
   let {
     name,
     player,
@@ -49,20 +56,32 @@
     classPrimary,
     classSubclass,
     classLevel,
-    backgroundName,
-    backgroundFeat,
     speciesName,
-    speciesSize,
-    alignment,
-    languages,
-    rareLanguages,
     skills,
-    tools,
-    armor,
-    weapons,
-    items,
-    trinket,
-  } = $state(getFormValuesFromCharacter(character, rareLanguageKeys));
+  } = $state(getFormValuesFromCharacter(character));
+
+  // ── Photo state ──────────────────────────────────────────────────
+  function inferSource(photoValue: string) {
+    if (!photoValue || PHOTO_OPTIONS.some((o) => o.value === photoValue)) {
+      return "preset";
+    }
+    if (photoValue.startsWith("data:")) return "local";
+    return "url";
+  }
+
+  const _photo0 = untrack(() => character.portrait) || "";
+  const _source0 = inferSource(_photo0);
+
+  let photoSource = $state(_source0);
+  let presetPhoto = $state(_source0 === "preset" ? _photo0 : "");
+  let customUrl   = $state(_source0 === "url" ? _photo0 : "");
+  let localPhoto  = $state(_source0 === "local" ? _photo0 : "");
+
+  function getResolvedPhotoValue() {
+    if (photoSource === "local") return localPhoto;
+    if (photoSource === "url")   return customUrl.trim();
+    return presetPhoto;
+  }
 
   let isSaving = $state(false);
   let feedback = $state({ type: "", text: "" });
@@ -97,20 +116,13 @@
       classPrimary,
       classSubclass,
       classLevel,
-      backgroundName,
-      backgroundFeat,
       speciesName,
-      speciesSize,
-      alignment,
-      languages,
-      rareLanguages,
       skills,
-      tools,
-      armor,
-      weapons,
-      items,
-      trinket,
     });
+
+    // Merge photo into payload
+    const finalPhoto = getResolvedPhotoValue();
+    (payload as any).portrait = finalPhoto;
 
     try {
       const response = await fetch(
@@ -139,26 +151,52 @@
 </script>
 
 <div class="manage-form">
-  <!-- Basic identity fields -->
-  <div class="manage-field">
-    <Label for={`name-${character.id}`} class="label-caps">Nombre</Label>
-    <Input
-      id={`name-${character.id}`}
-      type="text"
-      bind:value={name}
-      maxlength="40"
-      variant="dark"
-    />
+  <!-- Photo Section -->
+  <div class="manage-section">
+    <h4 class="manage-section-title">Foto de personaje</h4>
+    <div class="manage-photo-editor-inline">
+      <PhotoSourcePicker
+        options={PHOTO_OPTIONS}
+        source={photoSource}
+        presetValue={presetPhoto}
+        urlValue={customUrl}
+        localValue={localPhoto}
+        serverUrl={SERVER_URL}
+        dense={true}
+        onSourceChange={(v) => { photoSource = v; feedback = { type: "", text: "" }; }}
+        onPresetChange={(v) => (presetPhoto = v)}
+        onUrlChange={(v) => (customUrl = v)}
+        onLocalChange={(v) => (localPhoto = v)}
+        onError={(msg) => { if (msg) feedback = { type: "error", text: msg }; }}
+      />
+    </div>
   </div>
-  <div class="manage-field">
-    <Label for={`player-${character.id}`} class="label-caps">Jugador</Label>
-    <Input
-      id={`player-${character.id}`}
-      type="text"
-      bind:value={player}
-      maxlength="40"
-      variant="dark"
-    />
+
+  <!-- Basic identity fields -->
+  <div class="manage-section">
+    <h4 class="manage-section-title">Identidad</h4>
+    <div class="manage-grid-two">
+      <div class="manage-field">
+        <Label for={`name-${character.id}`} class="label-caps">Nombre</Label>
+        <Input
+          id={`name-${character.id}`}
+          type="text"
+          bind:value={name}
+          maxlength="40"
+          variant="dark"
+        />
+      </div>
+      <div class="manage-field">
+        <Label for={`player-${character.id}`} class="label-caps">Jugador</Label>
+        <Input
+          id={`player-${character.id}`}
+          type="text"
+          bind:value={player}
+          maxlength="40"
+          variant="dark"
+        />
+      </div>
+    </div>
   </div>
 
   <!-- Core stats -->
@@ -198,35 +236,74 @@
     </div>
   </div>
 
-  <!-- Character options (class, background, species, alignment) -->
+  <!-- Class -->
   <div class="manage-section">
-    <h4 class="manage-section-title">Opciones de personaje</h4>
-    <CharacterOptionsFields
-      {optionSets}
-      bind:classPrimary
-      bind:classSubclass
-      bind:classLevel
-      bind:backgroundName
-      bind:backgroundFeat
-      bind:speciesName
-      bind:speciesSize
-      bind:alignment
-    />
+    <h4 class="manage-section-title">Clase</h4>
+    <div class="manage-grid-fields">
+      <div class="manage-field">
+        <Label for={`class-${character.id}`} class="label-caps">Clase</Label>
+        <select id={`class-${character.id}`} bind:value={classPrimary} class="form-select">
+          <option value="">— Seleccionar —</option>
+          {#each optionSets.classOptions as opt (opt.key)}
+            <option value={opt.key}>{opt.label}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="manage-field">
+        <Label for={`level-${character.id}`} class="label-caps">Nivel</Label>
+        <Input
+          id={`level-${character.id}`}
+          type="number"
+          min="1"
+          max="20"
+          bind:value={classLevel}
+          variant="dark"
+        />
+      </div>
+    </div>
+    <div class="manage-field" style="margin-top: 0.5rem;">
+      <Label for={`subclass-${character.id}`} class="label-caps">Subclase</Label>
+      <select
+        id={`subclass-${character.id}`}
+        bind:value={classSubclass}
+        class="form-select"
+        disabled={!classPrimary}
+      >
+        <option value="">{classPrimary ? "— Seleccionar —" : "Elige clase primero"}</option>
+        {#each optionSets.subclassOptions as opt (opt.key)}
+          <option value={opt.key}>{opt.label}</option>
+        {/each}
+      </select>
+    </div>
   </div>
 
-  <!-- Languages, proficiencies and equipment -->
-  <CharacterProficienciesFields
-    {optionSets}
-    {labelOf}
-    bind:languages
-    bind:rareLanguages
-    bind:skills
-    bind:tools
-    bind:armor
-    bind:weapons
-    bind:items
-    bind:trinket
-  />
+  <!-- Species -->
+  <div class="manage-section">
+    <h4 class="manage-section-title">Especie</h4>
+    <div class="manage-field">
+      <Label for={`species-${character.id}`} class="label-caps">Especie</Label>
+      <select id={`species-${character.id}`} bind:value={speciesName} class="form-select">
+        <option value="">— Seleccionar —</option>
+        {#each optionSets.speciesOptions as opt (opt.key)}
+          <option value={opt.key}>{opt.label}</option>
+        {/each}
+      </select>
+    </div>
+  </div>
+
+  <!-- Skills -->
+  <div class="manage-section">
+    <h4 class="manage-section-title">
+      Skills{#if skills.length > 0}&nbsp;<span class="selection-count">{skills.length}</span>{/if}
+    </h4>
+    <MultiSelect
+      options={optionSets.skillOptions}
+      selected={skills}
+      onchange={(v) => (skills = v)}
+      size={Math.max(4, Math.min(8, optionSets.skillOptions.length || 4))}
+    />
+    <SelectionPills keys={skills} {labelOf} />
+  </div>
 
   <!-- Actions -->
   <div class="manage-actions">

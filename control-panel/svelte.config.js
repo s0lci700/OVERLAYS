@@ -7,7 +7,7 @@ export default {
     adapter: adapter(),
     alias: {
       $lib: "src/lib",
-      $server: "../src/server",
+      $server: "../backend",
     },
   },
 };

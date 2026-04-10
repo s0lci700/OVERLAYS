@@ -4,55 +4,25 @@
   Thin orchestrator: renders the character grid and wires together
   CharacterPhotoEditor, CharacterProfileForm, and CharacterInfoPanel.
   Owns: grid layout, delete AlertDialog, editOpen per-card coordination.
+  All field names map to the flat PocketBase `characters` schema.
 -->
 <script>
   import "./CharacterManagement.css";
   import "$lib/components/shared/pills/Pills.css";
   import LevelPill from "$lib/components/shared/pills/LevelPill.svelte";
-  import CharacterPhotoEditor from "./CharacterPhotoEditor.svelte";
   import CharacterProfileForm from "../character-profile-form/CharacterProfileForm.svelte";
   import CharacterInfoPanel from "./CharacterInfoPanel.svelte";
   import { characters, SERVER_URL } from "$lib/services/socket.svelte.js";
   import { Button } from "$lib/components/shared/button/index.js";
   import * as AlertDialog from "$lib/components/shared/alert-dialog";
   import characterOptions from "$lib/data/character-options.template.json";
+  import { resolvePhotoSrc } from "$lib/services/utils.js";
 
-  const PHOTO_OPTIONS = [
-    { label: "Aleatorio", value: "" },
-    { label: "Barbarian", value: "/assets/img/barbarian.png" },
-    { label: "Elf", value: "/assets/img/elf.png" },
-    { label: "Wizard", value: "/assets/img/wizard.png" },
-  ];
-
-  // ── Option lookups (for CharacterInfoPanel label resolution) ───────
-  /** @type {Record<string, any>} */
-  const optionSets = characterOptions || {};
-  const classOptions = optionSets.classes || [];
-  const speciesOptions = optionSets.species || [];
-  const alignmentOptions = optionSets.alignments || [];
-  const languageOptions = optionSets.languages || [];
-  const rareLanguageOptions = optionSets.rare_languages || [];
-  const skillOptions = optionSets.skills || [];
-  const toolOptions = optionSets.tools || [];
-  const armorOptions = optionSets.armor_proficiencies || [];
-  const weaponOptions = optionSets.weapon_proficiencies || [];
-  const itemOptions = optionSets.items || [];
-
-  const labelMaps = {
-    class: new Map(classOptions.map((o) => [o.key, o.label])),
-    species: new Map(speciesOptions.map((o) => [o.key, o.label])),
-    alignment: new Map(alignmentOptions.map((o) => [o.key, o.label])),
-  };
-
-  const labelOf = new Map(/** @type {[string, string][]} */ ([
-    ...languageOptions.map((o) => [o.key, o.label]),
-    ...rareLanguageOptions.map((o) => [o.key, o.label]),
-    ...skillOptions.map((o) => [o.key, o.label]),
-    ...toolOptions.map((o) => [o.key, o.label]),
-    ...armorOptions.map((o) => [o.key, o.label]),
-    ...weaponOptions.map((o) => [o.key, o.label]),
-    ...itemOptions.map((o) => [o.key, o.label]),
-  ]));
+  // Label resolution for class_name and species (stored as keys, displayed as labels)
+  const classOptions = characterOptions.classes ?? [];
+  const speciesOptions = characterOptions.species ?? [];
+  const classLabelMap = new Map(classOptions.map((o) => [o.key, o.label]));
+  const speciesLabelMap = new Map(speciesOptions.map((o) => [o.key, o.label]));
 
   // ── Per-card edit state (lifted for cross-sibling coordination) ────
   /** @type {Record<string, boolean>} */
@@ -85,7 +55,7 @@
 <section class="character-management" aria-labelledby="manage-character-title">
   <div class="manage-header">
     <h2 id="manage-character-title" class="manage-title">
-      GESTION DE PERSONAJES
+      GESTIÓN DE PERSONAJES
     </h2>
   </div>
 
@@ -95,15 +65,17 @@
         <!-- Card header: photo (owned by CharacterPhotoEditor), identity, toggle -->
         <header class="manage-card-head">
           <div class="manage-identity">
-            <CharacterPhotoEditor
-              {character}
-              {SERVER_URL}
-              {PHOTO_OPTIONS}
-            />
+            <div class="manage-portrait-preview">
+              <img
+                src={resolvePhotoSrc(character.portrait, SERVER_URL)}
+                alt={character.name}
+                class="manage-photo"
+              />
+            </div>
             <div class="manage-names">
               <h3 class="manage-char-name">{character.name}</h3>
-              <span class="manage-char-player">{character.player}</span>
-              <LevelPill level={character.class_primary?.level} />
+              <span class="manage-char-player">{character.player ?? ""}</span>
+              <LevelPill level={character.level} />
             </div>
           </div>
           <Button
@@ -120,27 +92,17 @@
         {#if !editOpenById[character.id]}
           <div class="manage-summary">
             <span>
-              {character.class_primary?.name
-                ? `${labelMaps.class.get(character.class_primary.name) || character.class_primary.name} ${character.class_primary.level ?? 1}`
+              {character.class_name
+                ? `${classLabelMap.get(character.class_name) ?? character.class_name} ${character.level ?? 1}`
                 : "Sin clase"}
             </span>
-            <span class="manage-summary-sep">•</span>
-            <span>
-              {character.species?.name
-                ? labelMaps.species.get(character.species.name) ||
-                  character.species.name
-                : "Especie no definida"}
-            </span>
-            <span class="manage-summary-sep">•</span>
-            <span>
-              {character.alignment
-                ? labelMaps.alignment.get(character.alignment) ||
-                  character.alignment
-                : "Alineamiento no definido"}
-            </span>
+            {#if character.species}
+              <span class="manage-summary-sep">•</span>
+              <span>{speciesLabelMap.get(character.species) ?? character.species}</span>
+            {/if}
           </div>
 
-          <CharacterInfoPanel {character} {labelOf} {labelMaps} />
+          <CharacterInfoPanel {character} />
         {/if}
 
         <!-- Edit form (shown while editing) -->
@@ -148,12 +110,10 @@
           <CharacterProfileForm
             {character}
             {SERVER_URL}
-            {characterOptions}
           />
         {/if}
 
-        <!-- Delete button (always visible in edit mode via manage-actions in form,
-             but the AlertDialog trigger lives here in the orchestrator) -->
+        <!-- Delete button (always visible in edit mode) -->
         {#if editOpenById[character.id]}
           <div class="manage-actions manage-actions--delete">
             <Button

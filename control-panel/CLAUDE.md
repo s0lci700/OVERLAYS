@@ -13,6 +13,8 @@ Run from `control-panel/`:
 - `bun run dev -- --host` — Vite dev server with LAN exposure (port 5173)
 - `bun run dev:auto` — runs `setup-ip` + `vite dev --host` in one step
 - `bun run lint` — ESLint (eslint-plugin-svelte, flat config v9)
+- `bun run format` — Prettier write pass
+- `bunx svelte-check` — type-check all Svelte files (use before committing UI changes)
 - `bun run test` — Vitest unit tests
 - `npx vitest run path/to/file.test.js` — single test file
 - `bun run storybook` — Storybook dev server on port 6006
@@ -74,7 +76,7 @@ lib/
       moments/      ← OverlayLevelUp, OverlayPlayerDown
       show/         ← OverlayLowerThird, OverlayStats, OverlayBreak, OverlayRecordingBadge
       shared/       ← overlaySocket.svelte.js (singleton for OBS routes only)
-    shared/         ← headless primitives (button, dialog, badge, tooltip, etc.)
+    shared/         ← headless primitives (button, dialog, badge, tooltip, DieSpinner, etc.)
   services/
     errors.ts       ← ServiceError class — standard error shape for all service throws
     socket.ts       ← typed Socket.io client (new canonical; socket.js is legacy)
@@ -92,6 +94,16 @@ lib/
 ---
 
 ## Key Conventions
+
+**Current vs Legacy Patterns:**
+
+| Pattern | Current (use this) | Legacy (do not extend) |
+| ------- | ------------------ | ---------------------- |
+| Socket client | `lib/services/socket.ts` | `lib/services/socket.js` |
+| Stage mutations | `lib/derived/stage.svelte.ts` | Direct REST calls in CharacterCard |
+| Overlay socket | `lib/components/overlays/shared/overlaySocket.svelte.ts` | Any direct socket.io import in overlay files |
+
+Rule: `.ts` = current, `.js` = legacy. Never add logic to `.js` files.
 
 **Svelte 5 runes:** Use `$state`, `$derived`, `$effect`, `$props` inside components. The global `characters` and `lastRoll` in `lib/services/socket.js` stay as Svelte writable stores — they are shared singletons across the entire app.
 
@@ -112,6 +124,10 @@ lib/
 **UI library:** `bits-ui` v2 (headless primitives) + `tailwind-variants` for variant styling.
 
 **Animations:** Use `anime.js` (`animejs`) for programmatic effects (damage flash, dice bounce). CSS transitions for HP bar width and collapse height.
+
+**GSAP gotcha:** When using MorphSVG in a conditionally rendered component, reset tracking variables (e.g. `prevX = null`) inside `onDestroy` / the cleanup return of `$effect`. Without this, remounting renders a blank path.
+
+**SSR gotcha:** `$state` and other runes cannot be initialized in plain `.ts` files — Vite will crash at SSR. Move reactive files to `.svelte.ts` and import them with the `.svelte.ts` extension explicitly.
 
 ---
 
