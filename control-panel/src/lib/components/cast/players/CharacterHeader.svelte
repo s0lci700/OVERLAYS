@@ -20,8 +20,8 @@
   const dexMod = $derived(computeAbilityModifier(character.ability_scores['dex'] ?? 10));
   const wisMod = $derived(computeAbilityModifier(character.ability_scores['wis'] ?? 10));
 
-  const isProfPercep = $derived(character.skill_proficiencies.includes('perception'));
-  const isExpertPercep = $derived(character.expertise.includes('perception'));
+  const isProfPercep = $derived(character.skill_proficiencies?.['Perception'] === true);
+  const isExpertPercep = $derived(character.expertise?.['Perception'] === true);
   const passivePerception = $derived(
     computePassive(
       computeSkillTotal(wisMod, isProfPercep, isExpertPercep, character.proficiency_bonus)

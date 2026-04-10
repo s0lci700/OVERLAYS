@@ -247,7 +247,7 @@ export async function restoreResources(
 
 export function getPortraitUrl(record: CharacterRecord): string | null {
 	if (!record.portrait) return null;
-	return pb.files.getUrl(record, record.portrait);
+	return pb.files.getURL(record, record.portrait);
 }
 
 export function getPortraitThumbUrl(
@@ -255,5 +255,7 @@ export function getPortraitThumbUrl(
 	size: string = '100x100'
 ): string | null {
 	if (!record.portrait) return null;
-	return pb.files.getUrl(record, record.portrait, { thumb: size });
+	return pb.files.getURL(record, record.portrait, { thumb: size });
 }
+
+// export function createCharacter(CharacterRecor)

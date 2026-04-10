@@ -5,6 +5,19 @@ Mirrored to: Stage, Cast (DM/Players), and summaries to Commons/Audience via API
 */
 export type RecordID = string; // Unique identifier for a record in PocketBase
 
+export type Abilities = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+export type Skill = 
+"Acrobatics" | "Animal Handling" | "Arcana" | "Athletics" | "Deception" 
+| "History" | "Insight" | "Intimidation" | "Investigation" | "Medicine" 
+| "Nature" | "Perception" | "Performance" | "Persuasion" | "Religion" 
+| "Sleight of Hand" | "Stealth" | "Survival";
+
+export type AbilityScores = Record<Abilities, number>; // e.g., { "STR": 16, "DEX": 12, ... }
+
+export type SavingThrowProfs = Partial<Record<Abilities, boolean>>; // sparse — only truthy keys stored
+
+export type SkillProfs = Partial<Record<Skill, boolean>>; // sparse — only truthy keys stored
+
 export interface ConditionAsset {
   id: string;
   condition_name: string;
@@ -31,7 +44,7 @@ export interface ResourceSlot {
 export interface CharacterRecord {
     id: string;
     name: string;
-    player: string;
+    player?: string;
     species: string;
     class_name: string;
     subclass_name?: string;
@@ -42,14 +55,14 @@ export interface CharacterRecord {
     ac_base: number;
     speed: number;
     proficiency_bonus: number;
-    ability_scores: Record<string, number>;
-    saving_throws_proficiencies: string[];
-    skill_proficiencies: string[];
-    expertise: string[];
-    resources: ResourceSlot[];
-    conditions: Condition[];
-    is_active: boolean;
-    is_visible_to_party_overlay: boolean;
+    ability_scores: AbilityScores;
+    saving_throws_proficiencies?: SavingThrowProfs;
+    skill_proficiencies?: SkillProfs;
+    expertise?: SkillProfs;
+    resources?: ResourceSlot[];
+    conditions?: Condition[];
+    is_active?: boolean;
+    is_visible_to_party_overlay?: boolean;
     portrait?: string; // URL or base64 image data
     notes?: string[];
 }

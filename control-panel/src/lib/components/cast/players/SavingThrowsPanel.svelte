@@ -19,7 +19,7 @@
 
   const saves = $derived(
     ABILITIES.map((ab) => {
-      const isProficient = character.saving_throws_proficiencies.includes(ab);
+      const isProficient = character.saving_throws_proficiencies?.[ab] === true;
       const abilityMod = computeAbilityModifier(character.ability_scores[ab] ?? 10);
       const total = computeSavingThrow(abilityMod, isProficient, character.proficiency_bonus);
       return { ab, isProficient, total };

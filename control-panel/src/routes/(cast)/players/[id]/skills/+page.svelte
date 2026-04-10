@@ -36,8 +36,8 @@
 	const allSkills = $derived<SkillEntry[]>(
 		character
 			? Object.entries(SKILL_ABILITY).map(([skill, ability]) => {
-					const isProficient = character.skill_proficiencies.includes(skill);
-					const isExpertise = character.expertise.includes(skill);
+					const isProficient = character.skill_proficiencies?.[skill as import('$lib/contracts/records').Skill] === true;
+					const isExpertise = character.expertise?.[skill as import('$lib/contracts/records').Skill] === true;
 					return {
 						skill,
 						ability,
