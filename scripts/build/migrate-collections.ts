@@ -176,7 +176,7 @@ async function main() {
 		console.log(`[migrate] ✓ ${col.name}`);
 	}
 
-	console.log('[migrate] Done. Run bun src/server/seed.ts to populate characters.');
+	console.log('[migrate] Done. Run bun backend/seed.ts to populate characters.');
 }
 
 main()

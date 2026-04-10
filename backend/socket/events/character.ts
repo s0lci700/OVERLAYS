@@ -7,13 +7,11 @@
  * Event names and payload types come from:
  *   control-panel/src/lib/contracts/events.ts → EventPayloadMap
  *
- * Actions (Mutate + Sync) come from:
- *   src/server/actions/characters.ts
+ * Orchestration comes from:
+ *   backend/actions/CharacterActions
  */
 import type { Socket } from 'socket.io';
-import { pb } from '../../pb';
-import { broadcast } from '../rooms';
-import * as actions from '../../actions/characters';
+import { characterActions } from '../../actions/characters';
 import {
   HP_UPDATED,
   CONDITION_ADDED,
@@ -30,24 +28,24 @@ export function registerCharacterEvents(socket: Socket, _sessionId: string): voi
   // ── HP ──────────────────────────────────────────────────────────────────────
   socket.on(HP_UPDATED, async (payload: HpUpdatedPayload) => {
     const { targetID, newHp } = payload;
-    await actions.updateHp(pb, broadcast, targetID, newHp);
+    await characterActions.updateHp(targetID, newHp);
   });
 
   // ── Condition added ─────────────────────────────────────────────────────────
   socket.on(CONDITION_ADDED, async (payload: ConditionAddedPayload) => {
     const { targetID, condition } = payload;
-    await actions.addCondition(pb, broadcast, targetID, { condition_name: condition });
+    await characterActions.addCondition(targetID, condition);
   });
 
   // ── Condition removed ───────────────────────────────────────────────────────
   socket.on(CONDITION_REMOVED, async (payload: ConditionRemovedPayload) => {
     const { targetID, condition } = payload;
-    await actions.removeCondition(pb, broadcast, targetID, condition);
+    await characterActions.removeCondition(targetID, condition);
   });
 
   // ── Resource updated ────────────────────────────────────────────────────────
   socket.on(RESOURCE_UPDATED, async (payload: ResourceUpdatedPayload) => {
     const { targetID, resourceName, newValue } = payload;
-    await actions.updateResource(pb, broadcast, targetID, { resourceName, newValue });
+    await characterActions.updateResource(targetID, resourceName, newValue);
   });
 }

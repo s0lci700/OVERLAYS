@@ -1,26 +1,31 @@
 /**
  * optimize-assets.ts
  *
- * Resizes and converts character avatar PNGs to WebP.
+ * Resizes and converts character avatar PNGs to WebP at multiple sizes.
  * Source:  assets/img/*.png  (repo root)
- * Output:  control-panel/src/lib/assets/img/*.webp  (Vite-managed)
+ * Output:  assets/img/*.webp  (repo root - served by Express)
+ *          control-panel/src/lib/assets/img/*.webp  (Vite imports for fallbacks)
  *
  * Usage: bun run optimize-assets
  */
 
 import sharp from "sharp";
-import { readdir, mkdir } from "node:fs/promises";
+import Bun from "bun";
+import { readdir, mkdir, copyFile } from "node:fs/promises";
 import { join, basename, extname } from "node:path";
 
 const REPO_ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 const SRC_DIR = join(REPO_ROOT, "assets", "img");
-const OUT_DIR = join(REPO_ROOT, "control-panel", "src", "lib", "assets", "img");
+const STATIC_DIR = SRC_DIR;  // Output to same folder (repo root assets/img/)
+const LIB_DIR = join(REPO_ROOT, "control-panel", "src", "lib", "assets", "img");
 
-const MAX_SIZE = 256;  // px — 3× the 76px display size, retina-safe
-const QUALITY = 85;    // WebP quality (0–100)
+// Generate multiple sizes for responsive images
+const SIZES = [128, 256, 512];  // Small, medium, large (retina-safe)
+const QUALITY = 90;    // WebP quality (0–100) — increased for better gradients
 
 async function run() {
-  await mkdir(OUT_DIR, { recursive: true });
+  await mkdir(STATIC_DIR, { recursive: true });
+  await mkdir(LIB_DIR, { recursive: true });
 
   const files = (await readdir(SRC_DIR)).filter(
     (f) => extname(f).toLowerCase() === ".png"
@@ -31,33 +36,48 @@ async function run() {
     return;
   }
 
-  console.log(`Found ${files.length} PNG(s) — resizing to ${MAX_SIZE}×${MAX_SIZE} max, WebP q${QUALITY}\n`);
+  console.log(`Found ${files.length} PNG(s) — generating ${SIZES.join(', ')}px sizes, WebP q${QUALITY}\n`);
 
   for (const file of files) {
     const srcPath = join(SRC_DIR, file);
-    const outName = basename(file, ".png") + ".webp";
-    const outPath = join(OUT_DIR, outName);
-
+    const baseName = basename(file, ".png");
     const meta = await sharp(srcPath).metadata();
     const originalKB = Math.round((await Bun.file(srcPath).arrayBuffer()).byteLength / 1024);
 
-    await sharp(srcPath)
-      .resize(MAX_SIZE, MAX_SIZE, {
-        fit: "inside",        // preserve aspect ratio, never upscale beyond MAX_SIZE
-        withoutEnlargement: true,
-      })
-      .webp({ quality: QUALITY })
-      .toFile(outPath);
+    console.log(`  ${file} (${meta.width}×${meta.height}, ${originalKB} KB)`);
 
-    const outputKB = Math.round((await Bun.file(outPath).arrayBuffer()).byteLength / 1024);
-    const saving = Math.round((1 - outputKB / originalKB) * 100);
+    let totalSaved = 0;
 
-    console.log(`  ${file}`);
-    console.log(`    ${meta.width}×${meta.height} PNG  ${originalKB} KB  →  ${MAX_SIZE}px WebP  ${outputKB} KB  (−${saving}%)`);
-    console.log(`    → ${outPath}`);
+    for (const size of SIZES) {
+      const outName = `${baseName}-${size}.webp`;
+      const staticPath = join(STATIC_DIR, outName);
+      const libPath = join(LIB_DIR, outName);
+
+      await sharp(srcPath)
+        .resize(size, size, {
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality: QUALITY })
+        .toFile(staticPath);
+
+      // Copy to lib folder for Vite imports (fallbacks only)
+      await copyFile(staticPath, libPath);
+
+      const outputKB = Math.round((await Bun.file(staticPath).arrayBuffer()).byteLength / 1024);
+      totalSaved += originalKB - outputKB;
+
+      console.log(`    → ${size}px: ${outputKB} KB`);
+    }
+
+    console.log(`    Served from: ${STATIC_DIR} (via Express)`);
+    console.log(`    Fallback imports: ${LIB_DIR}`);
+    console.log(`    Total saved: ${totalSaved} KB\n`);
   }
 
-  console.log("\nDone. Import from $lib/assets/img/*.webp in your components.");
+  console.log("✅ Done! Images available via:");
+  console.log("  • Express static: http://localhost:3000/assets/img/*.webp");
+  console.log("  • Vite imports: $lib/assets/img/*.webp (fallbacks only)");
 }
 
 run().catch((err) => {

@@ -16,7 +16,7 @@
   },
   "include": [
     "server.ts",
-    "src/**/*",
+    "backend/**/*",
     "control-panel/src/lib/contracts/**/*.ts"
   ],
   "exclude": ["node_modules", "control-panel/node_modules"]

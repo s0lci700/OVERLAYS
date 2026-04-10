@@ -8,7 +8,7 @@ import { broadcast } from '../socket/rooms';
 
 import * as characterModule from '../data/characters';
 
-import * as actions from '../actions/characters';
+import { characterActions } from '../actions/characters';
 
 const SHORT_ID_RE = /^[A-Z0-9]{5}$/i;
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -63,15 +63,26 @@ export async function createCharacter(req: Request, res: Response): Promise<void
     res.status(400).json({ error: 'portrait must be a string' }); return;
   }
 
-  const character = await characterModule.createCharacter(pb, {
-    name, player, species, class_name, subclass_name, level,
-    hp_current, hp_max: hp_max, hp_temp,
-    ac_base, speed, proficiency_bonus,
-    ability_scores, saving_throws_proficiencies, skill_proficiencies, expertise,
-    conditions, resources,
-    is_active, is_visible_to_party_overlay,
-    portrait, notes,
-  });
+  let character;
+  try {
+    character = await characterModule.createCharacter(pb, {
+      name, player, species, class_name, subclass_name, level,
+      hp_current, hp_max: hp_max, hp_temp,
+      ac_base, speed, proficiency_bonus,
+      ability_scores, saving_throws_proficiencies, skill_proficiencies, expertise,
+      conditions, resources,
+      is_active, is_visible_to_party_overlay,
+      portrait, notes,
+    });
+  } catch (err: any) {
+    const pbData = err?.response?.data;
+    console.error('[createCharacter] PocketBase rejected:', JSON.stringify(pbData ?? err?.message));
+    res.status(err?.status === 400 ? 400 : 500).json({
+      error: 'Failed to create character.',
+      detail: pbData ?? err?.message,
+    });
+    return;
+  }
 
   broadcast('characterCreated', { character });
   res.status(201).json(character);
@@ -85,7 +96,7 @@ export async function updateHp(req: Request, res: Response): Promise<void> {
   }
   let character;
   try {
-    character = await actions.updateHp(pb, broadcast, charId, hp_current);
+    character = await characterActions.updateHp(charId, hp_current);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
@@ -176,7 +187,7 @@ export async function addCondition(req: Request, res: Response): Promise<void> {
   }
   let character;
   try {
-    character = await actions.addCondition(pb, broadcast, id, { condition_name, intensity_level });
+    character = await characterActions.addCondition(id, condition_name, intensity_level);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
@@ -202,13 +213,14 @@ export async function removeCondition(req: Request, res: Response): Promise<void
   if (!SHORT_ID_RE.test(condId)) {
     res.status(400).json({ error: 'condId must be 5 chars' }); return;
   }
+  let ok: boolean;
   try {
-    await characterModule.removeCondition(pb, id, condId);
+    ok = await characterActions.removeConditionById(id, condId);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character or condition not found' }); return; }
     throw err;
   }
-  broadcast('conditionRemoved', { charId: id, conditionId: condId });
+  if (!ok) { res.status(404).json({ error: 'Character or condition not found' }); return; }
   console.log(`Condition removed: ${condId} from ${id}`);
   res.status(200).json({ ok: true });
 }
@@ -241,12 +253,12 @@ export async function updateResource(req: Request, res: Response): Promise<void>
   }
   let resource;
   try {
-    resource = await characterModule.updateResource(pb, id, rid, pool_current);
+    resource = await characterActions.updateResourceById(id, rid, pool_current);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character or resource not found' }); return; }
     throw err;
   }
-  broadcast('resourceUpdated', { charId: id, resource });
+  if (!resource) { res.status(404).json({ error: 'Character or resource not found' }); return; }
   res.status(200).json(resource);
 }
 
@@ -258,13 +270,12 @@ export async function restoreResources(req: Request, res: Response): Promise<voi
   }
   let result;
   try {
-    result = await characterModule.restoreResources(pb, id, type);
+    result = await characterActions.takeRest(id, type);
   } catch (err) {
     if ((err as any)?.status === 404) { res.status(404).json({ error: 'Character not found' }); return; }
     throw err;
   }
   if (!result) { res.status(404).json({ error: 'Character not found' }); return; }
-  broadcast('restTaken', { charId: id, type, restored: result.restored, character: result.character });
   console.log(`Rest taken: ${type} → ${id}, restored: ${result.restored.join(', ')}`);
   res.status(200).json({ restored: result.restored });
 }
@@ -283,7 +294,7 @@ export async function batchUpdateHp(req: Request, res: Response): Promise<void> 
       if (charId == null || charId === '') { errors.push({ charId, error: 'charId required' }); return; }
       if (typeof hp_current !== 'number' || !Number.isFinite(hp_current)) { errors.push({ charId, error: 'hp_current must be a finite number' }); return; }
       try {
-        const character = await actions.updateHp(pb, broadcast, charId, hp_current);
+        const character = await characterActions.updateHp(charId, hp_current);
         if (character) {
           results.push(character);
         } else {

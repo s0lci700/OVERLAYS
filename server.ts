@@ -8,12 +8,12 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
-import { connectToPocketBase } from './src/server/pb';
-import { seedIfEmpty } from './src/server/seed';
-import { ensureAuth } from './src/server/pb';
-import { preloadTokens, getMainIP } from './src/server/handlers/misc';
-import { initSocket } from './src/server/socket/index';
-import router from './src/server/router';
+import { connectToPocketBase } from './backend/pb';
+import { seedIfEmpty } from './backend/seed';
+import { ensureAuth } from './backend/pb';
+import { preloadTokens, getMainIP } from './backend/handlers/misc';
+import { initSocket } from './backend/socket/index';
+import router from './backend/router';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const CONTROL_PANEL_ORIGIN = process.env.CONTROL_PANEL_ORIGIN || 'http://localhost:5173';
