@@ -15,19 +15,95 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **MCP configs:** Always go in `.mcp.json` at the project root — never in `.claude/settings.json`. Check for an existing `.mcp.json` before adding new entries.
 
 <!-- gitnexus:start -->
-# GitNexus MCP
+# GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **OVERLAYS** (2821 symbols, 6268 relationships, 177 execution flows).
+This project is indexed by GitNexus as **OVERLAYS** (3148 symbols, 5753 relationships, 208 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
-## Always Start Here
+> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
-1. **Read `gitnexus://repo/{name}/context`** — codebase overview + check index freshness
-2. **Match your task to a skill below** and **read that skill file**
-3. **Follow the skill's workflow and checklist**
+## Always Do
 
-> If step 1 warns the index is stale, run `npx gitnexus analyze` in the terminal first.
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
+- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
+- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
 
-## Skills
+## When Debugging
+
+1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
+2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
+3. `READ gitnexus://repo/OVERLAYS/process/{processName}` — trace the full execution flow step by step
+4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
+
+## When Refactoring
+
+- **Renaming**: MUST use `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` first. Review the preview — graph edits are safe, text_search edits need manual review. Then run with `dry_run: false`.
+- **Extracting/Splitting**: MUST run `gitnexus_context({name: "target"})` to see all incoming/outgoing refs, then `gitnexus_impact({target: "target", direction: "upstream"})` to find all external callers before moving code.
+- After any refactor: run `gitnexus_detect_changes({scope: "all"})` to verify only expected files changed.
+
+## Never Do
+
+- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
+- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
+- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
+
+## Tools Quick Reference
+
+| Tool | When to use | Command |
+|------|-------------|---------|
+| `query` | Find code by concept | `gitnexus_query({query: "auth validation"})` |
+| `context` | 360-degree view of one symbol | `gitnexus_context({name: "validateUser"})` |
+| `impact` | Blast radius before editing | `gitnexus_impact({target: "X", direction: "upstream"})` |
+| `detect_changes` | Pre-commit scope check | `gitnexus_detect_changes({scope: "staged"})` |
+| `rename` | Safe multi-file rename | `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` |
+| `cypher` | Custom graph queries | `gitnexus_cypher({query: "MATCH ..."})` |
+
+## Impact Risk Levels
+
+| Depth | Meaning | Action |
+|-------|---------|--------|
+| d=1 | WILL BREAK — direct callers/importers | MUST update these |
+| d=2 | LIKELY AFFECTED — indirect deps | Should test |
+| d=3 | MAY NEED TESTING — transitive | Test if critical path |
+
+## Resources
+
+| Resource | Use for |
+|----------|---------|
+| `gitnexus://repo/OVERLAYS/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/OVERLAYS/clusters` | All functional areas |
+| `gitnexus://repo/OVERLAYS/processes` | All execution flows |
+| `gitnexus://repo/OVERLAYS/process/{name}` | Step-by-step execution trace |
+
+## Self-Check Before Finishing
+
+Before completing any code modification task, verify:
+1. `gitnexus_impact` was run for all modified symbols
+2. No HIGH/CRITICAL risk warnings were ignored
+3. `gitnexus_detect_changes()` confirms changes match expected scope
+4. All d=1 (WILL BREAK) dependents were updated
+
+## Keeping the Index Fresh
+
+After committing code changes, the GitNexus index becomes stale. Re-run analyze to update it:
+
+```bash
+npx gitnexus analyze
+```
+
+If the index previously included embeddings, preserve them by adding `--embeddings`:
+
+```bash
+npx gitnexus analyze --embeddings
+```
+
+To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.embeddings` field shows the count (0 means no embeddings). **Running analyze without `--embeddings` will delete any previously generated embeddings.**
+
+> Claude Code users: A PostToolUse hook handles this automatically after `git commit` and `git merge`.
+
+## CLI
 
 | Task | Read this skill file |
 |------|---------------------|
@@ -50,7 +126,7 @@ Phone / Tablet / Desktop
         │
         ▼
   Bun server (Express + Socket.io, :3000)
-  [src/server/data/characters.ts] [src/server/data/rolls.ts]  ← PocketBase SDK wrappers
+  [backend/data/characters.ts] [backend/data/rolls.ts]  ← PocketBase SDK wrappers
         │  io.emit broadcasts to ALL clients
         ▼
   PocketBase (:8090, SQLite)
@@ -80,6 +156,31 @@ dados-risas-prep/  ← separate repo (Prep App)
 
 State is persisted in PocketBase. Every socket connection receives `initialData` (full character roster + roll history). Overlays and Commons **never send requests** — they only listen to Socket.io broadcasts.
 
+## File Ownership by Surface
+
+```
+control-panel/src/
+├── routes/(stage)/          ← STAGE — operators, write authority
+├── routes/(cast)/           ← CAST — DM + players, mobile-first
+├── routes/(audience)/       ← AUDIENCE — OBS overlays, listen-only
+└── lib/
+    ├── components/stage/    ← Stage components
+    ├── components/cast/     ← Cast components
+    ├── components/overlays/ ← Audience overlay components
+    ├── components/shared/   ← UI kit (shadcn + custom primitives, ~169 files)
+    ├── contracts/           ← Shared types (backend imports via @contracts/* alias)
+    ├── derived/             ← stage.svelte.ts = canonical Stage state
+    └── services/            ← socket.ts, pocketbase.ts, errors.ts (all current)
+
+backend/                  ← BACKEND (Express + Socket.io)
+├── actions/                 ← CharacterActions: primary mutation layer
+├── data/                    ← PocketBase SDK wrappers
+├── domain/                  ← Pure logic (clampHp, etc.)
+├── handlers/                ← HTTP route handlers
+├── socket/events/           ← Socket.io event handlers
+└── state/                   ← In-memory runtime state (encounter, scene)
+```
+
 ---
 
 ## Commands
@@ -96,6 +197,8 @@ Always use `bun` instead of `npm`.
 - `bun server.ts` — Express + Socket.io on port 3000 (requires PocketBase + `.env`)
 - `bun run setup-ip` — auto-detect LAN IP and write root `.env` + `control-panel/.env`
 - `bun run generate:tokens` — regenerate CSS from `design/tokens.json`; run after editing tokens
+- `bun run optimize-assets` — compress & resize character images to webp variants
+- `bun run migrate-collections` — apply PocketBase schema from `records.ts` contracts
 
 **E2E:**
 
@@ -120,16 +223,18 @@ CONTROL_PANEL_ORIGIN=http://localhost:5173
 
 **Tech stack versions:** This project uses `shadcn-svelte` with `bits-ui`. Before assuming any component API shape (e.g. Listbox, Dialog), verify what's actually installed: `cat control-panel/package.json | grep bits-ui`. Do not assume components or props exist without checking — bits-ui v2 has breaking API changes from v0/v1.
 
-**PocketBase data layer:** All functions in `src/server/data/characters.ts` and `src/server/data/rolls.ts` take `pb` as their first argument and are `async`. `pb.collection().getOne()` **throws** a `ClientResponseError` on 404 — use try/catch, not `if (!result)` guards.
+**PocketBase data layer:** All functions in `backend/data/characters.ts` and `backend/data/rolls.ts` take `pb` as their first argument and are `async`. `pb.collection().getOne()` **throws** a `ClientResponseError` on 404 — use try/catch, not `if (!result)` guards.
 
 **Key files:**
 
 - `server.ts` — entry point (Express + Socket.io init, PocketBase auth on startup)
-- `src/server/router.ts` — all route registrations
-- `src/server/handlers/` — `characters.ts`, `rolls.ts`, `encounter.ts`, `misc.ts`, `overlay.ts`
-- `src/server/data/characters.ts` — exports `getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter`
-- `src/server/data/rolls.ts` — exports `getAll(pb)`, `logRoll(pb, {...})`
-- `src/server/data/id.ts` — `createShortId()` for generating 5-char IDs
+- `backend/router.ts` — all route registrations
+- `backend/actions/characters.ts` — `CharacterActions` class: primary mutation layer (HP, conditions, resources); takes `(pb, broadcast)` in constructor
+- `backend/socket/events/` — Socket.io event handlers: `character.ts`, `combat.ts`, `session.ts`
+- `backend/handlers/` — `characters.ts`, `rolls.ts`, `encounter.ts`, `misc.ts`, `overlay.ts`
+- `backend/data/characters.ts` — exports `getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter`
+- `backend/data/rolls.ts` — exports `getAll(pb)`, `logRoll(pb, {...})`
+- `backend/data/id.ts` — `createShortId()` for generating 5-char IDs
 - `data/template-characters.json` — seed fixture (4 characters, stable 5-char IDs like `"CH101"`)
 - `design/tokens.json` — canonical token source (never edit the generated CSS files)
 - `scripts/migrate-collections.ts` — applies PocketBase schema from `records.ts` contracts

@@ -1,7 +1,7 @@
 ---
 title: API Reference
 type: api
-source_files: [src/server/handlers/, src/server/router.ts, control-panel/src/lib/services/]
+source_files: [backend/handlers/, backend/router.ts, control-panel/src/lib/services/]
 last_updated: 2026-04-04
 ---
 
@@ -18,12 +18,12 @@ All REST endpoints served by the Bun/Express server at `:3000`. Frontend service
 ### Info & Tokens
 
 #### `GET /api/info`
-**Handler:** `getInfo` — `src/server/handlers/misc.ts`
+**Handler:** `getInfo` — `backend/handlers/misc.ts`
 **Response:** `{ ip: string, port: number, controlPanelUrl: string }`
 Returns the server's LAN IP, port, and control panel origin URL.
 
 #### `GET /api/tokens`
-**Handler:** `getTokens` — `src/server/handlers/misc.ts`
+**Handler:** `getTokens` — `backend/handlers/misc.ts`
 **Response:** Design tokens JSON (contents of `design/tokens.json`). Cached after first read.
 
 #### `POST /api/sync-start`
@@ -207,7 +207,7 @@ Trigger Socket.io broadcasts to overlay clients (OBS browser sources). No persis
 ### Rolls
 
 #### `POST /api/rolls`
-**Handler:** `logRoll` — `src/server/handlers/rolls.ts`
+**Handler:** `logRoll` — `backend/handlers/rolls.ts`
 **Body:** `{ charId: string, result: number, sides: number, modifier?: number }`
 `sides` must be ≥ 1. `modifier` defaults to 0.
 **Response:** roll record (201)

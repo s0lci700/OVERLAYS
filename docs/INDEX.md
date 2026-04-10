@@ -20,27 +20,43 @@ last_updated: 2026-04-03
 
 **Start order:** PocketBase → `bun server.ts` → `bun run dev -- --host`
 
+## Where do I start?
+
+| Task | Start here |
+| ---- | ---------- |
+| Change HP mutation logic | `backend/actions/characters.ts` → `CharacterActions.updateHp` |
+| Change HP display (Stage UI) | `control-panel/src/lib/components/stage/character-card/` |
+| Change HP overlay (OBS) | `control-panel/src/lib/components/overlays/OverlayHP.svelte` |
+| Add a new socket event | `backend/socket/events/` + `lib/contracts/events.ts` → `EventPayloadMap` |
+| Add a character field | `lib/contracts/records.ts` → `backend/data/characters.ts` → handler → component |
+| Change design tokens | `design/tokens.json` → `bun run generate:tokens` |
+| Change Stage layout / state | `control-panel/src/lib/derived/stage.svelte.ts` |
+| Add a new overlay route | `control-panel/src/routes/(audience)/` + new overlay component |
+| Change PocketBase schema | `scripts/migrate-collections.ts` |
+| Reset / seed the database | `bun run scripts/seed.js` (skips if records already exist) |
+| Trace a socket event flow | `gitnexus_query({query: "event name"})` |
+
 ## Backend (`/`)
 
 | File | Purpose |
 | ---- | ------- |
 | `server.ts` | Thin entry point — Express, Socket.io init, PocketBase auth, seed, token refresh |
-| `src/server/pb.ts` | PocketBase singleton + `connectToPocketBase`, `ensureAuth` |
-| `src/server/seed.ts` | Seeds empty collections on startup (`seedIfEmpty`) |
-| `src/server/router.ts` | Express Router — all 20 REST routes mounted here |
-| `src/server/handlers/characters.ts` | All `/api/characters/*` handlers |
-| `src/server/handlers/encounter.ts` | `/api/encounter/*` handlers |
-| `src/server/handlers/overlay.ts` | `announce`, `levelUp`, `playerDown`, `lowerThird` |
-| `src/server/handlers/rolls.ts` | `POST /api/rolls` |
-| `src/server/handlers/misc.ts` | info, tokens, sync-start, scene, character-focus |
-| `src/server/socket/index.ts` | `initSocket(io)` — connection handler + `initialData` |
-| `src/server/socket/rooms.ts` | `broadcast()` — all `io.emit` calls + JSONL sidecar logger |
-| `src/server/socket/events/` | Phase 2 stubs: `character.ts`, `combat.ts`, `session.ts` |
-| `src/server/state/encounter.ts` | In-memory encounter state (get/set) |
-| `src/server/state/scene.ts` | In-memory scene + focused character state (get/set) |
-| `src/server/data/characters.ts` | PocketBase character CRUD (`getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `removeCharacter`, `updateResource`, `restoreResources`) |
-| `src/server/data/rolls.ts` | PocketBase roll log (`getAll`, `logRoll`) |
-| `src/server/data/id.ts` | 5-char ID generator (`createShortId`) |
+| `backend/pb.ts` | PocketBase singleton + `connectToPocketBase`, `ensureAuth` |
+| `backend/seed.ts` | Seeds empty collections on startup (`seedIfEmpty`) |
+| `backend/router.ts` | Express Router — all 20 REST routes mounted here |
+| `backend/handlers/characters.ts` | All `/api/characters/*` handlers |
+| `backend/handlers/encounter.ts` | `/api/encounter/*` handlers |
+| `backend/handlers/overlay.ts` | `announce`, `levelUp`, `playerDown`, `lowerThird` |
+| `backend/handlers/rolls.ts` | `POST /api/rolls` |
+| `backend/handlers/misc.ts` | info, tokens, sync-start, scene, character-focus |
+| `backend/socket/index.ts` | `initSocket(io)` — connection handler + `initialData` |
+| `backend/socket/rooms.ts` | `broadcast()` — all `io.emit` calls + JSONL sidecar logger |
+| `backend/socket/events/` | Phase 2 stubs: `character.ts`, `combat.ts`, `session.ts` |
+| `backend/state/encounter.ts` | In-memory encounter state (get/set) |
+| `backend/state/scene.ts` | In-memory scene + focused character state (get/set) |
+| `backend/data/characters.ts` | PocketBase character CRUD (`getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `removeCharacter`, `updateResource`, `restoreResources`) |
+| `backend/data/rolls.ts` | PocketBase roll log (`getAll`, `logRoll`) |
+| `backend/data/id.ts` | 5-char ID generator (`createShortId`) |
 | `scripts/setup-ip.js` | Detects LAN IP and writes root `.env` + `control-panel/.env` |
 
 ## Control panel (`control-panel/src/`)

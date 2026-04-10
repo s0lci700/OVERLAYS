@@ -1,13 +1,13 @@
 ---
 title: Server vs Frontend — Layer Reference
 type: architecture
-source_files: [src/server/, control-panel/src/lib/services/]
+source_files: [backend/, control-panel/src/lib/services/]
 last_updated: 2026-04-04
 ---
 
 # Server vs Frontend — Layer Reference
 
-> Quick answer: `src/server/` is backend code that runs in Bun. `control-panel/src/lib/` is frontend code that runs in the browser. They never import each other. They talk over the network.
+> Quick answer: `backend/` is backend code that runs in Bun. `control-panel/src/lib/` is frontend code that runs in the browser. They never import each other. They talk over the network.
 
 ---
 
@@ -17,7 +17,7 @@ last_updated: 2026-04-04
 ┌─────────────────────────────────────────────────────────────────────┐
 │  BUN PROCESS  (server.ts → :3000)                                   │
 │                                                                     │
-│  src/server/                                                        │
+│  backend/                                                        │
 │  ├── data/characters.ts   ← PocketBase SDK (direct DB access)      │
 │  ├── data/rolls.ts        ← PocketBase SDK (direct DB access)      │
 │  ├── data/id.ts           ← ID generator                           │
@@ -52,12 +52,12 @@ last_updated: 2026-04-04
 
 ## Why both sides have similar function names
 
-This is the confusing part. Both `src/server/data/characters.ts` and
+This is the confusing part. Both `backend/data/characters.ts` and
 `control-panel/src/lib/services/pocketbase.ts` export functions like
 `addCondition`, `updateResource`, `getAll`. They look the same but do
 completely different things:
 
-| Function | In `src/server/data/characters.ts` | In `control-panel/src/lib/services/pocketbase.ts` |
+| Function | In `backend/data/characters.ts` | In `control-panel/src/lib/services/pocketbase.ts` |
 |---|---|---|
 | `addCondition(...)` | Calls `pb.collection('characters').update(...)` via **PocketBase Node.js SDK** — direct DB write | Calls `pb.collection('characters').update(...)` via **PocketBase browser SDK** — HTTP request to PocketBase |
 | `updateResource(...)` | Direct SDK call, runs server-side | HTTP call, runs in browser |
@@ -73,9 +73,9 @@ completely different things:
 
 ```
 HTTP request arrives at :3000
-  → src/server/router.ts            (which route is this?)
-  → src/server/handlers/characters.ts  (validate, parse body)
-  → src/server/data/characters.ts   (read/write PocketBase via SDK)
+  → backend/router.ts            (which route is this?)
+  → backend/handlers/characters.ts  (validate, parse body)
+  → backend/data/characters.ts   (read/write PocketBase via SDK)
   → PocketBase :8090                (SQLite write)
   → broadcast() via socket/rooms.ts (emit to ALL clients)
   → HTTP response back to caller
@@ -102,11 +102,11 @@ User taps a button in a Svelte component
 
 | Task | Edit here |
 |---|---|
-| Change what data is stored in PocketBase | `src/server/data/characters.ts` + `control-panel/src/lib/contracts/records.ts` |
-| Add a new REST endpoint | `src/server/router.ts` + `src/server/handlers/` |
+| Change what data is stored in PocketBase | `backend/data/characters.ts` + `control-panel/src/lib/contracts/records.ts` |
+| Add a new REST endpoint | `backend/router.ts` + `backend/handlers/` |
 | Change what a Svelte component displays | `control-panel/src/lib/components/` |
 | Change how the browser fetches data | `control-panel/src/lib/services/pocketbase.ts` or `character.ts` |
-| Add a new Socket.io event | `src/server/socket/` + `control-panel/src/lib/services/socket.ts` + `control-panel/src/lib/contracts/events.ts` |
+| Add a new Socket.io event | `backend/socket/` + `control-panel/src/lib/services/socket.ts` + `control-panel/src/lib/contracts/events.ts` |
 | Add a new TypeScript type/shape | `control-panel/src/lib/contracts/records.ts` (imported by both sides) |
 
 ---
@@ -127,8 +127,8 @@ Neither process imports the other's code.
 
 | Module | Status |
 |---|---|
-| `src/server/data/characters.ts` | ✅ Active — called by all character handlers |
-| `src/server/data/rolls.ts` | ✅ Active — called by rolls handler |
+| `backend/data/characters.ts` | ✅ Active — called by all character handlers |
+| `backend/data/rolls.ts` | ✅ Active — called by rolls handler |
 | `control-panel/src/lib/services/pocketbase.ts` | ✅ Active — pb singleton + all service functions exist |
 | `control-panel/src/lib/services/character.ts:getCharacter` | ⚠️ Wired but unconsumed — no route calls it yet (TASK-1.2) |
 | `control-panel/src/lib/services/socket.ts` | ✅ Active — used by overlay routes |

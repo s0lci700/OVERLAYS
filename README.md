@@ -121,7 +121,7 @@ bun run dev -- --host
 ```text
 OVERLAYS/
 ├── server.ts                  # Thin entry point — Express + Socket.io init
-├── src/server/                # Backend modules
+├── backend/                # Backend modules
 │   ├── handlers/              # REST handlers (characters, encounter, overlay, rolls, misc)
 │   ├── socket/                # Socket.io init, broadcast, event stubs
 │   └── state/                 # In-memory encounter + scene state

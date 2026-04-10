@@ -1,7 +1,7 @@
 ---
 title: Socket.io Event Reference
 type: reference
-source_files: [src/server/handlers/, src/server/socket/, control-panel/src/lib/contracts/events.ts]
+source_files: [backend/handlers/, backend/socket/, control-panel/src/lib/contracts/events.ts]
 last_updated: 2026-04-03
 ---
 

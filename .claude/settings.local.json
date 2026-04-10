@@ -73,7 +73,18 @@
       "Bash(done)",
       "Read(//c/Users/Sol/**)",
       "WebSearch",
-      "mcp__github__get_file_contents"
+      "mcp__github__get_file_contents",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_pages",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__take_screenshot",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_console_messages",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__fill",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__take_snapshot",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__navigate_page",
+      "Bash(cd \"C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\" echo \"=== Checking for misplaced config files ===\")",
+      "Bash(du -sh stitch_tablerelay/*)",
+      "WebFetch(domain:code.visualstudio.com)",
+      "Bash(bun install:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Sol\\.continue",
@@ -126,7 +137,7 @@
           },
           {
             "type": "command",
-            "command": "node -e \"const f = (process.env.CLAUDE_TOOL_INPUT_FILE_PATH || '').replace(/\\\\\\\\/g, '/'); if ((f.includes('src/server/handlers/') || f.includes('src/lib/services/')) && f.endsWith('.ts')) { console.log('[DOC WATCH] API surface changed: ' + f.split('/').pop() + ' — run /doc-steward api to keep docs/API.md in sync.'); }\""
+            "command": "node -e \"const f = (process.env.CLAUDE_TOOL_INPUT_FILE_PATH || '').replace(/\\\\\\\\/g, '/'); if ((f.includes('backend/handlers/') || f.includes('src/lib/services/')) && f.endsWith('.ts')) { console.log('[DOC WATCH] API surface changed: ' + f.split('/').pop() + ' — run /doc-steward api to keep docs/API.md in sync.'); }\""
           }
         ]
       },

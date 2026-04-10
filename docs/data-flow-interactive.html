@@ -216,9 +216,9 @@
       conns: { "pb-server": "hot", "server-socket": "hot", "socket-clients": "hot" },
       steps: [
         ["Client action", "Stage UI triggers `fetch()` to an Express route like `/api/characters/:id/hp`."],
-        ["Handler validation", "Request parsing and status-code decisions live in `src/server/handlers/*`."],
-        ["Data-layer write", "Business rules such as clamping or restoration run in `src/server/data/*` before PocketBase update/create."],
-        ["Broadcast hub", "`src/server/socket/rooms.ts` emits the event and logs a sidecar summary."],
+        ["Handler validation", "Request parsing and status-code decisions live in `backend/handlers/*`."],
+        ["Data-layer write", "Business rules such as clamping or restoration run in `backend/data/*` before PocketBase update/create."],
+        ["Broadcast hub", "`backend/socket/rooms.ts` emits the event and logs a sidecar summary."],
         ["Client replication", "Stage store, overlays, and any other listeners update from the same server event."],
       ],
       code:
@@ -234,14 +234,14 @@
         ["warn", "Some runtime events like `announce` or `scene_changed` skip PocketBase and are server-owned only."],
       ],
       refs: [
-        "src/server/router.ts",
-        "src/server/handlers/characters.ts",
-        "src/server/handlers/rolls.ts",
-        "src/server/handlers/misc.ts",
-        "src/server/handlers/overlay.ts",
-        "src/server/data/characters.ts",
-        "src/server/data/rolls.ts",
-        "src/server/socket/rooms.ts"
+        "backend/router.ts",
+        "backend/handlers/characters.ts",
+        "backend/handlers/rolls.ts",
+        "backend/handlers/misc.ts",
+        "backend/handlers/overlay.ts",
+        "backend/data/characters.ts",
+        "backend/data/rolls.ts",
+        "backend/socket/rooms.ts"
       ]
     },
     hydrate: {
@@ -254,7 +254,7 @@
       conns: { "pb-server": "hot", "server-socket": "hot", "socket-clients": "hot" },
       steps: [
         ["Server boot", "`server.ts` connects to PocketBase and calls `initSocket(io)`."],
-        ["Socket connection", "Incoming clients land in `src/server/socket/index.ts`."],
+        ["Socket connection", "Incoming clients land in `backend/socket/index.ts`."],
         ["Auth check", "`ensureAuth()` refreshes or re-authenticates the PocketBase session."],
         ["Roster fetch", "`characterModule.getAll(pb)` loads persisted character data."],
         ["Bootstrap emit", "Server sends `initialData` with `characters`, `encounter`, `scene`, and `focusedChar`."],
@@ -278,9 +278,9 @@
       ],
       refs: [
         "server.ts",
-        "src/server/socket/index.ts",
-        "src/server/pb.ts",
-        "src/server/data/characters.ts",
+        "backend/socket/index.ts",
+        "backend/pb.ts",
+        "backend/data/characters.ts",
         "control-panel/src/lib/services/socket.js",
         "control-panel/src/lib/components/overlays/shared/overlaySocket.svelte.ts"
       ]
@@ -308,7 +308,7 @@
   -> CharacterRecord
   -> render cast route tree`,
       notes: [
-        ["warn", "This path bypasses `src/server/router.ts` and does not emit Socket.io."],
+        ["warn", "This path bypasses `backend/router.ts` and does not emit Socket.io."],
         ["", "SSR uses `127.0.0.1:8090` logic from `control-panel/src/lib/services/pocketbase.ts`."],
         ["", "Useful for baseline-first render. Not the canonical live write path."],
       ],
@@ -364,7 +364,7 @@ Typed abstraction:
       nodes: { server: "warm", socket: "warm", clients: "warm" },
       conns: { "server-socket": "warm", "socket-clients": "warm" },
       steps: [
-        ["Incoming socket events", "`src/server/socket/events/*.ts` are Phase 2 stubs only."],
+        ["Incoming socket events", "`backend/socket/events/*.ts` are Phase 2 stubs only."],
         ["Broadcast scope", "`broadcast()` still uses global `io.emit`, not room/session targeting."],
         ["PocketBase realtime", "The app does not use PocketBase SSE/realtime as its main live update bus."],
         ["Direct PB frontend access", "Some frontend service code still talks to PocketBase directly outside the canonical live write flow."],
@@ -380,15 +380,15 @@ Happening today:
   fetch() -> handler -> PocketBase -> broadcast() -> socket listeners`,
       notes: [
         ["danger", "Types can mislead you if you trust forward-looking contracts more than runtime event names."],
-        ["warn", "Reconnect failures are often auth issues in `src/server/pb.ts`, not frontend socket bugs."],
+        ["warn", "Reconnect failures are often auth issues in `backend/pb.ts`, not frontend socket bugs."],
         ["", "Use `docs/DATA-FLOW.md` and `docs/SOCKET-EVENTS.md` as the canonical operational references."],
       ],
       refs: [
-        "src/server/socket/events/character.ts",
-        "src/server/socket/events/combat.ts",
-        "src/server/socket/events/session.ts",
-        "src/server/socket/rooms.ts",
-        "src/server/pb.ts",
+        "backend/socket/events/character.ts",
+        "backend/socket/events/combat.ts",
+        "backend/socket/events/session.ts",
+        "backend/socket/rooms.ts",
+        "backend/pb.ts",
         "control-panel/src/lib/contracts/events.ts",
         "docs/DATA-FLOW.md"
       ]

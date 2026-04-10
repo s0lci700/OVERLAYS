@@ -58,9 +58,9 @@ Always start services in this order:
 -   **Stores:** Global singletons in `lib/services/socket.js`.
 
 ### 3. Backend & Database
--   All data layer functions in `src/server/data/` take `pb` as the first argument.
+-   All data layer functions in `backend/data/` take `pb` as the first argument.
 -   PocketBase SDK throws `ClientResponseError` on 404s—always use `try/catch`.
--   Use `createShortId()` from `src/server/data/id.ts` for 5-character entity IDs.
+-   Use `createShortId()` from `backend/data/id.ts` for 5-character entity IDs.
 
 ### 4. Code Intelligence (GitNexus)
 -   **Impact Analysis:** Before editing a symbol, run `gitnexus_impact` to assess the blast radius.
@@ -83,7 +83,7 @@ Always start services in this order:
 ## 📁 Key File Map
 
 -   `server.ts`: Backend entry point (Express + Socket.io).
--   `src/server/handlers/`: REST route controllers.
+-   `backend/handlers/`: REST route controllers.
 -   `control-panel/src/routes/`: SvelteKit route groups (`(stage)`, `(cast)`, `(audience)`).
 -   `control-panel/src/lib/contracts/`: TypeScript interfaces (Single Source of Truth for types).
 -   `design/tokens.json`: Canonical design tokens.

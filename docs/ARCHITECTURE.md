@@ -1,7 +1,7 @@
 ---
 title: Architecture Guide
 type: architecture
-source_files: [src/server/, src/server/data/characters.ts, src/server/data/rolls.ts, control-panel/src/lib/]
+source_files: [backend/, backend/data/characters.ts, backend/data/rolls.ts, control-panel/src/lib/]
 last_updated: 2026-04-04
 ---
 
@@ -88,35 +88,35 @@ PocketBase runs as a separate process (`.\pocketbase.exe serve`) and must be sta
 
 | File | Purpose |
 |---|---|
-| `server.ts` | Thin entry point (~75 lines). Initializes Express, Socket.io, PocketBase auth, seed, and token refresh timer. Delegates all routing to `src/server/router.ts` and socket setup to `src/server/socket/index.ts`. |
+| `server.ts` | Thin entry point (~75 lines). Initializes Express, Socket.io, PocketBase auth, seed, and token refresh timer. Delegates all routing to `backend/router.ts` and socket setup to `backend/socket/index.ts`. |
 
-#### `src/server/` modules
+#### `backend/` modules
 
 | File                              | Purpose                                                                             | Key exports |
 | --------------------------------- | ----------------------------------------------------------------------------------- | ----------- |
-| `src/server/pb.ts`                | PocketBase singleton + auth helpers                                                 | `pb`, `connectToPocketBase`, `ensureAuth` |
-| `src/server/seed.ts`              | Seeds empty collections on startup (characters, NPC data, campaign context)         | `seedIfEmpty` |
-| `src/server/router.ts`            | Express `Router` — mounts all 20 REST routes                                        | `default` (Router) |
-| `src/server/handlers/characters.ts` | All `/api/characters/*` REST handlers                                             | `listCharacters`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacter`, `addCondition`, `removeCondition`, `deleteCharacter`, `updateResource`, `restoreResources`, `batchUpdateHp` |
-| `src/server/handlers/encounter.ts`  | `/api/encounter/*` REST handlers                                                  | `getEncounter`, `startEncounter`, `nextTurn`, `endEncounter` |
-| `src/server/handlers/overlay.ts`    | `/api/announce`, `/api/level-up`, `/api/player-down`, `/api/lower-third`          | `announce`, `levelUp`, `playerDown`, `lowerThird` |
-| `src/server/handlers/rolls.ts`      | `POST /api/rolls`                                                                 | `logRoll` |
-| `src/server/handlers/misc.ts`       | `/api/info`, `/api/tokens`, `/api/sync-start`, `/api/scene`, `/api/character-focus` | `getInfo`, `getTokens`, `syncStart`, `getScene`, `changeScene`, `focusCharacter`, `preloadTokens`, `getMainIP` |
-| `src/server/socket/index.ts`        | `initSocket(io)` — wires connection handler + `initialData` emit                  | `initSocket` |
-| `src/server/socket/rooms.ts`        | All `io.emit()` calls go through here; JSONL sidecar logger at `logs/sidecar.jsonl` | `initRooms`, `broadcast`, `setSyncStartTime`, `getSyncStartTime` |
-| `src/server/socket/events/character.ts` | Stub — `registerCharacterEvents()` (Phase 2)                                  | `registerCharacterEvents` |
-| `src/server/socket/events/combat.ts`    | Stub — `registerCombatEvents()` (Phase 2)                                     | `registerCombatEvents` |
-| `src/server/socket/events/session.ts`   | Stub — `registerSessionEvents()` (Phase 2)                                    | `registerSessionEvents` |
-| `src/server/state/encounter.ts`     | In-memory encounter state (active, round, participants)                           | `getEncounterState`, `setEncounterState` |
-| `src/server/state/scene.ts`         | In-memory scene + focused character state                                         | `getSceneState`, `setSceneState`, `getFocusedChar`, `setFocusedChar` |
+| `backend/pb.ts`                | PocketBase singleton + auth helpers                                                 | `pb`, `connectToPocketBase`, `ensureAuth` |
+| `backend/seed.ts`              | Seeds empty collections on startup (characters, NPC data, campaign context)         | `seedIfEmpty` |
+| `backend/router.ts`            | Express `Router` — mounts all 20 REST routes                                        | `default` (Router) |
+| `backend/handlers/characters.ts` | All `/api/characters/*` REST handlers                                             | `listCharacters`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacter`, `addCondition`, `removeCondition`, `deleteCharacter`, `updateResource`, `restoreResources`, `batchUpdateHp` |
+| `backend/handlers/encounter.ts`  | `/api/encounter/*` REST handlers                                                  | `getEncounter`, `startEncounter`, `nextTurn`, `endEncounter` |
+| `backend/handlers/overlay.ts`    | `/api/announce`, `/api/level-up`, `/api/player-down`, `/api/lower-third`          | `announce`, `levelUp`, `playerDown`, `lowerThird` |
+| `backend/handlers/rolls.ts`      | `POST /api/rolls`                                                                 | `logRoll` |
+| `backend/handlers/misc.ts`       | `/api/info`, `/api/tokens`, `/api/sync-start`, `/api/scene`, `/api/character-focus` | `getInfo`, `getTokens`, `syncStart`, `getScene`, `changeScene`, `focusCharacter`, `preloadTokens`, `getMainIP` |
+| `backend/socket/index.ts`        | `initSocket(io)` — wires connection handler + `initialData` emit                  | `initSocket` |
+| `backend/socket/rooms.ts`        | All `io.emit()` calls go through here; JSONL sidecar logger at `logs/sidecar.jsonl` | `initRooms`, `broadcast`, `setSyncStartTime`, `getSyncStartTime` |
+| `backend/socket/events/character.ts` | Stub — `registerCharacterEvents()` (Phase 2)                                  | `registerCharacterEvents` |
+| `backend/socket/events/combat.ts`    | Stub — `registerCombatEvents()` (Phase 2)                                     | `registerCombatEvents` |
+| `backend/socket/events/session.ts`   | Stub — `registerSessionEvents()` (Phase 2)                                    | `registerSessionEvents` |
+| `backend/state/encounter.ts`     | In-memory encounter state (active, round, participants)                           | `getEncounterState`, `setEncounterState` |
+| `backend/state/scene.ts`         | In-memory scene + focused character state                                         | `getSceneState`, `setSceneState`, `getFocusedChar`, `setFocusedChar` |
 
 #### TypeScript data modules
 
 | File                 | Purpose                                                        | Key exports                                                                                               |
 | -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `src/server/data/characters.ts` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
-| `src/server/data/rolls.ts`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
-| `src/server/data/id.ts`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
+| `backend/data/characters.ts` | PocketBase character CRUD — all functions are async and require `pb` as first arg | `getAll`, `findById`, `createCharacter`, `updateCharacterData`, `updateHp`, `updatePhoto`, `addCondition`, `removeCondition`, `updateResource`, `restoreResources`, `removeCharacter` |
+| `backend/data/rolls.ts`      | PocketBase roll history — async, requires `pb` as first arg   | `getAll`, `logRoll`                                                                                       |
+| `backend/data/id.ts`         | Short 5-character ID generator (still used by `addCondition`) | `createShortId`                                                                                           |
 
 ### Control Panel (`/control-panel/src/`)
 
@@ -320,9 +320,9 @@ Route groups use `(parens)` — they are organizational only and do NOT appear i
 
 ## PocketBase Configuration
 
-**Auto-cancellation disabled:** `pb.autoCancellation(false)` is set globally on the server-side PocketBase singleton (`src/server/pb.ts`) to prevent concurrent socket connections from auto-cancelling each other's requests.
+**Auto-cancellation disabled:** `pb.autoCancellation(false)` is set globally on the server-side PocketBase singleton (`backend/pb.ts`) to prevent concurrent socket connections from auto-cancelling each other's requests.
 
-**Pagination:** `src/server/data/characters.getAll()` uses `getList(1, 200)` instead of `getFullList` to avoid the `skipTotal` parameter incompatibility with some PocketBase versions.
+**Pagination:** `backend/data/characters.getAll()` uses `getList(1, 200)` instead of `getFullList` to avoid the `skipTotal` parameter incompatibility with some PocketBase versions.
 
 ---
 

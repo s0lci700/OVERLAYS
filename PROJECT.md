@@ -96,7 +96,7 @@ Stage is the only initiator. Cast and Audience are consumers.
 | Cast — Players | 🚧 Route only | `/players/[id]` — sheet UI is Phase 1 work |
 | Commons | 📋 Planned | Phase 3 — route group not yet created |
 | Audience — overlays | ✅ Built | `/persistent/*`, `/moments/*`, `/scene`, `/announcements`, `/show/*` |
-| Backend / server | ✅ Built | `server.ts` + `src/server/` modules + PocketBase |
+| Backend / server | ✅ Built | `server.ts` + `backend/` modules + PocketBase |
 
 ---
 

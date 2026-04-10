@@ -116,7 +116,7 @@ Stage (operator action)
 ```
 OVERLAYS/
 ├── server.ts                    # Entry point — Express + Socket.io
-├── src/server/
+├── backend/
 │   ├── handlers/                # REST route handlers (characters, encounter, overlay, rolls)
 │   ├── socket/                  # Socket.io init, broadcast, event stubs
 │   ├── state/                   # In-memory encounter + scene state
@@ -314,4 +314,32 @@ See `AGENTS.md` for complete GitNexus workflow.
 5. **Always use `bun`** — not `npm` or `yarn`
 6. **Check bits-ui version** — v2 has breaking API changes from v0/v1
 7. **Start order matters** — PocketBase → Backend → Control Panel
-8. **Close servers** — Always Ctrl+C to free ports before finishing tasks
+---
+
+## Design Context
+
+### Users
+- **Stream Operators (Stage):** Power users requiring high-density, low-latency control surfaces. Task: Real-time game state management (HP, rolls, conditions).
+- **Players (Cast):** Mobile-first users. Task: Character sheet reference and live resource tracking during play.
+- **Audience:** Purely reactive, listen-only OBS overlays. Task: Visual immersion and data transparency.
+
+### Brand Personality
+- **Voice & Tone:** Professional, technical, yet immersive and mystical.
+- **3-Word Personality:** Digital, Grimoire, Production-Grade.
+- **Emotional Goals:** Empowerment for operators, immersion for players, and "magical data" clarity for the audience.
+
+### Aesthetic Direction
+- **Visual Tone:** "The Technical Occult." High-end production tool aesthetic combined with tabletop mysticism.
+- **Theme:** Dark Mode (Absolute black `--black` for OBS transparency) with glowing accents.
+- **Signature Geometry:** Heavy use of **Hex-clips** (`polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)`) for portraits and UI elements.
+- **Color Logic:** 
+  - **Amber (`--cast-amber`):** Structural chrome, navigation, and permanent labels.
+  - **Cyan (`--cyan` / `--cast-cyan`):** Live state, active connections, and healing.
+  - **Red (`--red`):** Damage, critical states, and active conditions.
+- **Localization:** Strictly Spanish (Flagship standard: "VIT", "CA", "FUE", etc.).
+
+### Design Principles
+1. **Glanceability First:** High contrast between data (Data Fonts) and chrome (UI Fonts) to ensure readability during live streams.
+2. **Rhythmic Density:** Use standardized spacing (`gap: var(--space-3)`) to group related TTRPG data without causing boxy visual noise.
+3. **Immersive Utility:** Functional controls (Stage) must feel like part of the "Digital Grimoire" universe, avoiding generic AI-generated "SaaS" fingerprints.
+4. **Adaptive Context:** The interface must transition from high-speed desktop operation (Stage) to thumb-friendly mobile reference (Cast) seamlessly.

@@ -3,16 +3,16 @@ title: Data Flow
 type: architecture
 source_files:
   - server.ts
-  - src/server/router.ts
-  - src/server/pb.ts
-  - src/server/data/characters.ts
-  - src/server/data/rolls.ts
-  - src/server/handlers/characters.ts
-  - src/server/handlers/rolls.ts
-  - src/server/handlers/misc.ts
-  - src/server/handlers/overlay.ts
-  - src/server/socket/index.ts
-  - src/server/socket/rooms.ts
+  - backend/router.ts
+  - backend/pb.ts
+  - backend/data/characters.ts
+  - backend/data/rolls.ts
+  - backend/handlers/characters.ts
+  - backend/handlers/rolls.ts
+  - backend/handlers/misc.ts
+  - backend/handlers/overlay.ts
+  - backend/socket/index.ts
+  - backend/socket/rooms.ts
   - control-panel/src/lib/services/pocketbase.ts
   - control-panel/src/lib/services/socket.js
   - control-panel/src/lib/services/socket.svelte.ts
@@ -64,8 +64,8 @@ Bun server (:3000)
 Important current boundary:
 
 - **Clients do not currently send mutation events over Socket.io.**
-- `src/server/socket/events/*.ts` are Phase 2 stubs only.
-- Real writes happen via **HTTP handlers** in `src/server/handlers/`.
+- `backend/socket/events/*.ts` are Phase 2 stubs only.
+- Real writes happen via **HTTP handlers** in `backend/handlers/`.
 
 ---
 
@@ -139,7 +139,7 @@ SvelteKit SSR is already running on the server side, so it can talk to PocketBas
 
 That means:
 
-- this path does **not** go through `src/server/router.ts`
+- this path does **not** go through `backend/router.ts`
 - this path does **not** emit Socket.io
 - this path is for **initial/stable render**, not live orchestration
 
@@ -161,7 +161,7 @@ Every live client starts with a socket connection snapshot.
 Server entry:
 
 - [server.ts](../server.ts)
-- [src/server/socket/index.ts](../src/server/socket/index.ts)
+- [backend/socket/index.ts](../backend/socket/index.ts)
 
 Flow:
 
@@ -169,17 +169,17 @@ Flow:
 server.ts
   ↓
 connectToPocketBase()
-  src/server/pb.ts
+  backend/pb.ts
   ↓
 initSocket(io)
-  src/server/socket/index.ts
+  backend/socket/index.ts
 
 On each new socket connection:
   ↓
 ensureAuth()
   ↓
 characterModule.getAll(pb)
-  src/server/data/characters.ts
+  backend/data/characters.ts
   ↓
 socket.emit('initialData', {
   characters,
@@ -191,7 +191,7 @@ socket.emit('initialData', {
 
 ### What `initialData` contains today
 
-Current shape from `src/server/socket/index.ts`:
+Current shape from `backend/socket/index.ts`:
 
 ```ts
 {
@@ -250,10 +250,10 @@ Server flow:
 ```text
 PUT /api/characters/:id/hp
   ↓
-src/server/handlers/characters.ts:updateHp
+backend/handlers/characters.ts:updateHp
   ↓
 characterModule.updateHp(pb, charId, hp_current)
-  src/server/data/characters.ts
+  backend/data/characters.ts
   ↓
 findById(pb, id)
   ↓
@@ -262,7 +262,7 @@ clamp hp_current between 0 and hp_max
 pb.collection('characters').update(id, { hp_current: clamped })
   ↓
 broadcast('hp_updated', { character, hp_current })
-  src/server/socket/rooms.ts
+  backend/socket/rooms.ts
   ↓
 io.emit('hp_updated', payload)
 ```
@@ -328,7 +328,7 @@ handlers/rolls.ts:logRoll
 characterModule.getCharacterName(pb, charId)
   ↓
 rollsModule.logRoll(pb, payload)
-  src/server/data/rolls.ts
+  backend/data/rolls.ts
   ↓
 PocketBase create in rolls collection
   ↓
@@ -341,12 +341,12 @@ Not every broadcast is backed by PocketBase writes.
 
 These handlers mostly emit runtime events only:
 
-- `src/server/handlers/overlay.ts`
+- `backend/handlers/overlay.ts`
   - `announce`
   - `level_up`
   - `player_down`
   - `lower_third`
-- `src/server/handlers/misc.ts`
+- `backend/handlers/misc.ts`
   - `sync_start`
   - `scene_changed`
   - `character_focused`
@@ -360,7 +360,7 @@ For these events, the server is the authority and PocketBase may not be involved
 
 All server fan-out goes through:
 
-- [src/server/socket/rooms.ts](../src/server/socket/rooms.ts)
+- [backend/socket/rooms.ts](../backend/socket/rooms.ts)
 
 Current behavior:
 
@@ -456,7 +456,7 @@ Treat `socket.svelte.ts` as infrastructure in progress, not the exact source of 
 
 File:
 
-- [src/server/pb.ts](../src/server/pb.ts)
+- [backend/pb.ts](../backend/pb.ts)
 
 Key behaviors:
 
@@ -470,8 +470,8 @@ That last setting is important because concurrent server requests and socket hyd
 
 Files:
 
-- `src/server/data/characters.ts`
-- `src/server/data/rolls.ts`
+- `backend/data/characters.ts`
+- `backend/data/rolls.ts`
 
 These modules are intentionally thin but still own important rules:
 
@@ -490,7 +490,7 @@ Data modules should own persistence behavior and write rules.
 
 ### No incoming socket mutations yet
 
-Files in `src/server/socket/events/` are stubs.
+Files in `backend/socket/events/` are stubs.
 
 So although the project uses Socket.io heavily, it is currently being used for:
 
@@ -538,10 +538,10 @@ If data looks wrong, check the system in this order:
 
 1. **PocketBase record wrong**
    - inspect `characters` / `rolls` collections
-   - inspect `src/server/data/*.ts`
+   - inspect `backend/data/*.ts`
 
 2. **REST mutation succeeds but clients do not update**
-   - inspect handler in `src/server/handlers/*.ts`
+   - inspect handler in `backend/handlers/*.ts`
    - confirm it calls `broadcast(...)`
 
 3. **Broadcast emitted but one surface stays stale**
@@ -551,8 +551,8 @@ If data looks wrong, check the system in this order:
      - route/component-local listener
 
 4. **Reconnect gives empty state**
-   - inspect `src/server/socket/index.ts`
-   - inspect `ensureAuth()` in `src/server/pb.ts`
+   - inspect `backend/socket/index.ts`
+   - inspect `ensureAuth()` in `backend/pb.ts`
 
 5. **Types look correct but runtime events do not match**
    - check `docs/SOCKET-EVENTS.md`
@@ -566,6 +566,6 @@ If data looks wrong, check the system in this order:
 - [docs/SOCKET-EVENTS.md](./SOCKET-EVENTS.md)
 - [docs/SERVER-VS-FRONTEND.md](./SERVER-VS-FRONTEND.md)
 - [server.ts](../server.ts)
-- [src/server/socket/rooms.ts](../src/server/socket/rooms.ts)
+- [backend/socket/rooms.ts](../backend/socket/rooms.ts)
 - [control-panel/src/lib/services/pocketbase.ts](../control-panel/src/lib/services/pocketbase.ts)
 - [control-panel/src/lib/services/socket.js](../control-panel/src/lib/services/socket.js)

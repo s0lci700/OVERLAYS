@@ -30,7 +30,7 @@ TASK-2.4 (stage.svelte.ts store) ──┬──▶ TASK-2.1 (Live Characters ro
 TASK-2.5 (stageQueue store) ────────▶ TASK-2.3 (Queue route)
 ```
 
-**Current blocker for TASK-2.1:** Server needs `socket.on` relay handlers for `hpUpdated`, `conditionAdded`, `conditionRemoved`, `resourceUpdated` (~10 lines each in `src/server/socket/`).
+**Current blocker for TASK-2.1:** Server needs `socket.on` relay handlers for `hpUpdated`, `conditionAdded`, `conditionRemoved`, `resourceUpdated` (~10 lines each in `backend/socket/`).
 
 ---
 

@@ -22,7 +22,7 @@ You receive a design spec — either from the ui-designer agent or directly from
 
 Before writing any code, read these files in order:
 
-1. **`docs/STYLE-GUIDE-AGENT.md`** — canonical rules (never skip this)
+1. **`docs/DESIGN-SYSTEM.md`** — canonical rules (never skip this)
 2. For **new components**: **`.claude/skills/new-component/SKILL.md`** — exact scaffold pattern to follow
 3. For **existing components**: the target file(s) — read before touching anything
 
