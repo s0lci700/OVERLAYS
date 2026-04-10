@@ -1,8 +1,8 @@
 ---
 title: Environment & Networking
 type: environment
-source_files: [.env, control-panel/.env, scripts/setup-ip.js]
-last_updated: 2026-04-04
+source_files: [.env, control-panel/.env, scripts/setup/setup-ip.js]
+last_updated: 2026-04-10
 ---
 
 # Environment & Networking
@@ -59,7 +59,7 @@ http://192.168.1.83:5173/persistent/conditions?server=http://192.168.1.83:3000
 ## Railway deployment
 
 The server auto-seeds PocketBase on first boot. After a successful PocketBase
-authentication, `server.js` calls `seedIfEmpty()` which checks whether any
+authentication, `server.ts` calls `seedIfEmpty()` which checks whether any
 characters exist and, if not, creates them from `data/template-characters.json`.
 
 This means **no separate seed step is required** in the Railway start command.

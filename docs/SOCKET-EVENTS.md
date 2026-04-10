@@ -2,7 +2,7 @@
 title: Socket.io Event Reference
 type: reference
 source_files: [backend/handlers/, backend/socket/, control-panel/src/lib/contracts/events.ts]
-last_updated: 2026-04-03
+last_updated: 2026-04-10
 ---
 
 # Socket.io Event Reference
@@ -45,7 +45,7 @@ Fired when any client connects. Server sends `initialData` in response.
 
 ## Character Events
 
-### `hp_updated`
+### `hpUpdated`
 
 **Direction:** Server → all clients
 **When:** `PUT /api/characters/:id/hp` succeeds
@@ -65,7 +65,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | `derived/overviewStore.js` | Logs to activity history |
 | `components/overlays/OverlayHP.svelte` | Reactive HP bar + condition-aware state update |
 
-### `character_created`
+### `characterCreated`
 
 **Direction:** Server → all clients
 **When:** `POST /api/characters` succeeds
@@ -82,7 +82,7 @@ Fired when any client connects. Server sends `initialData` in response.
 |---|---|
 | `services/socket.js` | Appends to `characters` store |
 
-### `character_updated`
+### `characterUpdated`
 
 **Direction:** Server → all clients
 **When:** `PUT /api/characters/:id/photo` or `PUT /api/characters/:id` succeeds
@@ -103,7 +103,7 @@ Fired when any client connects. Server sends `initialData` in response.
 
 ## Condition Events
 
-### `condition_added`
+### `conditionAdded`
 
 **Direction:** Server → all clients
 **When:** `POST /api/characters/:id/conditions` succeeds
@@ -127,7 +127,7 @@ Fired when any client connects. Server sends `initialData` in response.
 | `services/socket.js` | Appends condition to character in `characters` store |
 | `derived/overviewStore.js` | Logs to activity history |
 
-### `condition_removed`
+### `conditionRemoved`
 
 **Direction:** Server → all clients
 **When:** `DELETE /api/characters/:id/conditions/:condId` succeeds
@@ -150,7 +150,7 @@ Fired when any client connects. Server sends `initialData` in response.
 
 ## Resource Events
 
-### `resource_updated`
+### `resourceUpdated`
 
 **Direction:** Server → all clients
 **When:** `PUT /api/characters/:id/resources/:rid` succeeds

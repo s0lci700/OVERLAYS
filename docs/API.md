@@ -2,7 +2,7 @@
 title: API Reference
 type: api
 source_files: [backend/handlers/, backend/router.ts, control-panel/src/lib/services/]
-last_updated: 2026-04-04
+last_updated: 2026-04-10
 ---
 
 # API Reference
@@ -325,10 +325,10 @@ emit<K extends keyof EventPayloadMap>(event: K, payload): void
 | Event | Store update |
 |---|---|
 | `initialData` | `characters.set(data.characters)` |
-| `character_updated` | replace in `characters` by id |
-| `hp_updated` | replace in `characters` by id |
-| `character_created` | append to `characters` |
-| `character_deleted` | remove from `characters` by charId |
+| `characterUpdated` | replace in `characters` by id |
+| `hpUpdated` | replace in `characters` by id |
+| `characterCreated` | append to `characters` |
+| `characterDeleted` | remove from `characters` by charId |
 | `dice_rolled` | `lastRoll.set(data)` |
 
 ---
@@ -356,6 +356,36 @@ class ServiceError extends Error {
 | 401, 403 | `UNAUTHORIZED` |
 | `TypeError` (fetch) | `NETWORK` |
 | Other | `UNKNOWN` |
+
+---
+
+### `character-form.ts`
+
+`control-panel/src/lib/services/character-form.ts` — Form utilities shared by `CharacterCreationForm` and `CharacterProfileForm`. Payload mirrors flat PocketBase `characters` schema.
+
+```typescript
+PHOTO_OPTIONS: { label: string, value: string }[]
+parseOptionSets(rawOptions): OptionSets
+buildLabelMap(optionSets): Map<string, string>
+buildCharacterPayload(fields: CharacterFormValues): Partial<CharacterRecord>
+getDefaultFormValues(): CharacterFormValues
+getFormValuesFromCharacter(character): CharacterFormValues
+```
+
+`buildCharacterPayload` computes `proficiency_bonus` from level and converts `skills[]` to `Partial<Record<Skill, boolean>>`.
+
+---
+
+### `responsive-image.ts`
+
+`control-panel/src/lib/services/responsive-image.ts` — Responsive portrait helpers for static webp assets.
+
+```typescript
+generateSrcset(photoUrl): string | undefined
+// "/assets/img/barbarian.png" → "/assets/img/barbarian-256.webp 1x, /assets/img/barbarian-512.webp 2x"
+getOptimizedSrc(photoUrl): string | undefined
+// Returns 256px webp variant for static /assets/img/ URLs, original otherwise
+```
 
 ---
 

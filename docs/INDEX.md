@@ -2,7 +2,7 @@
 title: Project Index
 type: reference
 source_files: []
-last_updated: 2026-04-03
+last_updated: 2026-04-10
 ---
 
 # Project Index
@@ -32,8 +32,8 @@ last_updated: 2026-04-03
 | Change design tokens | `design/tokens.json` → `bun run generate:tokens` |
 | Change Stage layout / state | `control-panel/src/lib/derived/stage.svelte.ts` |
 | Add a new overlay route | `control-panel/src/routes/(audience)/` + new overlay component |
-| Change PocketBase schema | `scripts/migrate-collections.ts` |
-| Reset / seed the database | `bun run scripts/seed.js` (skips if records already exist) |
+| Change PocketBase schema | `scripts/build/migrate-collections.ts` |
+| Reset / seed the database | `bun run scripts/setup/seed.js` (skips if records already exist) |
 | Trace a socket event flow | `gitnexus_query({query: "event name"})` |
 
 ## Backend (`/`)
@@ -54,10 +54,11 @@ last_updated: 2026-04-03
 | `backend/socket/events/` | Phase 2 stubs: `character.ts`, `combat.ts`, `session.ts` |
 | `backend/state/encounter.ts` | In-memory encounter state (get/set) |
 | `backend/state/scene.ts` | In-memory scene + focused character state (get/set) |
+| `backend/actions/characters.ts` | `CharacterActions` class — HP mutations, conditions, resources; takes `(pb, broadcast)` in constructor |
 | `backend/data/characters.ts` | PocketBase character CRUD (`getAll`, `findById`, `createCharacter`, `updateHp`, `updatePhoto`, `updateCharacterData`, `addCondition`, `removeCondition`, `removeCharacter`, `updateResource`, `restoreResources`) |
 | `backend/data/rolls.ts` | PocketBase roll log (`getAll`, `logRoll`) |
 | `backend/data/id.ts` | 5-char ID generator (`createShortId`) |
-| `scripts/setup-ip.js` | Detects LAN IP and writes root `.env` + `control-panel/.env` |
+| `scripts/setup/setup-ip.js` | Detects LAN IP and writes root `.env` + `control-panel/.env` |
 
 ## Control panel (`control-panel/src/`)
 
@@ -102,6 +103,8 @@ last_updated: 2026-04-03
 | `broadcast/mock.ts` | `MockBroadcastAdapter` — logs all calls, no real connection; use for dev and Storybook |
 | `broadcast/obs.ts` | OBS WebSocket adapter stub — TASK-5.6 |
 | `broadcast/vmix.ts` | vMix TCP adapter stub — TASK-5.6 |
+| `character-form.ts` | Form payload builder — `buildCharacterPayload`, `getFormValuesFromCharacter`, `PHOTO_OPTIONS`, preset portrait list |
+| `responsive-image.ts` | `generateSrcset`, `getOptimizedSrc` — responsive webp portrait helpers |
 | `socket.js` | Legacy singleton + `characters` / `lastRoll` Svelte stores (stage routes only) |
 | `utils.js` | `cn()` (class merge), `resolvePhotoSrc()` |
 | `router.js` | Route/hash helpers |
@@ -129,7 +132,7 @@ last_updated: 2026-04-03
 | `cast/players/` | `CharacterSheet`, `ResourceTracker` |
 | `overlays/` | `OverlayHP`, `OverlayDice`, `OverlayConditions`, `OverlayTurnOrder`, `OverlayCharacterFocus`, `OverlaySceneTitle`, `OverlayAnnounce`, `OverlayLevelUp`, `OverlayPlayerDown`, `OverlayLowerThird`, `OverlayStats`, `OverlayBreak`, `OverlayRecordingBadge` |
 | `overlays/shared/` | `overlaySocket.svelte.ts` — socket factory for OBS overlay routes |
-| `shared/` | `button`, `badge`, `dialog`, `tooltip`, `condition-pill`, `stat-display`, `stepper`, `read-only-field`, `selection-pill-list`, and others |
+| `shared/` | `button`, `badge`, `dialog`, `tooltip`, `condition-pill`, `stat-display`, `stepper`, `read-only-field`, `selection-pill-list`, `die-spinner` (GSAP MorphSVG loader), `character-radio` (avatar hex-clip radio group), `hold-button`, and others |
 
 ### Derived state (`lib/derived/`)
 

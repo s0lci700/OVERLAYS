@@ -2,7 +2,7 @@
 title: Documentation Index
 type: reference
 source_files: []
-last_updated: 2026-04-04
+last_updated: 2026-04-10
 ---
 
 # Documentation Index
@@ -16,6 +16,8 @@ last_updated: 2026-04-04
 | **`../CLAUDE.md`** | Project instructions & conventions | Setting up your environment or starting work |
 | **`../PROJECT.md`** | Four-layer system architecture | Understanding system design (Stage/Cast/Audience) |
 | **`ARCHITECTURE.md`** | Technical data flows & API routes | Building new features or debugging |
+| **`DATA-FLOW.md`** | Full PocketBase → server → client flow, SSR vs live paths | Deep debugging or onboarding |
+| **`backend-cheatsheet.html`** | Interactive backend module reference | Quick lookup of backend symbols |
 | **`data-flow-interactive.html`** | Interactive visual explorer for PocketBase → server → socket → client paths | You want a fast visual walkthrough instead of only prose |
 | **`SERVER-VS-FRONTEND.md`** | Layer boundary reference — what runs where, who owns what | Debugging SSR vs client confusion |
 | **`API.md`** | REST endpoints + frontend services reference | Calling the API or using a service module |

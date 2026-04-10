@@ -2,7 +2,7 @@
 title: UI Components Reference
 type: reference
 source_files: [control-panel/src/lib/components/shared/, control-panel/src/app.css, design/tokens.json]
-last_updated: 2026-04-04
+last_updated: 2026-04-10
 ---
 
 # UI Components Reference
@@ -87,6 +87,33 @@ Add `interactive` prop to get a × close button.
 | `cell` | Label above value | `DashboardCard` ability score cells |
 
 ---
+
+---
+
+### `die-spinner/DieSpinner.svelte`
+**Styled via:** inline SVG — no CSS file. Uses GSAP MorphSVGPlugin.
+Looping die-shape morphing animation: d4 → d6 → d8 → d10 → d12 → d20 → d4.
+
+| Prop | Type | Default | Purpose |
+|---|---|---|---|
+| `size` | `number` | `32` | SVG dimensions (px) |
+| `color` | `string` | `currentColor` | Stroke color |
+| `fillColor` | `string` | `transparent` | Fill color |
+| `speed` | `number` | `0.55` | Seconds per morph step |
+| `strokeWidth` | `number` | `16` | SVG stroke-width (viewBox units) |
+
+Use as a loading indicator in forms and async actions.
+
+---
+
+### `character-radio/CharacterRadio.svelte`
+**Styled via:** `character-radio.css`
+Visual radio group for selecting one character from the active roster. Each option shows a hex-clipped avatar and character name.
+
+| Prop | Type | Purpose |
+|---|---|---|
+| `characters` | `CharacterRecord[]` | Full character list |
+| `value` | `string` (bindable) | Selected character ID |
 
 ### `stepper/stepper.svelte`
 **Styled via:** `tailwind-variants` (`tv()`) — no CSS file.

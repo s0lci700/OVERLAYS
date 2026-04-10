@@ -75,7 +75,7 @@ OBS overlay components. No user interaction — pure reactive output.
 
 ```
 Stage (operator action)
-  → REST PUT/POST to server.js
+  → REST PUT/POST to server.ts
   → PocketBase write
   → Socket.io broadcast to ALL clients
        ├── Cast interfaces update their read views
