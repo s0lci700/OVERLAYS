@@ -1,0 +1,431 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-04-24T21:34:00Z",
+	"title": "Design System: TableRelay — Dados & Risas",
+	"extensions": {
+		"colorMeta": {
+			"canvas": {
+				"role": "neutral",
+				"displayName": "Canvas Black",
+				"canonical": "#000000",
+				"tonalRamp": [
+					"#000000",
+					"#050505",
+					"#0a0a0a",
+					"#111111",
+					"#1a1a1a",
+					"#262626",
+					"#333333",
+					"#4d4d4d"
+				]
+			},
+			"card-surface": {
+				"role": "neutral",
+				"displayName": "Card Surface",
+				"canonical": "#0d0d0d",
+				"tonalRamp": [
+					"#0d0d0d",
+					"#111111",
+					"#171717",
+					"#1f1f1f",
+					"#2a2a2a",
+					"#383838",
+					"#4d4d4d",
+					"#666666"
+				]
+			},
+			"elevated-surface": {
+				"role": "neutral",
+				"displayName": "Elevated Surface",
+				"canonical": "#1a1a1a",
+				"tonalRamp": [
+					"#1a1a1a",
+					"#222222",
+					"#2c2c2c",
+					"#383838",
+					"#444444",
+					"#565656",
+					"#707070",
+					"#8a8a8a"
+				]
+			},
+			"primary-text": {
+				"role": "neutral",
+				"displayName": "Primary Text",
+				"canonical": "#ffffff",
+				"tonalRamp": [
+					"#555555",
+					"#666666",
+					"#888888",
+					"#aaaaaa",
+					"#cccccc",
+					"#e0e0e0",
+					"#f0f0f0",
+					"#ffffff"
+				]
+			},
+			"muted-text": {
+				"role": "neutral",
+				"displayName": "Muted Text",
+				"canonical": "#888888",
+				"tonalRamp": [
+					"#222222",
+					"#333333",
+					"#444444",
+					"#555555",
+					"#666666",
+					"#888888",
+					"#aaaaaa",
+					"#cccccc"
+				]
+			},
+			"border-subtle": {
+				"role": "neutral",
+				"displayName": "Border Subtle",
+				"canonical": "#333333",
+				"tonalRamp": [
+					"#0a0a0a",
+					"#141414",
+					"#1f1f1f",
+					"#2a2a2a",
+					"#333333",
+					"#444444",
+					"#5a5a5a",
+					"#707070"
+				]
+			},
+			"amber-chrome": {
+				"role": "primary",
+				"displayName": "Amber Chrome",
+				"canonical": "#c8944a",
+				"tonalRamp": [
+					"#1a0c00",
+					"#2e1800",
+					"#4a2d08",
+					"#6b4416",
+					"#926028",
+					"#c8944a",
+					"#ddb87a",
+					"#f0d9b0"
+				]
+			},
+			"arcane-signal": {
+				"role": "secondary",
+				"displayName": "Arcane Signal",
+				"canonical": "#00d4e8",
+				"tonalRamp": [
+					"#001a1d",
+					"#002d32",
+					"#004a54",
+					"#006978",
+					"#009cb0",
+					"#00c8da",
+					"#00d4e8",
+					"#aaf4fa"
+				]
+			},
+			"critical-scarlet": {
+				"role": "tertiary",
+				"displayName": "Critical Scarlet",
+				"canonical": "#ff4d6a",
+				"tonalRamp": [
+					"#1a0008",
+					"#350010",
+					"#5a0020",
+					"#8a0035",
+					"#c00050",
+					"#ff4d6a",
+					"#ff88a0",
+					"#ffc4d0"
+				]
+			},
+			"fate-purple": {
+				"role": "tertiary",
+				"displayName": "Fate Purple",
+				"canonical": "#500df5",
+				"tonalRamp": [
+					"#060010",
+					"#100025",
+					"#200050",
+					"#350090",
+					"#4400c0",
+					"#500df5",
+					"#7855ff",
+					"#b0a0ff"
+				]
+			},
+			"hp-healthy": {
+				"role": "semantic",
+				"displayName": "HP Healthy",
+				"canonical": "#22c55e",
+				"tonalRamp": [
+					"#052e14",
+					"#0a5c28",
+					"#0e7a35",
+					"#12a048",
+					"#16c45a",
+					"#22c55e",
+					"#5dd68a",
+					"#a8ecbf"
+				]
+			},
+			"hp-injured": {
+				"role": "semantic",
+				"displayName": "HP Injured",
+				"canonical": "#f59e0b",
+				"tonalRamp": [
+					"#1a0f00",
+					"#3a2200",
+					"#5a3a00",
+					"#8a5a00",
+					"#b47800",
+					"#f59e0b",
+					"#f8bc55",
+					"#fde5a8"
+				]
+			},
+			"hp-critical": {
+				"role": "semantic",
+				"displayName": "HP Critical",
+				"canonical": "#ff4d6a",
+				"tonalRamp": [
+					"#1a0008",
+					"#350010",
+					"#5a0020",
+					"#8a0035",
+					"#c00050",
+					"#ff4d6a",
+					"#ff88a0",
+					"#ffc4d0"
+				]
+			}
+		},
+		"typographyMeta": {
+			"display": {
+				"displayName": "Display",
+				"purpose": "Section labels, tab headers, operator navigation. Always uppercase."
+			},
+			"title": {
+				"displayName": "Title",
+				"purpose": "Character names and page titles only. The sole serif — signals fiction."
+			},
+			"label": {
+				"displayName": "Label",
+				"purpose": "Data field labels (VIT, CA, FUE), condition names, form field names."
+			},
+			"body": { "displayName": "Body", "purpose": "Form copy, help text, descriptions. Max 65ch." },
+			"mono": {
+				"displayName": "Data/Mono",
+				"purpose": "All numeric values: HP, AC, stat scores, dice results. Enforces column alignment."
+			}
+		},
+		"shadows": [
+			{
+				"name": "card-default",
+				"value": "4px 4px 0px rgba(255, 255, 255, 0.05)",
+				"purpose": "Present at rest on all card surfaces. Creates tangibility without lifting."
+			},
+			{
+				"name": "amber-accent",
+				"value": "3px 3px 0px rgba(200, 148, 74, 0.4)",
+				"purpose": "Hover state on primary amber buttons."
+			},
+			{
+				"name": "red-accent",
+				"value": "3px 3px 0px #ff4d6a",
+				"purpose": "Destructive buttons and critical-state interactive elements."
+			},
+			{
+				"name": "cyan-accent",
+				"value": "3px 3px 0px #00d4e8",
+				"purpose": "Active/live-state elements requiring extra emphasis beyond the glow."
+			},
+			{
+				"name": "purple-accent",
+				"value": "4px 4px 0px #500df5",
+				"purpose": "Dice interface elements and d20 highlights only."
+			},
+			{
+				"name": "cyan-glow",
+				"value": "0 0 8px rgba(0, 212, 232, 0.5)",
+				"purpose": "Live/active state indicator. Applied alongside arcane-signal color."
+			},
+			{
+				"name": "amber-focus",
+				"value": "0 0 0 2px rgba(200, 148, 74, 0.25)",
+				"purpose": "Focus ring for all interactive controls."
+			}
+		],
+		"motion": [
+			{
+				"name": "fast",
+				"value": "150ms ease",
+				"purpose": "Micro-interactions: button hover, pill activation, icon swap."
+			},
+			{
+				"name": "normal",
+				"value": "250ms ease",
+				"purpose": "Standard state transitions: focus rings, background shifts."
+			},
+			{
+				"name": "spring",
+				"value": "280ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+				"purpose": "Entrance animations only: card appears, modal opens. Slight overshoot is intentional for entrances — not used on hover/click."
+			},
+			{
+				"name": "hp-width",
+				"value": "400ms cubic-bezier(0.4, 0, 0.2, 1)",
+				"purpose": "HP bar width transition. Smooth deceleration for damage/healing updates."
+			}
+		],
+		"breakpoints": [
+			{
+				"name": "mobile",
+				"value": "480px",
+				"purpose": "Cast/Players primary target — phone-width character sheet."
+			},
+			{
+				"name": "tablet",
+				"value": "768px",
+				"purpose": "Cast/DM — tablet in landscape at the table."
+			},
+			{
+				"name": "desktop",
+				"value": "1024px",
+				"purpose": "Stage — operator desktop, multi-panel control surface."
+			}
+		]
+	},
+	"components": [
+		{
+			"name": "Primary Button",
+			"kind": "button",
+			"refersTo": "button-primary",
+			"description": "Write-authority action — form submission, confirming a state change. Amber fill signals operator intent.",
+			"html": "<button class=\"ds-btn-primary\">CONFIRMAR</button>",
+			"css": ".ds-btn-primary { background: #c8944a; color: #000; padding: 8px 16px; border: none; border-radius: 4px; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 150ms ease, box-shadow 150ms ease; } .ds-btn-primary:hover { background: #d4a05c; box-shadow: 3px 3px 0px rgba(200, 148, 74, 0.4); } .ds-btn-primary:focus-visible { outline: 2px solid #c8944a; outline-offset: 2px; } .ds-btn-primary:active { background: #b07e3a; }"
+		},
+		{
+			"name": "Ghost Button",
+			"kind": "button",
+			"refersTo": "button-ghost",
+			"description": "Secondary action within a surface — cancel, navigate back, dismiss. Disappears into the canvas until needed.",
+			"html": "<button class=\"ds-btn-ghost\">CANCELAR</button>",
+			"css": ".ds-btn-ghost { background: transparent; color: #fff; padding: 8px 12px; border: none; border-radius: 4px; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 150ms ease; } .ds-btn-ghost:hover { background: rgba(255, 255, 255, 0.05); } .ds-btn-ghost:focus-visible { outline: 2px solid #c8944a; outline-offset: 2px; }"
+		},
+		{
+			"name": "Destructive Button",
+			"kind": "button",
+			"refersTo": "button-destructive",
+			"description": "Irreversible operator action — remove character, reset HP, delete. Scarlet signals danger without consuming space.",
+			"html": "<button class=\"ds-btn-destructive\">ELIMINAR</button>",
+			"css": ".ds-btn-destructive { background: transparent; color: #ff4d6a; padding: 8px 16px; border: 1px solid rgba(255, 77, 106, 0.4); border-radius: 4px; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 150ms ease, box-shadow 150ms ease; } .ds-btn-destructive:hover { background: rgba(255, 77, 106, 0.08); box-shadow: 3px 3px 0px #ff4d6a; } .ds-btn-destructive:focus-visible { outline: 2px solid #ff4d6a; outline-offset: 2px; }"
+		},
+		{
+			"name": "Card Base",
+			"kind": "card",
+			"refersTo": "card-base",
+			"description": "Base container for character data, session info, and control panels. Barely lifted from canvas.",
+			"html": "<div class=\"ds-card\"><span class=\"ds-card-label\">PERSONAJE</span><p class=\"ds-card-body\">Valindra Shadowmantle — Maga de Guerra</p></div>",
+			"css": ".ds-card { background: #0d0d0d; color: #fff; border-radius: 8px; padding: 16px; box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.05); } .ds-card-label { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #c8944a; display: block; margin-bottom: 8px; } .ds-card-body { font-family: system-ui, sans-serif; font-size: 14px; line-height: 1.5; color: #fff; margin: 0; }"
+		},
+		{
+			"name": "Input Field",
+			"kind": "input",
+			"refersTo": "input-field",
+			"description": "Form input for character creation and management. Amber focus ring signals operator write-authority.",
+			"html": "<div class=\"ds-input-group\"><label class=\"ds-input-label\" for=\"ds-name\">NOMBRE</label><input class=\"ds-input\" id=\"ds-name\" type=\"text\" placeholder=\"Ingresa nombre...\" /></div>",
+			"css": ".ds-input-group { display: flex; flex-direction: column; gap: 4px; } .ds-input-label { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #c8944a; } .ds-input { background: #1a1a1a; color: #fff; border: 1px solid #333; border-radius: 4px; padding: 8px 12px; font-family: system-ui, sans-serif; font-size: 14px; outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input::placeholder { color: #888; } .ds-input:focus { border-color: #c8944a; box-shadow: 0 0 0 2px rgba(200, 148, 74, 0.25); }"
+		},
+		{
+			"name": "Condition Pills",
+			"kind": "chip",
+			"refersTo": "condition-pill",
+			"description": "Character condition indicators. Inactive = muted. Active = semantic color (scarlet for threats, cyan for buffs).",
+			"html": "<div class=\"ds-pills\"><span class=\"ds-pill\">Paralizado</span><span class=\"ds-pill ds-pill--active\">Envenenado</span><span class=\"ds-pill ds-pill--buff\">Bendecido</span></div>",
+			"css": ".ds-pills { display: flex; flex-wrap: wrap; gap: 4px; } .ds-pill { background: #1a1a1a; color: #888; border-radius: 999px; padding: 4px 8px; font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; transition: background 150ms ease, color 150ms ease; } .ds-pill--active { background: #ff4d6a; color: #fff; } .ds-pill--buff { background: rgba(0, 212, 232, 0.15); color: #00d4e8; }"
+		},
+		{
+			"name": "HP Bar",
+			"kind": "custom",
+			"refersTo": "card-base",
+			"description": "Animated HP fill bar. Three semantic gradient states. Pulses at critical. Width transitions smoothly on damage/heal.",
+			"html": "<div class=\"ds-hp-wrap\"><div class=\"ds-hp-track\"><div class=\"ds-hp-fill ds-hp--healthy\" style=\"width: 72%\"></div></div><span class=\"ds-hp-value\">54 / 75</span></div>",
+			"css": ".ds-hp-wrap { display: flex; align-items: center; gap: 8px; } .ds-hp-track { flex: 1; background: #333; border-radius: 999px; height: 8px; overflow: hidden; } .ds-hp-fill { height: 100%; border-radius: 999px; transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1), background 250ms ease; } .ds-hp--healthy { background: linear-gradient(90deg, #15803d, #22c55e); } .ds-hp--injured { background: linear-gradient(90deg, #b45309, #f59e0b); } .ds-hp--critical { background: linear-gradient(90deg, #991b1b, #ff4d6a); animation: ds-hp-pulse 1.5s ease-in-out infinite; } .ds-hp-value { font-family: 'JetBrains Mono', 'Courier New', monospace; font-weight: 700; font-size: 14px; color: #fff; white-space: nowrap; } @keyframes ds-hp-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }"
+		},
+		{
+			"name": "Hex-Clip Portrait",
+			"kind": "custom",
+			"refersTo": "card-base",
+			"description": "Hexagonal character portrait. The signature geometry of the system — never circular, never rectangular.",
+			"html": "<div class=\"ds-hex-portrait ds-hex-portrait--md\"><img class=\"ds-hex-img\" src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' fill='%231a1a1a'/%3E%3Ctext x='36' y='44' text-anchor='middle' font-size='28' fill='%23c8944a'%3E⚔%3C/text%3E%3C/svg%3E\" alt=\"Character portrait\" /></div>",
+			"css": ".ds-hex-portrait { display: inline-flex; align-items: center; justify-content: center; } .ds-hex-portrait--sm { width: 48px; height: 48px; } .ds-hex-portrait--md { width: 72px; height: 72px; } .ds-hex-portrait--lg { width: 120px; height: 120px; } .ds-hex-img { width: 100%; height: 100%; object-fit: cover; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }"
+		}
+	],
+	"narrative": {
+		"northStar": "The Arcane Cockpit",
+		"overview": "TableRelay is a production control system that never forgets it serves a story. The interface is built like mission control — dense, legible, immediately responsive — wrapped in the grammar of an arcane manuscript. Amber chrome reads like aged brass fittings on a ship's instrument panel. Absolute black is not void but depth: every surface is a lens into the game beneath. The hex-clip geometry is not decorative; it marks the boundary between operator space and character space, every portrait a contained sigil.\n\nThe system has three registers in one visual language. Stage (operators) is a cockpit: maximum information density, high-contrast labels, actions that answer without warmup. Cast (players) is a companion: the same data layer, quieter, mobile-first, readable at a glance from a tablet mid-game. Audience (OBS overlays) is pure signal: no chrome, only meaningful data in streaming-optimized layouts, composited over absolute black.\n\nThis system explicitly rejects the fantasy-software aesthetic of D&D Beyond and Roll20. It equally rejects the generic SaaS aesthetic of Linear or Notion clones. And it rejects neon-on-black streamer UI — the RGB chaos where everything glows at once and nothing means anything. In this system, glow is a semantic signal, not a decorative style.",
+		"keyCharacteristics": [
+			"Absolute-black canvas (#000000) — OBS transparency-ready on all overlay routes",
+			"Amber chrome as structural skeleton, not highlight — present everywhere, never signaling",
+			"Pixel-art offset shadows (3–4px, zero blur radius) — tactile without being soft",
+			"Hex-clip geometry for all portrait elements — never circular, never rectangular",
+			"Cyan glows only on live/active/healing state; red only on damage or critical threat",
+			"Spanish localization throughout: VIT, CA, FUE, DES, CON, INT, SAB, CAR"
+		],
+		"rules": [
+			{
+				"name": "The Earned Glow Rule",
+				"body": "Nothing glows at rest. Cyan glow signals live/active state. Red signals damage or critical threat. Amber is structural — never illuminated. If a glow appears where it does not represent live connection or active damage, it is wrong.",
+				"section": "colors"
+			},
+			{
+				"name": "The Three-Signal Rule",
+				"body": "Amber = structure (always present). Cyan = live (when active). Red = threat (when occurring). Purple = dice (when rolling). These four colors carry the entire semantic load. Do not introduce a fifth.",
+				"section": "colors"
+			},
+			{
+				"name": "The Mono-First Data Rule",
+				"body": "Every numeric value rendered on screen — HP, AC, spell slots, initiative, dice results — uses JetBrains Mono 700. No exceptions. A number in Space Grotesk or system-ui is a mistake.",
+				"section": "typography"
+			},
+			{
+				"name": "The Serif Signals Fiction Rule",
+				"body": "Noto Serif appears in exactly one context: naming characters and page titles. A serif in a button, label, or data field is a design error.",
+				"section": "typography"
+			},
+			{
+				"name": "The Pixel-Art Shadow Rule",
+				"body": "Zero blur on all accent shadows. Hard edge, fixed offset, semantic color. box-shadow: 0 4px 16px rgba(...) is not a TableRelay shadow — it signals a different, softer design language.",
+				"section": "elevation"
+			},
+			{
+				"name": "The Flat-By-Default Rule",
+				"body": "Surfaces are flat at rest. Shadows appear only as a response to interaction state or semantic role. Never apply a shadow to make something pop without a semantic reason.",
+				"section": "elevation"
+			}
+		],
+		"dos": [
+			"Do use #000000 as the global canvas — OBS-transparent and the design depends on true black.",
+			"Do render all numeric values in JetBrains Mono 700. Columns must align naturally.",
+			"Do use Amber Chrome (#c8944a) as structural chrome on every screen — navigation, labels, focus rings.",
+			"Do apply Arcane Signal (#00d4e8) only to live/active/healing state. If nothing is live, cyan is absent.",
+			"Do use hex-clip geometry for all portrait images: clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%).",
+			"Do use pixel-art offset shadows (0 blur, 3–4px offset, semantic color) as the only shadow form.",
+			"Do label all TTRPG fields in Spanish: VIT, CA, FUE, DES, CON, INT, SAB, CAR.",
+			"Do respect the HP semantic palette: green = healthy, amber = injured, red = critical."
+		],
+		"donts": [
+			"Don't use generic SaaS aesthetics — neutral-gray surfaces, rounded-everything, Geist font, whitespace overload.",
+			"Don't reference D&D Beyond or Roll20 patterns — no parchment imagery, no icon overload, no digital dungeon chrome.",
+			"Don't apply neon-on-black streamer UI patterns — no RGB chaos, no glow-everywhere gradients.",
+			"Don't use AI slop dashboard patterns — hero metrics, gradient cards, sparklines-as-decoration, glassmorphism.",
+			"Don't use border-left or border-right greater than 1px as a colored accent stripe.",
+			"Don't use gradient text (background-clip: text with a gradient).",
+			"Don't use Gaussian or soft-blur shadows.",
+			"Don't apply glow without a semantic reason — decorative glows negate the signal system.",
+			"Don't use circular portrait crops (border-radius: 50%) — every portrait is hex-clipped.",
+			"Don't use English for TTRPG field labels on Cast or Audience surfaces."
+		]
+	}
+}
