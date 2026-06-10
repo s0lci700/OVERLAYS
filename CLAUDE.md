@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Project:** *Dados & Risas* — D&D comedy show production system. The software product is called **TableRelay** (repo rename pending from `OVERLAYS`).
+> **Project:** _Dados & Risas_ — D&D comedy show production system. The software product is called **TableRelay** (repo rename pending from `OVERLAYS`).
 
 ---
 
@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **OVERLAYS** (3148 symbols, 5753 relationships, 208 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **OVERLAYS** (3063 symbols, 5662 relationships, 200 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -141,18 +141,18 @@ dados-risas-prep/  ← separate repo (Prep App)
 
 **Two applications:**
 
-- **Runtime System** (this repo) — used *during* recording sessions
+- **Runtime System** (this repo) — used _during_ recording sessions
 - **Prep System** (`dados-risas-prep`, separate repo) — session authoring, exports `session.json`
 
 **Five product surfaces** (see `control-panel/CLAUDE.md` for routes):
 
-| Surface | Route group | Users | Authority |
-| --- | --- | --- | --- |
-| **Stage** | `(stage)` | Operators | Primary write: setup, live state, reveal queue |
-| **Cast/DM** | `(cast)/dm` | DM | Tablet companion: combat, NPC reference |
-| **Cast/Players** | `(cast)/players/[id]` | Players | Character sheet: read + safe fields |
-| **Commons** | `(commons)` | Whole room | Passive wallboard mirror, no controls |
-| **Audience** | `(audience)` | OBS/vMix | Payload-driven overlays, listen-only |
+| Surface          | Route group           | Users      | Authority                                      |
+| ---------------- | --------------------- | ---------- | ---------------------------------------------- |
+| **Stage**        | `(stage)`             | Operators  | Primary write: setup, live state, reveal queue |
+| **Cast/DM**      | `(cast)/dm`           | DM         | Tablet companion: combat, NPC reference        |
+| **Cast/Players** | `(cast)/players/[id]` | Players    | Character sheet: read + safe fields            |
+| **Commons**      | `(commons)`           | Whole room | Passive wallboard mirror, no controls          |
+| **Audience**     | `(audience)`          | OBS/vMix   | Payload-driven overlays, listen-only           |
 
 State is persisted in PocketBase. Every socket connection receives `initialData` (full character roster + roll history). Overlays and Commons **never send requests** — they only listen to Socket.io broadcasts.
 
@@ -221,7 +221,7 @@ CONTROL_PANEL_ORIGIN=http://localhost:5173
 
 ## Backend Conventions
 
-**Tech stack versions:** This project uses `shadcn-svelte` with `bits-ui`. Before assuming any component API shape (e.g. Listbox, Dialog), verify what's actually installed: `cat control-panel/package.json | grep bits-ui`. Do not assume components or props exist without checking — bits-ui v2 has breaking API changes from v0/v1.
+**Tech stack versions:** This project uses `shadcn-svelte` with `bits-ui`. Before assuming any component API shape (e.g. Listbox, Dialog), verify what's actually installed: `Get-Content control-panel/package.json | Select-String bits-ui`. Do not assume components or props exist without checking — bits-ui v2 has breaking API changes from v0/v1.
 
 **PocketBase data layer:** All functions in `backend/data/characters.ts` and `backend/data/rolls.ts` take `pb` as their first argument and are `async`. `pb.collection().getOne()` **throws** a `ClientResponseError` on 404 — use try/catch, not `if (!result)` guards.
 
@@ -263,6 +263,34 @@ CONTROL_PANEL_ORIGIN=http://localhost:5173
 
 ---
 
+## LLM Wiki
+
+A persistent, queryable knowledge base for this project. Maintained incrementally by Claude sessions.
+
+**Location:** `C:\Users\Sol\Documents\.obsidian\wiki`
+**Activation:** The wiki dir is a registered Claude Code working directory. Its own `CLAUDE.md` defines all workflows.
+
+### Operations
+
+| Phrase                       | What happens                                                                                 |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `ingest sources/filename.md` | Reads a file from `sources/`, creates/updates pages, updates `index.md`, appends to `log.md` |
+| `query: [question]`          | Scans `index.md`, reads relevant pages, answers with `[[wikilink]]` citations                |
+| `lint the wiki`              | Audits broken links, missing index entries, stale pages — outputs structured report          |
+
+### Current coverage (17 pages)
+
+**Existing:** `system-architecture`, `frontend-surfaces`, `data-layer`, `character-actions`, `stage-store`, `socket-client`, `pocketbase-data`, `socket-first-pattern`, `broadcast-model`
+
+**This batch:** `backend-architecture`, `contracts-and-types`, `frontend-services`, `sync-broadcast-reference`, `api-endpoints`, `design-system`, `component-variants`, `backlog-and-roadmap`
+
+### Relationship to `docs/`
+
+`docs/` is **source of truth** — raw reference files, never modified by wiki agents.
+`wiki/pages/` is **synthesized knowledge** — distilled, cross-linked, queryable. When they conflict, trust `docs/` and re-ingest.
+
+---
+
 ## Workflow Rules
 
 **Always re-read files before analyzing.** Do NOT rely on previously cached or in-context file contents — the codebase changes frequently between sessions. When asked to audit, review, or reference a file, read it fresh first.
@@ -284,7 +312,7 @@ After any audit, investigation, or review:
 1. Create a GitHub Issue at: [github.com/s0lci700/OVERLAYS/issues/new](https://github.com/s0lci700/OVERLAYS/issues/new)
 2. Apply labels:
    - Area: `area:frontend` ← Svelte components, CSS, overlays, design tokens
-   - Area: `area:backend` ← server.js, API routes, Socket.io, data modules, PocketBase
+   - Area: `area:backend` ← server.ts, API routes, Socket.io, data modules, PocketBase
    - Priority: `p0` blocking / `p1` this sprint / `p2` next sprint / `p3` someday
    - Size: `size:quick` <1hr / `size:small` 1–3hr / `size:medium` 3–8hr / `size:large` 8+hr
 3. Assign to the correct Milestone (Sprint 1, 2, or 3)
@@ -299,27 +327,27 @@ Add directly to [Notion](https://notion.so/319b63b6f5ec81bcbe9aeb2b6815c88c):
 
 ### Routing cheat-sheet
 
-| Type of finding | Where it goes |
-| --- | --- |
-| Svelte component bug | GitHub Issue, `area:frontend` |
-| CSS / overlay visual fix | GitHub Issue, `area:frontend` |
-| API endpoint bug | GitHub Issue, `area:backend` |
-| Socket.io event issue | GitHub Issue, `area:backend` |
-| PocketBase / data layer issue | GitHub Issue, `area:backend` |
-| Contact ESDH / follow up | Notion, Pitch & Outreach |
-| Campaign planning with Lucas | Notion, Session Planning |
+| Type of finding               | Where it goes                 |
+| ----------------------------- | ----------------------------- |
+| Svelte component bug          | GitHub Issue, `area:frontend` |
+| CSS / overlay visual fix      | GitHub Issue, `area:frontend` |
+| API endpoint bug              | GitHub Issue, `area:backend`  |
+| Socket.io event issue         | GitHub Issue, `area:backend`  |
+| PocketBase / data layer issue | GitHub Issue, `area:backend`  |
+| Contact ESDH / follow up      | Notion, Pitch & Outreach      |
+| Campaign planning with Lucas  | Notion, Session Planning      |
 
 ### Label → Notion field mapping
 
-| GitHub Label | Notion Field | Value |
-| --- | --- | --- |
-| `area:frontend` | Area | 🎨 Frontend |
-| `area:backend` | Area | ⚙️ Backend |
-| `p0` | Priority | P0 — Now |
-| `p1` | Priority | P1 — Soon |
-| `p2` | Priority | P2 — Later |
-| `p3` | Priority | P3 — Someday |
-| `size:quick` | Size | Quick |
-| `size:small` | Size | Small |
-| `size:medium` | Size | Medium |
-| `size:large` | Size | Large |
+| GitHub Label    | Notion Field | Value        |
+| --------------- | ------------ | ------------ |
+| `area:frontend` | Area         | 🎨 Frontend  |
+| `area:backend`  | Area         | ⚙️ Backend   |
+| `p0`            | Priority     | P0 — Now     |
+| `p1`            | Priority     | P1 — Soon    |
+| `p2`            | Priority     | P2 — Later   |
+| `p3`            | Priority     | P3 — Someday |
+| `size:quick`    | Size         | Quick        |
+| `size:small`    | Size         | Small        |
+| `size:medium`   | Size         | Medium       |
+| `size:large`    | Size         | Large        |

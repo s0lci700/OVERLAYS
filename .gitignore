@@ -6,6 +6,9 @@ node_modules/
 gitnexus/
 .claude/worktrees/
 
+## Vendored external repos (nested .git)
+tools/impeccable/
+
 ## Playwright CLI output
 .playwright-cli/
 

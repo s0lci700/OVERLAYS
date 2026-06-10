@@ -1,0 +1,51 @@
+{
+	"name": "tablerelay-vscode",
+	"displayName": "TableRelay",
+	"description": "Navigation, linting, and context tooling for the TableRelay / Dados & Risas codebase",
+	"version": "0.2.0",
+	"publisher": "dados-risas",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"workspaceContains:server.ts",
+		"workspaceContains:control-panel/svelte.config.js"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "tablerelay.jumpTo",
+				"title": "TableRelay: Jump to File…"
+			},
+			{
+				"command": "tablerelay.findSocketListeners",
+				"title": "TableRelay: Find Socket Listeners"
+			},
+			{
+				"command": "tablerelay.findSocketEmitters",
+				"title": "TableRelay: Find Socket Emitters"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "tablerelay.jumpTo",
+				"key": "ctrl+shift+t",
+				"mac": "cmd+shift+t",
+				"when": "workbenchState == folder"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.3.0"
+	}
+}

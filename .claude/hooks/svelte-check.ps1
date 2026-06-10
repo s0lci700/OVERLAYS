@@ -1,8 +1,10 @@
 # PostToolUse hook: runs svelte-check on .svelte/.ts edits in control-panel/
-# Called by Claude Code after Write/Edit tool use.
-# Claude Code sets CLAUDE_TOOL_INPUT_FILE_PATH env var for the edited file.
+# Reads file path from stdin JSON (Claude Code hook input format).
 
-$f = $env:CLAUDE_TOOL_INPUT_FILE_PATH
+$raw = [Console]::In.ReadToEnd()
+if (-not $raw) { exit 0 }
+$json = $raw | ConvertFrom-Json
+$f = $json.tool_input.file_path
 
 if (-not $f) { exit 0 }
 if ($f -notmatch 'control-panel') { exit 0 }

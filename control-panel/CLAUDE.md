@@ -75,7 +75,7 @@ lib/
                        OverlayTurnOrder, OverlaySceneTitle, OverlayCharacterFocus
       moments/      ← OverlayLevelUp, OverlayPlayerDown
       show/         ← OverlayLowerThird, OverlayStats, OverlayBreak, OverlayRecordingBadge
-      shared/       ← overlaySocket.svelte.js (singleton for OBS routes only)
+      shared/       ← overlaySocket.svelte.ts (singleton for OBS routes only)
     shared/         ← headless primitives (button, dialog, badge, tooltip, DieSpinner, etc.)
   services/
     errors.ts       ← ServiceError class — standard error shape for all service throws
@@ -86,6 +86,8 @@ lib/
   contracts/        ← TypeScript boundary modules (records.ts, events.ts, stage.ts,
                        cast.ts, overlays.ts, rolls.ts, commons.ts)
   derived/
+    stage.svelte.ts   ← canonical Stage state (characters, HP, conditions, resources)
+    character-live-state.svelte.ts  ← per-character derived live state
     overviewStore.js  ← computed store for the live overview dashboard
   data/
     character-options.template.json  ← classes, species, backgrounds, languages
@@ -109,7 +111,7 @@ Rule: `.ts` = current, `.js` = legacy. Never add logic to `.js` files.
 
 **Socket flow:** Components send REST first; Socket.io broadcast updates shared state. Never mutate `characters` or `lastRoll` directly from component logic.
 
-**Overlay socket:** OBS routes (`(audience)/`) import from `lib/components/overlays/shared/overlaySocket.svelte.js` — **not** from `lib/services/socket.js`.
+**Overlay socket:** OBS routes (`(audience)/`) import from `lib/components/overlays/shared/overlaySocket.svelte.ts` — **not** from `lib/services/socket.js`.
 
 **TypeScript contracts:** Import all domain types from `$lib/contracts`. Do not define ad-hoc inline type shapes.
 
