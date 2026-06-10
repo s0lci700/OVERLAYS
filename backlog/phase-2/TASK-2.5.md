@@ -2,17 +2,17 @@
 id: TASK-2.5
 title: Session package importer / stageQueue store
 phase: 2
-status: Planned
+status: Done
 points: 3
 surface: Stage
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec81f49921e39641f073b5
-last_synced: 2026-04-03
+last_synced: 2026-06-10
 ---
 
 # TASK-2.5 — stageQueue Store + Session Package Importer
 
-**Status:** 📋 Planned · **Points:** 3 · **Surface:** 🎮 Stage
+**Status:** ✅ Done (2026-06-10) · **Points:** 3 · **Surface:** 🎮 Stage
 
 > Import session.json from Prep App. Register locations, NPCs, enemies, story beats. Stage Overview panel shows current session package state. Also: `stageQueue.svelte.ts` store for reveal queue lifecycle.
 

@@ -2,17 +2,17 @@
 id: TASK-2.2
 title: Build Dice Route — physical dice intake
 phase: 2
-status: Planned
+status: Done
 points: 8
 surface: Stage
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec810f89ebf0c4a9a2f1a0
-last_synced: 2026-04-03
+last_synced: 2026-06-10
 ---
 
 # TASK-2.2 — Build Dice/Action Input Route
 
-**Status:** 📋 Planned · **Points:** 8 · **Surface:** 🎮 Stage
+**Status:** ✅ Done (2026-06-10) · **Points:** 8 · **Surface:** 🎮 Stage
 
 > RollPublishCard: operator enters physical dice result, selects die type, tags character, publishes `dice_result_event`. Outcome resolved (success/failure/crit). Feeds DiceResultOverlay payload.
 

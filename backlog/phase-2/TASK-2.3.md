@@ -2,17 +2,17 @@
 id: TASK-2.3
 title: Build Reveal/Content Queue route
 phase: 2
-status: Planned
+status: Done
 points: 8
 surface: Stage
 milestone: Session 0 LAN Test
 notion_url: https://www.notion.so/31eb63b6f5ec815a9221c543f871760b
-last_synced: 2026-04-03
+last_synced: 2026-06-10
 ---
 
 # TASK-2.3 — Build Reveal/Content Queue Route
 
-**Status:** 📋 Planned · **Points:** 8 · **Surface:** 🎮 Stage
+**Status:** ✅ Done (2026-06-10) · **Points:** 8 · **Surface:** 🎮 Stage
 
 > RevealQueueCard queue: arm content blocks (character intro, info block, location update) for overlay display. Arm/clear lifecycle. Distinct from dice publish flow.
 
