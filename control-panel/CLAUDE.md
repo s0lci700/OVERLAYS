@@ -49,7 +49,7 @@ Route groups use `(parens)` — organizational only, not part of URLs.
 
 - `/persistent/hp`, `/persistent/conditions`, `/persistent/turn-order`, `/persistent/focus`
 - `/moments/dice`, `/moments/level-up`, `/moments/player-down`
-- `/scene`, `/announcements`
+- `/scene`, `/announcements`, `/reveal` (stage-queue consumer)
 - `/show/lower-third`, `/show/stats`, `/show/recording-badge`, `/show/break`
 
 > Deprecated routes (`/control/`, `/management/`, `/dashboard/`, `/session/`) are in `src/routes/_deprecated/` — do not restore them.
@@ -99,11 +99,11 @@ lib/
 
 **Current vs Legacy Patterns:**
 
-| Pattern | Current (use this) | Legacy (do not extend) |
-| ------- | ------------------ | ---------------------- |
-| Socket client | `lib/services/socket.ts` | `lib/services/socket.js` |
-| Stage mutations | `lib/derived/stage.svelte.ts` | Direct REST calls in CharacterCard |
-| Overlay socket | `lib/components/overlays/shared/overlaySocket.svelte.ts` | Any direct socket.io import in overlay files |
+| Pattern         | Current (use this)                                       | Legacy (do not extend)                       |
+| --------------- | -------------------------------------------------------- | -------------------------------------------- |
+| Socket client   | `lib/services/socket.ts`                                 | `lib/services/socket.js`                     |
+| Stage mutations | `lib/derived/stage.svelte.ts`                            | Direct REST calls in CharacterCard           |
+| Overlay socket  | `lib/components/overlays/shared/overlaySocket.svelte.ts` | Any direct socket.io import in overlay files |
 
 Rule: `.ts` = current, `.js` = legacy. Never add logic to `.js` files.
 
