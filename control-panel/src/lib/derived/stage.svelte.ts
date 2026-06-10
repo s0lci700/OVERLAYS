@@ -1,4 +1,10 @@
-import type { CharacterRecord, Condition, ResourceSlot, SessionRecord } from '$lib/contracts';
+import type {
+	CharacterRecord,
+	Condition,
+	ResourceSlot,
+	SessionPackage,
+	SessionRecord
+} from '$lib/contracts';
 import {
 	HP_UPDATED,
 	CONDITION_ADDED,
@@ -17,6 +23,9 @@ interface Mutations {
 	timestamp: string;
 }
 
+/** Throwaway timestamp helper — never stored as a reactive Date. */
+const nowIso = (): string => new Date().toISOString();
+
 // ─────────────── STATE ───────────────────────────────────────────────────────────
 
 let stageState = $state({
@@ -26,6 +35,8 @@ let stageState = $state({
 
 	sessionContext: null as SessionRecord | null,
 
+	sessionPackage: null as SessionPackage | null,
+
 	recentMutations: [] as Array<Mutations>
 });
 
@@ -33,6 +44,57 @@ let stageState = $state({
 
 export function initializeRoster(characters: CharacterRecord[]): void {
 	stageState.activeRoster = characters;
+}
+
+export function initializeSessionContext(session: SessionRecord): void {
+	stageState.sessionContext = session;
+}
+
+export function getSessionPackage(): SessionPackage | null {
+	return stageState.sessionPackage;
+}
+
+/**
+ * Imports a session.json package exported by the Prep App (dados-risas-prep).
+ * Registers locations, NPCs, enemies, and story beats, and wires the session
+ * header into the stage session context. Returns a result object — callers
+ * surface `error` to the operator instead of throwing.
+ */
+export function importSessionPackage(
+	raw: unknown
+): { ok: true; pkg: SessionPackage } | { ok: false; error: string } {
+	if (typeof raw !== 'object' || raw === null) {
+		return { ok: false, error: 'session.json must be a JSON object' };
+	}
+	const data = raw as Record<string, unknown>;
+	const session = data.session as Record<string, unknown> | undefined;
+	if (!session || typeof session.title !== 'string' || session.title.trim() === '') {
+		return { ok: false, error: 'session.json is missing session.title' };
+	}
+	const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
+	const pkg: SessionPackage = {
+		session: {
+			title: session.title,
+			session_number: typeof session.session_number === 'number' ? session.session_number : 0,
+			campaign: typeof session.campaign === 'string' ? session.campaign : undefined
+		},
+		locations: asArray(data.locations),
+		npcs: asArray(data.npcs),
+		enemies: asArray(data.enemies),
+		storyBeats: asArray(data.storyBeats ?? data.story_beats)
+	};
+	stageState.sessionPackage = pkg;
+	initializeSessionContext({
+		id: typeof session.id === 'string' ? session.id : '',
+		campaign: pkg.session.campaign ?? '',
+		title: pkg.session.title,
+		session_number: pkg.session.session_number,
+		is_active: true
+	});
+	// Prep packages may carry a starting roster — wire it through when present.
+	const characters = asArray<CharacterRecord>(data.characters);
+	if (characters.length > 0) initializeRoster(characters);
+	return { ok: true, pkg };
 }
 
 export function getCharacterList(): Array<CharacterRecord> {
@@ -45,10 +107,10 @@ export function getSelectedCharacter(): CharacterRecord | null {
 }
 
 export function getSessionContext() {
-    if (!stageState.sessionContext) {
-        console.warn('Session context is not set');
-        return null;
-    }
+	if (!stageState.sessionContext) {
+		console.warn('Session context is not set');
+		return null;
+	}
 	return stageState.sessionContext;
 }
 
@@ -107,7 +169,7 @@ export function mutateHp(characterId: CharacterRecord['id'], { delta }: { delta:
 	const targetId = char.id;
 	const previousHp = char.hp_current;
 	char.hp_current = newHp;
-	const timestamp = new Date().toISOString();
+	const timestamp = nowIso();
 	logMutation({
 		characterId,
 		action: delta < 0 ? 'damage' : 'heal',
@@ -135,10 +197,10 @@ export function addCondition(
 		id: `temp-${Date.now()}`,
 		condition_name: conditionName,
 		intensity_level: 1,
-		applied_at: new Date().toISOString()
+		applied_at: nowIso()
 	};
 	char.conditions.push(tempCondition);
-	const timestamp = new Date().toISOString();
+	const timestamp = nowIso();
 	logMutation({
 		characterId,
 		action: 'conditionAdd',
@@ -167,7 +229,7 @@ export function removeCondition(
 	if (idx === -1) return;
 	const removed = char.conditions[idx];
 	char.conditions.splice(idx, 1);
-	const timestamp = new Date().toISOString();
+	const timestamp = nowIso();
 	logMutation({
 		characterId,
 		action: 'conditionRemove',
@@ -202,7 +264,7 @@ export function updateResource(
 	const deltaApplied = clamp(current + delta, 0, max);
 	if (deltaApplied === current) return;
 	resource.pool_current = deltaApplied;
-	const timestamp = new Date().toISOString();
+	const timestamp = nowIso();
 	logMutation({
 		characterId,
 		action: 'resourceChange',

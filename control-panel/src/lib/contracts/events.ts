@@ -4,6 +4,9 @@ Owned by: Stage (DM for scoped facilitation mutations)
 Mirrored to: Stage, Cast, Commons, Audience (event-specific)
 */
 
+import type { QueueItem } from './stage';
+import type { DiceResultPayload } from './rolls';
+
 /*  ### Mutation Events
 
 Examples:
@@ -24,54 +27,80 @@ export const COMBAT_STARTED = 'combatStarted' as const;
 export const TURN_ADVANCED = 'turnAdvanced' as const;
 export const LOCATION_UPDATED = 'locationUpdated' as const;
 
+// Reveal/content queue lifecycle (Stage → server relay → Commons/Audience)
+export const QUEUE_PAYLOAD_PUBLISHED = 'queuePayloadPublished' as const;
+export const QUEUE_PAYLOAD_CLEARED = 'queuePayloadCleared' as const;
+
+// Physical dice intake (Stage → server relay → Audience result overlay)
+export const DICE_RESULT_EVENT = 'diceResultEvent' as const;
 
 export interface HpUpdatedPayload {
-    targetID: string;
-    previousHp: number;
-    newHp: number;
-    source: string;
+	targetID: string;
+	previousHp: number;
+	newHp: number;
+	source: string;
 }
 
 export interface ConditionAddedPayload {
-    targetID: string;
-    condition: string;
-    source: string;
+	targetID: string;
+	condition: string;
+	source: string;
 }
 
 export interface ConditionRemovedPayload {
-    targetID: string;
-    condition: string;
-    source: string;
+	targetID: string;
+	condition: string;
+	source: string;
 }
 
 export interface ResourceUpdatedPayload {
-    targetID: string;
-    resourceName: string;
-    previousValue: number;
-    newValue: number;
-    source: string;
+	targetID: string;
+	resourceName: string;
+	previousValue: number;
+	newValue: number;
+	source: string;
 }
 
 export interface CombatStartedPayload {
-    encounterId: string;
-    round: number;
-    initiativeOrder: Array<{ characterId: string; initiative: number }>;
+	encounterId: string;
+	round: number;
+	initiativeOrder: Array<{ characterId: string; initiative: number }>;
 }
 
 export interface TurnAdvancedPayload {
-    round: number;
-    currentTurnCharacterId: string;
+	round: number;
+	currentTurnCharacterId: string;
 }
 
 export interface LocationUpdatedPayload {
-    locationId: string;
-    locationName: string;
-    description: string;
+	locationId: string;
+	locationName: string;
+	description: string;
+}
+
+export interface QueuePayloadPublishedPayload {
+	item: QueueItem;
+	source: string;
+	timestamp: string;
+}
+
+export interface QueuePayloadClearedPayload {
+	itemId: QueueItem['id'];
+	kind: QueueItem['kind'];
+	source: string;
+	timestamp: string;
+}
+
+export interface DiceResultEventPayload extends DiceResultPayload {
+	charId: string;
+	characterName?: string;
+	source: string;
+	timestamp: string;
 }
 
 export interface InitialDataPayload {
-    characters: Array<Record<string, unknown>>;
-    lastRoll: Record<string, unknown> | null;
+	characters: Array<Record<string, unknown>>;
+	lastRoll: Record<string, unknown> | null;
 }
 
 /**
@@ -79,12 +108,15 @@ export interface InitialDataPayload {
  * Enables strict typing in subscribe<K>(event, handler) and emit(event, payload)
  */
 export interface EventPayloadMap {
-    [HP_UPDATED]: HpUpdatedPayload;
-    [CONDITION_ADDED]: ConditionAddedPayload;
-    [CONDITION_REMOVED]: ConditionRemovedPayload;
-    [RESOURCE_UPDATED]: ResourceUpdatedPayload;
-    [COMBAT_STARTED]: CombatStartedPayload;
-    [TURN_ADVANCED]: TurnAdvancedPayload;
-    [LOCATION_UPDATED]: LocationUpdatedPayload;
-    initialData: InitialDataPayload;
+	[HP_UPDATED]: HpUpdatedPayload;
+	[CONDITION_ADDED]: ConditionAddedPayload;
+	[CONDITION_REMOVED]: ConditionRemovedPayload;
+	[RESOURCE_UPDATED]: ResourceUpdatedPayload;
+	[COMBAT_STARTED]: CombatStartedPayload;
+	[TURN_ADVANCED]: TurnAdvancedPayload;
+	[LOCATION_UPDATED]: LocationUpdatedPayload;
+	[QUEUE_PAYLOAD_PUBLISHED]: QueuePayloadPublishedPayload;
+	[QUEUE_PAYLOAD_CLEARED]: QueuePayloadClearedPayload;
+	[DICE_RESULT_EVENT]: DiceResultEventPayload;
+	initialData: InitialDataPayload;
 }
