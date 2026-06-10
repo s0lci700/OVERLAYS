@@ -20,7 +20,6 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "gsap": "^3.14.2",
-    "kuzu": "^0.11.3",
     "pocketbase": "^0.26.8",
     "socket.io": "^4.8.3"
   },
@@ -28,11 +27,26 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
-    "gitnexus": "1.3.6",
+    "gitnexus": "1.6.7",
     "prettier": "^3.8.2",
     "prettier-plugin-svelte": "^3.5.1",
     "shadcn": "^4.2.0",
     "sharp": "^0.34.5",
     "typescript": "^6.0.2"
-  }
+  },
+  "trustedDependencies": [
+    "@ladybugdb/core",
+    "gitnexus",
+    "onnxruntime-node",
+    "protobufjs",
+    "tree-sitter-c-sharp",
+    "tree-sitter-cpp",
+    "tree-sitter-go",
+    "tree-sitter-java",
+    "tree-sitter-javascript",
+    "tree-sitter-php",
+    "tree-sitter-python",
+    "tree-sitter-ruby",
+    "tree-sitter-rust"
+  ]
 }
