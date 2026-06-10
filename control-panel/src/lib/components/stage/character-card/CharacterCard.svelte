@@ -33,21 +33,21 @@
 	import { HP_THRESHOLDS } from '$lib/contracts/stage.js';
 
 	import type { CharacterRecord } from '$lib/contracts/records';
-	import { selectCharacter } from '$lib/derived/stage.svelte';
 
 	// ──────────────────────────────────────────────────────────────────────────
 	// Props
 	// ──────────────────────────────────────────────────────────────────────────
 	let {
-		data,
 		character,
 		selectable = false,
 		selected = false,
-	}: { 
-    data: any; 
-    character: CharacterRecord; 
-    selectable?: boolean; 
-    selected?: boolean } = $props();
+		onToggleSelect = (_: string) => {}
+	}: {
+		character: CharacterRecord;
+		selectable?: boolean;
+		selected?: boolean;
+		onToggleSelect?: (_: string) => void;
+	} = $props();
 	/** Previous HP value for detecting damage and triggering flash animation. */
 	let prevHp = 0;
 
@@ -228,7 +228,7 @@
 		aria-valuemax={character.hp_max}
 		aria-label="Puntos de vida"
 	>
-		<div class="hp-fill {hpClass}" style="width: {hpPercent}%"></div>
+		<div class="hp-fill {hpClass}" style="transform: scaleX({hpPercent / 100})"></div>
 	</div>
 
 	<div

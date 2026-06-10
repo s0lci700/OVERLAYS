@@ -56,6 +56,11 @@
 
 	const isFormValid = $derived(name.trim().length > 0 && player.trim().length > 0 && hpMax > 0);
 
+	$effect(() => {
+		classPrimary;
+		classSubclass = '';
+	});
+
 	// Preview-panel derived state
 	const previewPhotoUrl = $derived(
 		photoSource === 'local'
@@ -326,7 +331,7 @@
 							disabled={!classPrimary}
 						>
 							<option value="">{classPrimary ? '— Seleccionar —' : 'Elige clase primero'}</option>
-							{#each optionSets.subclassOptions as opt (opt.key)}
+							{#each optionSets.subclassOptions.filter((o) => !o.class || o.class === classPrimary) as opt (opt.key)}
 								<option value={opt.key}>{opt.label}</option>
 							{/each}
 						</select>

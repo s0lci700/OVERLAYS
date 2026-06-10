@@ -25,7 +25,7 @@ Used in:
 | \`info\` | Grey | Neutral / read-only information |
 
 ### Interactive Mode
-Set \`interactive={true}\` to render a \`<button>\` with × and call \`onRemove\` on click.
+Set \`interactive={true}\` to render a keyboard-accessible removable pill (×) that calls \`onRemove\`.
           `,
         },
       },
@@ -38,7 +38,7 @@ Set \`interactive={true}\` to render a \`<button>\` with × and call \`onRemove\
       },
       interactive: {
         control: "boolean",
-        description: "Renders as a clickable button with × when true",
+        description: "Renders as a clickable removable pill with × when true",
       },
       label: {
         control: "text",
@@ -77,7 +77,7 @@ Set \`interactive={true}\` to render a \`<button>\` with × and call \`onRemove\
 
 <Story name="Tag Pills Row">
   <div style="display:flex; gap:6px; flex-wrap:wrap; padding:16px;">
-    {#each ["Élfico", "Común", "Gnómico", "Draconiano"] as lang}
+    {#each ["Élfico", "Común", "Gnómico", "Draconiano"] as lang (lang)}
       <ConditionPill label={lang} variant="tag" />
     {/each}
   </div>

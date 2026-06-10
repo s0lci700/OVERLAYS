@@ -6,294 +6,323 @@
  */
 
 .strip-card {
-  position: relative;
-  background: var(--black-card);
-  border: 2px solid var(--grey-dim);
-  transition: border-color var(--t-fast), transform var(--t-fast);
+	position: relative;
+	background: var(--black-card);
+	border: 2px solid var(--grey-dim);
+	transition:
+		border-color var(--t-fast),
+		transform var(--t-fast);
 }
 
 .strip-card:hover {
-  border-color: var(--cast-amber-border);
+	border-color: var(--cast-amber-border);
 }
 
 .strip-card.is-expanded {
-  border-color: var(--cast-amber);
-  background: color-mix(in srgb, var(--white) 2%, transparent);
+	border-color: var(--cast-amber);
+	background: color-mix(in srgb, var(--white) 2%, transparent);
 }
 
 .strip-card.is-critical {
-  border-left: 2px solid var(--red);
+	border-color: var(--red);
 }
 
 .hit-flash {
-  position: absolute;
-  inset: 0;
-  background: var(--red);
-  opacity: 0;
-  pointer-events: none;
-  z-index: var(--z-card-flash, 10);
+	position: absolute;
+	inset: 0;
+	background: var(--red);
+	opacity: 0;
+	pointer-events: none;
+	z-index: var(--z-card-flash, 10);
 }
 
 .strip-card__compact {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  min-height: 52px;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	padding: var(--space-2) var(--space-3);
+	min-height: 52px;
 }
 
 .strip-card__photo {
-  width: 44px;
-  height: 44px;
-  object-fit: cover;
-  clip-path: var(--cast-hex-clip, polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%));
-  background: var(--black);
-  border: 1px solid var(--cast-amber-border);
-  flex-shrink: 0;
+	width: 44px;
+	height: 44px;
+	object-fit: cover;
+	clip-path: var(--cast-hex-clip, polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%));
+	background: var(--black);
+	border: 1px solid var(--cast-amber-border);
+	flex-shrink: 0;
 }
 
 .strip-card__identity {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	min-width: 0;
 }
 
 .strip-card__name {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 700;
-  color: var(--white);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	font-family: var(--font-display);
+	font-size: 19px;
+	font-weight: 700;
+	color: var(--white);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .strip-card__hp-nums {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--grey);
-  font-variant-numeric: tabular-nums;
+	font-family: var(--font-mono);
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--grey);
+	font-variant-numeric: tabular-nums;
 }
 
 .strip-card__hp-nums .hp-cur {
-  color: var(--cast-amber);
+	color: var(--cast-amber);
 }
 
 .strip-card__hp-nums .hp-cur.is-critical {
-  color: var(--red);
-  animation: pulse-red 1.5s ease-in-out infinite;
+	color: var(--red);
+	animation: pulse-red 1.5s ease-in-out infinite;
 }
 
 .strip-card__hp-nums .hp-sep {
-  color: var(--grey-dim);
-  margin: 0 2px;
+	color: var(--grey-dim);
+	margin: 0 2px;
 }
 
 .strip-card__hp-nums .hp-max {
-  color: var(--grey-dim);
-  font-size: 11px;
+	color: var(--grey-dim);
+	font-size: 11px;
 }
 
 .strip-card__expand-btn {
-  background: transparent;
-  border: none;
-  color: var(--grey-dim);
-  font-size: 14px;
-  cursor: pointer;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--t-fast);
-  flex-shrink: 0;
+	background: transparent;
+	border: none;
+	color: var(--grey-dim);
+	font-size: 14px;
+	cursor: pointer;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all var(--t-fast);
+	flex-shrink: 0;
 }
 
 .strip-card__expand-btn:hover {
-  color: var(--cast-amber);
-  background: var(--cast-amber-dim);
+	color: var(--cast-amber);
+	background: var(--cast-amber-dim);
 }
 
 .strip-card__expand-btn:active {
-  transform: scale(0.9);
+	transform: scale(0.9);
 }
 
 .strip-card.is-dead {
-  filter: grayscale(0.8) contrast(0.8);
-  opacity: 0.8;
+	filter: grayscale(0.8) contrast(0.8);
+	opacity: 0.8;
 }
 
 .strip-card.is-dead .strip-card__photo {
-  border-color: var(--grey-dim);
+	border-color: var(--grey-dim);
 }
 
 .death-marker {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  background: var(--red);
-  color: var(--white);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  z-index: var(--z-card-marker, 5);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--red) 50%, transparent);
-  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	position: absolute;
+	top: -4px;
+	left: -4px;
+	background: var(--red);
+	color: var(--white);
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	z-index: var(--z-card-marker, 5);
+	box-shadow: 0 0 10px color-mix(in srgb, var(--red) 50%, transparent);
+	animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .death-marker::after {
-  content: '💀';
-  font-size: 12px;
+	content: '💀';
+	font-size: 12px;
 }
 
 .hp-track {
-  height: 4px;
-  background: var(--grey-dim);
-  width: 100%;
-  overflow: hidden;
-  position: relative;
+	height: 4px;
+	background: var(--grey-dim);
+	width: 100%;
+	overflow: hidden;
+	position: relative;
 }
 
 .hp-ghost {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  transform-origin: left;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  background: rgba(255, 255, 255, 0.3);
-  z-index: 1;
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	transform-origin: left;
+	transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+	background: rgba(255, 255, 255, 0.3);
+	z-index: 1;
 }
 
 .hp-fill {
-  height: 100%;
-  width: 100%;
-  transform-origin: left;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  background: var(--cast-amber);
-  box-shadow: 0 0 10px var(--cast-amber-glow);
-  position: relative;
-  z-index: 2;
+	height: 100%;
+	width: 100%;
+	transform-origin: left;
+	transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+	background: var(--cast-amber);
+	box-shadow: 0 0 10px var(--cast-amber-glow);
+	position: relative;
+	z-index: 2;
 }
 
 .critical-flash {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 20;
-  opacity: 0;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 20;
+	opacity: 0;
 }
 
 .critical-flash--dmg {
-  background: radial-gradient(circle, var(--red) 0%, transparent 70%);
+	background: radial-gradient(circle, var(--red) 0%, transparent 70%);
 }
 
 .critical-flash--heal {
-  background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+	background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
 }
 
 @keyframes popIn {
-  from { transform: scale(0); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+	from {
+		transform: scale(0);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-4px);
+	}
+	75% {
+		transform: translateX(4px);
+	}
 }
 
 .shake {
-  animation: shake 0.1s ease-in-out 0s 3;
+	animation: shake 0.1s ease-in-out 0s 3;
 }
 
 .hp-fill.hp--critical {
-  background: var(--red);
-  box-shadow: 0 0 10px rgba(255, 77, 106, 0.4);
+	background: var(--red);
+	box-shadow: 0 0 10px rgba(255, 77, 106, 0.4);
 }
 
 .strip-card__dots {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 4px var(--space-3);
-  background: color-mix(in srgb, var(--black) 80%, transparent);
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	padding: 4px var(--space-3);
+	background: color-mix(in srgb, var(--black) 80%, transparent);
 }
 
 .strip-card__expanded {
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  border-top: 1px solid var(--grey-dim);
-  background: color-mix(in srgb, var(--black) 70%, transparent);
+	padding: var(--space-3);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	border-top: 1px solid var(--grey-dim);
+	background: color-mix(in srgb, var(--black) 70%, transparent);
 }
 
 .strip-card__controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
 }
 
 .strip-card__divider {
-  display: none;
+	display: none;
 }
 
 /* Layout override: HoldButtons in the card controls fill available space */
 .strip-card__controls .hold-btn {
-  flex: 1;
+	flex: 1;
 }
 
 .strip-card__conditions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	align-items: center;
 }
 
 .btn-add-condition {
-  height: 26px;
-  padding: 0 var(--space-3);
-  background: transparent;
-  border: 1px solid var(--grey-dim);
-  color: var(--grey);
-  font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  transition: all var(--t-fast);
-  clip-path: var(--hex-clip-sm);
+	height: 26px;
+	padding: 0 var(--space-3);
+	background: transparent;
+	border: 1px solid var(--grey-dim);
+	color: var(--grey);
+	font-family: var(--font-display);
+	font-size: 10px;
+	letter-spacing: 0.05em;
+	cursor: pointer;
+	transition: all var(--t-fast);
+	clip-path: var(--hex-clip-sm);
 }
 
 .btn-add-condition:hover {
-  border-color: var(--cast-amber);
-  color: var(--cast-amber);
-  background: var(--cast-amber-dim);
-  transform: translateY(-1px);
+	border-color: var(--cast-amber);
+	color: var(--cast-amber);
+	background: var(--cast-amber-dim);
+	transform: translateY(-1px);
 }
 
 .btn-add-condition:active {
-  transform: scale(0.96);
+	transform: scale(0.96);
 }
 
 @keyframes pulse-red {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
 }
 
-
 @media (prefers-reduced-motion: reduce) {
-  .hp-fill,
-  .hp-ghost { transition: none; }
-  .hp--critical { animation: none; }
-  .shake { animation: none; }
-  .death-marker { animation: none; }
-  .hit-flash,
-  .critical-flash { transition: none; }
+	.hp-fill,
+	.hp-ghost {
+		transition: none;
+	}
+	.hp--critical {
+		animation: none;
+	}
+	.shake {
+		animation: none;
+	}
+	.death-marker {
+		animation: none;
+	}
+	.hit-flash,
+	.critical-flash {
+		transition: none;
+	}
 }

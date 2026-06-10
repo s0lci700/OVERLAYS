@@ -9,7 +9,7 @@
     - "info"               — grey, read-only / dashboard display
     - "cast"               — amber, Cast surface
 
-  When `interactive` is true, renders as <button> with × and calls onRemove on click.
+  When `interactive` is true, renders as an accessible button-like pill with × and calls onRemove.
 -->
 <script>
   let {
@@ -20,16 +20,28 @@
     class: className = '',
     ...restProps
   } = $props();
+
+  const handleActivate = () => onRemove();
+
+  const handleKeydown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onRemove();
+    }
+  };
 </script>
 
 {#if interactive}
-  <button
-    class="condition-pill condition-pill--{variant} {className}"
-    onclick={() => onRemove()}
+  <span
+    class="condition-pill condition-pill--{variant} is-interactive {className}"
+    role="button"
+    tabindex="0"
+    onclick={handleActivate}
+    onkeydown={handleKeydown}
     {...restProps}
   >
     {label} <span aria-hidden="true">×</span>
-  </button>
+  </span>
 {:else}
   <span
     class="condition-pill condition-pill--{variant} {className}"
@@ -84,31 +96,31 @@
   }
 
   /* Interactive states */
-  button.condition-pill {
+  .condition-pill.is-interactive {
     cursor: pointer;
   }
 
-  button.condition-pill--condition:hover {
+  .condition-pill.is-interactive.condition-pill--condition:hover {
     background: var(--red);
     color: var(--white);
   }
 
-  button.condition-pill--tag:hover {
+  .condition-pill.is-interactive.condition-pill--tag:hover {
     background: var(--cyan);
     color: var(--black);
   }
 
-  button.condition-pill--info:hover {
+  .condition-pill.is-interactive.condition-pill--info:hover {
     background: var(--grey-dim);
     color: var(--white);
   }
 
-  button.condition-pill--cast:hover {
+  .condition-pill.is-interactive.condition-pill--cast:hover {
     background: var(--cast-amber);
     color: var(--black);
   }
 
-  button.condition-pill:active {
+  .condition-pill.is-interactive:active {
     transform: scale(0.96);
   }
 </style>
