@@ -136,7 +136,9 @@
       "PowerShell(Set-Location control-panel; bunx eslint src/lib/derived/stage-queue.svelte.ts src/lib/derived/stage.svelte.ts src/lib/contracts/events.ts src/lib/contracts/stage.ts; echo \"exit: $LASTEXITCODE\"; Set-Location ..)",
       "PowerShell(Set-Location control-panel; bunx eslint src/lib/derived/stage-queue.svelte.ts; echo \"exit: $LASTEXITCODE\"; Set-Location ..)",
       "PowerShell(Set-Location control-panel; bunx eslint src/lib/derived/stage.svelte.ts; echo \"exit: $LASTEXITCODE\"; Set-Location ..)",
-      "PowerShell(bunx tsc --noEmit 2>&1 | Select-Object -First 30)"
+      "PowerShell(bunx tsc --noEmit 2>&1 | Select-Object -First 30)",
+      "PowerShell(npx gitnexus analyze 2>&1 | Select-Object -Last 5)",
+      "mcp__claude_ai_svelte__svelte-autofixer"
     ],
     "additionalDirectories": [
       "c:\\Users\\Sol\\.continue",
