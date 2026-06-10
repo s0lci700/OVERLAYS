@@ -1,0 +1,103 @@
+/* WallboardCard — TV-readable party status card (Commons surface). */
+
+.wallboard-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	background: var(--black-card);
+	border: 1px solid var(--grey-dim);
+	border-radius: var(--radius-md);
+	padding: var(--space-4);
+	transition: border-color var(--t-normal);
+}
+
+.wallboard-card.is-critical {
+	border-color: var(--hp-critical, #ff4d6a);
+}
+
+.wallboard-card__head {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	min-width: 0;
+}
+
+.wallboard-card__portrait {
+	width: 64px;
+	height: 64px;
+	border-radius: var(--radius-sm);
+	object-fit: cover;
+	border: 1px solid var(--grey-dim);
+	flex-shrink: 0;
+}
+
+.wallboard-card__identity {
+	min-width: 0;
+	flex: 1;
+}
+
+.wallboard-card__name {
+	font-family: var(--font-display);
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--white);
+	line-height: 1.1;
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.wallboard-card__class {
+	font-family: var(--font-ui);
+	font-size: 13px;
+	color: var(--grey);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.wallboard-card__hp-numbers {
+	font-family: var(--font-mono);
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--white);
+	font-variant-numeric: tabular-nums;
+	flex-shrink: 0;
+}
+
+.wallboard-card__hp-max {
+	font-size: 16px;
+	color: var(--grey);
+}
+
+.wallboard-card__bar {
+	height: 18px;
+	background: rgba(255, 255, 255, 0.07);
+	border-radius: var(--radius-sm);
+	overflow: hidden;
+}
+
+.wallboard-card__fill {
+	height: 100%;
+	border-radius: var(--radius-sm);
+	transition: width 0.5s ease;
+}
+
+.wallboard-card__fill[data-tier='healthy'] {
+	background: var(--hp-healthy, #2ec27e);
+}
+
+.wallboard-card__fill[data-tier='injured'] {
+	background: var(--cast-amber, #c8944a);
+}
+
+.wallboard-card__fill[data-tier='critical'] {
+	background: var(--hp-critical, #ff4d6a);
+}
+
+.wallboard-card__conditions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+	min-height: 24px;
+}

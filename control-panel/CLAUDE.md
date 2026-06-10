@@ -43,7 +43,7 @@ Route groups use `(parens)` — organizational only, not part of URLs.
 
 **`(commons)/` — Shared room display (passive, no controls):**
 
-- `/session-display` — party status wallboard (to be created — Phase 3)
+- `/session-display` — party status wallboard: HP/conditions grid, last roll, active reveal payload
 
 **`(audience)/` — OBS Browser Sources (listen-only):**
 
