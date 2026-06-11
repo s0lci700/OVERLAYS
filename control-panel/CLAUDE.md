@@ -34,7 +34,7 @@ Route groups use `(parens)` — organizational only, not part of URLs.
 - `/live/dice` — dice roller
 - `/setup/create` — character creation form
 - `/setup/manage` — photo/data editing, bulk controls
-- `/overview` — live read-only operator dashboard
+- `/overview` — live operator dashboard + session.json import (Prep App packages)
 
 **`(cast)/` — DM & Players:**
 

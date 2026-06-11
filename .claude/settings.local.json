@@ -140,7 +140,8 @@
       "PowerShell(npx gitnexus analyze 2>&1 | Select-Object -Last 5)",
       "mcp__claude_ai_svelte__svelte-autofixer",
       "PowerShell(npm view *)",
-      "PowerShell(Select-String -Path C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\\\\package.json -Pattern \"gitnexus\"; bunx gitnexus --version 2>&1)"
+      "PowerShell(Select-String -Path C:\\\\Users\\\\Sol\\\\Desktop\\\\PITCH\\\\OVERLAYS\\\\package.json -Pattern \"gitnexus\"; bunx gitnexus --version 2>&1)",
+      "mcp__gitnexus__detect_changes"
     ],
     "additionalDirectories": [
       "c:\\Users\\Sol\\.continue",
