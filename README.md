@@ -44,37 +44,68 @@ DADOS & RISAS is a lightweight, low-latency toolkit designed for DMs and players
 
 ## ⏱️ Quick Start
 
-### 1. Install Dependencies
-```bash
-# Install root dependencies
-bun install
+Requires [Bun](https://bun.sh). Windows is the supported platform — the bundled
+`pocketbase.exe` is a Windows binary; on macOS/Linux download the matching
+PocketBase build from [pocketbase.io](https://pocketbase.io/docs/) and place it
+in the repo root.
 
-# Install control panel dependencies
-cd control-panel
+### 1. Install dependencies
+```bash
 bun install
+cd control-panel && bun install && cd ..
 ```
 
-### 2. Configure Environment
-Copy the example environment files:
+### 2. Create the PocketBase superuser
+PocketBase ships with no account and no database — you create both on first run.
+
 ```bash
-cp .env.example .env
-cd control-panel
-cp .env.example .env
+./pocketbase.exe serve
 ```
 
-### 3. Start the Stack
-The easiest way to start everything is using the demo script:
+Open the installer URL it prints (`http://127.0.0.1:8090/_/`) and create a
+superuser. Remember the email and password — the backend authenticates with
+them. Leave PocketBase running.
+
+### 3. Configure environment
 ```bash
-# From the root directory
+cp .env.example .env
+cp control-panel/.env.example control-panel/.env
+```
+
+Edit the root `.env` and set `PB_MAIL` / `PB_PASS` to the superuser you just
+created. Without these the backend starts but cannot write to the database.
+
+### 4. Create the database schema
+With PocketBase running, apply the collections:
+```bash
+bun run migrate-collections
+```
+This is required once on a fresh clone — `pb_data/` is not committed, so a new
+checkout has an empty database. Re-run it after any change to
+`control-panel/src/lib/contracts/records.ts`.
+
+### 5. Start the stack
+```bash
 bun run start-demo
 ```
-This script starts PocketBase and the Backend server.
+Starts PocketBase (if not already up) and the backend on `:3000`. The backend
+seeds the character roster from `data/template-characters.json` on first boot.
 
-**Note**: You still need to run the Vite development server for the control panel:
+Then, in a second terminal:
 ```bash
 cd control-panel
 bun run dev -- --host
 ```
+
+Open <http://localhost:5173/session>. Run `bun run stop-demo` when finished.
+
+### Troubleshooting
+| Symptom | Cause |
+| :--- | :--- |
+| `❌ Missing PB_MAIL or PB_PASS` | Root `.env` missing or unset — see step 3 |
+| `❌ PocketBase authentication failed` | Credentials don't match the superuser from step 2 |
+| Empty roster / 404s on `/api/characters` | Schema not applied — run step 4 |
+| `Server did not become ready` | PocketBase isn't running, or port 3000 is taken |
 
 ---
 
@@ -85,7 +116,7 @@ bun run dev -- --host
 - `bun run stop-demo`: Stops the running demo processes.
 - `bun server.ts`: Starts only the backend server (requires PocketBase running).
 - `bun run build`: Type-check with `tsc --noEmit` (Bun runs `.ts` natively).
-- `bun scripts/setup-ip.js`: Auto-detect LAN IP and write `.env` files for mobile access.
+- `bun scripts/setup/setup-ip.js`: Auto-detect LAN IP and write `.env` files for mobile access.
 
 ### Control Panel (`/control-panel`)
 

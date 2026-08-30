@@ -27,7 +27,7 @@ export async function seedIfEmpty(): Promise<void> {
       console.log('✅ characters: already populated (' + charCount + ' records)');
     } else {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const templates: Record<string, unknown>[] = require('../../data/template-characters.json');
+      const templates: Record<string, unknown>[] = require('../data/template-characters.json');
       for (const char of templates) {
         // Strip id (PocketBase requires ≥15 chars; template uses short "CH101" aliases)
         // and strip null values (file fields reject null — omit to leave empty).

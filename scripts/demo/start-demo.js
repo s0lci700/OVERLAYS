@@ -73,8 +73,8 @@ async function main() {
   } catch {}
 
   if (!serverReady) {
-    console.log("▶  Starting server.js…");
-    const srv = spawn("bun", ["server.js"], { cwd: ROOT, stdio: "ignore", detached: true });
+    console.log("▶  Starting server.ts…");
+    const srv = spawn("bun", ["server.ts"], { cwd: ROOT, stdio: "ignore", detached: true });
     srv.unref();
     await waitFor(SERVER_URL, "Server");
   }
