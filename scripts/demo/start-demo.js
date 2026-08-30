@@ -12,7 +12,7 @@ import { resolve, join } from "path";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const PB_EXE = join(ROOT, "pocketbase.exe");
-const OPEN_URL = "http://localhost:5173/session";
+const OPEN_URL = "http://localhost:5173/";  // root redirects to /live/characters
 const SERVER_URL = "http://localhost:3000/api/characters";
 const PB_HEALTH = "http://localhost:8090/api/health";
 
@@ -88,7 +88,8 @@ async function main() {
   console.log(`   PocketBase  → http://localhost:8090/_/`);
   console.log(`   API server  → http://localhost:3000`);
   console.log(`   Control panel → http://localhost:5173 (Vite must be running separately)`);
-  console.log(`   DM Panel      → ${OPEN_URL}`);
+  console.log(`   Stage         → ${OPEN_URL}`);
+  console.log(`   DM Panel      → http://localhost:5173/dm`);
   console.log("\n💡 If Vite isn't running: cd control-panel && bun run dev -- --host");
 }
 

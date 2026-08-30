@@ -5,6 +5,7 @@
   "scripts": {
     "start-demo": "bun scripts/demo/start-demo.js",
     "stop-demo": "bun scripts/demo/stop-demo.js",
+    "overview": "bun scripts/demo/overview.js",
     "build": "tsc --noEmit",
     "lint": "prettier --check .",
     "format": "prettier --write .",

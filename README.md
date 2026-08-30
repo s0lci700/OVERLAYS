@@ -97,7 +97,7 @@ cd control-panel
 bun run dev -- --host
 ```
 
-Open <http://localhost:5173/session>. Run `bun run stop-demo` when finished.
+Open <http://localhost:5173/>. Run `bun run stop-demo` when finished.
 
 ### Troubleshooting
 | Symptom | Cause |
