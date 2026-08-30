@@ -36,7 +36,7 @@ DADOS & RISAS is a lightweight, low-latency toolkit designed for DMs and players
 
 ## 📋 Requirements
 
-- **Bun** (preferred) or Node.js 18+
+- **Bun** — required, not optional. Every command below runs through Bun, and `server.ts` is executed directly as TypeScript. Install with `irm bun.sh/install.ps1 | iex` (no admin needed).
 - **PocketBase** (`pocketbase.exe` included in root)
 - **OBS Studio** (for displaying overlays)
 

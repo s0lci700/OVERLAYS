@@ -26,7 +26,7 @@ const serverPort = parseInt(process.env.PORT || "3000", 10);
 const controlPanelPort = parseInt(process.env.VITE_PORT || "5173", 10);
 const pocketBasePort = parseInt(process.env.VITE_POCKETBASE_PORT || "8090", 10);
 
-const ROOT_DIR = path.resolve(__dirname, "..");
+const ROOT_DIR = path.resolve(__dirname, "../..");
 const ROOT_ENV = path.join(ROOT_DIR, ".env");
 const PANEL_ENV = path.join(ROOT_DIR, "control-panel", ".env");
 

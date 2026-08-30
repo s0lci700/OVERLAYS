@@ -10,7 +10,7 @@ import { spawn } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { resolve, join } from "path";
 
-const ROOT = resolve(import.meta.dir, "..");
+const ROOT = resolve(import.meta.dir, "../..");
 const PB_EXE = join(ROOT, "pocketbase.exe");
 const OPEN_URL = "http://localhost:5173/session";
 const SERVER_URL = "http://localhost:3000/api/characters";

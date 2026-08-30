@@ -14,7 +14,7 @@ import Bun from "bun";
 import { readdir, mkdir, copyFile } from "node:fs/promises";
 import { join, basename, extname } from "node:path";
 
-const REPO_ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
+const REPO_ROOT = new URL("../..", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1");
 const SRC_DIR = join(REPO_ROOT, "assets", "img");
 const STATIC_DIR = SRC_DIR;  // Output to same folder (repo root assets/img/)
 const LIB_DIR = join(REPO_ROOT, "control-panel", "src", "lib", "assets", "img");

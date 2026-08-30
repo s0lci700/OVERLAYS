@@ -22,7 +22,7 @@ tests-log/
 
 ## Build outputs
 dist/
-build/
+/build/
 out/
 site/
 
