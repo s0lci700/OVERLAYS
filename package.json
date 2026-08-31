@@ -38,7 +38,6 @@
   "trustedDependencies": [
     "@ladybugdb/core",
     "gitnexus",
-    "onnxruntime-node",
     "protobufjs",
     "tree-sitter-c-sharp",
     "tree-sitter-cpp",
