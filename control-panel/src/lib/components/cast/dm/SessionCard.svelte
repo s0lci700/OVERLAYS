@@ -85,7 +85,7 @@
 						>
 							{#each Array.from({ length: resource.pool_max }, (_, i) => i) as idx (idx)}
 								<span
-									class="sc-pip sc-pip--{resource.recharge.toLowerCase()}"
+									class="sc-pip {resource.reset_on ? `sc-pip--${resource.reset_on}` : ''}"
 									class:sc-pip--filled={idx < resource.pool_current}
 									aria-hidden="true"
 								></span>

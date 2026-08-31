@@ -18,7 +18,7 @@
       { id: "cond1", condition_name: "Envenenado", intensity_level: 1 },
     ],
     resources: [
-      { id: "r1", name: "Surges", pool_current: 3, pool_max: 5, recharge: "SHORT_REST" },
+      { id: "r1", name: "Surges", pool_current: 3, pool_max: 5, reset_on: "short_rest" },
     ],
   };
 
@@ -53,7 +53,7 @@
       { id: "c2", condition_name: "Asustado", intensity_level: 2 },
     ],
     resources: [
-      { id: "r2", name: "Slots Nv.1", pool_current: 0, pool_max: 4, recharge: "LONG_REST" },
+      { id: "r2", name: "Slots Nv.1", pool_current: 0, pool_max: 4, reset_on: "long_rest" },
     ],
   };
 

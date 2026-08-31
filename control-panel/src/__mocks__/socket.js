@@ -65,7 +65,7 @@ const MOCK_CHARACTERS = [
         name: "Surges",
         pool_current: 3,
         pool_max: 5,
-        recharge: "SHORT_REST",
+        reset_on: "short_rest",
       },
     ],
   },
@@ -167,8 +167,8 @@ const MOCK_CHARACTERS = [
       { id: "cond3", condition_name: "Asustado", intensity_level: 2 },
     ],
     resources: [
-      { id: "r2", name: "Slots Nv.1", pool_current: 2, pool_max: 4, recharge: "LONG_REST" },
-      { id: "r3", name: "Slots Nv.2", pool_current: 0, pool_max: 2, recharge: "LONG_REST" },
+      { id: "r2", name: "Slots Nv.1", pool_current: 2, pool_max: 4, reset_on: "long_rest" },
+      { id: "r3", name: "Slots Nv.2", pool_current: 0, pool_max: 2, reset_on: "long_rest" },
     ],
   },
 ];

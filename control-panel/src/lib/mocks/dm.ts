@@ -25,8 +25,8 @@ export const dm_session_active = Object.freeze({
       class_primary: { name: 'Guerrero', level: 7 },
       conditions: [{ id: 'c1', condition_name: 'Envenenado', intensity_level: 1 }],
       resources: [
-        { id: 'r1', name: 'Action Surge', pool_current: 1, pool_max: 1, recharge: 'SHORT_REST' },
-        { id: 'r2', name: 'Second Wind',  pool_current: 0, pool_max: 1, recharge: 'SHORT_REST' },
+        { id: 'r1', name: 'Action Surge', pool_current: 1, pool_max: 1, reset_on: 'short_rest' },
+        { id: 'r2', name: 'Second Wind',  pool_current: 0, pool_max: 1, reset_on: 'short_rest' },
       ],
     },
     {
@@ -39,7 +39,7 @@ export const dm_session_active = Object.freeze({
       class_primary: { name: 'Pícaro', level: 5 },
       conditions: [{ id: 'c5', condition_name: 'Envenenado', intensity_level: 1 }],
       resources: [
-        { id: 'r7', name: 'Sneak Attack', pool_current: 1, pool_max: 1, recharge: 'TURN' },
+        { id: 'r7', name: 'Sneak Attack', pool_current: 1, pool_max: 1, reset_on: 'turn' },
       ],
     },
     {
@@ -52,7 +52,7 @@ export const dm_session_active = Object.freeze({
       class_primary: { name: 'Mago', level: 5 },
       conditions: [{ id: 'c2', condition_name: 'Aturdido', intensity_level: null }],
       resources: [
-        { id: 'r3', name: 'Slots Nv.1', pool_current: 0, pool_max: 4, recharge: 'LONG_REST' },
+        { id: 'r3', name: 'Slots Nv.1', pool_current: 0, pool_max: 4, reset_on: 'long_rest' },
       ],
     },
     {
@@ -65,8 +65,8 @@ export const dm_session_active = Object.freeze({
       class_primary: { name: 'Clérigo', level: 5 },
       conditions: [],
       resources: [
-        { id: 'r9',  name: 'Slots Nv.1',       pool_current: 4, pool_max: 4, recharge: 'LONG_REST' },
-        { id: 'r12', name: 'Channel Divinity',  pool_current: 1, pool_max: 1, recharge: 'SHORT_REST' },
+        { id: 'r9',  name: 'Slots Nv.1',       pool_current: 4, pool_max: 4, reset_on: 'long_rest' },
+        { id: 'r12', name: 'Channel Divinity',  pool_current: 1, pool_max: 1, reset_on: 'short_rest' },
       ],
     },
   ],

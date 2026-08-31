@@ -16,7 +16,7 @@
     class_primary: { name: "Guerrero", level: 7 },
     conditions: [],
     resources: [
-      { id: "r1", name: "Action Surge", pool_current: 1, pool_max: 1, recharge: "SHORT_REST" },
+      { id: "r1", name: "Action Surge", pool_current: 1, pool_max: 1, reset_on: "short_rest" },
     ],
   };
 

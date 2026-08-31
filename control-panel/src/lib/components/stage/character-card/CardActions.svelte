@@ -172,7 +172,7 @@
 					{#each Array(resource.pool_max) as _, i (i)}
 						{@const filled = i < resource.pool_current}
 						<button
-							class="pip pip--{resource.reset_on.toLowerCase()} {filled
+							class="pip {resource.reset_on ? `pip--${resource.reset_on}` : ''} {filled
 								? 'pip--filled'
 								: 'pip--empty'}"
 							onclick={() => updateResource(character.id, resource.id, { delta: filled ? resource.pool_current - 1 : resource.pool_current + 1 })}

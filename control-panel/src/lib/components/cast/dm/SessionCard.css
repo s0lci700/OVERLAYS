@@ -22,7 +22,7 @@
  *     <div class="sc-hp-nums"> .sc-hp-cur (.is-critical) + .sc-hp-sep + .sc-hp-max
  *     <div class="sc-conditions"> .sc-condition-badge × N
  *     <div class="sc-resources"> .sc-resource-row × N
- *       each row: .label-caps + .sc-pips > .sc-pip.sc-pip--{recharge}(.sc-pip--filled)
+ *       each row: .label-caps + .sc-pips > .sc-pip.sc-pip--{reset_on}(.sc-pip--filled)
  */
 
 /* ═══════════════════════════════════════════════

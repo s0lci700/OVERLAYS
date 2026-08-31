@@ -15,7 +15,7 @@
     class_primary: { name: "Guerrero", level: 5 },
     conditions: [],
     resources: [
-      { id: "r1", name: "Surges", pool_current: 4, pool_max: 5, recharge: "SHORT_REST" },
+      { id: "r1", name: "Surges", pool_current: 4, pool_max: 5, reset_on: "short_rest" },
     ],
   };
 
@@ -46,8 +46,8 @@
       { id: "cond3", condition_name: "Asustado", intensity_level: 2 },
     ],
     resources: [
-      { id: "r2", name: "Slots Nv.1", pool_current: 0, pool_max: 4, recharge: "LONG_REST" },
-      { id: "r3", name: "Slots Nv.2", pool_current: 0, pool_max: 2, recharge: "LONG_REST" },
+      { id: "r2", name: "Slots Nv.1", pool_current: 0, pool_max: 4, reset_on: "long_rest" },
+      { id: "r3", name: "Slots Nv.2", pool_current: 0, pool_max: 2, reset_on: "long_rest" },
     ],
   };
 

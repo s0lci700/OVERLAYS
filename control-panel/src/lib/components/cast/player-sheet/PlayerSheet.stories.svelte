@@ -33,8 +33,8 @@
       { id: "cond1", condition_name: "Envenenado", intensity_level: 1 },
     ],
     resources: [
-      { id: "r1", name: "Action Surge", pool_current: 1, pool_max: 1, recharge: "SHORT_REST" },
-      { id: "r2", name: "Second Wind", pool_current: 0, pool_max: 1, recharge: "SHORT_REST" },
+      { id: "r1", name: "Action Surge", pool_current: 1, pool_max: 1, reset_on: "short_rest" },
+      { id: "r2", name: "Second Wind", pool_current: 0, pool_max: 1, reset_on: "short_rest" },
     ],
     equipment: {
       items: ["chain_mail", "longsword", "shield", "handaxe", "explorer_pack"],
@@ -80,10 +80,10 @@
       { id: "c3", condition_name: "Concentracion", intensity_level: null },
     ],
     resources: [
-      { id: "r3", name: "Slots Nv.1", pool_current: 0, pool_max: 4, recharge: "LONG_REST" },
-      { id: "r4", name: "Slots Nv.2", pool_current: 1, pool_max: 3, recharge: "LONG_REST" },
-      { id: "r5", name: "Slots Nv.3", pool_current: 0, pool_max: 2, recharge: "LONG_REST" },
-      { id: "r6", name: "Arcane Recovery", pool_current: 0, pool_max: 1, recharge: "LONG_REST" },
+      { id: "r3", name: "Slots Nv.1", pool_current: 0, pool_max: 4, reset_on: "long_rest" },
+      { id: "r4", name: "Slots Nv.2", pool_current: 1, pool_max: 3, reset_on: "long_rest" },
+      { id: "r5", name: "Slots Nv.3", pool_current: 0, pool_max: 2, reset_on: "long_rest" },
+      { id: "r6", name: "Arcane Recovery", pool_current: 0, pool_max: 1, reset_on: "long_rest" },
     ],
     equipment: {
       items: ["spellbook", "dagger", "component_pouch", "scholar_pack"],
@@ -123,8 +123,8 @@
     },
     conditions: [],
     resources: [
-      { id: "r7", name: "Sneak Attack", pool_current: 1, pool_max: 1, recharge: "TURN" },
-      { id: "r8", name: "Uncanny Dodge", pool_current: 1, pool_max: 1, recharge: "TURN" },
+      { id: "r7", name: "Sneak Attack", pool_current: 1, pool_max: 1, reset_on: "turn" },
+      { id: "r8", name: "Uncanny Dodge", pool_current: 1, pool_max: 1, reset_on: "turn" },
     ],
     equipment: {
       items: ["leather_armor", "rapier", "shortbow", "thieves_tools", "burglar_pack"],
