@@ -12,6 +12,7 @@
     "backend/data/id.ts"
   ],
   "entryPointStrategy": "expand",
+  "gitRevision": "main",
   "out": "docs/api",
   "readme": "none",
   "excludePrivate": true,
